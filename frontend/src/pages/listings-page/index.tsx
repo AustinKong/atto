@@ -53,7 +53,7 @@ export function ListingsPage() {
       <Splitter.Root
         panels={[
           { id: 'table', minSize: 40 },
-          { id: 'drawer', minSize: 30 },
+          { id: 'drawer', minSize: 20 },
         ]}
         size={drawerOpenSizes}
         onResize={(details) => {

@@ -58,14 +58,12 @@ export type ListingDraftUnique = BaseListingDraft & {
 export type ListingDraftDuplicateUrl = BaseListingDraft & {
   status: 'duplicate_url';
   duplicateOf: Listing;
-  duplicateOfApplicationId: string;
 };
 
 export type ListingDraftDuplicateContent = BaseListingDraft & {
   status: 'duplicate_content';
   listing: ListingExtraction;
   duplicateOf: Listing;
-  duplicateOfApplicationId: string;
   html: string | null;
 };
 

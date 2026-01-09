@@ -16,7 +16,7 @@ export function useApplicationMutations() {
       statusEvent,
     }: {
       applicationId: string;
-      statusEvent: Omit<StatusEvent, 'applicationId' | 'id' | 'createdAt'>;
+      statusEvent: Omit<StatusEvent, 'id' | 'createdAt'>;
     }) => {
       return await addStatusEvent(applicationId, statusEvent);
     },

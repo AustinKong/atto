@@ -3,6 +3,13 @@ import { memo } from 'react';
 
 import { useSortableListInput, useSortableListInputItem } from './contexts';
 
+/**
+ * An opinionated, high-productivity textarea wrapper for SortableListInput.
+ * It is designed for managing "flat lists" (e.g., Skills, Requirements, Keywords)
+ * where speed of data entry is prioritized over complex object structures.
+ *
+ * By default, text entered is saved to the `value` property of each item in the list.
+ */
 export const Input = memo((props: Omit<TextareaProps, 'onKeyDown' | 'onPaste' | 'readOnly'>) => {
   const { register, name, update, insert, remove, fields, disabled, readOnly, defaultItem } =
     useSortableListInput();

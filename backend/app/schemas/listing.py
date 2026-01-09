@@ -3,9 +3,8 @@ from uuid import UUID, uuid4
 
 from pydantic import BeforeValidator, Field, HttpUrl
 
-from app.schemas.application import Application
+from app.schemas.application import Application, StatusEnum
 from app.schemas.dates import ISODate
-from app.schemas.status_event import StatusEnum
 from app.schemas.types import CamelModel, parse_json_list_as
 
 
@@ -47,4 +46,4 @@ class ListingSummary(CamelModel):
   location: str | None = None
   posted_date: ISODate | None = None
   current_status: StatusEnum | None = None
-  last_updated: str | None = None
+  last_status_at: str | None = None

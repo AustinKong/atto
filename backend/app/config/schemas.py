@@ -73,7 +73,9 @@ class ModelPrefs(BaseModel):
     description='The AI model used for generating resume content, matching experiences to jobs, and answering questions. More powerful models give better results but cost more.',
     exposure='normal',
   )
-  embedding: Literal['text-embedding-3-small', 'text-embedding-3-large', 'text-embedding-ada-002'] = ConfigField(
+  embedding: Literal[
+    'text-embedding-3-small', 'text-embedding-3-large', 'text-embedding-ada-002'
+  ] = ConfigField(
     default='text-embedding-3-small',
     title='Embedding Model',
     description='Model used to convert text into vectors for semantic search. This affects how well the system finds relevant experiences for job applications.',
@@ -127,6 +129,14 @@ class ListingsPrefs(BaseModel):
     ge=0.0,
     le=1.0,
     description='How similar company names must be to be considered the same. Helps prevent duplicate listings from the same company with slight name variations.',
+    exposure='advanced',
+  )
+  search_k: int = ConfigField(
+    default=5,
+    title='Semantic Search Results',
+    ge=1,
+    le=20,
+    description='Number of similar job listings to retrieve during semantic duplicate checks. More results increase accuracy but also processing time and cost.',
     exposure='advanced',
   )
 

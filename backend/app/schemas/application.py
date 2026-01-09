@@ -1,72 +1,102 @@
-from datetime import datetime
+from datetime import UTC, datetime
+from enum import Enum
+from typing import Annotated, Literal
 from uuid import UUID, uuid4
 
-from pydantic import Field, computed_field
+from pydantic import Field
 
-from app.schemas.status_event import StatusEnum, StatusEvent
+from app.schemas.dates import ISODatetime
 from app.schemas.types import CamelModel
 
 
-def default_status_events():
-  return [StatusEvent(status=StatusEnum.SAVED, stage=0, created_at=datetime.now())]
+class StatusEnum(str, Enum):
+  SAVED = 'saved'
+  APPLIED = 'applied'
+  SCREENING = 'screening'
+  INTERVIEW = 'interview'
+  OFFER_RECEIVED = 'offer_received'
+  ACCEPTED = 'accepted'
+  REJECTED = 'rejected'
+  GHOSTED = 'ghosted'
+  WITHDRAWN = 'withdrawn'
+  RESCINDED = 'rescinded'
+
+
+class Person(CamelModel):
+  name: str
+  contact: str | None = None
+
+
+class BaseStatusEvent(CamelModel):
+  id: UUID = Field(default_factory=uuid4)
+  created_at: ISODatetime = Field(default_factory=lambda: datetime.now(UTC))
+  notes: str | None = None
+
+
+class StatusEventSaved(BaseStatusEvent):
+  status: Literal[StatusEnum.SAVED] = StatusEnum.SAVED
+
+
+class StatusEventApplied(BaseStatusEvent):
+  status: Literal[StatusEnum.APPLIED] = StatusEnum.APPLIED
+  referral: Person | None = None
+
+
+class StatusEventScreening(BaseStatusEvent):
+  status: Literal[StatusEnum.SCREENING] = StatusEnum.SCREENING
+
+
+class StatusEventInterview(BaseStatusEvent):
+  status: Literal[StatusEnum.INTERVIEW] = StatusEnum.INTERVIEW
+  stage: int
+  interviewers: list[Person] | None = None
+  # TODO: Add date/time field? Location field?
+
+
+class StatusEventOfferReceived(BaseStatusEvent):
+  status: Literal[StatusEnum.OFFER_RECEIVED] = StatusEnum.OFFER_RECEIVED
+
+
+class StatusEventAccepted(BaseStatusEvent):
+  status: Literal[StatusEnum.ACCEPTED] = StatusEnum.ACCEPTED
+
+
+class StatusEventRejected(BaseStatusEvent):
+  status: Literal[StatusEnum.REJECTED] = StatusEnum.REJECTED
+
+
+class StatusEventGhosted(BaseStatusEvent):
+  status: Literal[StatusEnum.GHOSTED] = StatusEnum.GHOSTED
+
+
+class StatusEventWithdrawn(BaseStatusEvent):
+  status: Literal[StatusEnum.WITHDRAWN] = StatusEnum.WITHDRAWN
+
+
+class StatusEventRescinded(BaseStatusEvent):
+  status: Literal[StatusEnum.RESCINDED] = StatusEnum.RESCINDED
+
+
+StatusEvent = Annotated[
+  StatusEventSaved
+  | StatusEventApplied
+  | StatusEventScreening
+  | StatusEventInterview
+  | StatusEventOfferReceived
+  | StatusEventAccepted
+  | StatusEventRejected
+  | StatusEventGhosted
+  | StatusEventWithdrawn
+  | StatusEventRescinded,
+  Field(discriminator='status'),
+]
 
 
 class Application(CamelModel):
   id: UUID = Field(default_factory=uuid4)
   listing_id: UUID
   resume_id: UUID | None = None
-  status_events: list[StatusEvent] = Field(default_factory=default_status_events)
-
-  @computed_field
-  def current_status(self) -> StatusEnum:
-    sorted_events = sorted(self.status_events, key=lambda e: e.created_at)
-    return sorted_events[-1].status
-
-  @computed_field
-  def current_stage(self) -> int:
-    sorted_events = sorted(self.status_events, key=lambda e: e.created_at)
-    return sorted_events[-1].stage
-
-  def _get_event_priority(self, event: StatusEvent) -> int:
-    match event.status:
-      case StatusEnum.SAVED:
-        return 0
-      case StatusEnum.APPLIED:
-        return 10
-      case StatusEnum.SCREENING:
-        return 20 + (event.stage or 1)
-      case StatusEnum.INTERVIEW:
-        return 40 + (event.stage or 1)
-      case StatusEnum.OFFER_RECEIVED:
-        return 80
-      case StatusEnum.ACCEPTED | StatusEnum.REJECTED | StatusEnum.GHOSTED | StatusEnum.WITHDRAWN:
-        return 90
-      case StatusEnum.RESCINDED:
-        return 100
-      case _:
-        return 0
-
-  @computed_field
-  def timeline(self) -> list[StatusEvent]:
-    sorted_events = sorted(self.status_events, key=lambda e: (e.created_at))
-    current_status = sorted_events[-1]
-    ceiling_priority = self._get_event_priority(current_status)
-
-    history = []
-    last_kept_priority = -1
-
-    for event in sorted_events:
-      priority = self._get_event_priority(event)
-
-      # Mistake/revereted event, skip
-      if priority > ceiling_priority:
-        continue
-
-      if priority > last_kept_priority:
-        history.append(event)
-        last_kept_priority = priority
-
-    if not history or history[-1].id != current_status.id:
-      history.append(current_status)
-
-    return history
+  status_events: list[StatusEvent] = Field(default_factory=list)
+  # Denormalized to significantly simplify listings_service.list_all query
+  current_status: StatusEnum = Field(default=StatusEnum.SAVED)
+  last_status_at: ISODatetime = Field(default_factory=lambda: datetime.now(UTC))

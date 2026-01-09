@@ -1,10 +1,38 @@
 import json
-from typing import Literal
+from sqlite3 import Row
+from typing import Any
 from uuid import UUID
 
+from pydantic import TypeAdapter
+
 from app.repositories import DatabaseRepository
-from app.schemas import Application, Listing, Page, StatusEnum, StatusEvent
-from app.utils.errors import NotFoundError, ValidationError
+from app.schemas import Application, StatusEnum, StatusEvent, StatusEventSaved
+from app.utils.errors import NotFoundError
+
+event_adapter = TypeAdapter(StatusEvent)
+
+APPLICATION_WITH_EVENTS_QUERY = """
+  SELECT
+    a.id as application_id,
+    a.resume_id,
+    a.listing_id,
+    a.current_status,
+    a.last_status_at,
+    COALESCE(
+      json_group_array(
+        json_object(
+          'id', se.id,
+          'status', se.status,
+          'created_at', se.created_at,
+          'notes', se.notes,
+          'payload', se.payload
+        )
+      ),
+      json_array()
+    ) as status_events_json
+  FROM applications a
+  LEFT JOIN status_events se ON a.id = se.application_id
+"""
 
 
 class ApplicationsService(DatabaseRepository):
@@ -13,228 +41,200 @@ class ApplicationsService(DatabaseRepository):
 
   def get(self, application_id: UUID) -> Application:
     row = self.fetch_one(
-      """
-      SELECT
-        a.id as application_id,
-        a.resume_id,
-        l.id as listing_id, l.url, l.title, l.company, l.domain,
-        l.location, l.description, l.posted_date, l.skills, l.requirements,
-        COALESCE(
-          json_group_array(
-            json_object(
-              'id', se.id,
-              'status', se.status,
-              'stage', se.stage,
-              'created_at', se.created_at,
-              'notes', se.notes
-            )
-          ),
-          json_array()
-        ) as status_events_json
-      FROM applications a
-      JOIN listings l ON a.listing_id = l.id
-      LEFT JOIN status_events se ON a.id = se.application_id
-      WHERE a.id = ?
-      GROUP BY a.id, l.id
-    """,
+      f'{APPLICATION_WITH_EVENTS_QUERY} WHERE a.id = ? GROUP BY a.id',
       (str(application_id),),
     )
 
     if not row:
       raise NotFoundError(f'Application {application_id} not found')
 
-    row_dict = dict(row)
-    status_events_json = row_dict.pop('status_events_json')
-    application_id = row_dict.pop('application_id')
-    resume_id = row_dict.pop('resume_id')
-
-    status_events = [
-      StatusEvent(**event) for event in json.loads(status_events_json) if event.get('id')
-    ]
-
-    return Application(
-      id=application_id,
-      listing_id=row_dict['listing_id'],
-      resume_id=resume_id,
-      status_events=status_events,
-    )
+    return self._parse_application_row(row)
 
   def get_by_resume_id(self, resume_id: UUID) -> Application:
     row = self.fetch_one(
-      """
-      SELECT
-        a.id as application_id,
-        a.resume_id,
-        l.id as listing_id, l.url, l.title, l.company, l.domain,
-        l.location, l.description, l.posted_date, l.skills, l.requirements,
-        COALESCE(
-          json_group_array(
-            json_object(
-              'id', se.id,
-              'applicationId', se.application_id,
-              'status', se.status,
-              'stage', se.stage,
-              'created_at', se.created_at,
-              'notes', se.notes
-            )
-          ),
-          json_array()
-        ) as status_events_json
-      FROM applications a
-      JOIN listings l ON a.listing_id = l.id
-      LEFT JOIN status_events se ON a.id = se.application_id
-      WHERE a.resume_id = ?
-      GROUP BY a.id, l.id
-    """,
+      f'{APPLICATION_WITH_EVENTS_QUERY} WHERE a.resume_id = ? GROUP BY a.id',
       (str(resume_id),),
     )
 
     if not row:
       raise NotFoundError(f'No application found for resume {resume_id}')
 
-    row_dict = dict(row)
-    status_events_json = row_dict.pop('status_events_json')
-    application_id = row_dict.pop('application_id')
-    resume_id = row_dict.pop('resume_id')
+    return self._parse_application_row(row)
 
-    status_events = [
-      StatusEvent(**event) for event in json.loads(status_events_json) if event.get('id')
-    ]
-
-    return Application(
-      id=application_id,
-      listing_id=row_dict['listing_id'],
-      resume_id=resume_id,
-      status_events=status_events,
-    )
-
-  def get_by_listing_id(self, listing_id: UUID) -> Application:
-    row = self.fetch_one(
-      """
-      SELECT
-        a.id as application_id,
-        a.resume_id,
-        l.id as listing_id, l.url, l.title, l.company, l.domain,
-        l.location, l.description, l.posted_date, l.skills, l.requirements,
-        COALESCE(
-          json_group_array(
-            json_object(
-              'id', se.id,
-              'applicationId', se.application_id,
-              'status', se.status,
-              'stage', se.stage,
-              'created_at', se.created_at,
-              'notes', se.notes
-            )
-          ),
-          json_array()
-        ) as status_events_json
-      FROM applications a
-      JOIN listings l ON a.listing_id = l.id
-      LEFT JOIN status_events se ON a.id = se.application_id
-      WHERE a.listing_id = ?
-      GROUP BY a.id, l.id
-      ORDER BY a.id DESC
-      LIMIT 1
-    """,
+  def get_by_listing_id(self, listing_id: UUID) -> list[Application]:
+    rows = self.fetch_all(
+      f'{APPLICATION_WITH_EVENTS_QUERY} WHERE a.listing_id = ? GROUP BY a.id',
       (str(listing_id),),
     )
 
-    if not row:
-      raise NotFoundError(f'No application found for listing {listing_id}')
-
-    row_dict = dict(row)
-    status_events_json = row_dict.pop('status_events_json')
-    application_id = row_dict.pop('application_id')
-    resume_id = row_dict.pop('resume_id')
-
-    status_events = [
-      StatusEvent(**event) for event in json.loads(status_events_json) if event.get('id')
-    ]
-
-    return Application(
-      id=application_id,
-      listing_id=row_dict['listing_id'],
-      resume_id=resume_id,
-      status_events=status_events,
-    )
+    return [self._parse_application_row(row) for row in rows]
 
   def create(self, application: Application) -> Application:
-    if not application.status_events:
-      raise ValidationError('Application should at least have SAVED status event')
-
-    operations: list[tuple[str, tuple]] = [
-      (
-        'INSERT INTO applications (id, listing_id, resume_id) VALUES (?, ?, ?)',
+    with self.transaction():
+      # Create the application with initial "saved" status (uses defaults from schema)
+      self.execute(
+        'INSERT INTO applications (id, listing_id, resume_id, current_status, last_status_at) '
+        'VALUES (?, ?, ?, ?, ?)',
         (
           str(application.id),
           str(application.listing_id),
           str(application.resume_id) if application.resume_id else None,
+          application.current_status.value,
+          application.last_status_at,
         ),
-      ),
-    ]
-    operations.extend(
-      [
+      )
+
+      # Sync status to create the initial "saved" event
+      self._sync_application_status(application.id)
+
+    # Return the full application with the created event
+    return self.get(application.id)
+
+  def create_event(self, status_event: StatusEvent, application_id: UUID) -> StatusEvent:
+    with self.transaction():
+      # Prevent manually creating "saved" status events
+      if status_event.status == StatusEnum.SAVED:
+        raise ValueError('Cannot manually create a "saved" status event')
+
+      application = self.fetch_one(
+        'SELECT id FROM applications WHERE id = ?',
+        (str(application_id),),
+      )
+      if not application:
+        raise NotFoundError(f'Application {application_id} not found')
+
+      self.execute(
+        'INSERT INTO status_events (id, application_id, status, created_at, notes, payload) '
+        'VALUES (?, ?, ?, ?, ?, ?)',
         (
-          'INSERT INTO status_events (id, application_id, status, stage, created_at, notes) '
+          str(status_event.id),
+          str(application_id),
+          status_event.status,
+          status_event.created_at,
+          status_event.notes,
+          json.dumps(self._extract_payload_from_event(status_event)),
+        ),
+      )
+
+      self._sync_application_status(application_id)
+
+    return status_event
+
+  def update_event(self, status_event: StatusEvent) -> StatusEvent:
+    with self.transaction():
+      existing = self.fetch_one(
+        'SELECT application_id, status FROM status_events WHERE id = ?',
+        (str(status_event.id),),
+      )
+      if not existing:
+        raise NotFoundError(f'Status event {status_event.id} not found')
+
+      if existing['status'] == StatusEnum.SAVED.value:
+        raise ValueError('Cannot update the "saved" status event')
+
+      application_id = existing['application_id']
+
+      self.execute(
+        'UPDATE status_events SET status = ?, created_at = ?, notes = ?, payload = ? WHERE id = ?',
+        (
+          status_event.status,
+          status_event.created_at,
+          status_event.notes,
+          json.dumps(self._extract_payload_from_event(status_event)),
+          str(status_event.id),
+        ),
+      )
+
+      self._sync_application_status(application_id)
+
+    return status_event
+
+  def delete_event(self, status_event_id: UUID) -> None:
+    with self.transaction():
+      existing = self.fetch_one(
+        'SELECT application_id, status FROM status_events WHERE id = ?',
+        (str(status_event_id),),
+      )
+      if not existing:
+        raise NotFoundError(f'Status event {status_event_id} not found')
+
+      if existing['status'] == StatusEnum.SAVED.value:
+        raise ValueError('Cannot delete the "saved" status event')
+
+      application_id = existing['application_id']
+
+      self.execute('DELETE FROM status_events WHERE id = ?', (str(status_event_id),))
+
+      self._sync_application_status(application_id)
+
+  def _extract_payload_from_event(self, status_event: StatusEvent) -> dict[str, Any]:
+    event_dict = status_event.model_dump()
+
+    # Remove base fields that are stored as columns
+    base_fields = {'id', 'created_at', 'notes', 'status'}
+    payload = {k: v for k, v in event_dict.items() if k not in base_fields}
+
+    return payload
+
+  def _parse_application_row(self, row: Row) -> Application:
+    """Parse a row from the database into an Application object"""
+    row_dict = dict(row)
+
+    status_events_json = row_dict.pop('status_events_json')
+    status_events = []
+    for event in json.loads(status_events_json):
+      if event.get('id'):
+        base_data = {
+          'id': event['id'],
+          'created_at': event['created_at'],
+          'notes': event.get('notes'),
+          'status': event['status'],
+        }
+        payload = json.loads(event.get('payload', '{}')) if event.get('payload') else {}
+        status_event = event_adapter.validate_python({**base_data, **payload})
+        status_events.append(status_event)
+
+    row_dict['id'] = row_dict.pop('application_id')
+
+    return Application(**row_dict, status_events=status_events)
+
+  def _sync_application_status(self, application_id: UUID) -> None:
+    """Synchronize application's current_status and last_status_at with latest event."""
+    # Wrap in transaction here to be safe, but upstream functions should already be in a transaction
+    with self.transaction():
+      row = self.fetch_one(
+        """
+        SELECT status, created_at
+        FROM status_events
+        WHERE application_id = ?
+        ORDER BY created_at DESC
+        LIMIT 1
+        """,
+        (str(application_id),),
+      )
+
+      # If no events exist, create a default "saved" event
+      if not row:
+        saved_event = StatusEventSaved()
+        self.execute(
+          'INSERT INTO status_events (id, application_id, status, created_at, notes, payload) '
           'VALUES (?, ?, ?, ?, ?, ?)',
           (
-            str(status_event.id),
-            str(application.id),
-            status_event.status.value,
-            status_event.stage
-            if status_event.status in [StatusEnum.SCREENING, StatusEnum.INTERVIEW]
-            else 0,
-            status_event.created_at,
-            status_event.notes,
+            str(saved_event.id),
+            str(application_id),
+            saved_event.status,
+            saved_event.created_at,
+            saved_event.notes,
+            json.dumps({}),
           ),
         )
-        for status_event in application.status_events
-      ]
-    )
+        current_status = saved_event.status
+        last_status_at = saved_event.created_at
+      else:
+        current_status = row['status']
+        last_status_at = row['created_at']
 
-    self.transaction(operations)
-    return application
-
-  def update(self, application: Application) -> Application:
-    existing_event_ids = self.fetch_all(
-      'SELECT id FROM status_events WHERE application_id = ?', (str(application.id),)
-    )
-    existing_ids = {row['id'] for row in existing_event_ids}
-
-    operations: list[tuple[str, tuple]] = [
-      (
-        'UPDATE applications SET resume_id = ? WHERE id = ?',
-        (str(application.resume_id) if application.resume_id else None, str(application.id)),
-      ),
-    ]
-
-    # Status_events can only be added, not modified or deleted
-    new_status_events = [
-      status_event
-      for status_event in application.status_events
-      if str(status_event.id) not in existing_ids
-    ]
-
-    operations.extend(
-      [
-        (
-          'INSERT INTO status_events (id, application_id, status, stage, created_at, notes) '
-          'VALUES (?, ?, ?, ?, ?, ?)',
-          (
-            str(status_event.id),
-            str(application.id),
-            status_event.status.value,
-            status_event.stage
-            if status_event.status in [StatusEnum.SCREENING, StatusEnum.INTERVIEW]
-            else 0,
-            status_event.created_at,
-            status_event.notes,
-          ),
-        )
-        for status_event in new_status_events
-      ]
-    )
-
-    self.transaction(operations)
-    return application
+      self.execute(
+        'UPDATE applications SET current_status = ?, last_status_at = ? WHERE id = ?',
+        (current_status, last_status_at, str(application_id)),
+      )

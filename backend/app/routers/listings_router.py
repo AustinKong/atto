@@ -41,12 +41,10 @@ async def ingest_listing(
   existing_listing = listings_service.get_by_url(url)
 
   if existing_listing:
-    application = applications_service.get_by_listing_id(existing_listing.id)
     return ListingDraftDuplicateUrl(
       id=id,
       url=url,
       duplicate_of=existing_listing,
-      duplicate_of_application_id=application.id,
     )
 
   if content is None:
@@ -110,13 +108,11 @@ async def ingest_listing(
   )
 
   if similar_match:
-    application = applications_service.get_by_listing_id(similar_match.id)
     return ListingDraftDuplicateContent(
       id=id,
       url=url,
       listing=listing,
       duplicate_of=similar_match,
-      duplicate_of_application_id=application.id,
       html=html,
     )
 
@@ -129,7 +125,7 @@ async def get_listings(
   size: int = 10,
   search: str | None = None,
   status: Annotated[list[StatusEnum] | None, Query()] = None,
-  sort_by: Literal['title', 'company', 'posted_at', 'updated_at'] | None = None,
+  sort_by: Literal['title', 'company', 'posted_at', 'last_status_at'] | None = None,
   sort_dir: Literal['asc', 'desc'] | None = None,
 ):
   return listings_service.list_all(page, size, search, status, sort_by, sort_dir)
@@ -137,7 +133,9 @@ async def get_listings(
 
 @router.get('/{id}', response_model=Listing)
 async def get_listing(id: UUID):
-  return listings_service.get(id)
+  listing = listings_service.get(id)
+  listing.applications = applications_service.get_by_listing_id(id)
+  return listing
 
 
 @router.post('')

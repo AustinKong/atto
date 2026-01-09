@@ -1,4 +1,4 @@
-from .application import Application
+from .application import Application, StatusEnum, StatusEvent, StatusEventSaved
 from .dates import ISODate, ISODatetime, ISOYearMonth
 from .experience import (
   Experience,
@@ -27,7 +27,6 @@ from .scraping import (
   ListingDraftUnique,
   ListingExtraction,
 )
-from .status_event import StatusEnum, StatusEvent
 from .types import CamelModel, Page
 
 __all__ = [
@@ -70,5 +69,6 @@ __all__ = [
   # StatusEvent
   'StatusEnum',
   'StatusEvent',
+  'StatusEventSaved',
   'Page',
 ]

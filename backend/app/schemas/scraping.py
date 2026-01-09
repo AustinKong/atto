@@ -56,14 +56,12 @@ class ListingDraftUnique(BaseListingDraft):
 class ListingDraftDuplicateUrl(BaseListingDraft):
   status: Literal['duplicate_url'] = 'duplicate_url'
   duplicate_of: Listing
-  duplicate_of_application_id: UUID  # To allow frontend redirection
 
 
 class ListingDraftDuplicateContent(BaseListingDraft):
   status: Literal['duplicate_content'] = 'duplicate_content'
   listing: ListingExtraction
   duplicate_of: Listing
-  duplicate_of_application_id: UUID  # To allow frontend redirection
   html: str | None
 
 

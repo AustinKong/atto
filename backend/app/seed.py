@@ -57,6 +57,8 @@ def create_tables():
         id TEXT PRIMARY KEY,
         listing_id TEXT NOT NULL UNIQUE,
         resume_id TEXT,
+        current_status TEXT NOT NULL,
+        last_status_at TEXT NOT NULL,
         FOREIGN KEY (listing_id) REFERENCES listings (id) ON DELETE CASCADE,
         FOREIGN KEY (resume_id) REFERENCES resumes (id) ON DELETE SET NULL
       )
@@ -67,9 +69,9 @@ def create_tables():
         id TEXT PRIMARY KEY,
         application_id TEXT NOT NULL,
         status TEXT NOT NULL,
-        stage INTEGER NOT NULL,
         created_at TEXT NOT NULL,
         notes TEXT,
+        payload JSON,
         FOREIGN KEY (application_id) REFERENCES applications (id) ON DELETE CASCADE
       )
     """)

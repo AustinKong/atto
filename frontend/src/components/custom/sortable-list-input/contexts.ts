@@ -3,6 +3,7 @@ import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { createContext, useContext } from 'react';
 import type {
   ArrayPath,
+  Control,
   FieldArray,
   FieldValues,
   UseFieldArrayReturn,
@@ -12,6 +13,7 @@ import type {
 export type SortableListInputContextValue<T extends FieldValues> = {
   name: ArrayPath<T>;
   register: UseFormRegister<T>;
+  control: Control<T>;
   disabled?: boolean;
   readOnly?: boolean;
   defaultItem: FieldArray<T, ArrayPath<T>>;

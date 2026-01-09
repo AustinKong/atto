@@ -1,9 +1,8 @@
-from typing import Annotated, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter
 
-from app.schemas import Application, Page, StatusEnum, StatusEvent
+from app.schemas import Application, StatusEvent
 from app.services import applications_service
 
 router = APIRouter(
@@ -12,16 +11,32 @@ router = APIRouter(
 )
 
 
-
 @router.get('/{id}', response_model=Application)
 async def get_application(id: UUID):
   application = applications_service.get(id)
   return application
 
 
-@router.post('/{id}/status-event', response_model=Application)
-async def add_status_event(id: UUID, status_event: StatusEvent):
-  application = applications_service.get(id)
-  application.status_events.append(status_event)
-  application = applications_service.update(application)
-  return application
+@router.post('/', response_model=Application)
+async def create_application(application: Application):
+  created_application = applications_service.create(application)
+  return created_application
+
+
+@router.post('/{application_id}/events', response_model=Application)
+async def create_status_event(application_id: UUID, status_event: StatusEvent):
+  applications_service.create_event(status_event, application_id)
+  return applications_service.get(application_id)
+
+
+@router.put('/{application_id}/events/{event_id}', response_model=Application)
+async def update_status_event(application_id: UUID, event_id: UUID, status_event: StatusEvent):
+  status_event.id = event_id
+  applications_service.update_event(status_event)
+  return applications_service.get(application_id)
+
+
+@router.delete('/{application_id}/events/{event_id}', response_model=Application)
+async def delete_status_event(application_id: UUID, event_id: UUID):
+  applications_service.delete_event(event_id)
+  return applications_service.get(application_id)

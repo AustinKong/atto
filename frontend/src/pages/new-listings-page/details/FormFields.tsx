@@ -108,6 +108,7 @@ export function FormFields({
         register={register}
         name="requirements"
         readOnly={isReadOnly}
+        defaultItem={{ value: '', quote: null }}
       >
         <HStack justify="space-between">
           <SortableListInput.Label>Requirements</SortableListInput.Label>

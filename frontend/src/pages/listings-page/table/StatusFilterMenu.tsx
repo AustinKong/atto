@@ -2,7 +2,7 @@ import { Button, HStack, Menu, Portal, Text, useDisclosure } from '@chakra-ui/re
 import { useEffect, useMemo, useState } from 'react';
 import { PiSliders } from 'react-icons/pi';
 
-import { STATUS_OPTIONS } from '@/constants/statuses';
+import { STATUS_FILTER_OPTIONS } from '@/constants/statuses';
 import type { StatusEnum } from '@/types/application';
 
 export function StatusFilterMenu({
@@ -68,7 +68,7 @@ export function StatusFilterMenu({
           <Menu.Content>
             <Menu.ItemGroup>
               <Menu.ItemGroupLabel>Filter by Status</Menu.ItemGroupLabel>
-              {STATUS_OPTIONS.map((option) => (
+              {STATUS_FILTER_OPTIONS.map((option) => (
                 <Menu.CheckboxItem
                   key={option.value}
                   value={option.value}

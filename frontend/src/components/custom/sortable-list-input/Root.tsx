@@ -27,6 +27,7 @@ export function Root<T extends FieldValues>({
   children,
   disabled,
   readOnly,
+  defaultItem,
 }: {
   control: Control<T>;
   register: UseFormRegister<T>;
@@ -34,15 +35,9 @@ export function Root<T extends FieldValues>({
   children: React.ReactNode;
   disabled?: boolean;
   readOnly?: boolean;
+  defaultItem: FieldArray<T, ArrayPath<T>>;
 }) {
   const { fields, remove, move, append, update, insert } = useFieldArray({ control, name });
-
-  const defaultItem = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rootDefaults = (control._defaultValues as any)?.[name];
-    const itemDefault = Array.isArray(rootDefaults) ? rootDefaults[0] : {};
-    return itemDefault as FieldArray<T, ArrayPath<T>>;
-  }, [control._defaultValues, name]);
 
   useEffect(() => {
     if (fields.length === 0) append(defaultItem);
@@ -74,8 +69,21 @@ export function Root<T extends FieldValues>({
       disabled,
       readOnly,
       defaultItem,
+      control,
     }),
-    [fields, append, remove, insert, update, register, name, disabled, readOnly, defaultItem]
+    [
+      fields,
+      append,
+      remove,
+      insert,
+      update,
+      register,
+      name,
+      disabled,
+      readOnly,
+      defaultItem,
+      control,
+    ]
   );
 
   return (

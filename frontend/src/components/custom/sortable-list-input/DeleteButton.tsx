@@ -15,7 +15,7 @@ export const DeleteButton = memo((props: Omit<IconButtonProps, 'disabled'>) => {
       variant="ghost"
       size="2xs"
       disabled={isLocked}
-      opacity={0.2}
+      opacity="0.2"
       _groupHover={isLocked ? {} : { opacity: 1 }}
       aria-label="Remove"
       {...props}
