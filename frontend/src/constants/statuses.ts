@@ -22,7 +22,7 @@ import {
   PiXFill,
 } from 'react-icons/pi';
 
-import type { StatusEnum } from '@/types/application';
+import type { StatusEnum, StatusEvent } from '@/types/application';
 
 export const STATUS_DEFINITIONS: Record<
   StatusEnum,
@@ -83,3 +83,14 @@ export const STATUS_FILTER_OPTIONS = Object.entries(STATUS_DEFINITIONS).map(([va
   label: def.label,
   icon: def.icon,
 }));
+
+export const getStatusText = (statusEvent: StatusEvent): string => {
+  const statusDefinition = STATUS_DEFINITIONS[statusEvent.status];
+  const statusLabel = statusDefinition.label;
+
+  if ('stage' in statusEvent && typeof statusEvent.stage === 'number' && statusEvent.stage > 0) {
+    return `${statusLabel} ${statusEvent.stage}`;
+  }
+
+  return statusLabel;
+};

@@ -7,7 +7,6 @@ from pydantic import HttpUrl
 
 from app.resources.prompts import LISTING_EXTRACTION_PROMPT
 from app.schemas import (
-  Application,
   ExtractionResponse,
   Listing,
   ListingDraft,
@@ -141,6 +140,4 @@ async def get_listing(id: UUID):
 @router.post('')
 async def save_listing(listing: Listing):
   saved_listing = listings_service.create(listing)
-  application = Application(listing_id=listing.id)
-  applications_service.create(application)
   return saved_listing

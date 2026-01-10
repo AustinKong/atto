@@ -12,7 +12,7 @@ export function useListingsQuery({
   pageSize = 50,
 }: {
   search?: string;
-  sortBy?: 'title' | 'company' | 'posted_at' | 'updated_at';
+  sortBy?: 'title' | 'company' | 'posted_at' | 'last_status_at';
   sortOrder?: 'asc' | 'desc';
   statuses?: StatusEnum[];
   pageSize?: number;

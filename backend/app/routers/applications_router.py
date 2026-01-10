@@ -23,20 +23,20 @@ async def create_application(application: Application):
   return created_application
 
 
-@router.post('/{application_id}/events', response_model=Application)
+@router.post('/{application_id}/events', response_model=StatusEvent)
 async def create_status_event(application_id: UUID, status_event: StatusEvent):
-  applications_service.create_event(status_event, application_id)
-  return applications_service.get(application_id)
+  created_event = applications_service.create_event(status_event, application_id)
+  return created_event
 
 
-@router.put('/{application_id}/events/{event_id}', response_model=Application)
+@router.put('/{application_id}/events/{event_id}', response_model=StatusEvent)
 async def update_status_event(application_id: UUID, event_id: UUID, status_event: StatusEvent):
   status_event.id = event_id
-  applications_service.update_event(status_event)
-  return applications_service.get(application_id)
+  updated_event = applications_service.update_event(status_event)
+  return updated_event
 
 
-@router.delete('/{application_id}/events/{event_id}', response_model=Application)
+@router.delete('/{application_id}/events/{event_id}', response_model=None)
 async def delete_status_event(application_id: UUID, event_id: UUID):
   applications_service.delete_event(event_id)
-  return applications_service.get(application_id)
+  return None

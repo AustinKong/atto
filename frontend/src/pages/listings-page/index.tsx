@@ -1,28 +1,25 @@
 import { Splitter, VStack } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
+import { Outlet, useNavigate, useParams } from 'react-router';
 
 import { useDebouncedUrlSyncedState } from '@/hooks/utils/useDebouncedUrlSyncedState';
 import { useLocalStorage } from '@/hooks/utils/useLocalStorage';
-import { useUrlSyncedState } from '@/hooks/utils/useUrlSyncedState';
 import { getListing } from '@/services/listings';
 import type { ListingSummary } from '@/types/listing';
 
-import { Drawer } from './drawer';
 import { Table } from './table';
 import { Toolbar } from './Toolbar';
 
 export function ListingsPage() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const { listingId } = useParams<{ listingId: string }>();
   const [searchInput, debouncedSearchInput, setSearchInput] = useDebouncedUrlSyncedState('q', '', {
     type: 'STRING',
     debounceMs: 700,
   });
-
-  const [listingId, setListingId] = useUrlSyncedState('listingId', '', {
-    type: 'STRING',
-  });
-
   const [drawerOpenSizes, setDrawerOpenSizes] = useLocalStorage(
     'listings-splitter-sizes',
     [70, 30]
@@ -32,9 +29,9 @@ export function ListingsPage() {
 
   const handleRowClick = useCallback(
     (listing: ListingSummary) => {
-      setListingId(listing.id);
+      navigate(`/listings/${listing.id}`, { replace: true });
     },
-    [setListingId]
+    [navigate]
   );
 
   const handleRowHover = useCallback(
@@ -75,11 +72,7 @@ export function ListingsPage() {
               <Splitter.ResizeTriggerSeparator />
             </Splitter.ResizeTrigger>
             <Splitter.Panel id="drawer">
-              <Drawer
-                onClose={() => setListingId('')}
-                selectedListingId={listingId}
-                key={listingId}
-              />
+              <Outlet />
             </Splitter.Panel>
           </>
         )}

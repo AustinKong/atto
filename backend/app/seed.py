@@ -55,7 +55,7 @@ def create_tables():
     db.execute("""
       CREATE TABLE IF NOT EXISTS applications (
         id TEXT PRIMARY KEY,
-        listing_id TEXT NOT NULL UNIQUE,
+        listing_id TEXT NOT NULL,
         resume_id TEXT,
         current_status TEXT NOT NULL,
         last_status_at TEXT NOT NULL,
@@ -69,7 +69,7 @@ def create_tables():
         id TEXT PRIMARY KEY,
         application_id TEXT NOT NULL,
         status TEXT NOT NULL,
-        created_at TEXT NOT NULL,
+        date TEXT NOT NULL,
         notes TEXT,
         payload JSON,
         FOREIGN KEY (application_id) REFERENCES applications (id) ON DELETE CASCADE

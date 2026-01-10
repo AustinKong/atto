@@ -30,7 +30,7 @@ export function Info({ listing }: { listing: ListingDraft }) {
             </VStack>
             <ButtonGroup>
               <Button asChild>
-                <Link to={`/listings?listingId=${listing.duplicateOf.id}`} target="_blank">
+                <Link to={`/listings/${listing.duplicateOf.id}`} target="_blank">
                   View Existing Application
                 </Link>
               </Button>
@@ -57,7 +57,7 @@ export function Info({ listing }: { listing: ListingDraft }) {
             </VStack>
             <VStack gap={3}>
               <Button asChild>
-                <Link to={`/listings?listingId=${listing.duplicateOf.id}`} target="_blank">
+                <Link to={`/listings/${listing.duplicateOf.id}`} target="_blank">
                   View Existing Application
                 </Link>
               </Button>

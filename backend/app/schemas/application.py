@@ -1,11 +1,11 @@
-from datetime import UTC, datetime
+from datetime import date
 from enum import Enum
 from typing import Annotated, Literal
 from uuid import UUID, uuid4
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
-from app.schemas.dates import ISODatetime
+from app.schemas.dates import ISODate
 from app.schemas.types import CamelModel
 
 
@@ -29,7 +29,7 @@ class Person(CamelModel):
 
 class BaseStatusEvent(CamelModel):
   id: UUID = Field(default_factory=uuid4)
-  created_at: ISODatetime = Field(default_factory=lambda: datetime.now(UTC))
+  date: ISODate = Field(default_factory=date.today)
   notes: str | None = None
 
 
@@ -99,4 +99,40 @@ class Application(CamelModel):
   status_events: list[StatusEvent] = Field(default_factory=list)
   # Denormalized to significantly simplify listings_service.list_all query
   current_status: StatusEnum = Field(default=StatusEnum.SAVED)
-  last_status_at: ISODatetime = Field(default_factory=lambda: datetime.now(UTC))
+  last_status_at: ISODate = Field(default_factory=date.today)
+
+  @field_validator('status_events')
+  @classmethod
+  def sort_status_events(cls, events: list[StatusEvent]) -> list[StatusEvent]:
+    """
+    Sort status events by:
+    1. date (oldest first)
+    2. status enum order (saved -> applied -> screening -> interview ->
+       offer_received -> accepted -> rejected -> ghosted -> withdrawn -> rescinded)
+    3. stage (for interview events, ascending)
+    4. id (for consistent ordering)
+    """
+    status_order = {
+      StatusEnum.SAVED: 1,
+      StatusEnum.APPLIED: 2,
+      StatusEnum.SCREENING: 3,
+      StatusEnum.INTERVIEW: 4,
+      StatusEnum.OFFER_RECEIVED: 5,
+      StatusEnum.ACCEPTED: 6,
+      StatusEnum.REJECTED: 7,
+      StatusEnum.GHOSTED: 8,
+      StatusEnum.WITHDRAWN: 9,
+      StatusEnum.RESCINDED: 10,
+    }
+
+    def sort_key(event: StatusEvent):
+      stage = getattr(event, 'stage', float('inf'))
+
+      return (
+        event.date,
+        status_order[event.status],
+        stage,
+        str(event.id),
+      )
+
+    return sorted(events, key=sort_key)

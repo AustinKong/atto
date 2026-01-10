@@ -16,8 +16,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { STATUS_OPTIONS } from '@/constants/statuses';
-import { createStatusEvent, deleteStatusEvent, updateStatusEvent } from '@/services/applications';
-import type { StatusEvent, StatusEventApplied, StatusEventInterview } from '@/types/application';
+import { useApplicationMutations } from '@/hooks/applications';
+import type {
+  Application,
+  StatusEvent,
+  StatusEventApplied,
+  StatusEventInterview,
+} from '@/types/application';
 
 import { PersonAvatarInput } from './PersonAvatarInput';
 
@@ -27,39 +32,56 @@ import { PersonAvatarInput } from './PersonAvatarInput';
  * Modal for creating and editing application timeline events.
  * Supports different fields based on event status (e.g., stage for interviews,
  * referrers for applied status, etc.)
+ *
+ * Uses a managed entity pattern: accepts optional Application object.
+ * When provided, uses the application's ID for mutations.
  */
 
 interface ApplicationModalProps {
   open: boolean;
   onOpenChange: (details: { open: boolean }) => void;
   event: StatusEvent;
-  applicationId: string;
+  application?: Application;
   isNewEvent?: boolean;
-  onSuccess?: () => void;
 }
 
 export function ApplicationModal({
   open,
   onOpenChange,
   event,
-  applicationId,
+  application,
   isNewEvent = false,
-  onSuccess,
 }: ApplicationModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const { register, watch, handleSubmit } = useForm<StatusEvent>({
+  const [selectedStatus, setSelectedStatus] = useState(event.status);
+  const [selectedDate, setSelectedDate] = useState(
+    isNewEvent ? new Date().toISOString().split('T')[0] : event.date
+  );
+  const [stage, setStage] = useState(
+    event.status === 'interview' ? (event as StatusEventInterview).stage : 1
+  );
+  const [referral, setReferral] = useState(
+    event.status === 'applied' ? (event as StatusEventApplied).referral : undefined
+  );
+  const [interviewers, setInterviewers] = useState(
+    event.status === 'interview' ? (event as StatusEventInterview).interviewers || [] : []
+  );
+
+  // Get mutations
+  const { createStatusEvent, updateStatusEvent, deleteStatusEvent } = useApplicationMutations();
+
+  const { register, handleSubmit } = useForm<StatusEvent>({
     defaultValues: isNewEvent
       ? {
           id: 'new-event',
           status: 'applied',
-          createdAt: new Date().toISOString(),
+          date: new Date().toISOString().split('T')[0] as import('@/utils/date').ISODate,
           notes: '',
         }
       : event,
   });
 
-  const currentStatus = watch('status');
-  const showStageField = currentStatus === 'interview';
+  const showStageField = selectedStatus === 'interview';
 
   const statusCollection = createListCollection({
     items: STATUS_OPTIONS.map((option) => ({
@@ -68,19 +90,44 @@ export function ApplicationModal({
     })),
   });
 
-  const dateValue = isNewEvent
-    ? new Date().toISOString().split('T')[0]
-    : event.createdAt.split('T')[0];
-
   const onSubmit = async (data: StatusEvent) => {
     setIsLoading(true);
     try {
-      if (isNewEvent) {
-        await createStatusEvent(applicationId, data);
-      } else {
-        await updateStatusEvent(applicationId, event.id, data);
+      // Build the event data with the selected status and date
+      const eventData: Partial<StatusEvent> = {
+        status: selectedStatus,
+        date: selectedDate as import('@/utils/date').ISODate,
+        notes: data.notes || '',
+      };
+
+      // Add status-specific fields
+      if (selectedStatus === 'interview') {
+        (eventData as StatusEventInterview).stage = stage;
+        if (interviewers.length > 0) {
+          (eventData as StatusEventInterview).interviewers = interviewers;
+        }
+      } else if (selectedStatus === 'applied' && referral) {
+        (eventData as StatusEventApplied).referral = referral;
       }
-      onSuccess?.();
+
+      if (!application?.id) {
+        throw new Error('Application is required');
+      }
+
+      if (isNewEvent) {
+        // Don't send id field when creating - backend will generate it
+        await createStatusEvent({
+          applicationId: application.id,
+          statusEvent: eventData as Omit<StatusEvent, 'id'>,
+        });
+      } else {
+        // When editing
+        await updateStatusEvent({
+          applicationId: application.id,
+          eventId: event.id,
+          statusEvent: eventData as Omit<StatusEvent, 'id'>,
+        });
+      }
       onOpenChange({ open: false });
     } catch (error) {
       console.error('Failed to save status event:', error);
@@ -92,8 +139,13 @@ export function ApplicationModal({
   const onDelete = async () => {
     setIsLoading(true);
     try {
-      await deleteStatusEvent(applicationId, event.id);
-      onSuccess?.();
+      if (!application?.id) {
+        throw new Error('Application is required');
+      }
+      await deleteStatusEvent({
+        applicationId: application.id,
+        eventId: event.id,
+      });
       onOpenChange({ open: false });
     } catch (error) {
       console.error('Failed to delete status event:', error);
@@ -123,7 +175,10 @@ export function ApplicationModal({
                     <Select.Root
                       size="sm"
                       collection={statusCollection}
-                      defaultValue={[currentStatus]}
+                      value={[selectedStatus]}
+                      onValueChange={(details) => {
+                        setSelectedStatus(details.value[0] as StatusEvent['status']);
+                      }}
                     >
                       <Select.HiddenSelect />
                       <Select.Control>
@@ -151,7 +206,18 @@ export function ApplicationModal({
                   {showStageField && (
                     <Field.Root flex="1">
                       <Field.Label>Stage</Field.Label>
-                      <NumberInput.Root size="sm" defaultValue="">
+                      <NumberInput.Root
+                        size="sm"
+                        value={String(stage)}
+                        min={1}
+                        max={100}
+                        onValueChange={(details) => {
+                          const num = parseInt(details.value, 10);
+                          if (!isNaN(num) && num >= 1 && num <= 100) {
+                            setStage(num);
+                          }
+                        }}
+                      >
                         <NumberInput.Control />
                         <NumberInput.Input placeholder="Stage number" />
                       </NumberInput.Root>
@@ -160,7 +226,12 @@ export function ApplicationModal({
 
                   <Field.Root flex="1">
                     <Field.Label>Date</Field.Label>
-                    <Input type="date" size="sm" defaultValue={dateValue} />
+                    <Input
+                      type="date"
+                      size="sm"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                    />
                   </Field.Root>
                 </HStack>
 
@@ -176,17 +247,17 @@ export function ApplicationModal({
                 </Field.Root>
 
                 {/* Referrals */}
-                {event.status === 'applied' && (
+                {selectedStatus === 'applied' && (
                   <Field.Root>
                     <Field.Label>Add Referrals</Field.Label>
                     <PersonAvatarInput
-                      people={event.referral ? [event.referral] : []}
+                      people={referral ? [referral] : []}
                       onAddPerson={(person) => {
                         // Backend only supports single referral
-                        (event as StatusEventApplied).referral = person;
+                        setReferral(person);
                       }}
                       onRemovePerson={() => {
-                        (event as StatusEventApplied).referral = undefined;
+                        setReferral(undefined);
                       }}
                     />
                   </Field.Root>
@@ -197,15 +268,13 @@ export function ApplicationModal({
                   <Field.Root>
                     <Field.Label>Add Interviewers</Field.Label>
                     <PersonAvatarInput
-                      people={(event as StatusEventInterview).interviewers || []}
+                      people={interviewers}
                       onAddPerson={(person) => {
-                        const current = (event as StatusEventInterview).interviewers || [];
-                        (event as StatusEventInterview).interviewers = [...current, person];
+                        setInterviewers([...interviewers, person]);
                       }}
                       onRemovePerson={(index) => {
-                        const current = (event as StatusEventInterview).interviewers || [];
-                        (event as StatusEventInterview).interviewers = current.filter(
-                          (_: unknown, i: number) => i !== index
+                        setInterviewers(
+                          interviewers.filter((_: unknown, i: number) => i !== index)
                         );
                       }}
                     />

@@ -23,7 +23,7 @@ APPLICATION_WITH_EVENTS_QUERY = """
         json_object(
           'id', se.id,
           'status', se.status,
-          'created_at', se.created_at,
+          'date', se.date,
           'notes', se.notes,
           'payload', se.payload
         )
@@ -104,13 +104,13 @@ class ApplicationsService(DatabaseRepository):
         raise NotFoundError(f'Application {application_id} not found')
 
       self.execute(
-        'INSERT INTO status_events (id, application_id, status, created_at, notes, payload) '
+        'INSERT INTO status_events (id, application_id, status, date, notes, payload) '
         'VALUES (?, ?, ?, ?, ?, ?)',
         (
           str(status_event.id),
           str(application_id),
           status_event.status,
-          status_event.created_at,
+          status_event.date,
           status_event.notes,
           json.dumps(self._extract_payload_from_event(status_event)),
         ),
@@ -135,10 +135,10 @@ class ApplicationsService(DatabaseRepository):
       application_id = existing['application_id']
 
       self.execute(
-        'UPDATE status_events SET status = ?, created_at = ?, notes = ?, payload = ? WHERE id = ?',
+        'UPDATE status_events SET status = ?, date = ?, notes = ?, payload = ? WHERE id = ?',
         (
           status_event.status,
-          status_event.created_at,
+          status_event.date,
           status_event.notes,
           json.dumps(self._extract_payload_from_event(status_event)),
           str(status_event.id),
@@ -171,7 +171,7 @@ class ApplicationsService(DatabaseRepository):
     event_dict = status_event.model_dump()
 
     # Remove base fields that are stored as columns
-    base_fields = {'id', 'created_at', 'notes', 'status'}
+    base_fields = {'id', 'date', 'notes', 'status'}
     payload = {k: v for k, v in event_dict.items() if k not in base_fields}
 
     return payload
@@ -186,7 +186,7 @@ class ApplicationsService(DatabaseRepository):
       if event.get('id'):
         base_data = {
           'id': event['id'],
-          'created_at': event['created_at'],
+          'date': event['date'],
           'notes': event.get('notes'),
           'status': event['status'],
         }
@@ -202,37 +202,30 @@ class ApplicationsService(DatabaseRepository):
     """Synchronize application's current_status and last_status_at with latest event."""
     # Wrap in transaction here to be safe, but upstream functions should already be in a transaction
     with self.transaction():
-      row = self.fetch_one(
-        """
-        SELECT status, created_at
-        FROM status_events
-        WHERE application_id = ?
-        ORDER BY created_at DESC
-        LIMIT 1
-        """,
-        (str(application_id),),
-      )
+      app = self.get(application_id)
 
       # If no events exist, create a default "saved" event
-      if not row:
+      if not app.status_events:
         saved_event = StatusEventSaved()
         self.execute(
-          'INSERT INTO status_events (id, application_id, status, created_at, notes, payload) '
+          'INSERT INTO status_events (id, application_id, status, date, notes, payload) '
           'VALUES (?, ?, ?, ?, ?, ?)',
           (
             str(saved_event.id),
             str(application_id),
             saved_event.status,
-            saved_event.created_at,
+            saved_event.date,
             saved_event.notes,
             json.dumps({}),
           ),
         )
         current_status = saved_event.status
-        last_status_at = saved_event.created_at
+        last_status_at = saved_event.date
       else:
-        current_status = row['status']
-        last_status_at = row['created_at']
+        # Get the last event (most recent based on our sorting logic)
+        last_event = app.status_events[-1]
+        current_status = last_event.status
+        last_status_at = last_event.date
 
       self.execute(
         'UPDATE applications SET current_status = ?, last_status_at = ? WHERE id = ?',

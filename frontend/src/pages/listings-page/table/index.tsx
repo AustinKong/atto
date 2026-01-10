@@ -6,12 +6,13 @@ import {
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import React, { useCallback } from 'react';
+import React, { type Dispatch, type SetStateAction, useCallback } from 'react';
 
 import { CompanyLogo } from '@/components/custom/CompanyLogo';
 import { DisplayDate } from '@/components/custom/DisplayDate';
 import { STATUS_DEFINITIONS } from '@/constants/statuses';
 import { useListingsQuery } from '@/hooks/listings';
+import { useDebouncedUrlSyncedState } from '@/hooks/utils/useDebouncedUrlSyncedState';
 import { type ParamHandler, useUrlSyncedState } from '@/hooks/utils/useUrlSyncedState';
 import type { StatusEnum } from '@/types/application';
 import type { ListingSummary } from '@/types/listing';
@@ -22,7 +23,7 @@ import { TableHeader } from './TableHeader';
 import { TableRow } from './TableRow';
 
 interface TableMetaType {
-  onStatusesChange: (statuses: StatusEnum[]) => void;
+  setStatuses: Dispatch<SetStateAction<StatusEnum[]>>;
   statuses: StatusEnum[];
 }
 
@@ -70,8 +71,8 @@ const columns = [
   }),
   columnHelper.accessor('currentStatus', {
     header: ({ table }) => {
-      const { onStatusesChange, statuses } = (table.options.meta as TableMetaType) || {};
-      return <StatusFilterMenu currentStatuses={statuses} onStatusesChange={onStatusesChange} />;
+      const { setStatuses, statuses } = (table.options.meta as TableMetaType) || {};
+      return <StatusFilterMenu statuses={statuses} setStatuses={setStatuses} />;
     },
     cell: (info) => {
       const status = info.getValue();
@@ -104,7 +105,7 @@ const columns = [
     sortDescFirst: false,
   }),
   columnHelper.accessor('lastUpdated', {
-    id: 'updated_at',
+    id: 'last_status_at',
     header: 'Last Updated',
     cell: (info) => <DisplayDate date={info.getValue()} />,
     size: 15,
@@ -124,7 +125,11 @@ const Table = React.memo(function Table({
   const [sorting, setSorting] = useUrlSyncedState<SortingState>('sort', [], {
     custom: tableSortHandler,
   });
-  const [statuses, setStatuses] = useUrlSyncedState('status', [], { type: 'ARRAY' });
+  // const [statuses, setStatuses] = useUrlSyncedState('status', [], { type: 'ARRAY' });
+  const [statuses, debouncedStatuses, setStatuses] = useDebouncedUrlSyncedState('status', [], {
+    type: 'ARRAY',
+    debounceMs: 700,
+  });
 
   const sortBy = sorting[0]?.id || '';
   const sortOrder = sorting[0]?.desc ? 'desc' : 'asc';
@@ -138,11 +143,22 @@ const Table = React.memo(function Table({
     [setSorting, sorting]
   );
 
+  const handleStatusesChange = useCallback(
+    (updaterOrValue: StatusEnum[] | ((prev: StatusEnum[]) => StatusEnum[])) => {
+      const newStatuses =
+        typeof updaterOrValue === 'function'
+          ? updaterOrValue(statuses as StatusEnum[])
+          : updaterOrValue;
+      setStatuses(newStatuses);
+    },
+    [setStatuses, statuses]
+  );
+
   const { listings, fetchNextPage, hasNextPage, isLoading } = useListingsQuery({
     search: debouncedSearch,
-    sortBy: sortBy as 'title' | 'company' | 'posted_at' | 'updated_at',
+    sortBy: sortBy as 'title' | 'company' | 'posted_at' | 'last_status_at',
     sortOrder: sortOrder as 'asc' | 'desc',
-    statuses: statuses as StatusEnum[],
+    statuses: debouncedStatuses as StatusEnum[],
   });
 
   const table = useReactTable({
@@ -159,8 +175,8 @@ const Table = React.memo(function Table({
       size: 0,
     },
     meta: {
-      onStatusesChange: setStatuses,
-      statuses: statuses as StatusEnum[],
+      setStatuses: handleStatusesChange,
+      statuses,
     },
   });
 

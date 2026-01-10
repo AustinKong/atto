@@ -1,56 +1,29 @@
-import { Button, HStack, Menu, Portal, Text, useDisclosure } from '@chakra-ui/react';
-import { useEffect, useMemo, useState } from 'react';
+import { HStack, Menu, Portal, Text } from '@chakra-ui/react';
+import type { Dispatch, SetStateAction } from 'react';
 import { PiSliders } from 'react-icons/pi';
 
 import { STATUS_FILTER_OPTIONS } from '@/constants/statuses';
 import type { StatusEnum } from '@/types/application';
 
 export function StatusFilterMenu({
-  currentStatuses,
-  onStatusesChange,
+  statuses,
+  setStatuses,
 }: {
-  currentStatuses: StatusEnum[];
-  onStatusesChange: (statuses: StatusEnum[]) => void;
+  statuses: StatusEnum[];
+  setStatuses: Dispatch<SetStateAction<StatusEnum[]>>;
 }) {
-  const [draftStatuses, setDraftStatuses] = useState<StatusEnum[]>(currentStatuses);
-  const { open, setOpen, onClose } = useDisclosure();
-
-  useEffect(() => {
-    setDraftStatuses(currentStatuses);
-  }, [currentStatuses]);
-
-  const isDirty = useMemo(() => {
-    if (draftStatuses.length !== currentStatuses.length) return true;
-    return (
-      draftStatuses.some((status) => !currentStatuses.includes(status)) ||
-      currentStatuses.some((status) => !draftStatuses.includes(status))
-    );
-  }, [draftStatuses, currentStatuses]);
-
-  const handleDraftStatusChange = (status: StatusEnum, checked: boolean) => {
-    setDraftStatuses((prev) => {
+  const handleStatusChange = (status: StatusEnum, checked: boolean) => {
+    setStatuses((prev) => {
       if (checked) {
-        return [...prev, status];
+        return [...prev, status] as StatusEnum[];
       } else {
         return prev.filter((s) => s !== status);
       }
     });
   };
 
-  const handleOpenChange = (details: { open: boolean }) => {
-    setOpen(details.open);
-    if (details.open) {
-      setDraftStatuses(currentStatuses);
-    }
-  };
-
-  const handleApply = () => {
-    onStatusesChange(draftStatuses);
-    onClose();
-  };
-
   return (
-    <Menu.Root closeOnSelect={false} open={open} onOpenChange={handleOpenChange}>
+    <Menu.Root closeOnSelect={false}>
       <Menu.Trigger asChild>
         <HStack
           alignItems="center"
@@ -59,8 +32,8 @@ export function StatusFilterMenu({
           userSelect="none"
           onClick={(e) => e.stopPropagation()}
         >
-          <Text>Status {currentStatuses.length > 0 && `(${currentStatuses.length})`}</Text>
-          {currentStatuses.length == 0 && <PiSliders size="14" />}
+          <Text>Status {statuses.length > 0 && `(${statuses.length})`}</Text>
+          {statuses.length == 0 && <PiSliders size="14" />}
         </HStack>
       </Menu.Trigger>
       <Portal>
@@ -72,8 +45,8 @@ export function StatusFilterMenu({
                 <Menu.CheckboxItem
                   key={option.value}
                   value={option.value}
-                  checked={draftStatuses.includes(option.value)}
-                  onCheckedChange={(checked) => handleDraftStatusChange(option.value, checked)}
+                  checked={statuses.includes(option.value)}
+                  onCheckedChange={(checked) => handleStatusChange(option.value, checked)}
                 >
                   <option.icon />
                   <Text>{option.label}</Text>
@@ -81,10 +54,6 @@ export function StatusFilterMenu({
                 </Menu.CheckboxItem>
               ))}
             </Menu.ItemGroup>
-            <Menu.Separator />
-            <Button size="xs" w="full" disabled={!isDirty} onClick={handleApply}>
-              Apply Filters
-            </Button>
           </Menu.Content>
         </Menu.Positioner>
       </Portal>

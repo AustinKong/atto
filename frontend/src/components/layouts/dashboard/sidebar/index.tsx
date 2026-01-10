@@ -15,7 +15,7 @@ type NavItemConfig = {
 };
 
 const NAV_ITEMS: NavItemConfig[] = [
-  { label: 'Applications', path: '/applications', icon: <PiBookmarkSimple /> },
+  { label: 'Saved', path: '/listings', icon: <PiBookmarkSimple /> },
   { label: 'New Listing', path: '/listings/new', icon: <PiPlus /> },
   { label: 'Settings', path: '/settings', icon: <PiGear /> },
 ];

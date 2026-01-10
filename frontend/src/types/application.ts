@@ -1,4 +1,4 @@
-import type { ISODatetime } from '@/utils/date';
+import type { ISODate } from '@/utils/date';
 
 /**
  * Application Types
@@ -6,7 +6,7 @@ import type { ISODatetime } from '@/utils/date';
  * Type definitions for job applications and status events.
  * These types match the backend's flattened discriminated union structure.
  *
- * The backend stores status events with base fields as columns (id, created_at, notes, status)
+ * The backend stores status events with base fields as columns (id, date, notes, status)
  * and additional fields in a JSON payload column, but returns them flattened as discriminated unions.
  */
 
@@ -33,7 +33,7 @@ export type Person = {
 // Base status event fields (stored as columns in DB)
 type BaseStatusEvent = {
   id: string;
-  createdAt: ISODatetime;
+  date: ISODate;
   notes?: string;
 };
 

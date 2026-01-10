@@ -68,7 +68,7 @@ export async function getListings(
   size: number = 10,
   search?: string,
   status?: StatusEnum[],
-  sortBy?: 'title' | 'company' | 'posted_at' | 'updated_at',
+  sortBy?: 'title' | 'company' | 'posted_at' | 'last_status_at',
   sortDir?: 'asc' | 'desc'
 ): Promise<Page<ListingSummary>> {
   const params = new URLSearchParams({

@@ -11,18 +11,15 @@ export async function getApplication(applicationId: string): Promise<Application
   return json as Application;
 }
 
-export async function createApplication(
-  listingId: string,
-  resumeId?: string
-): Promise<Application> {
-  const response = await fetch('/api/applications', {
+export async function createApplication(listingId: string): Promise<Application> {
+  const response = await fetch('/api/applications/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       listingId,
-      resumeId,
+      statusEvents: [],
     }),
   });
 
@@ -36,7 +33,7 @@ export async function createApplication(
 
 export async function createStatusEvent(
   applicationId: string,
-  statusEvent: Omit<StatusEvent, 'id' | 'createdAt'>
+  statusEvent: Omit<StatusEvent, 'id'>
 ): Promise<Application> {
   const response = await fetch(`/api/applications/${applicationId}/events`, {
     method: 'POST',
@@ -57,7 +54,7 @@ export async function createStatusEvent(
 export async function updateStatusEvent(
   applicationId: string,
   eventId: string,
-  statusEvent: Omit<StatusEvent, 'id' | 'createdAt'>
+  statusEvent: Omit<StatusEvent, 'id'>
 ): Promise<Application> {
   const response = await fetch(`/api/applications/${applicationId}/events/${eventId}`, {
     method: 'PUT',
@@ -94,7 +91,7 @@ export async function deleteStatusEvent(
 // Legacy function name - keeping for backward compatibility
 export async function addStatusEvent(
   applicationId: string,
-  statusEvent: Omit<StatusEvent, 'id' | 'createdAt'>
+  statusEvent: Omit<StatusEvent, 'id'>
 ): Promise<Application> {
   return createStatusEvent(applicationId, statusEvent);
 }
