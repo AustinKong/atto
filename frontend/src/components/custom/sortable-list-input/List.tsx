@@ -1,4 +1,4 @@
-import { Box, type StackProps, VStack } from '@chakra-ui/react';
+import { Box, type StackProps, Text, VStack } from '@chakra-ui/react';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import React, { memo, useMemo } from 'react';
@@ -6,7 +6,7 @@ import React, { memo, useMemo } from 'react';
 import { SortableListInputItemContext, useSortableListInput } from './contexts';
 
 export function List({ children, ...props }: StackProps) {
-  const { fields, disabled, readOnly } = useSortableListInput();
+  const { fields, disabled, readOnly, append, defaultItem } = useSortableListInput();
 
   return (
     <SortableContext
@@ -15,11 +15,26 @@ export function List({ children, ...props }: StackProps) {
       disabled={disabled || readOnly}
     >
       <VStack align="stretch" gap="0" {...props}>
-        {fields.map((field: { id: string }, index: number) => (
-          <ItemKeyProvider key={field.id} id={field.id} index={index}>
-            {children}
-          </ItemKeyProvider>
-        ))}
+        {fields.length === 0 ? (
+          <Text fontSize="sm" color="fg.subtle" textAlign="center">
+            No items yet.{' '}
+            <Text
+              as="span"
+              textDecoration="underline"
+              cursor="pointer"
+              onClick={() => !disabled && !readOnly && append(defaultItem)}
+              _hover={{ color: 'fg' }}
+            >
+              Add one
+            </Text>
+          </Text>
+        ) : (
+          fields.map((field: { id: string }, index: number) => (
+            <ItemKeyProvider key={field.id} id={field.id} index={index}>
+              {children}
+            </ItemKeyProvider>
+          ))
+        )}
       </VStack>
     </SortableContext>
   );

@@ -9,6 +9,7 @@ from app.repositories import DatabaseRepository, VectorRepository
 from app.schemas import Listing, ListingSummary, Page, StatusEnum
 from app.utils.deduplication import fuzzy_text_similarity
 from app.utils.errors import NotFoundError
+from app.utils.status_ordering import generate_latest_event_cte
 
 
 class ListingsService(DatabaseRepository, VectorRepository):
@@ -65,7 +66,7 @@ class ListingsService(DatabaseRepository, VectorRepository):
 
     if status:
       placeholders = ', '.join('?' for _ in status)
-      conditions.append(f'a.current_status IN ({placeholders})')
+      conditions.append(f'le.status IN ({placeholders})')
       params.extend([s.value for s in status])
 
     where_clause = f'WHERE {" AND ".join(conditions)}' if conditions else ''
@@ -74,7 +75,7 @@ class ListingsService(DatabaseRepository, VectorRepository):
       'title': 'l.title',
       'company': 'l.company',
       'posted_at': 'l.posted_date',
-      'last_status_at': 'a.last_status_at',
+      'last_status_at': 'le.date',
     }
 
     if sort_by:
@@ -84,13 +85,16 @@ class ListingsService(DatabaseRepository, VectorRepository):
     else:
       order_by = 'l.id ASC'
 
+    latest_events_cte = generate_latest_event_cte()
+
     query = f"""
+      {latest_events_cte}
       SELECT 
         l.id, l.url, l.title, l.company, l.domain, l.location, l.posted_date,
-        a.last_status_at,
-        a.current_status
+        le.date as last_status_at,
+        le.status as current_status
       FROM listings l
-      LEFT JOIN applications a ON l.id = a.listing_id
+      LEFT JOIN latest_events le ON l.id = le.listing_id AND le.rn = 1
       {where_clause}
       GROUP BY l.id
       ORDER BY {order_by}
@@ -102,9 +106,10 @@ class ListingsService(DatabaseRepository, VectorRepository):
     listings = [ListingSummary(**dict(row)) for row in rows]
 
     count_query = f"""
+      {latest_events_cte}
       SELECT COUNT(DISTINCT l.id)
       FROM listings l
-      LEFT JOIN applications a ON l.id = a.listing_id
+      LEFT JOIN latest_events le ON l.id = le.listing_id AND le.rn = 1
       {where_clause}
     """
     total_count = self.fetch_one(count_query, tuple(params))

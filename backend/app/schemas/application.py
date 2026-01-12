@@ -7,6 +7,7 @@ from pydantic import Field, field_validator
 
 from app.schemas.dates import ISODate
 from app.schemas.types import CamelModel
+from app.utils.status_ordering import create_status_event_sort_key
 
 
 class StatusEnum(str, Enum):
@@ -39,7 +40,7 @@ class StatusEventSaved(BaseStatusEvent):
 
 class StatusEventApplied(BaseStatusEvent):
   status: Literal[StatusEnum.APPLIED] = StatusEnum.APPLIED
-  referral: Person | None = None
+  referrals: list[Person] = Field(default_factory=list)
 
 
 class StatusEventScreening(BaseStatusEvent):
@@ -49,7 +50,7 @@ class StatusEventScreening(BaseStatusEvent):
 class StatusEventInterview(BaseStatusEvent):
   status: Literal[StatusEnum.INTERVIEW] = StatusEnum.INTERVIEW
   stage: int
-  interviewers: list[Person] | None = None
+  interviewers: list[Person] = Field(default_factory=list)
   # TODO: Add date/time field? Location field?
 
 
@@ -104,35 +105,4 @@ class Application(CamelModel):
   @field_validator('status_events')
   @classmethod
   def sort_status_events(cls, events: list[StatusEvent]) -> list[StatusEvent]:
-    """
-    Sort status events by:
-    1. date (oldest first)
-    2. status enum order (saved -> applied -> screening -> interview ->
-       offer_received -> accepted -> rejected -> ghosted -> withdrawn -> rescinded)
-    3. stage (for interview events, ascending)
-    4. id (for consistent ordering)
-    """
-    status_order = {
-      StatusEnum.SAVED: 1,
-      StatusEnum.APPLIED: 2,
-      StatusEnum.SCREENING: 3,
-      StatusEnum.INTERVIEW: 4,
-      StatusEnum.OFFER_RECEIVED: 5,
-      StatusEnum.ACCEPTED: 6,
-      StatusEnum.REJECTED: 7,
-      StatusEnum.GHOSTED: 8,
-      StatusEnum.WITHDRAWN: 9,
-      StatusEnum.RESCINDED: 10,
-    }
-
-    def sort_key(event: StatusEvent):
-      stage = getattr(event, 'stage', float('inf'))
-
-      return (
-        event.date,
-        status_order[event.status],
-        stage,
-        str(event.id),
-      )
-
-    return sorted(events, key=sort_key)
+    return sorted(events, key=create_status_event_sort_key(reverse=False))

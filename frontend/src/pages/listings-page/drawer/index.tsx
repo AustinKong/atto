@@ -9,7 +9,7 @@ export { Info } from './info';
 export function ListingDrawer() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { listingId, applicationId } = useParams<{ listingId: string; applicationId?: string }>();
+  const { listingId } = useParams<{ listingId: string; applicationId?: string }>();
   const { data: listing, isLoading } = useListingQuery(listingId!);
 
   const activeTab =
@@ -19,14 +19,17 @@ export function ListingDrawer() {
         ? 'applications'
         : location.pathname.split('/').pop() || 'info';
 
+  const firstAppId = listing?.applications?.[0]?.id;
+
   const handleTabChange = (value: string) => {
     const baseUrl = `/listings/${listingId}`;
 
     const paths: Record<string, string> = {
       info: baseUrl,
       research: `${baseUrl}/research`,
-      applications: applicationId
-        ? `${baseUrl}/applications/${applicationId}`
+      // Direct link to the specific child, avoiding the redirect cycle
+      applications: firstAppId
+        ? `${baseUrl}/applications/${firstAppId}`
         : `${baseUrl}/applications`,
     };
 

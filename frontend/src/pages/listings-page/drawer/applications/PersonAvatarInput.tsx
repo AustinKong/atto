@@ -1,116 +1,65 @@
-import {
-  Avatar,
-  AvatarGroup,
-  Button,
-  CloseButton,
-  Float,
-  Group,
-  Input,
-  VStack,
-} from '@chakra-ui/react';
-import { useState } from 'react';
+import { Group, HStack, Input } from '@chakra-ui/react';
+import type { Control, UseFormRegister } from 'react-hook-form';
 
-import type { Person } from '@/types/application';
+import {
+  SortableListInput,
+  useSortableListInput,
+  useSortableListInputItem,
+} from '@/components/custom/sortable-list-input';
 
 /**
  * PersonAvatarInput Component
  *
  * Input component for adding and managing people (referrals, interviewers, etc.)
- * with avatar display and contact information.
+ * using a sortable list with name and contact fields.
  */
 
-interface PersonAvatarInputProps {
-  people: Person[];
-  onAddPerson: (person: Person) => void;
-  onRemovePerson: (index: number) => void;
+interface PersonAvatarInputProps<T extends Record<string, unknown>> {
+  control: Control<T>;
+  register: UseFormRegister<T>;
+  name: string;
+  label?: string;
 }
 
-export function PersonAvatarInput({ people, onAddPerson, onRemovePerson }: PersonAvatarInputProps) {
-  const [nameInput, setNameInput] = useState('');
-  const [contactInput, setContactInput] = useState('');
-
-  const handleAdd = () => {
-    if (nameInput.trim()) {
-      onAddPerson({
-        name: nameInput,
-        contact: contactInput || undefined,
-        avatarUrl: undefined,
-      });
-      setNameInput('');
-      setContactInput('');
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAdd();
-    }
-  };
-
-  // Calculate how many people are shown vs. hidden
-  const visibleCount = Math.min(people.length, 3);
-  const hiddenCount = Math.max(0, people.length - 3);
+function PersonListItem() {
+  const { register, name } = useSortableListInput();
+  const { index } = useSortableListInputItem();
 
   return (
-    <VStack gap="4" w="full" align="stretch">
-      {/* Input Section */}
-      <Group attached w="full">
+    <SortableListInput.Item>
+      <Group attached flex="1">
+        <Input {...register(`${name}.${index}.name` as const)} placeholder="Enter name" size="sm" />
         <Input
-          flex="1"
-          placeholder="Enter name"
-          value={nameInput}
-          onChange={(e) => setNameInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          size="sm"
-        />
-        <Input
-          flex="1"
+          {...register(`${name}.${index}.contact` as const)}
           placeholder="Email or phone"
-          value={contactInput}
-          onChange={(e) => setContactInput(e.target.value)}
-          onKeyDown={handleKeyDown}
           size="sm"
         />
-        <Button
-          bg="bg.subtle"
-          variant="outline"
-          onClick={handleAdd}
-          disabled={!nameInput.trim()}
-          size="sm"
-        >
-          Add
-        </Button>
       </Group>
+      <SortableListInput.DeleteButton />
+    </SortableListInput.Item>
+  );
+}
 
-      {/* Avatar Display Section */}
-      {people.length > 0 && (
-        <AvatarGroup size="sm" spaceX="1" borderless>
-          {people.slice(0, visibleCount).map((person, index) => (
-            <div key={index} style={{ position: 'relative' }}>
-              <Avatar.Root>
-                <Avatar.Fallback name={person.name} />
-                {person.avatarUrl && <Avatar.Image src={person.avatarUrl} />}
-              </Avatar.Root>
-              <Float placement="top-end" offsetX="1" offsetY="1">
-                <CloseButton
-                  size="2xs"
-                  borderRadius="full"
-                  onClick={() => onRemovePerson(index)}
-                  variant="solid"
-                  border="2px solid"
-                  borderColor="bg"
-                />
-              </Float>
-            </div>
-          ))}
-          {hiddenCount > 0 && (
-            <Avatar.Root>
-              <Avatar.Fallback>+{hiddenCount}</Avatar.Fallback>
-            </Avatar.Root>
-          )}
-        </AvatarGroup>
-      )}
-    </VStack>
+export function PersonAvatarInput<T extends Record<string, unknown>>({
+  control,
+  register,
+  name,
+  label = 'People',
+}: PersonAvatarInputProps<T>) {
+  return (
+    <SortableListInput.Root
+      control={control}
+      register={register}
+      name={name as never}
+      defaultItem={{ name: '', contact: '' } as never}
+    >
+      <HStack justify="space-between">
+        <SortableListInput.Label>{label}</SortableListInput.Label>
+        <SortableListInput.AddButton />
+      </HStack>
+      <SortableListInput.List>
+        <PersonListItem />
+      </SortableListInput.List>
+    </SortableListInput.Root>
   );
 }

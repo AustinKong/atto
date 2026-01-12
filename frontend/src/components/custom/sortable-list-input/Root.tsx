@@ -8,7 +8,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   type ArrayPath,
   type Control,
@@ -17,6 +17,8 @@ import {
   useFieldArray,
   type UseFormRegister,
 } from 'react-hook-form';
+
+import { useStableValue } from '@/hooks/utils/useStableValue';
 
 import { SortableListInputContext } from './contexts';
 
@@ -39,9 +41,8 @@ export function Root<T extends FieldValues>({
 }) {
   const { fields, remove, move, append, update, insert } = useFieldArray({ control, name });
 
-  useEffect(() => {
-    if (fields.length === 0) append(defaultItem);
-  }, [fields.length, append, defaultItem]);
+  // Stabilize defaultItem reference to prevent unnecessary re-renders and effect triggers
+  const stableDefaultItem = useStableValue(defaultItem);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: { y: 8 } } })
@@ -68,7 +69,7 @@ export function Root<T extends FieldValues>({
       name,
       disabled,
       readOnly,
-      defaultItem,
+      defaultItem: stableDefaultItem,
       control,
     }),
     [
@@ -81,7 +82,7 @@ export function Root<T extends FieldValues>({
       name,
       disabled,
       readOnly,
-      defaultItem,
+      stableDefaultItem,
       control,
     ]
   );

@@ -1,16 +1,14 @@
 import {
-  Avatar,
-  AvatarGroup,
   Heading,
   HStack,
+  Icon,
   IconButton,
-  Mark,
   Text,
   Timeline as ChakraTimeline,
   VStack,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { PiPlus } from 'react-icons/pi';
+import { PiPerson, PiPlus } from 'react-icons/pi';
 
 import { DisplayDate } from '@/components/custom/DisplayDate';
 import { Tooltip } from '@/components/ui/tooltip';
@@ -30,48 +28,32 @@ import { ApplicationModal } from './Modal';
  * Timeline Components
  *
  * Components for displaying and managing application timeline:
- * - PeopleSection: Displays referrals/interviewers with avatars
+ * - PeopleSection: Displays referrals/interviewers with person icon
  * - EditableTimelineItem: Individual timeline event with edit functionality
  * - ApplicationTimeline: Full timeline section with add event button
  */
 
-// Component to render people with avatars
+// Component to render people with names and tooltips
 function PeopleSection({ people, verb }: { people: Person[]; verb: 'Interview' | 'Referral' }) {
   if (!people || people.length === 0) return null;
 
-  const displayCount = Math.min(people.length, 3);
-  const extraCount = people.length - displayCount;
-
   return (
     <HStack gap="2" mt="2">
-      <AvatarGroup gap="0" spaceX="-3" size="2xs">
-        {people.slice(0, displayCount).map((person, idx) => {
-          // Generate a stable ID based on person name and index
-          const id = `${person.name}-${idx}`.replace(/\s+/g, '-').toLowerCase();
-          return (
-            <Tooltip
-              key={person.name}
-              ids={{ trigger: id }}
-              content={person.contact || person.name}
-            >
-              <Avatar.Root ids={{ root: id }}>
-                <Avatar.Fallback name={person.name} />
-                {person.avatarUrl && <Avatar.Image src={person.avatarUrl} />}
-              </Avatar.Root>
-            </Tooltip>
-          );
-        })}
-        {extraCount > 0 && (
-          <Avatar.Root variant="solid">
-            <Avatar.Fallback>+{extraCount}</Avatar.Fallback>
-          </Avatar.Root>
-        )}
-      </AvatarGroup>
+      <Icon>
+        <PiPerson />
+      </Icon>
       <Text color="fg.muted" fontSize="sm">
         {verb} by{' '}
-        <Mark variant="text" color="fg">
-          {people.map((p) => p.name).join(', ')}
-        </Mark>
+        {people.map((person, idx) => (
+          <span key={person.name}>
+            <Tooltip content={person.contact || person.name} positioning={{ placement: 'top' }}>
+              <Text color="fg" textDecoration="underline" as="span" cursor="pointer">
+                {person.name}
+              </Text>
+            </Tooltip>
+            {idx < people.length - 1 && ', '}
+          </span>
+        ))}
       </Text>
     </HStack>
   );
@@ -117,12 +99,16 @@ function TimelineItem({ event, application }: { event: StatusEvent; application:
         )}
 
         {/* Referrals / Interviewers Section */}
-        {event.status === 'applied' && (event as StatusEventApplied).referral && (
-          <PeopleSection people={[(event as StatusEventApplied).referral!]} verb="Referral" />
-        )}
-        {event.status === 'interview' && (event as StatusEventInterview).interviewers && (
-          <PeopleSection people={(event as StatusEventInterview).interviewers!} verb="Interview" />
-        )}
+        {event.status === 'applied' &&
+          (event as StatusEventApplied).referrals &&
+          (event as StatusEventApplied).referrals.length > 0 && (
+            <PeopleSection people={(event as StatusEventApplied).referrals} verb="Referral" />
+          )}
+        {event.status === 'interview' &&
+          (event as StatusEventInterview).interviewers &&
+          (event as StatusEventInterview).interviewers.length > 0 && (
+            <PeopleSection people={(event as StatusEventInterview).interviewers} verb="Interview" />
+          )}
 
         {/* View More + Edit Button Row */}
         {(event.notes || isEditable) && (

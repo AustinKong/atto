@@ -6,19 +6,19 @@ import {
   Field,
   HStack,
   Input,
-  NumberInput,
   Portal,
   Select,
   Textarea,
   VStack,
 } from '@chakra-ui/react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 
 import { STATUS_OPTIONS } from '@/constants/statuses';
 import { useApplicationMutations } from '@/hooks/applications';
 import type {
   Application,
+  Person,
   StatusEvent,
   StatusEventApplied,
   StatusEventInterview,
@@ -37,6 +37,15 @@ import { PersonAvatarInput } from './PersonAvatarInput';
  * When provided, uses the application's ID for mutations.
  */
 
+interface FormValues extends Record<string, unknown> {
+  status: StatusEvent['status'];
+  date: string;
+  notes: string;
+  stage: number;
+  referrals: Person[];
+  interviewers: Person[];
+}
+
 interface ApplicationModalProps {
   open: boolean;
   onOpenChange: (details: { open: boolean }) => void;
@@ -53,34 +62,66 @@ export function ApplicationModal({
   isNewEvent = false,
 }: ApplicationModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState(event.status);
-  const [selectedDate, setSelectedDate] = useState(
-    isNewEvent ? new Date().toISOString().split('T')[0] : event.date
-  );
-  const [stage, setStage] = useState(
-    event.status === 'interview' ? (event as StatusEventInterview).stage : 1
-  );
-  const [referral, setReferral] = useState(
-    event.status === 'applied' ? (event as StatusEventApplied).referral : undefined
-  );
-  const [interviewers, setInterviewers] = useState(
-    event.status === 'interview' ? (event as StatusEventInterview).interviewers || [] : []
-  );
 
   // Get mutations
   const { createStatusEvent, updateStatusEvent, deleteStatusEvent } = useApplicationMutations();
 
-  const { register, handleSubmit } = useForm<StatusEvent>({
+  const { register, handleSubmit, control, reset, watch } = useForm<FormValues>({
     defaultValues: isNewEvent
       ? {
-          id: 'new-event',
           status: 'applied',
-          date: new Date().toISOString().split('T')[0] as import('@/utils/date').ISODate,
+          date: new Date().toISOString().split('T')[0],
           notes: '',
+          stage: 1,
+          referrals: [],
+          interviewers: [],
         }
-      : event,
+      : {
+          status: event.status,
+          date: event.date,
+          notes: event.notes || '',
+          stage: event.status === 'interview' ? (event as StatusEventInterview).stage : 1,
+          referrals:
+            event.status === 'applied' ? (event as StatusEventApplied).referrals || [] : [],
+          interviewers:
+            event.status === 'interview' ? (event as StatusEventInterview).interviewers || [] : [],
+        },
   });
 
+  // Reset form and local state when modal closes OR when event/isNewEvent changes
+  useEffect(() => {
+    if (!open) {
+      reset();
+      setIsLoading(false);
+    } else {
+      // When modal opens, reset form with current event data
+      reset(
+        isNewEvent
+          ? {
+              status: 'applied',
+              date: new Date().toISOString().split('T')[0],
+              notes: '',
+              stage: 1,
+              referrals: [],
+              interviewers: [],
+            }
+          : {
+              status: event.status,
+              date: event.date,
+              notes: event.notes || '',
+              stage: event.status === 'interview' ? (event as StatusEventInterview).stage : 1,
+              referrals:
+                event.status === 'applied' ? (event as StatusEventApplied).referrals || [] : [],
+              interviewers:
+                event.status === 'interview'
+                  ? (event as StatusEventInterview).interviewers || []
+                  : [],
+            }
+      );
+    }
+  }, [open, reset, isNewEvent, event]);
+
+  const selectedStatus = watch('status');
   const showStageField = selectedStatus === 'interview';
 
   const statusCollection = createListCollection({
@@ -90,24 +131,22 @@ export function ApplicationModal({
     })),
   });
 
-  const onSubmit = async (data: StatusEvent) => {
+  const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     try {
       // Build the event data with the selected status and date
       const eventData: Partial<StatusEvent> = {
-        status: selectedStatus,
-        date: selectedDate as import('@/utils/date').ISODate,
+        status: selectedStatus, // Use selectedStatus from state, not data.status
+        date: data.date as import('@/utils/date').ISODate,
         notes: data.notes || '',
       };
 
       // Add status-specific fields
       if (selectedStatus === 'interview') {
-        (eventData as StatusEventInterview).stage = stage;
-        if (interviewers.length > 0) {
-          (eventData as StatusEventInterview).interviewers = interviewers;
-        }
-      } else if (selectedStatus === 'applied' && referral) {
-        (eventData as StatusEventApplied).referral = referral;
+        (eventData as StatusEventInterview).stage = data.stage;
+        (eventData as StatusEventInterview).interviewers = data.interviewers;
+      } else if (selectedStatus === 'applied') {
+        (eventData as StatusEventApplied).referrals = data.referrals;
       }
 
       if (!application?.id) {
@@ -118,12 +157,14 @@ export function ApplicationModal({
         // Don't send id field when creating - backend will generate it
         await createStatusEvent({
           applicationId: application.id,
+          listingId: application.listingId,
           statusEvent: eventData as Omit<StatusEvent, 'id'>,
         });
       } else {
         // When editing
         await updateStatusEvent({
           applicationId: application.id,
+          listingId: application.listingId,
           eventId: event.id,
           statusEvent: eventData as Omit<StatusEvent, 'id'>,
         });
@@ -144,6 +185,7 @@ export function ApplicationModal({
       }
       await deleteStatusEvent({
         applicationId: application.id,
+        listingId: application.listingId,
         eventId: event.id,
       });
       onOpenChange({ open: false });
@@ -172,66 +214,60 @@ export function ApplicationModal({
                 <HStack gap="4" align="flex-end">
                   <Field.Root flex="2">
                     <Field.Label>Status</Field.Label>
-                    <Select.Root
-                      size="sm"
-                      collection={statusCollection}
-                      value={[selectedStatus]}
-                      onValueChange={(details) => {
-                        setSelectedStatus(details.value[0] as StatusEvent['status']);
-                      }}
-                    >
-                      <Select.HiddenSelect />
-                      <Select.Control>
-                        <Select.Trigger>
-                          <Select.ValueText />
-                        </Select.Trigger>
-                        <Select.IndicatorGroup>
-                          <Select.Indicator />
-                        </Select.IndicatorGroup>
-                      </Select.Control>
-                      <Select.Positioner zIndex="popover">
-                        <Select.Content>
-                          {statusCollection.items.map(
-                            (item: (typeof statusCollection.items)[0]) => (
-                              <Select.Item key={item.value} item={item}>
-                                {item.label}
-                              </Select.Item>
-                            )
-                          )}
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Select.Root>
+                    <Controller
+                      control={control}
+                      name="status"
+                      render={({ field }) => (
+                        <Select.Root
+                          size="sm"
+                          collection={statusCollection}
+                          name={field.name}
+                          value={field.value ? [field.value] : []}
+                          onValueChange={({ value }) => field.onChange(value[0])}
+                          onInteractOutside={() => field.onBlur()}
+                        >
+                          <Select.HiddenSelect />
+                          <Select.Control>
+                            <Select.Trigger>
+                              <Select.ValueText />
+                            </Select.Trigger>
+                            <Select.IndicatorGroup>
+                              <Select.Indicator />
+                            </Select.IndicatorGroup>
+                          </Select.Control>
+                          <Select.Positioner zIndex="popover">
+                            <Select.Content>
+                              {statusCollection.items.map(
+                                (item: (typeof statusCollection.items)[0]) => (
+                                  <Select.Item key={item.value} item={item}>
+                                    {item.label}
+                                  </Select.Item>
+                                )
+                              )}
+                            </Select.Content>
+                          </Select.Positioner>
+                        </Select.Root>
+                      )}
+                    />
                   </Field.Root>
 
                   {showStageField && (
                     <Field.Root flex="1">
                       <Field.Label>Stage</Field.Label>
-                      <NumberInput.Root
+                      <Input
+                        type="number"
                         size="sm"
-                        value={String(stage)}
                         min={1}
                         max={100}
-                        onValueChange={(details) => {
-                          const num = parseInt(details.value, 10);
-                          if (!isNaN(num) && num >= 1 && num <= 100) {
-                            setStage(num);
-                          }
-                        }}
-                      >
-                        <NumberInput.Control />
-                        <NumberInput.Input placeholder="Stage number" />
-                      </NumberInput.Root>
+                        placeholder="Stage number"
+                        {...register('stage', { valueAsNumber: true })}
+                      />
                     </Field.Root>
                   )}
 
                   <Field.Root flex="1">
                     <Field.Label>Date</Field.Label>
-                    <Input
-                      type="date"
-                      size="sm"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                    />
+                    <Input type="date" size="sm" {...register('date')} />
                   </Field.Root>
                 </HStack>
 
@@ -246,39 +282,14 @@ export function ApplicationModal({
                   />
                 </Field.Root>
 
-                {/* Referrals */}
-                {selectedStatus === 'applied' && (
-                  <Field.Root>
-                    <Field.Label>Add Referrals</Field.Label>
-                    <PersonAvatarInput
-                      people={referral ? [referral] : []}
-                      onAddPerson={(person) => {
-                        // Backend only supports single referral
-                        setReferral(person);
-                      }}
-                      onRemovePerson={() => {
-                        setReferral(undefined);
-                      }}
-                    />
-                  </Field.Root>
-                )}
-
-                {/* Interviewers */}
-                {showStageField && (
-                  <Field.Root>
-                    <Field.Label>Add Interviewers</Field.Label>
-                    <PersonAvatarInput
-                      people={interviewers}
-                      onAddPerson={(person) => {
-                        setInterviewers([...interviewers, person]);
-                      }}
-                      onRemovePerson={(index) => {
-                        setInterviewers(
-                          interviewers.filter((_: unknown, i: number) => i !== index)
-                        );
-                      }}
-                    />
-                  </Field.Root>
+                {/* People (Referrals or Interviewers based on status) */}
+                {(selectedStatus === 'applied' || selectedStatus === 'interview') && (
+                  <PersonAvatarInput<FormValues>
+                    control={control}
+                    register={register}
+                    name={selectedStatus === 'applied' ? 'referrals' : 'interviewers'}
+                    label={selectedStatus === 'applied' ? 'Referrals' : 'Interviewers'}
+                  />
                 )}
               </VStack>
             </Dialog.Body>

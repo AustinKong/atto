@@ -44,7 +44,7 @@ export type StatusEventSaved = BaseStatusEvent & {
 
 export type StatusEventApplied = BaseStatusEvent & {
   status: 'applied';
-  referral?: Person;
+  referrals: Person[];
 };
 
 export type StatusEventScreening = BaseStatusEvent & {
@@ -54,7 +54,7 @@ export type StatusEventScreening = BaseStatusEvent & {
 export type StatusEventInterview = BaseStatusEvent & {
   status: 'interview';
   stage: number;
-  interviewers?: Person[];
+  interviewers: Person[];
 };
 
 export type StatusEventOfferReceived = BaseStatusEvent & {

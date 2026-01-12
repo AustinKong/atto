@@ -27,12 +27,15 @@ export function useApplicationMutations() {
       statusEvent,
     }: {
       applicationId: string;
+      listingId: string;
       statusEvent: Omit<StatusEvent, 'id'>;
     }) => {
       return await createStatusEventSvc(applicationId, statusEvent);
     },
-    onSuccess: (_data, { applicationId }) => {
+    onSuccess: (_data, { applicationId, listingId }) => {
       queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
+      queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
+      queryClient.invalidateQueries({ queryKey: ['listings'] }); // Invalidate main table
     },
   });
 
@@ -43,22 +46,34 @@ export function useApplicationMutations() {
       statusEvent,
     }: {
       applicationId: string;
+      listingId: string;
       eventId: string;
       statusEvent: Omit<StatusEvent, 'id'>;
     }) => {
       return await updateStatusEventSvc(applicationId, eventId, statusEvent);
     },
-    onSuccess: (_data, { applicationId }) => {
+    onSuccess: (_data, { applicationId, listingId }) => {
       queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
+      queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
+      queryClient.invalidateQueries({ queryKey: ['listings'] }); // Invalidate main table
     },
   });
 
   const { mutateAsync: deleteStatusEvent, isPending: isDeleteStatusEventLoading } = useMutation({
-    mutationFn: async ({ applicationId, eventId }: { applicationId: string; eventId: string }) => {
+    mutationFn: async ({
+      applicationId,
+      eventId,
+    }: {
+      applicationId: string;
+      listingId: string;
+      eventId: string;
+    }) => {
       return await deleteStatusEventSvc(applicationId, eventId);
     },
-    onSuccess: (_data, { applicationId }) => {
+    onSuccess: (_data, { applicationId, listingId }) => {
       queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
+      queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
+      queryClient.invalidateQueries({ queryKey: ['listings'] }); // Invalidate main table
     },
   });
 

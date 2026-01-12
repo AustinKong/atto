@@ -5,9 +5,9 @@ import { PiX } from 'react-icons/pi';
 import { useSortableListInput, useSortableListInputItem } from './contexts';
 
 export const DeleteButton = memo((props: Omit<IconButtonProps, 'disabled'>) => {
-  const { remove, fields, disabled, readOnly } = useSortableListInput();
+  const { remove, disabled, readOnly } = useSortableListInput();
   const { index } = useSortableListInputItem();
-  const isLocked = disabled || readOnly || fields.length <= 1;
+  const isLocked = disabled || readOnly;
 
   return (
     <IconButton

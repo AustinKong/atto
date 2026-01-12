@@ -1,6 +1,6 @@
 import { Center, Heading, HStack, IconButton, Spinner, Text, VStack } from '@chakra-ui/react';
 import { PiPlus } from 'react-icons/pi';
-import { Navigate, useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import { useApplicationMutations, useApplicationQuery } from '@/hooks/applications';
 import { useListingQuery } from '@/hooks/listings';
@@ -31,11 +31,6 @@ export function Applications() {
   }
 
   const hasApplications = listing.applications && listing.applications.length > 0;
-  if (!applicationId && hasApplications) {
-    return (
-      <Navigate to={`/listings/${listingId}/applications/${listing.applications[0].id}`} replace />
-    );
-  }
 
   const handleCreateApplication = async () => {
     const { id } = await createApplication(listing.id);
