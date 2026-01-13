@@ -13,13 +13,13 @@ class ListingBase(CamelModel):
   company: str
   domain: str
   location: str | None = None
-  description: str
   posted_date: ISODate | None = None
 
 
 class Listing(ListingBase):
   id: UUID = Field(default_factory=uuid4)
   url: HttpUrl
+  description: str
 
   skills: Annotated[
     list[str],
@@ -36,14 +36,8 @@ class Listing(ListingBase):
   applications: list[Application] = Field(default_factory=list)
 
 
-# TODO: DRY
-class ListingSummary(CamelModel):
+class ListingSummary(ListingBase):
   id: UUID
   url: HttpUrl
-  title: str
-  company: str
-  domain: str
-  location: str | None = None
-  posted_date: ISODate | None = None
   current_status: StatusEnum | None = None
   last_status_at: str | None = None

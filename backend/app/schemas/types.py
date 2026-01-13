@@ -1,11 +1,9 @@
 import json
 from collections.abc import Callable
-from typing import Annotated, Any, Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
-from pydantic import BaseModel, ConfigDict, StringConstraints
+from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
-
-YearMonth = Annotated[str, StringConstraints(pattern=r'^\d{4}-\d{2}$')]
 
 T = TypeVar('T')
 

@@ -5,9 +5,8 @@ from uuid import UUID, uuid4
 
 from pydantic import Field, field_validator
 
-from app.schemas.dates import ISODate
+from app.schemas.dates import ISODate, ISODatetime
 from app.schemas.types import CamelModel
-from app.utils.status_ordering import create_status_event_sort_key
 
 
 class StatusEnum(str, Enum):
@@ -21,6 +20,23 @@ class StatusEnum(str, Enum):
   GHOSTED = 'ghosted'
   WITHDRAWN = 'withdrawn'
   RESCINDED = 'rescinded'
+
+  # Metadata for ordering StatusEvents in utils/status_ordering.py
+  @property
+  def priority(self) -> int:
+    """Return the priority order for this status (lower = earlier in process)."""
+    return {
+      self.SAVED: 1,
+      self.APPLIED: 2,
+      self.SCREENING: 3,
+      self.INTERVIEW: 4,
+      self.OFFER_RECEIVED: 5,
+      self.ACCEPTED: 6,
+      self.REJECTED: 7,
+      self.GHOSTED: 8,
+      self.WITHDRAWN: 9,
+      self.RESCINDED: 10,
+    }[self]
 
 
 class Person(CamelModel):
@@ -51,7 +67,8 @@ class StatusEventInterview(BaseStatusEvent):
   status: Literal[StatusEnum.INTERVIEW] = StatusEnum.INTERVIEW
   stage: int
   interviewers: list[Person] = Field(default_factory=list)
-  # TODO: Add date/time field? Location field?
+  scheduled_at: ISODatetime | None = None
+  location: str | None = None
 
 
 class StatusEventOfferReceived(BaseStatusEvent):
@@ -105,4 +122,6 @@ class Application(CamelModel):
   @field_validator('status_events')
   @classmethod
   def sort_status_events(cls, events: list[StatusEvent]) -> list[StatusEvent]:
+    from app.utils.status_ordering import create_status_event_sort_key
+
     return sorted(events, key=create_status_event_sort_key(reverse=False))

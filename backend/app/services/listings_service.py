@@ -9,7 +9,7 @@ from app.repositories import DatabaseRepository, VectorRepository
 from app.schemas import Listing, ListingSummary, Page, StatusEnum
 from app.utils.deduplication import fuzzy_text_similarity
 from app.utils.errors import NotFoundError
-from app.utils.status_ordering import generate_latest_event_cte
+from app.utils.status_ordering import generate_latest_event_sql
 
 
 class ListingsService(DatabaseRepository, VectorRepository):
@@ -85,7 +85,7 @@ class ListingsService(DatabaseRepository, VectorRepository):
     else:
       order_by = 'l.id ASC'
 
-    latest_events_cte = generate_latest_event_cte()
+    latest_events_cte = generate_latest_event_sql()
 
     query = f"""
       {latest_events_cte}

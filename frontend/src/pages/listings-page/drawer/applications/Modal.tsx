@@ -27,6 +27,34 @@ import type {
 import { PersonAvatarInput } from './PersonAvatarInput';
 
 /**
+ * Convert ISO datetime string to datetime-local input format (YYYY-MM-DDTHH:MM)
+ * Converts from UTC to local timezone
+ */
+function isoToDatetimeLocal(isoString: string | undefined): string {
+  if (!isoString) return '';
+  const date = new Date(isoString);
+  // Format as YYYY-MM-DDTHH:MM in local timezone
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+/**
+ * Convert datetime-local input value to ISO datetime string
+ * Converts from local timezone to UTC
+ */
+function datetimeLocalToISO(datetimeLocal: string | undefined): string {
+  if (!datetimeLocal) return '';
+  // Create Date object from local datetime string
+  const date = new Date(datetimeLocal);
+  // Convert to ISO string (which is in UTC)
+  return date.toISOString();
+}
+
+/**
  * ApplicationModal Component
  *
  * Modal for creating and editing application timeline events.
@@ -44,6 +72,8 @@ interface FormValues extends Record<string, unknown> {
   stage: number;
   referrals: Person[];
   interviewers: Person[];
+  scheduledAt: string;
+  location: string;
 }
 
 interface ApplicationModalProps {
@@ -75,6 +105,8 @@ export function ApplicationModal({
           stage: 1,
           referrals: [],
           interviewers: [],
+          scheduledAt: '',
+          location: '',
         }
       : {
           status: event.status,
@@ -85,6 +117,12 @@ export function ApplicationModal({
             event.status === 'applied' ? (event as StatusEventApplied).referrals || [] : [],
           interviewers:
             event.status === 'interview' ? (event as StatusEventInterview).interviewers || [] : [],
+          scheduledAt:
+            event.status === 'interview'
+              ? isoToDatetimeLocal((event as StatusEventInterview).scheduledAt)
+              : '',
+          location:
+            event.status === 'interview' ? (event as StatusEventInterview).location || '' : '',
         },
   });
 
@@ -104,6 +142,8 @@ export function ApplicationModal({
               stage: 1,
               referrals: [],
               interviewers: [],
+              scheduledAt: '',
+              location: '',
             }
           : {
               status: event.status,
@@ -116,6 +156,12 @@ export function ApplicationModal({
                 event.status === 'interview'
                   ? (event as StatusEventInterview).interviewers || []
                   : [],
+              scheduledAt:
+                event.status === 'interview'
+                  ? isoToDatetimeLocal((event as StatusEventInterview).scheduledAt)
+                  : '',
+              location:
+                event.status === 'interview' ? (event as StatusEventInterview).location || '' : '',
             }
       );
     }
@@ -145,6 +191,14 @@ export function ApplicationModal({
       if (selectedStatus === 'interview') {
         (eventData as StatusEventInterview).stage = data.stage;
         (eventData as StatusEventInterview).interviewers = data.interviewers;
+        if (data.scheduledAt) {
+          (eventData as StatusEventInterview).scheduledAt = datetimeLocalToISO(
+            data.scheduledAt
+          ) as import('@/utils/date').ISODatetime;
+        }
+        if (data.location) {
+          (eventData as StatusEventInterview).location = data.location;
+        }
       } else if (selectedStatus === 'applied') {
         (eventData as StatusEventApplied).referrals = data.referrals;
       }
@@ -270,6 +324,31 @@ export function ApplicationModal({
                     <Input type="date" size="sm" {...register('date')} />
                   </Field.Root>
                 </HStack>
+
+                {/* Interview-specific fields: Scheduled Time and Location */}
+                {showStageField && (
+                  <HStack gap="4" align="flex-end">
+                    <Field.Root flex="1">
+                      <Field.Label>Scheduled Time</Field.Label>
+                      <Input
+                        type="datetime-local"
+                        size="sm"
+                        placeholder="Interview time"
+                        {...register('scheduledAt')}
+                      />
+                    </Field.Root>
+
+                    <Field.Root flex="1">
+                      <Field.Label>Location</Field.Label>
+                      <Input
+                        type="text"
+                        size="sm"
+                        placeholder="e.g., Zoom, Office Room 301"
+                        {...register('location')}
+                      />
+                    </Field.Root>
+                  </HStack>
+                )}
 
                 {/* Notes */}
                 <Field.Root>

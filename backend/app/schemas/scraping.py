@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Annotated, Generic, Literal, TypeVar
 from uuid import UUID, uuid4
 
@@ -10,6 +11,13 @@ from app.schemas.types import CamelModel
 T = TypeVar('T')
 
 
+class DraftStatusEnum(str, Enum):
+  UNIQUE = 'unique'
+  DUPLICATE_URL = 'duplicate_url'
+  DUPLICATE_CONTENT = 'duplicate_content'
+  ERROR = 'error'
+
+
 class GroundedItem(CamelModel, Generic[T]):
   value: T
   quote: str | None = Field(
@@ -18,6 +26,7 @@ class GroundedItem(CamelModel, Generic[T]):
 
 
 class ListingExtraction(ListingBase):
+  description: str
   skills: list[GroundedItem[str]] = Field(default_factory=list)
   requirements: list[GroundedItem[str]] = Field(default_factory=list)
 
@@ -48,25 +57,25 @@ class BaseListingDraft(CamelModel):
 
 
 class ListingDraftUnique(BaseListingDraft):
-  status: Literal['unique'] = 'unique'
+  status: Literal[DraftStatusEnum.UNIQUE] = DraftStatusEnum.UNIQUE
   listing: ListingExtraction
   html: str | None
 
 
 class ListingDraftDuplicateUrl(BaseListingDraft):
-  status: Literal['duplicate_url'] = 'duplicate_url'
+  status: Literal[DraftStatusEnum.DUPLICATE_URL] = DraftStatusEnum.DUPLICATE_URL
   duplicate_of: Listing
 
 
 class ListingDraftDuplicateContent(BaseListingDraft):
-  status: Literal['duplicate_content'] = 'duplicate_content'
+  status: Literal[DraftStatusEnum.DUPLICATE_CONTENT] = DraftStatusEnum.DUPLICATE_CONTENT
   listing: ListingExtraction
   duplicate_of: Listing
   html: str | None
 
 
 class ListingDraftError(BaseListingDraft):
-  status: Literal['error'] = 'error'
+  status: Literal[DraftStatusEnum.ERROR] = DraftStatusEnum.ERROR
   error: str
   html: str | None
 

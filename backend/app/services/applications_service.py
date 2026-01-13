@@ -168,7 +168,7 @@ class ApplicationsService(DatabaseRepository):
       self._sync_application_status(application_id)
 
   def _extract_payload_from_event(self, status_event: StatusEvent) -> dict[str, Any]:
-    event_dict = status_event.model_dump()
+    event_dict = status_event.model_dump(mode='json')
 
     # Remove base fields that are stored as columns
     base_fields = {'id', 'date', 'notes', 'status'}

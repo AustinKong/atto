@@ -20,7 +20,7 @@ import type {
   StatusEventApplied,
   StatusEventInterview,
 } from '@/types/application';
-import { ISODate as ISODateUtils } from '@/utils/date';
+import { ISODate as ISODateUtils, ISODatetime } from '@/utils/date';
 
 import { ApplicationModal } from './Modal';
 
@@ -109,6 +109,22 @@ function TimelineItem({ event, application }: { event: StatusEvent; application:
           (event as StatusEventInterview).interviewers.length > 0 && (
             <PeopleSection people={(event as StatusEventInterview).interviewers} verb="Interview" />
           )}
+
+        {/* Interview-specific details: Scheduled Time and Location */}
+        {event.status === 'interview' && (
+          <VStack align="stretch" gap="1" mt="2">
+            {(event as StatusEventInterview).scheduledAt && (
+              <Text fontSize="sm" color="fg.muted">
+                🕒 {ISODatetime.format((event as StatusEventInterview).scheduledAt!)}
+              </Text>
+            )}
+            {(event as StatusEventInterview).location && (
+              <Text fontSize="sm" color="fg.muted">
+                📍 {(event as StatusEventInterview).location}
+              </Text>
+            )}
+          </VStack>
+        )}
 
         {/* View More + Edit Button Row */}
         {(event.notes || isEditable) && (

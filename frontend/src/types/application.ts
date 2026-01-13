@@ -1,4 +1,4 @@
-import type { ISODate } from '@/utils/date';
+import type { ISODate, ISODatetime } from '@/utils/date';
 
 /**
  * Application Types
@@ -55,6 +55,8 @@ export type StatusEventInterview = BaseStatusEvent & {
   status: 'interview';
   stage: number;
   interviewers: Person[];
+  scheduledAt?: ISODatetime;
+  location?: string;
 };
 
 export type StatusEventOfferReceived = BaseStatusEvent & {
