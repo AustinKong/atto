@@ -87,11 +87,3 @@ export async function deleteStatusEvent(
   const json = await response.json();
   return json as Application;
 }
-
-// Legacy function name - keeping for backward compatibility
-export async function addStatusEvent(
-  applicationId: string,
-  statusEvent: Omit<StatusEvent, 'id'>
-): Promise<Application> {
-  return createStatusEvent(applicationId, statusEvent);
-}

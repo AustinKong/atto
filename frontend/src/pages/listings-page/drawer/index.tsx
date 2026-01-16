@@ -1,40 +1,22 @@
-import { Center, CloseButton, Spinner, Tabs } from '@chakra-ui/react';
-import { Outlet, useLocation, useNavigate, useParams } from 'react-router';
+import { Box, Center, CloseButton, Spinner, Tabs } from '@chakra-ui/react';
+import { Link, Outlet, useMatch, useNavigate, useParams } from 'react-router';
 
 import { useListingQuery } from '@/hooks/listings';
+
+import { type DrawerContext } from './drawerContext';
 
 export { Applications } from './applications';
 export { Info } from './info';
 
 export function ListingDrawer() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { listingId } = useParams<{ listingId: string; applicationId?: string }>();
   const { data: listing, isLoading } = useListingQuery(listingId!);
 
-  const activeTab =
-    location.pathname.split('/').pop() === listingId
-      ? 'info'
-      : location.pathname.includes('applications')
-        ? 'applications'
-        : location.pathname.split('/').pop() || 'info';
+  const isResearch = useMatch('/listings/:listingId/research');
+  const isApplications = useMatch('/listings/:listingId/applications/*');
 
-  const firstAppId = listing?.applications?.[0]?.id;
-
-  const handleTabChange = (value: string) => {
-    const baseUrl = `/listings/${listingId}`;
-
-    const paths: Record<string, string> = {
-      info: baseUrl,
-      research: `${baseUrl}/research`,
-      // Direct link to the specific child, avoiding the redirect cycle
-      applications: firstAppId
-        ? `${baseUrl}/applications/${firstAppId}`
-        : `${baseUrl}/applications`,
-    };
-
-    navigate(paths[value], { replace: true });
-  };
+  const activeTab = isResearch ? 'research' : isApplications ? 'applications' : 'info';
 
   if (isLoading) {
     return (
@@ -59,17 +41,17 @@ export function ListingDrawer() {
   }
 
   return (
-    <Tabs.Root
-      h="full"
-      display="flex"
-      flexDirection="column"
-      value={activeTab}
-      onValueChange={(e) => handleTabChange(e.value)}
-    >
+    <Tabs.Root h="full" display="flex" flexDirection="column" value={activeTab} navigate={() => {}}>
       <Tabs.List borderBottom="none">
-        <Tabs.Trigger value="info">Details</Tabs.Trigger>
-        <Tabs.Trigger value="applications">Applications</Tabs.Trigger>
-        <Tabs.Trigger value="research">Research</Tabs.Trigger>
+        <Tabs.Trigger value="info" asChild>
+          <Link to={`/listings/${listingId}`}>Details</Link>
+        </Tabs.Trigger>
+        <Tabs.Trigger value="applications" asChild>
+          <Link to={`/listings/${listingId}/applications`}>Applications</Link>
+        </Tabs.Trigger>
+        <Tabs.Trigger value="research" asChild>
+          <Link to={`/listings/${listingId}/research`}>Research</Link>
+        </Tabs.Trigger>
         <CloseButton
           position="absolute"
           right="0"
@@ -77,9 +59,9 @@ export function ListingDrawer() {
           variant="plain"
         />
       </Tabs.List>
-      <Tabs.Content value={activeTab} flex="1" overflowY="auto">
-        <Outlet />
-      </Tabs.Content>
+      <Box flex="1" overflowY="auto" py="2">
+        <Outlet context={{ listing } satisfies DrawerContext} />
+      </Box>
     </Tabs.Root>
   );
 }

@@ -1,4 +1,5 @@
 import {
+  Collapsible,
   Heading,
   HStack,
   Icon,
@@ -7,7 +8,7 @@ import {
   Timeline as ChakraTimeline,
   VStack,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { LuClock, LuMapPin } from 'react-icons/lu';
 import { PiPerson, PiPlus } from 'react-icons/pi';
 
 import { DisplayDate } from '@/components/custom/DisplayDate';
@@ -15,30 +16,31 @@ import { Tooltip } from '@/components/ui/tooltip';
 import { getStatusText, STATUS_DEFINITIONS } from '@/constants/statuses';
 import type {
   Application,
-  Person,
   StatusEvent,
   StatusEventApplied,
   StatusEventInterview,
 } from '@/types/application';
-import { ISODate as ISODateUtils, ISODatetime } from '@/utils/date';
 
-import { ApplicationModal } from './Modal';
+import { useStatusEvent } from './status-event-modal';
 
-/**
- * Timeline Components
- *
- * Components for displaying and managing application timeline:
- * - PeopleSection: Displays referrals/interviewers with person icon
- * - EditableTimelineItem: Individual timeline event with edit functionality
- * - ApplicationTimeline: Full timeline section with add event button
- */
+function StatusEventPeople({ event }: { event: StatusEvent }) {
+  let people: StatusEventApplied['referrals'] | StatusEventInterview['interviewers'];
+  let verb: string;
 
-// Component to render people with names and tooltips
-function PeopleSection({ people, verb }: { people: Person[]; verb: 'Interview' | 'Referral' }) {
+  if (event.status === 'applied') {
+    people = (event as StatusEventApplied).referrals;
+    verb = 'Referral';
+  } else if (event.status === 'interview') {
+    people = (event as StatusEventInterview).interviewers;
+    verb = 'Interview';
+  } else {
+    return null;
+  }
+
   if (!people || people.length === 0) return null;
 
   return (
-    <HStack gap="2" mt="2">
+    <HStack gap="2">
       <Icon>
         <PiPerson />
       </Icon>
@@ -46,7 +48,7 @@ function PeopleSection({ people, verb }: { people: Person[]; verb: 'Interview' |
         {verb} by{' '}
         {people.map((person, idx) => (
           <span key={person.name}>
-            <Tooltip content={person.contact || person.name} positioning={{ placement: 'top' }}>
+            <Tooltip content={person.contact || person.name}>
               <Text color="fg" textDecoration="underline" as="span" cursor="pointer">
                 {person.name}
               </Text>
@@ -59,14 +61,61 @@ function PeopleSection({ people, verb }: { people: Person[]; verb: 'Interview' |
   );
 }
 
-// Editable Timeline Item Component
-function TimelineItem({ event, application }: { event: StatusEvent; application: Application }) {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const Icon = STATUS_DEFINITIONS[event.status].iconFill;
+function InterviewEventDetails({ event }: { event: StatusEventInterview }) {
+  const { scheduledAt, location } = event;
 
-  // "saved" status events cannot be edited
+  if (!scheduledAt && !location) return null;
+
+  return (
+    <VStack align="stretch" gap="1">
+      {scheduledAt && (
+        <HStack gap="2">
+          <Icon>
+            <LuClock />
+          </Icon>
+          <DisplayDate
+            fontSize="sm"
+            color="fg.muted"
+            date={scheduledAt}
+            options={{
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true,
+            }}
+          />{' '}
+        </HStack>
+      )}
+      {location && (
+        <HStack gap="2">
+          <Icon>
+            <LuMapPin />
+          </Icon>
+          <Text fontSize="sm" color="fg.muted">
+            {location}
+          </Text>
+        </HStack>
+      )}
+    </VStack>
+  );
+}
+
+function TimelineItem({ event, application }: { event: StatusEvent; application: Application }) {
+  const { open } = useStatusEvent();
+  const StatusIcon = STATUS_DEFINITIONS[event.status].iconFill;
+
   const isEditable = event.status !== 'saved';
+
+  // Check if there's any content to show/hide
+  const hasContent =
+    !!event.notes ||
+    (event.status === 'applied' && (event as StatusEventApplied).referrals?.length > 0) ||
+    (event.status === 'interview' &&
+      ((event as StatusEventInterview).interviewers?.length > 0 ||
+        !!(event as StatusEventInterview).scheduledAt ||
+        !!(event as StatusEventInterview).location));
 
   return (
     <ChakraTimeline.Item>
@@ -78,10 +127,10 @@ function TimelineItem({ event, application }: { event: StatusEvent; application:
           colorPalette={STATUS_DEFINITIONS[event.status].colorPalette}
           outlineWidth="6px"
         >
-          <Icon />
+          <StatusIcon />
         </ChakraTimeline.Indicator>
       </ChakraTimeline.Connector>
-      <ChakraTimeline.Content gap="0.5">
+      <ChakraTimeline.Content>
         <HStack w="full" justify="space-between">
           <ChakraTimeline.Title mt="0" textStyle="md">
             {getStatusText(event)}
@@ -89,101 +138,46 @@ function TimelineItem({ event, application }: { event: StatusEvent; application:
           <DisplayDate date={event.date} textStyle="sm" color="fg.muted" />
         </HStack>
 
-        {event.notes && (
-          <ChakraTimeline.Description
-            textStyle="sm"
-            lineClamp={expandedId === event.id ? undefined : 2}
-          >
-            {event.notes}
-          </ChakraTimeline.Description>
-        )}
-
-        {/* Referrals / Interviewers Section */}
-        {event.status === 'applied' &&
-          (event as StatusEventApplied).referrals &&
-          (event as StatusEventApplied).referrals.length > 0 && (
-            <PeopleSection people={(event as StatusEventApplied).referrals} verb="Referral" />
-          )}
-        {event.status === 'interview' &&
-          (event as StatusEventInterview).interviewers &&
-          (event as StatusEventInterview).interviewers.length > 0 && (
-            <PeopleSection people={(event as StatusEventInterview).interviewers} verb="Interview" />
-          )}
-
-        {/* Interview-specific details: Scheduled Time and Location */}
-        {event.status === 'interview' && (
-          <VStack align="stretch" gap="1" mt="2">
-            {(event as StatusEventInterview).scheduledAt && (
-              <Text fontSize="sm" color="fg.muted">
-                🕒 {ISODatetime.format((event as StatusEventInterview).scheduledAt!)}
-              </Text>
+        <Collapsible.Root>
+          <Collapsible.Content as={VStack} alignItems="stretch" gap="0">
+            {event.notes && (
+              <ChakraTimeline.Description textStyle="sm">{event.notes}</ChakraTimeline.Description>
             )}
-            {(event as StatusEventInterview).location && (
-              <Text fontSize="sm" color="fg.muted">
-                📍 {(event as StatusEventInterview).location}
-              </Text>
-            )}
-          </VStack>
-        )}
 
-        {/* View More + Edit Button Row */}
-        {(event.notes || isEditable) && (
-          <HStack justify="space-between" w="full" mt="2">
-            {event.notes && expandedId !== event.id && (
-              <Text
-                as="button"
-                fontSize="sm"
-                color="fg.subtle"
-                _hover={{ textDecoration: 'underline' }}
-                onClick={() => setExpandedId(event.id)}
-                cursor="pointer"
-              >
-                Show full
-              </Text>
-            )}
-            {event.notes && expandedId === event.id && (
-              <Text
-                as="button"
-                fontSize="sm"
-                color="fg.subtle"
-                _hover={{ textDecoration: 'underline' }}
-                onClick={() => setExpandedId(null)}
-                cursor="pointer"
-              >
-                Show less
-              </Text>
+            <StatusEventPeople event={event} />
+
+            <InterviewEventDetails event={event as StatusEventInterview} />
+          </Collapsible.Content>
+
+          <HStack justify="space-between" w="full" mt="1" fontSize="sm" color="fg.muted">
+            {hasContent && (
+              <Collapsible.Trigger asChild>
+                <Text as="button" _hover={{ textDecoration: 'underline' }} cursor="pointer">
+                  <Collapsible.Context>
+                    {(api) => (api.open ? 'Hide' : 'Show full')}
+                  </Collapsible.Context>
+                </Text>
+              </Collapsible.Trigger>
             )}
             {isEditable && (
               <Text
                 as="button"
-                fontSize="sm"
-                color="fg.subtle"
                 _hover={{ textDecoration: 'underline' }}
-                onClick={() => setModalOpen(true)}
+                onClick={() => open({ event, application })}
                 cursor="pointer"
-                ml="auto"
               >
-                edit
+                Edit
               </Text>
             )}
           </HStack>
-        )}
+        </Collapsible.Root>
       </ChakraTimeline.Content>
-      {isEditable && (
-        <ApplicationModal
-          open={modalOpen}
-          onOpenChange={(details) => setModalOpen(details.open)}
-          event={event}
-          application={application}
-        />
-      )}
     </ChakraTimeline.Item>
   );
 }
 
-// Full Timeline Section Component
 export function Timeline({ application }: { application: Application }) {
-  const [newEventModalOpen, setNewEventModalOpen] = useState(false);
+  const { open } = useStatusEvent();
 
   return (
     <VStack align="stretch" gap="0">
@@ -194,38 +188,17 @@ export function Timeline({ application }: { application: Application }) {
           variant="plain"
           size="xs"
           mr="-3"
-          onClick={() => setNewEventModalOpen(true)}
+          onClick={() => open({ application })}
         >
           <PiPlus />
         </IconButton>
       </HStack>
 
-      {application.statusEvents && application.statusEvents.length > 0 ? (
-        <ChakraTimeline.Root size="xl" variant="solid" mt="4">
-          {application.statusEvents.map((event: StatusEvent) => (
-            <TimelineItem key={event.id} event={event} application={application} />
-          ))}
-        </ChakraTimeline.Root>
-      ) : (
-        <Text color="fg.muted" mt="4">
-          No timeline events yet. Click the + button above to add your first event.
-        </Text>
-      )}
-
-      <ApplicationModal
-        open={newEventModalOpen}
-        onOpenChange={(details) => setNewEventModalOpen(details.open)}
-        event={
-          {
-            id: 'new-event',
-            status: 'applied',
-            date: ISODateUtils.today(),
-            notes: '',
-          } as StatusEvent
-        }
-        application={application}
-        isNewEvent
-      />
+      <ChakraTimeline.Root size="xl" variant="solid" mt="4">
+        {application.statusEvents.map((event: StatusEvent) => (
+          <TimelineItem key={event.id} event={event} application={application} />
+        ))}
+      </ChakraTimeline.Root>
     </VStack>
   );
 }

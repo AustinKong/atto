@@ -1,10 +1,9 @@
 import { DataList, Heading, HStack, Link, List, Tag, Text, VStack, Wrap } from '@chakra-ui/react';
 import { PiCheck } from 'react-icons/pi';
-import { useParams } from 'react-router';
 
 import { CompanyLogo } from '@/components/custom/CompanyLogo';
 import { DisplayDate } from '@/components/custom/DisplayDate';
-import { useListingQuery } from '@/hooks/listings';
+import { useDrawerContext } from '@/pages/listings-page/drawer/drawerContext';
 import type { Listing } from '@/types/listing';
 
 function Header({ listing }: { listing: Listing }) {
@@ -33,12 +32,7 @@ function Header({ listing }: { listing: Listing }) {
 }
 
 export function Info() {
-  const { listingId } = useParams<{ listingId: string }>();
-  const { data: listing } = useListingQuery(listingId!);
-
-  if (!listing) {
-    return null;
-  }
+  const { listing } = useDrawerContext();
 
   return (
     <>

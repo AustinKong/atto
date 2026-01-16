@@ -1,0 +1,32 @@
+import { Mutation, MutationCache, Query, QueryCache, QueryClient } from '@tanstack/react-query';
+
+import { toaster } from '@/components/ui/toaster';
+
+function handleError(
+  error: Error,
+  owner:
+    | Query<unknown, unknown, unknown, readonly unknown[]>
+    | Mutation<unknown, unknown, unknown, unknown>
+) {
+  if (owner?.meta?.suppressErrorToast) {
+    return;
+  }
+
+  const description = error instanceof Error ? error.message : 'Something went wrong.';
+
+  toaster.error({
+    title: 'An error occurred',
+    description,
+    closable: true,
+  });
+}
+
+// Add `meta: { suppressErrorToast: true }` to queries/mutations to suppress automatic toasts
+export const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error, query) => handleError(error, query),
+  }),
+  mutationCache: new MutationCache({
+    onError: (error, _variables, _onMutation, mutation) => handleError(error, mutation),
+  }),
+});

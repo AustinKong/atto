@@ -88,12 +88,37 @@ function formatISODatetime(
   return new Intl.DateTimeFormat(locale, options).format(new Date(value));
 }
 
+/**
+ * Convert ISODatetime to local input[datetime-local] format
+ */
+function ISODatetimeToLocalInput(value: ISODatetime): string {
+  const d = new Date(value);
+
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+/**
+ * Convert local input[datetime-local] format to ISODatetime
+ */
+function ISODatetimeFromLocalInput(value: string): ISODatetime {
+  const d = new Date(value);
+  return d.toISOString() as ISODatetime;
+}
+
 export const ISODatetime = {
   fromNativeDate: datetimeFromNativeDate,
   now: datetimeNow,
   is: isISODatetime,
   parse: parseISODatetime,
   format: formatISODatetime,
+  toLocalInput: ISODatetimeToLocalInput,
+  fromLocalInput: ISODatetimeFromLocalInput,
 };
 
 // === ISOYearMonth utilities ===

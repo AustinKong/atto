@@ -10,34 +10,34 @@ import {
 } from '@chakra-ui/react';
 import { LuMenu } from 'react-icons/lu';
 import { PiPlus } from 'react-icons/pi';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import { DisplayDate } from '@/components/custom/DisplayDate';
 import { getStatusText } from '@/constants/statuses';
 import { useApplicationMutations } from '@/hooks/applications';
 import type { Application } from '@/types/application';
+import type { Listing } from '@/types/listing';
 
 export function Details({
   application,
-  applications,
+  listing,
+  handleCreateApplication,
 }: {
   application: Application;
-  applications: Application[];
+  listing: Listing;
+  handleCreateApplication: () => void;
 }) {
   const navigate = useNavigate();
-  const { listingId } = useParams<{ listingId: string }>();
-  const { createApplication, isCreateApplicationLoading } = useApplicationMutations();
+  const { isCreateApplicationLoading } = useApplicationMutations();
 
   const applicationCollection = createListCollection({
-    items: applications.map((app) => {
+    items: listing.applications.map((app) => {
       const lastStatusEvent = app.statusEvents[app.statusEvents.length - 1];
       const statusText = getStatusText(lastStatusEvent);
-      const date = lastStatusEvent
-        ? new Date(lastStatusEvent.date).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-          })
-        : '';
+      const date = new Date(lastStatusEvent.date).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      });
 
       return {
         label: `${date} (${statusText})`,
@@ -45,11 +45,6 @@ export function Details({
       };
     }),
   });
-
-  const handleCreateApplication = async () => {
-    const { id } = await createApplication(listingId!);
-    navigate(`/listings/${listingId}/applications/${id}`, { replace: true });
-  };
 
   return (
     <VStack align="stretch">
@@ -65,19 +60,18 @@ export function Details({
             <Menu.Positioner>
               <Menu.Content>
                 <>
-                  {applicationCollection.items.map((item) => {
-                    const appItem = item as { label: string; value: string };
+                  {applicationCollection.items.map(({ label, value }) => {
                     return (
                       <Menu.Item
-                        key={appItem.value}
-                        value={appItem.value}
+                        key={value}
+                        value={value}
                         onClick={() =>
-                          navigate(`/listings/${listingId}/applications/${appItem.value}`, {
+                          navigate(`/listings/${listing.id}/applications/${value}`, {
                             replace: true,
                           })
                         }
                       >
-                        {appItem.label}
+                        {label}
                       </Menu.Item>
                     );
                   })}
