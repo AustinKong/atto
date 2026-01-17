@@ -50,6 +50,9 @@ export function CompanyLogo({ domain, companyName, size = '2xs', ...rest }: Comp
   const [imageSrc, setImageSrc] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    // Reset image source when domain changes to avoid showing stale logos
+    setImageSrc(undefined);
+
     if (!domain) return;
 
     // Google's favicon service returns a 16x16 globe icon for missing domains instead of a 404.

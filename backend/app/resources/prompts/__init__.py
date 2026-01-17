@@ -1,7 +1,10 @@
+from .company_insights import COMPANY_INSIGHTS_PROMPT, LINK_SELECTION_PROMPT
 from .listing_extraction import LISTING_EXTRACTION_PROMPT
 from .resume_optimization import OPTIMIZATION_PROMPT
 
 __all__ = [
+  'COMPANY_INSIGHTS_PROMPT',
+  'LINK_SELECTION_PROMPT',
   'LISTING_EXTRACTION_PROMPT',
   'OPTIMIZATION_PROMPT',
 ]

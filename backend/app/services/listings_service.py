@@ -20,7 +20,7 @@ class ListingsService(DatabaseRepository, VectorRepository):
     query = """
       SELECT 
         l.id, l.url, l.title, l.company, l.domain,
-        l.location, l.description, l.posted_date, l.skills, l.requirements
+        l.location, l.description, l.notes, l.insights, l.posted_date, l.skills, l.requirements
       FROM listings l
       WHERE l.id = ?
     """
@@ -35,8 +35,8 @@ class ListingsService(DatabaseRepository, VectorRepository):
     row = self.fetch_one(
       """
       SELECT 
-        l.id, l.url, l.title, l.company, l.domain, l.location, l.description, l.posted_date,
-        l.skills, l.requirements
+        l.id, l.url, l.title, l.company, l.domain, l.location, l.description, l.notes,
+        l.insights, l.posted_date, l.skills, l.requirements
       FROM listings l
       WHERE l.url = ?
       """,
@@ -162,10 +162,10 @@ class ListingsService(DatabaseRepository, VectorRepository):
     self.execute(
       """
       INSERT INTO listings (
-        id, url, title, company, domain, location, description, posted_date, skills,
-        requirements
+        id, url, title, company, domain, location, description, notes, insights, posted_date,
+        skills, requirements
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       """,
       (
         str(listing.id),
@@ -175,6 +175,8 @@ class ListingsService(DatabaseRepository, VectorRepository):
         listing.domain,
         listing.location,
         listing.description,
+        listing.notes,
+        listing.insights,
         listing.posted_date.isoformat() if listing.posted_date else None,
         json.dumps(listing.skills),
         json.dumps(listing.requirements),
@@ -187,6 +189,30 @@ class ListingsService(DatabaseRepository, VectorRepository):
     self.add_documents(collection_name='listings', documents=documents, metadatas=metadatas)
 
     return listing
+
+  def update_notes(self, listing_id, notes: str | None) -> Listing:
+    self.execute(
+      """
+      UPDATE listings
+      SET notes = ?
+      WHERE id = ?
+      """,
+      (notes, str(listing_id)),
+    )
+
+    return self.get(listing_id)
+
+  def update_insights(self, listing_id, insights: str | None) -> Listing:
+    self.execute(
+      """
+      UPDATE listings
+      SET insights = ?
+      WHERE id = ?
+      """,
+      (insights, str(listing_id)),
+    )
+
+    return self.get(listing_id)
 
   def _create_listing_embedding_text(self, listing: Listing) -> str:
     parts = [
@@ -240,8 +266,8 @@ class ListingsService(DatabaseRepository, VectorRepository):
     rows = self.fetch_all(
       f"""
       SELECT 
-        l.id, l.url, l.title, l.company, l.domain, l.location, l.description, l.posted_date,
-        l.skills, l.requirements
+        l.id, l.url, l.title, l.company, l.domain, l.location, l.description, l.notes,
+        l.insights, l.posted_date, l.skills, l.requirements
       FROM listings l
       WHERE l.id IN ({placeholders})
       """,

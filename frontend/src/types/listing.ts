@@ -10,6 +10,8 @@ export type Listing = {
   domain: string;
   location: string | null;
   description: string;
+  notes: string | null;
+  insights: string | null;
   postedDate: ISODate | null;
   skills: string[];
   requirements: string[];

@@ -1,9 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useListingDraftMutations } from '@/hooks/listings/useListingDraftMutations';
+import { useDebouncedMutation } from '@/hooks/utils/useDebouncedMutation';
 import {
+  generateListingInsights as generateListingInsightsSvc,
   ingestListing as ingestListingSvc,
   saveListing as saveListingSvc,
+  updateListingNotes as updateListingNotesSvc,
 } from '@/services/listings';
 import type { ListingDraft } from '@/types/listingDraft';
 
@@ -67,8 +70,27 @@ export function useListingMutations() {
     return Promise.allSettled(listings.map((listing) => saveListing(listing)));
   };
 
+  const { mutate: updateNotes } = useDebouncedMutation({
+    mutationFn: ({ listingId, notes }: { listingId: string; notes: string | null }) =>
+      updateListingNotesSvc(listingId, notes),
+    onSuccess: (updatedListing) => {
+      queryClient.setQueryData(['listing', updatedListing.id], updatedListing);
+    },
+    delay: 500,
+  });
+
+  const { mutate: generateInsights, isPending: isGeneratingInsights } = useMutation({
+    mutationFn: (listingId: string) => generateListingInsightsSvc(listingId),
+    onSuccess: (updatedListing) => {
+      queryClient.setQueryData(['listing', updatedListing.id], updatedListing);
+    },
+  });
+
   return {
     ingestListing,
     saveListings,
+    updateNotes,
+    generateInsights,
+    isGeneratingInsights,
   };
 }

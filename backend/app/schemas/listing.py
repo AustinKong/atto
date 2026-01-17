@@ -20,6 +20,8 @@ class Listing(ListingBase):
   id: UUID = Field(default_factory=uuid4)
   url: HttpUrl
   description: str
+  notes: str | None = None
+  insights: str | None = None
 
   skills: Annotated[
     list[str],

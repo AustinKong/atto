@@ -12,7 +12,7 @@ import { DashboardLayout } from '@/components/layouts/dashboard';
 import { Toaster } from '@/components/ui/toaster';
 import { AboutPage } from '@/pages/about-page';
 import { ListingsPage } from '@/pages/listings-page';
-import { Applications, Info, ListingDrawer } from '@/pages/listings-page/drawer';
+import { Applications, Info, ListingDrawer, Research } from '@/pages/listings-page/drawer';
 import { NewListingsPage } from '@/pages/new-listings-page';
 import { SettingsPage } from '@/pages/settings-page';
 import { getListing } from '@/services/listings';
@@ -36,7 +36,7 @@ const router = createBrowserRouter(
         <Route path="listings" element={<ListingsPage />}>
           <Route path=":listingId" element={<ListingDrawer />}>
             <Route index element={<Info />} />
-            <Route path="research" element={<div>Research content coming soon</div>} />
+            <Route path="research" element={<Research />} />
             <Route
               path="applications"
               element={<Applications />}

@@ -43,6 +43,8 @@ export async function saveListing(listingDraft: ListingDraft) {
     ...listingDraft.listing,
     id: listingDraft.id,
     url: listingDraft.url,
+    notes: null,
+    insights: null,
     skills: listingDraft.listing.skills.map((s) => s.value),
     requirements: listingDraft.listing.requirements.map((r) => r.value),
     applications: [],
@@ -99,6 +101,39 @@ export async function getListing(listingId: string): Promise<Listing> {
 
   if (!response.ok) {
     throw new Error('Failed to fetch listing');
+  }
+
+  const json = await response.json();
+  return json as Listing;
+}
+
+export async function updateListingNotes(
+  listingId: string,
+  notes: string | null
+): Promise<Listing> {
+  const response = await fetch(`/api/listings/${listingId}/notes`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(notes),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update listing notes');
+  }
+
+  const json = await response.json();
+  return json as Listing;
+}
+
+export async function generateListingInsights(listingId: string): Promise<Listing> {
+  const response = await fetch(`/api/listings/${listingId}/insights`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to generate listing insights');
   }
 
   const json = await response.json();

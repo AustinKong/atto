@@ -38,6 +38,8 @@ def create_tables():
         domain TEXT NOT NULL,
         location TEXT,
         description TEXT NOT NULL,
+        notes TEXT,
+        insights TEXT,
         posted_date TEXT,
         skills TEXT,
         requirements TEXT

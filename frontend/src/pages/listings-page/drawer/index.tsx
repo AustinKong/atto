@@ -7,6 +7,7 @@ import { type DrawerContext } from './drawerContext';
 
 export { Applications } from './applications';
 export { Info } from './info';
+export { Research } from './research';
 
 export function ListingDrawer() {
   const navigate = useNavigate();

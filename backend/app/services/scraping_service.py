@@ -12,6 +12,7 @@ from app.resources.scripts import (
   JS_MATERIALIZE_STYLES,
 )
 from app.utils.errors import ServiceError
+from app.utils.url import normalize_url
 
 SNAPSHOT_TAGS = [
   'script',
@@ -209,3 +210,61 @@ class ScrapingService:
         return ScrapingResult(content=content, html=html)
     except Exception as e:
       raise ServiceError(f'Failed to fetch and clean page {url}: {str(e)}') from e
+
+  async def extract_anchor_tags(self, url: HttpUrl) -> list[dict[str, str]]:
+    """
+    Extract all anchor tags (links) from a given URL.
+    Returns normalized URLs for consistent deduplication.
+
+    Returns:
+      List of dictionaries with 'href' and 'text' keys for each anchor tag.
+    """
+    try:
+      async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=settings.ingestion.headless)
+        context = await browser.new_context(
+          user_agent=(
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+            '(KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+          )
+        )
+        page = await context.new_page()
+        await page.goto(str(url), wait_until='networkidle')
+
+        # Get the HTML content
+        html = await page.content()
+        await browser.close()
+
+        # Parse with BeautifulSoup
+        soup = BeautifulSoup(html, 'html.parser')
+
+        # Extract all anchor tags
+        anchors = []
+        for link in soup.find_all('a', href=True):
+          href = link.get('href', '')
+          text = link.get_text(strip=True)
+
+          # Skip empty text or empty hrefs
+          if not href or not text:
+            continue
+
+          # Resolve relative URLs to absolute URLs
+          if not href.startswith(('http://', 'https://', 'mailto:', 'tel:', '#')):
+            href = urllib.parse.urljoin(str(url), href)
+
+          # Skip mailto, tel, and hash links
+          if href.startswith(('mailto:', 'tel:', '#')):
+            continue
+
+          # Normalize URL for consistent deduplication
+          try:
+            normalized_href = str(normalize_url(href))
+          except Exception:
+            # Skip URLs that can't be normalized
+            continue
+
+          anchors.append({'href': normalized_href, 'text': text})
+
+        return anchors
+    except Exception as e:
+      raise ServiceError(f'Failed to extract anchor tags from {url}: {str(e)}') from e

@@ -5,6 +5,7 @@ from .experience import (
   ExperienceType,
   LLMResponseExperience,
 )
+from .insights import LinkSelectionResponse
 from .listing import Listing, ListingBase, ListingSummary
 from .profile import Education, Profile
 from .resume import (
@@ -40,6 +41,8 @@ __all__ = [
   'Experience',
   'ExperienceType',
   'LLMResponseExperience',
+  # Insights
+  'LinkSelectionResponse',
   # Listing
   'ExtractionResponse',
   'GroundedItem',
