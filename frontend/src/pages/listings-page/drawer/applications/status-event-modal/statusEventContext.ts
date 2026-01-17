@@ -1,6 +1,4 @@
-import { useDialog } from '@chakra-ui/react';
-import { createContext, useContext } from 'react';
-
+import { createDialogContext } from '@/hooks/utils/useDialogContext';
 import type { Application, StatusEvent } from '@/types/application';
 
 export interface StatusEventContextData {
@@ -8,19 +6,9 @@ export interface StatusEventContextData {
   application: Application;
 }
 
-export interface StatusEventContextValue {
-  open: (data: StatusEventContextData) => void;
-  close: () => void;
-  context: StatusEventContextData | null;
-  dialog: ReturnType<typeof useDialog>;
-}
+const { Provider, useContextHook, Context } =
+  createDialogContext<StatusEventContextData>('StatusEvent');
 
-export const StatusEventContext = createContext<StatusEventContextValue | null>(null);
-
-export const useStatusEvent = () => {
-  const context = useContext(StatusEventContext);
-  if (!context) {
-    throw new Error('useStatusEvent must be used within a StatusEventProvider');
-  }
-  return context;
-};
+export const StatusEventProvider = Provider;
+export const useStatusEvent = useContextHook;
+export const StatusEventContext = Context;

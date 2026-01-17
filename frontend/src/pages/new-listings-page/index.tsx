@@ -25,25 +25,21 @@ export function NewListingsPage() {
 
   const selectedCount = Object.values(rowSelection).filter(Boolean).length;
 
-  // Sync selections when listings change
+  // Sync selections when listings change - remove selections for deleted listings
   useEffect(() => {
-    const selectedKeys = Object.keys(rowSelection);
-
     const existingIds = new Set(listingDrafts.map((l) => l.id));
-    const deadKeys = selectedKeys.filter((id) => !existingIds.has(id));
 
-    if (deadKeys.length > 0) {
-      setRowSelection((prev) => {
-        const next = { ...prev };
-        deadKeys.forEach((key) => delete next[key]);
-        return next;
-      });
+    setRowSelection((prev) => {
+      const deadKeys = Object.keys(prev).filter((id) => !existingIds.has(id));
+      const next = { ...prev };
+      deadKeys.forEach((key) => delete next[key]);
+      return next;
+    });
 
-      if (selectedListingId && deadKeys.includes(selectedListingId)) {
-        setSelectedListingId(null);
-      }
+    if (selectedListingId && !existingIds.has(selectedListingId)) {
+      setSelectedListingId(null);
     }
-  }, [listingDrafts, selectedListingId, rowSelection]);
+  }, [listingDrafts, selectedListingId]);
 
   return (
     <IngestionProvider>

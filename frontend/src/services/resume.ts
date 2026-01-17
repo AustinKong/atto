@@ -7,7 +7,8 @@ export async function getResume(resumeId: string): Promise<Resume> {
     throw new Error('Failed to get resume');
   }
 
-  return response.json();
+  const json = await response.json();
+  return json as Resume;
 }
 
 export async function getResumeHtml(resumeId: string): Promise<string> {
@@ -30,7 +31,8 @@ export async function createShellResume(applicationId: string): Promise<Resume> 
     throw new Error('Failed to create resume shell');
   }
 
-  return response.json();
+  const json = await response.json();
+  return json as Resume;
 }
 
 export async function generateResumeContent(resumeId: string): Promise<Resume> {
@@ -42,7 +44,8 @@ export async function generateResumeContent(resumeId: string): Promise<Resume> {
     throw new Error('Failed to generate resume content');
   }
 
-  return response.json();
+  const json = await response.json();
+  return json as Resume;
 }
 
 export async function updateResume(resumeId: string, data: ResumeData): Promise<Resume> {
@@ -58,7 +61,8 @@ export async function updateResume(resumeId: string, data: ResumeData): Promise<
     throw new Error('Failed to update resume');
   }
 
-  return response.json();
+  const json = await response.json();
+  return json as Resume;
 }
 
 export async function deleteResume(resumeId: string): Promise<void> {
@@ -80,5 +84,6 @@ export async function exportResumePdf(resumeId: string, latestData: ResumeData):
     throw new Error('Failed to export resume as PDF');
   }
 
-  return response.blob();
+  const blob = await response.blob();
+  return blob;
 }

@@ -9,15 +9,11 @@ export function useListingDraftsQuery() {
     staleTime: Infinity,
     gcTime: Infinity,
     enabled: false,
-    queryFn: () => {
-      throw new Error(
-        'Query function called unexpectedly. Data should be managed via cache updates.'
-      );
-    },
+    initialData: [],
   });
 
   return {
-    listingDrafts: query.data ?? [],
+    listingDrafts: query.data,
     ...query,
   };
 }

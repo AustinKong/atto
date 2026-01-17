@@ -13,8 +13,8 @@ import { useStatusEvent } from './statusEventContext';
 
 const personSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  contact: z.string().optional(),
-  avatarUrl: z.string().optional(),
+  contact: z.string().nullable(),
+  avatarUrl: z.string().nullable(),
 });
 
 const statusValues = Object.keys(STATUS_DEFINITIONS) as [
@@ -36,32 +36,20 @@ const statusEventSchema = z.object({
 export type FormValues = z.infer<typeof statusEventSchema>;
 
 function getFormValues(event?: StatusEvent): FormValues {
-  if (!event) {
-    return {
-      status: 'applied',
-      date: ISODate.today(),
-      notes: '',
-      stage: 1,
-      referrals: [],
-      interviewers: [],
-      scheduledAt: '',
-      location: '',
-    };
-  }
-
   return {
-    status: event.status,
-    date: event.date,
-    notes: event.notes || '',
-    stage: event.status === 'interview' ? (event as StatusEventInterview).stage : 1,
-    referrals: event.status === 'applied' ? (event as StatusEventApplied).referrals || [] : [],
+    status: event?.status || 'applied',
+    date: event?.date || ISODate.today(),
+    notes: event?.notes || '',
+    stage: event && event.status === 'interview' ? (event as StatusEventInterview).stage : 1,
+    referrals: event && event.status === 'applied' ? (event as StatusEventApplied).referrals : [],
     interviewers:
-      event.status === 'interview' ? (event as StatusEventInterview).interviewers || [] : [],
+      event && event.status === 'interview' ? (event as StatusEventInterview).interviewers : [],
     scheduledAt:
-      event.status === 'interview' && (event as StatusEventInterview).scheduledAt
+      event && event.status === 'interview' && (event as StatusEventInterview).scheduledAt
         ? ISODatetime.toLocalInput((event as StatusEventInterview).scheduledAt!)
         : '',
-    location: event.status === 'interview' ? (event as StatusEventInterview).location || '' : '',
+    location:
+      event && event.status === 'interview' ? (event as StatusEventInterview).location || '' : '',
   };
 }
 
@@ -72,7 +60,6 @@ export function StatusEventModal() {
   const application = context?.application;
   const isNewEvent = !event;
 
-  // Get mutations
   const {
     createStatusEvent,
     isCreateStatusEventLoading,
@@ -91,6 +78,7 @@ export function StatusEventModal() {
     control,
     watch,
     formState: { errors },
+    reset,
   } = useForm<FormValues>({
     resolver: zodResolver(statusEventSchema),
     mode: 'onChange',
@@ -99,48 +87,43 @@ export function StatusEventModal() {
 
   const selectedStatus = watch('status');
 
-  // TODO: Move mapping logic into a function outside the component. Similar to new-listings-page/details/index.tsx
   const onSubmit = async (data: FormValues) => {
-    console.log(data);
-    if (!application || !event) return;
+    if (!application) return;
+    const { date, notes, status } = data;
+    const base = { date: date as ISODate, notes: notes || '', status };
+    let payload: Omit<StatusEvent, 'id'>;
 
-    // Build the event data with the selected status and date
-    const eventData: Partial<StatusEvent> = {
-      status: selectedStatus,
-      date: data.date as ISODate,
-      notes: data.notes || '',
-    };
-
-    // Add status-specific fields
-    if (selectedStatus === 'interview') {
-      (eventData as StatusEventInterview).stage = data.stage;
-      (eventData as StatusEventInterview).interviewers = data.interviewers;
-      if (data.scheduledAt) {
-        (eventData as StatusEventInterview).scheduledAt = ISODatetime.fromLocalInput(
-          data.scheduledAt
-        );
-      }
-      if (data.location) {
-        (eventData as StatusEventInterview).location = data.location;
-      }
-    } else if (selectedStatus === 'applied') {
-      (eventData as StatusEventApplied).referrals = data.referrals;
+    switch (status) {
+      case 'interview':
+        payload = {
+          ...base,
+          stage: data.stage,
+          interviewers: data.interviewers,
+          scheduledAt: data.scheduledAt ? ISODatetime.fromLocalInput(data.scheduledAt) : null,
+        } as StatusEventInterview;
+        break;
+      case 'applied':
+        payload = {
+          ...base,
+          referrals: data.referrals,
+        } as StatusEventApplied;
+        break;
+      default:
+        payload = base as Omit<StatusEvent, 'id'>;
     }
 
     if (isNewEvent) {
-      // Don't send id field when creating - backend will generate it
       await createStatusEvent({
         applicationId: application.id,
         listingId: application.listingId,
-        statusEvent: eventData as Omit<StatusEvent, 'id'>,
+        statusEvent: payload,
       });
     } else {
-      // When editing
       await updateStatusEvent({
         applicationId: application.id,
         listingId: application.listingId,
         eventId: event.id,
-        statusEvent: eventData as Omit<StatusEvent, 'id'>,
+        statusEvent: payload,
       });
     }
     close();
@@ -158,7 +141,7 @@ export function StatusEventModal() {
   };
 
   return (
-    <Dialog.RootProvider value={dialog}>
+    <Dialog.RootProvider value={dialog} onExitComplete={() => reset()}>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>

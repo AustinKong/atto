@@ -36,9 +36,9 @@ createRoot(document.getElementById('root')!).render(
         persister,
         dehydrateOptions: {
           shouldDehydrateQuery: (query) => {
-            // Only save listings in IndexDB
+            // Only save listing-drafts in IndexedDB (client-side state)
             const isSuccess = query.state.status === 'success';
-            const shouldPersist = query.queryKey[0] === 'listings';
+            const shouldPersist = query.queryKey[0] === 'listing-drafts';
 
             return isSuccess && shouldPersist;
           },

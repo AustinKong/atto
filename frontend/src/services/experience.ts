@@ -1,6 +1,6 @@
 import { type Experience } from '@/types/experience';
 
-export async function getExperiences() {
+export async function getExperiences(): Promise<Experience[]> {
   const response = await fetch('/api/experience');
 
   if (!response.ok) {
@@ -11,7 +11,7 @@ export async function getExperiences() {
   return json as Experience[];
 }
 
-export async function getExperience(id: string) {
+export async function getExperience(id: string): Promise<Experience> {
   const response = await fetch(`/api/experience/${id}`);
 
   if (!response.ok) {
@@ -22,7 +22,7 @@ export async function getExperience(id: string) {
   return json as Experience;
 }
 
-export async function createExperience(experience: Omit<Experience, 'id'>) {
+export async function createExperience(experience: Omit<Experience, 'id'>): Promise<Experience> {
   const response = await fetch('/api/experience', {
     method: 'POST',
     headers: {
@@ -39,7 +39,7 @@ export async function createExperience(experience: Omit<Experience, 'id'>) {
   return json as Experience;
 }
 
-export async function updateExperience(experience: Experience) {
+export async function updateExperience(experience: Experience): Promise<Experience> {
   const response = await fetch('/api/experience', {
     method: 'PUT',
     headers: {
@@ -56,7 +56,7 @@ export async function updateExperience(experience: Experience) {
   return json as Experience;
 }
 
-export async function deleteExperience(id: string) {
+export async function deleteExperience(id: string): Promise<void> {
   const response = await fetch(`/api/experience/${id}`, {
     method: 'DELETE',
   });

@@ -8,11 +8,23 @@ import {
   Textarea,
   VStack,
 } from '@chakra-ui/react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { useListingMutations } from '@/hooks/listings';
 
 import { useIngestion } from './ingestionContext';
+
+const ingestionSchema = z.object({
+  url: z
+    .string()
+    .min(1, 'URL is required')
+    .regex(/^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(\/[\w-./?%&=]*)?$/, 'Please enter a valid URL'),
+  content: z.string().optional(),
+});
+
+export type FormValues = z.infer<typeof ingestionSchema>;
 
 export function IngestionModal() {
   const { ingestListing } = useListingMutations();
@@ -24,10 +36,8 @@ export function IngestionModal() {
     watch,
     reset,
     formState: { errors },
-  } = useForm<{
-    url: string;
-    content?: string;
-  }>({
+  } = useForm<FormValues>({
+    resolver: zodResolver(ingestionSchema),
     mode: 'onChange',
     values: {
       url: context?.url || '',
@@ -47,7 +57,7 @@ export function IngestionModal() {
   });
 
   return (
-    <Dialog.RootProvider size="lg" value={dialog}>
+    <Dialog.RootProvider size="lg" value={dialog} onExitComplete={() => reset()}>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
@@ -62,13 +72,7 @@ export function IngestionModal() {
                     URL <Field.RequiredIndicator />
                   </Field.Label>
                   <Input
-                    {...register('url', {
-                      required: 'URL is required',
-                      pattern: {
-                        value: /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(\/[\w-./?%&=]*)?$/,
-                        message: 'Please enter a valid URL',
-                      },
-                    })}
+                    {...register('url')}
                     placeholder="https://example.com/job-listing"
                     autoFocus
                   />

@@ -1,16 +1,5 @@
 import type { ISODate, ISODatetime } from '@/utils/date';
 
-/**
- * Application Types
- *
- * Type definitions for job applications and status events.
- * These types match the backend's flattened discriminated union structure.
- *
- * The backend stores status events with base fields as columns (id, date, notes, status)
- * and additional fields in a JSON payload column, but returns them flattened as discriminated unions.
- */
-
-// Status enum matching backend StatusEnum
 export type StatusEnum =
   | 'saved'
   | 'applied'
@@ -23,21 +12,18 @@ export type StatusEnum =
   | 'withdrawn'
   | 'rescinded';
 
-// Person type for referrals and interviewers
 export type Person = {
   name: string;
-  contact?: string;
-  avatarUrl?: string;
+  contact: string | null;
+  avatarUrl: string | null;
 };
 
-// Base status event fields (stored as columns in DB)
 type BaseStatusEvent = {
   id: string;
   date: ISODate;
-  notes?: string;
+  notes: string | null;
 };
 
-// Discriminated union types matching backend StatusEvent variants
 export type StatusEventSaved = BaseStatusEvent & {
   status: 'saved';
 };
@@ -55,8 +41,8 @@ export type StatusEventInterview = BaseStatusEvent & {
   status: 'interview';
   stage: number;
   interviewers: Person[];
-  scheduledAt?: ISODatetime;
-  location?: string;
+  scheduledAt: ISODatetime | null;
+  location: string | null;
 };
 
 export type StatusEventOfferReceived = BaseStatusEvent & {
@@ -83,7 +69,6 @@ export type StatusEventRescinded = BaseStatusEvent & {
   status: 'rescinded';
 };
 
-// Discriminated union of all status event types (flattened, no separate payload)
 export type StatusEvent =
   | StatusEventSaved
   | StatusEventApplied
@@ -96,7 +81,6 @@ export type StatusEvent =
   | StatusEventWithdrawn
   | StatusEventRescinded;
 
-// Application type matching backend Application schema
 export type Application = {
   id: string;
   listingId: string;

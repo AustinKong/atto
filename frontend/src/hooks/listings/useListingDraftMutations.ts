@@ -3,8 +3,6 @@ import { useCallback } from 'react';
 
 import type { ListingDraft, ListingDraftPending, ListingExtraction } from '@/types/listing';
 
-// TODO: Better to rename as useListingDraftMutations
-
 // DO NOT attempt to merge these functions into a single "updateListing" function
 // Doing so makes things prone to breaking and harder to reason about
 export function useListingDraftMutations() {
@@ -14,7 +12,7 @@ export function useListingDraftMutations() {
   const setListingDraft = useCallback(
     (id: string, listing: ListingDraft) => {
       queryClient.setQueryData<ListingDraft[]>(
-        ['listings'],
+        ['listing-drafts'],
         (old) => old?.map((l) => (l.id === id ? listing : l)) ?? []
       );
     },
@@ -25,7 +23,7 @@ export function useListingDraftMutations() {
   const setPendingListingDraft = useCallback(
     (id: string) => {
       queryClient.setQueryData<ListingDraft[]>(
-        ['listings'],
+        ['listing-drafts'],
         (old) =>
           old?.map((l) =>
             l.id === id ? ({ id: l.id, url: l.url, status: 'pending' } as ListingDraftPending) : l
@@ -38,7 +36,7 @@ export function useListingDraftMutations() {
   // Appends a new pending item with ID to the list.
   const addPendingListingDraft = useCallback(
     (id: string, url: string) => {
-      queryClient.setQueryData<ListingDraft[]>(['listings'], (old) => [
+      queryClient.setQueryData<ListingDraft[]>(['listing-drafts'], (old) => [
         ...(old ?? []),
         { id, url, status: 'pending' } as ListingDraftPending,
       ]);
@@ -49,7 +47,7 @@ export function useListingDraftMutations() {
   // Targets the nested data object without changing the listing status.
   const patchListingDraftContent = useCallback(
     (id: string, updates: Partial<ListingExtraction>) => {
-      queryClient.setQueryData<ListingDraft[]>(['listings'], (old) => {
+      queryClient.setQueryData<ListingDraft[]>(['listing-drafts'], (old) => {
         return (
           old?.map((l) => {
             if (l.id !== id) return l;
@@ -67,7 +65,7 @@ export function useListingDraftMutations() {
   const discardListingDrafts = useCallback(
     (ids: string[]) => {
       queryClient.setQueryData<ListingDraft[]>(
-        ['listings'],
+        ['listing-drafts'],
         (old) => old?.filter((l) => !ids.includes(l.id)) ?? []
       );
     },

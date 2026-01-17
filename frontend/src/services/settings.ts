@@ -8,7 +8,7 @@ export async function getSettings(): Promise<Record<string, SettingsSection>> {
   }
 
   const json = await response.json();
-  return json;
+  return json as Record<string, SettingsSection>;
 }
 
 export async function updateSettings(
@@ -27,5 +27,5 @@ export async function updateSettings(
   }
 
   const json = await response.json();
-  return json;
+  return json as Record<string, SettingsSection>;
 }

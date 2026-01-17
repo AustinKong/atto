@@ -27,6 +27,7 @@ export function ListingsPage() {
 
   const isDrawerOpen = Boolean(listingId);
 
+  // Stable callbacks to prevent Table re-renders (Table is memoized)
   const handleRowClick = useCallback(
     (listing: ListingSummary) => {
       navigate(`/listings/${listing.id}`, { replace: true });

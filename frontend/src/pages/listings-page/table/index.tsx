@@ -125,7 +125,6 @@ const Table = React.memo(function Table({
   const [sorting, setSorting] = useUrlSyncedState<SortingState>('sort', [], {
     custom: tableSortHandler,
   });
-  // const [statuses, setStatuses] = useUrlSyncedState('status', [], { type: 'ARRAY' });
   const [statuses, debouncedStatuses, setStatuses] = useDebouncedUrlSyncedState('status', [], {
     type: 'ARRAY',
     debounceMs: 700,

@@ -8,7 +8,7 @@ export async function getProfile(): Promise<Profile> {
   }
 
   const json = await response.json();
-  return json;
+  return json as Profile;
 }
 
 export async function updateProfile(profile: Profile): Promise<Profile> {
@@ -25,5 +25,5 @@ export async function updateProfile(profile: Profile): Promise<Profile> {
   }
 
   const json = await response.json();
-  return json;
+  return json as Profile;
 }

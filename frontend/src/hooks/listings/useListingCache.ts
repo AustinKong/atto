@@ -12,7 +12,7 @@ export function useListingDraftMutations() {
   const setListing = useCallback(
     (id: string, listing: ListingDraft) => {
       queryClient.setQueryData<ListingDraft[]>(
-        ['listings'],
+        ['listing-drafts'],
         (old) => old?.map((l) => (l.id === id ? listing : l)) ?? []
       );
     },
@@ -23,7 +23,7 @@ export function useListingDraftMutations() {
   const setExistingToPending = useCallback(
     (id: string) => {
       queryClient.setQueryData<ListingDraft[]>(
-        ['listings'],
+        ['listing-drafts'],
         (old) =>
           old?.map((l) =>
             l.id === id ? ({ id: l.id, url: l.url, status: 'pending' } as ListingDraftPending) : l
@@ -36,7 +36,7 @@ export function useListingDraftMutations() {
   // Appends a new pending item with ID to the list.
   const addPendingListing = useCallback(
     (id: string, url: string) => {
-      queryClient.setQueryData<ListingDraft[]>(['listings'], (old) => [
+      queryClient.setQueryData<ListingDraft[]>(['listing-drafts'], (old) => [
         ...(old ?? []),
         { id, url, status: 'pending' } as ListingDraftPending,
       ]);
@@ -47,7 +47,7 @@ export function useListingDraftMutations() {
   // Targets the nested data object without changing the listing status.
   const patchListingContent = useCallback(
     (id: string, updates: Partial<ListingExtraction>) => {
-      queryClient.setQueryData<ListingDraft[]>(['listings'], (old) => {
+      queryClient.setQueryData<ListingDraft[]>(['listing-drafts'], (old) => {
         return (
           old?.map((l) => {
             if (l.id !== id) return l;
@@ -65,7 +65,7 @@ export function useListingDraftMutations() {
   const discardListings = useCallback(
     (ids: string[]) => {
       queryClient.setQueryData<ListingDraft[]>(
-        ['listings'],
+        ['listing-drafts'],
         (old) => old?.filter((l) => !ids.includes(l.id)) ?? []
       );
     },

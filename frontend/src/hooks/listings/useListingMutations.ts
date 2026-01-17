@@ -48,9 +48,9 @@ export function useListingMutations() {
   const { mutateAsync: saveListing } = useMutation({
     mutationFn: saveListingSvc,
     onMutate: (listing: ListingDraft) => {
-      const previousListings = queryClient.getQueryData<ListingDraft[]>(['listings']);
+      const previousListings = queryClient.getQueryData<ListingDraft[]>(['listing-drafts']);
 
-      queryClient.setQueryData(['listings'], (old: ListingDraft[] | undefined) => {
+      queryClient.setQueryData(['listing-drafts'], (old: ListingDraft[] | undefined) => {
         return old?.filter((l) => l.id !== listing.id) || [];
       });
 
@@ -58,7 +58,7 @@ export function useListingMutations() {
     },
     onError: (_err, _listing, context) => {
       if (context?.previousListings) {
-        queryClient.setQueryData(['listings'], context.previousListings);
+        queryClient.setQueryData(['listing-drafts'], context.previousListings);
       }
     },
   });

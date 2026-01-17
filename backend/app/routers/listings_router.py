@@ -28,6 +28,9 @@ router = APIRouter(
 )
 
 
+# TODO: Refine the AI's extraction grounded values. (AI might format text slightly differently than
+# in the HTML), need to use more robust fuzzy matching technique to ensure grounded values match
+# HTML.
 @router.post('/draft', response_model=ListingDraft)
 async def ingest_listing(
   url: Annotated[HttpUrl, Body()],

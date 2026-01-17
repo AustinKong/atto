@@ -20,61 +20,6 @@ import type { Person } from '@/types/application';
 
 import type { FormValues } from './StatusEventModal';
 
-/**
- * PersonInput Component
- *
- * Input component for adding and managing people (referrals, interviewers, etc.)
- * using a sortable list with name and contact fields.
- */
-
-function PersonInputItem() {
-  const { register, name } = useSortableListInput();
-  const { index } = useSortableListInputItem();
-
-  return (
-    <SortableListInput.Item>
-      <Group attached flex="1">
-        <Input {...register(`${name}.${index}.name` as const)} placeholder="Enter name" size="sm" />
-        <Input
-          {...register(`${name}.${index}.contact` as const)}
-          placeholder="Email or phone"
-          size="sm"
-        />
-      </Group>
-      <SortableListInput.DeleteButton />
-    </SortableListInput.Item>
-  );
-}
-
-function PersonInput({
-  control,
-  register,
-  name,
-  label,
-}: {
-  control: Control<FormValues>;
-  register: UseFormRegister<FormValues>;
-  name: 'referrals' | 'interviewers';
-  label: string;
-}) {
-  return (
-    <SortableListInput.Root<FormValues>
-      control={control}
-      register={register}
-      name={name}
-      defaultItem={{ name: '', contact: '' } as Person}
-    >
-      <HStack justify="space-between">
-        <SortableListInput.Label>{label}</SortableListInput.Label>
-        <SortableListInput.AddButton />
-      </HStack>
-      <SortableListInput.List>
-        <PersonInputItem />
-      </SortableListInput.List>
-    </SortableListInput.Root>
-  );
-}
-
 const statusCollection = createListCollection({
   items: STATUS_OPTIONS.map((option) => ({
     label: option.label,
@@ -93,11 +38,8 @@ export function FormFields({
   selectedStatus: string;
   errors: Partial<Record<keyof FormValues, { message?: string }>>;
 }) {
-  const showStageField = selectedStatus === 'interview';
-
   return (
     <VStack gap="4" align="stretch">
-      {/* Status, Stage, and Date - Side by Side */}
       <HStack gap="4" align="flex-end">
         <Field.Root flex="2">
           <Field.Label>Status</Field.Label>
@@ -136,7 +78,7 @@ export function FormFields({
           />
         </Field.Root>
 
-        {showStageField && (
+        {selectedStatus === 'interview' && (
           <Field.Root flex="1" invalid={!!errors.stage}>
             <Field.Label>Stage</Field.Label>
             <Input
@@ -158,8 +100,12 @@ export function FormFields({
         </Field.Root>
       </HStack>
 
-      {/* Interview-specific fields: Scheduled Time and Location */}
-      {showStageField && (
+      <Field.Root>
+        <Field.Label>Notes</Field.Label>
+        <Textarea placeholder="Add notes..." size="sm" autoresize {...register('notes')} />
+      </Field.Root>
+
+      {selectedStatus === 'interview' && (
         <HStack gap="4" align="flex-end">
           <Field.Root flex="1">
             <Field.Label>Scheduled Time</Field.Label>
@@ -183,14 +129,7 @@ export function FormFields({
         </HStack>
       )}
 
-      {/* Notes */}
-      <Field.Root>
-        <Field.Label>Notes</Field.Label>
-        <Textarea placeholder="Add notes..." size="sm" autoresize {...register('notes')} />
-      </Field.Root>
-
-      {/* People (Referrals or Interviewers based on status) */}
-      {(selectedStatus === 'applied' || selectedStatus === 'interview') && (
+      {['applied', 'interview'].includes(selectedStatus) && (
         <PersonInput
           control={control}
           register={register}
@@ -199,5 +138,53 @@ export function FormFields({
         />
       )}
     </VStack>
+  );
+}
+
+function PersonInput({
+  control,
+  register,
+  name,
+  label,
+}: {
+  control: Control<FormValues>;
+  register: UseFormRegister<FormValues>;
+  name: 'referrals' | 'interviewers';
+  label: string;
+}) {
+  return (
+    <SortableListInput.Root<FormValues>
+      control={control}
+      register={register}
+      name={name}
+      defaultItem={{ name: '', contact: '' } as Person}
+    >
+      <HStack justify="space-between">
+        <SortableListInput.Label>{label}</SortableListInput.Label>
+        <SortableListInput.AddButton />
+      </HStack>
+      <SortableListInput.List>
+        <PersonInputItem />
+      </SortableListInput.List>
+    </SortableListInput.Root>
+  );
+}
+
+function PersonInputItem() {
+  const { register, name } = useSortableListInput();
+  const { index } = useSortableListInputItem();
+
+  return (
+    <SortableListInput.Item>
+      <Group attached flex="1">
+        <Input {...register(`${name}.${index}.name` as const)} placeholder="Enter name" size="sm" />
+        <Input
+          {...register(`${name}.${index}.contact` as const)}
+          placeholder="Email or phone"
+          size="sm"
+        />
+      </Group>
+      <SortableListInput.DeleteButton />
+    </SortableListInput.Item>
   );
 }

@@ -102,20 +102,31 @@ function InterviewEventDetails({ event }: { event: StatusEventInterview }) {
   );
 }
 
+function hasEventContent(event: StatusEvent): boolean {
+  if (event.notes) return true;
+
+  if (event.status === 'applied') {
+    return (event as StatusEventApplied).referrals?.length > 0;
+  }
+
+  if (event.status === 'interview') {
+    const interviewEvent = event as StatusEventInterview;
+    return (
+      interviewEvent.interviewers?.length > 0 ||
+      !!interviewEvent.scheduledAt ||
+      !!interviewEvent.location
+    );
+  }
+
+  return false;
+}
+
 function TimelineItem({ event, application }: { event: StatusEvent; application: Application }) {
   const { open } = useStatusEvent();
   const StatusIcon = STATUS_DEFINITIONS[event.status].iconFill;
 
   const isEditable = event.status !== 'saved';
-
-  // Check if there's any content to show/hide
-  const hasContent =
-    !!event.notes ||
-    (event.status === 'applied' && (event as StatusEventApplied).referrals?.length > 0) ||
-    (event.status === 'interview' &&
-      ((event as StatusEventInterview).interviewers?.length > 0 ||
-        !!(event as StatusEventInterview).scheduledAt ||
-        !!(event as StatusEventInterview).location));
+  const hasContent = hasEventContent(event);
 
   return (
     <ChakraTimeline.Item>

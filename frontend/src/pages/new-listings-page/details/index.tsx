@@ -97,7 +97,7 @@ function DetailsForm({
     reset,
   } = useForm<FormValues>({
     resolver: zodResolver(detailsSchema),
-    values: getInitialValues(listingDraft),
+    values: getFormValues(listingDraft),
   });
 
   const onSubmit = useCallback(
@@ -113,6 +113,7 @@ function DetailsForm({
     [listingDraft.id, patchListingDraftContent, reset]
   );
 
+  // TODO: Ideally, prompt for save on navigation away if isDirty instead of assuming the changes should be saved
   useEffect(() => {
     return () => {
       if (isDirty) onSubmit(getValues());
@@ -138,7 +139,7 @@ function DetailsForm({
   );
 }
 
-function getInitialValues(
+function getFormValues(
   draft: Exclude<ListingDraft, ListingDraftPending | ListingDraftError>
 ): FormValues {
   const data = draft.status === 'duplicate_url' ? draft.duplicateOf : draft.listing;
