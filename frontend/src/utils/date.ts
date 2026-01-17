@@ -164,3 +164,35 @@ export const ISOYearMonth = {
   parse: parseISOYearMonth,
   format: formatISOYearMonth,
 };
+
+// === Date Format Presets ===
+
+export const DateFormatPresets = {
+  /**
+   * @example "Jan 17, 2026"
+   */
+  short: {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  } as const satisfies Intl.DateTimeFormatOptions,
+
+  /**
+   * @example "Jan 17, 2026, 2:30 PM"
+   */
+  shortWithTime: {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  } as const satisfies Intl.DateTimeFormatOptions,
+
+  /**
+   * @example "Jan 17"
+   */
+  monthDay: {
+    month: 'short',
+    day: 'numeric',
+  } as const satisfies Intl.DateTimeFormatOptions,
+};

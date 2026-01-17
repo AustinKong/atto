@@ -1,6 +1,7 @@
 import type { StatusEnum } from '@/types/application';
 import type { Page } from '@/types/common';
-import type { Listing, ListingDraft, ListingSummary } from '@/types/listing';
+import type { Listing, ListingSummary } from '@/types/listing';
+import type { ListingDraft } from '@/types/listingDraft';
 
 export async function ingestListing(
   url: string,

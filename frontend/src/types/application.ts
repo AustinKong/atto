@@ -1,16 +1,19 @@
 import type { ISODate, ISODatetime } from '@/utils/date';
 
-export type StatusEnum =
-  | 'saved'
-  | 'applied'
-  | 'screening'
-  | 'interview'
-  | 'offer_received'
-  | 'accepted'
-  | 'rejected'
-  | 'ghosted'
-  | 'withdrawn'
-  | 'rescinded';
+export const STATUS_LIST = [
+  'saved',
+  'applied',
+  'screening',
+  'interview',
+  'offer_received',
+  'accepted',
+  'rejected',
+  'ghosted',
+  'withdrawn',
+  'rescinded',
+] as const;
+
+export type StatusEnum = (typeof STATUS_LIST)[number];
 
 export type Person = {
   name: string;

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import type { ListingDraft } from '@/types/listing';
+import type { ListingDraft } from '@/types/listingDraft';
 
 // Client-side state, never synced to server
 export function useListingDraftsQuery() {

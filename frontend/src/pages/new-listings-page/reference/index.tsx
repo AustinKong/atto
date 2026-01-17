@@ -2,7 +2,7 @@ import { EmptyState, Tabs, VStack } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { PiBrowser, PiInfo } from 'react-icons/pi';
 
-import type { ListingDraft } from '@/types/listing';
+import type { ListingDraft } from '@/types/listingDraft';
 
 import { Info } from './Info';
 import { Source, useHighlightValue } from './source';

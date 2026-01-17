@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 
 import { useListingDraftMutations } from '@/hooks/listings/useListingDraftMutations';
 import { useListingMutations } from '@/hooks/listings/useListingMutations';
-import type { ListingDraft } from '@/types/listing';
+import type { ListingDraft } from '@/types/listingDraft';
 
 import { useIngestion } from '../ingestion-modal/ingestionContext';
 

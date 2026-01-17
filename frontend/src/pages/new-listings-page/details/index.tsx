@@ -11,7 +11,7 @@ import type {
   ListingDraft,
   ListingDraftError,
   ListingDraftPending,
-} from '@/types/listing';
+} from '@/types/listingDraft';
 import type { ISODate } from '@/utils/date';
 
 import { FormFields } from './FormFields';

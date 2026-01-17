@@ -17,6 +17,7 @@ import { getStatusText } from '@/constants/statuses';
 import { useApplicationMutations } from '@/hooks/applications';
 import type { Application } from '@/types/application';
 import type { Listing } from '@/types/listing';
+import { DateFormatPresets, ISODate } from '@/utils/date';
 
 export function Details({
   application,
@@ -34,10 +35,7 @@ export function Details({
     items: listing.applications.map((app) => {
       const lastStatusEvent = app.statusEvents[app.statusEvents.length - 1];
       const statusText = getStatusText(lastStatusEvent);
-      const date = new Date(lastStatusEvent.date).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-      });
+      const date = ISODate.format(lastStatusEvent.date, DateFormatPresets.monthDay);
 
       return {
         label: `${date} (${statusText})`,
@@ -49,7 +47,7 @@ export function Details({
   return (
     <VStack align="stretch">
       <HStack justify="space-between">
-        <Heading size="md">About your Application</Heading>
+        <Heading size="md">Your Application</Heading>
         <Menu.Root>
           <Menu.Trigger asChild>
             <IconButton aria-label="Application menu" variant="plain" size="xs" mr="-3">
@@ -106,7 +104,7 @@ export function Details({
           <DataList.ItemValue>
             <DisplayDate
               date={application.statusEvents[0].date}
-              options={{ month: 'short', day: 'numeric', year: 'numeric' }}
+              options={DateFormatPresets.short}
             />
           </DataList.ItemValue>
         </DataList.Item>
@@ -115,7 +113,7 @@ export function Details({
           <DataList.ItemValue>
             <DisplayDate
               date={application.statusEvents[application.statusEvents.length - 1].date}
-              options={{ month: 'short', day: 'numeric', year: 'numeric' }}
+              options={DateFormatPresets.short}
             />
           </DataList.ItemValue>
         </DataList.Item>

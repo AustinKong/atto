@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
-import type { ListingDraft, ListingDraftPending, ListingExtraction } from '@/types/listing';
+import type { ListingDraft, ListingDraftPending, ListingExtraction } from '@/types/listingDraft';
 
 // DO NOT attempt to merge these functions into a single "updateListing" function
 // Doing so makes things prone to breaking and harder to reason about

@@ -5,7 +5,7 @@ import {
   ingestListing as ingestListingSvc,
   saveListing as saveListingSvc,
 } from '@/services/listings';
-import type { ListingDraft } from '@/types/listing';
+import type { ListingDraft } from '@/types/listingDraft';
 
 export function useListingMutations() {
   const queryClient = useQueryClient();

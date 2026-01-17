@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react';
 import { useEffect, useMemo, useRef } from 'react';
 
 import { HIGHLIGHT_SCRIPT } from '@/constants/highlightScript';
-import type { ListingDraft } from '@/types/listing';
+import type { ListingDraft } from '@/types/listingDraft';
 
 export function Source({
   listing,

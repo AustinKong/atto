@@ -1,16 +1,24 @@
 import React from 'react';
 import { PiCheckCircle, PiClock, PiCopy, PiLink, PiWarning } from 'react-icons/pi';
 
-import type { ListingDraft } from '@/types/listing';
+import type { ListingDraft, ListingDraftStatus } from '@/types/listingDraft';
 
 export const DRAFT_LISTING_DEFINITIONS: Record<
-  ListingDraft['status'],
+  ListingDraftStatus,
   { label: string; icon: React.ComponentType; colorPalette: string }
 > = {
   pending: { label: 'Pending', icon: PiClock, colorPalette: 'blue' },
   unique: { label: 'OK', icon: PiCheckCircle, colorPalette: 'green' },
-  duplicate_url: { label: 'Duplicate URL', icon: PiLink, colorPalette: 'orange' },
-  duplicate_content: { label: 'Duplicate Content', icon: PiCopy, colorPalette: 'orange' },
+  duplicate_url: {
+    label: 'Duplicate URL',
+    icon: PiLink,
+    colorPalette: 'orange',
+  },
+  duplicate_content: {
+    label: 'Duplicate Content',
+    icon: PiCopy,
+    colorPalette: 'orange',
+  },
   error: { label: 'Error', icon: PiWarning, colorPalette: 'red' },
 };
 

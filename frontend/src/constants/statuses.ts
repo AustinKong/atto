@@ -23,6 +23,7 @@ import {
 } from 'react-icons/pi';
 
 import type { StatusEnum, StatusEvent } from '@/types/application';
+import { STATUS_LIST } from '@/types/application';
 
 export const STATUS_DEFINITIONS: Record<
   StatusEnum,
@@ -70,18 +71,17 @@ export const STATUS_DEFINITIONS: Record<
   rescinded: { label: 'Rescinded', icon: PiX, iconFill: PiXFill, colorPalette: 'red' },
 };
 
-export const STATUS_OPTIONS = Object.entries(STATUS_DEFINITIONS)
-  .filter(([value]) => value !== 'saved') // Exclude 'saved' from user-selectable options in event creation
-  .map(([value, def]) => ({
-    value: value as StatusEnum,
-    label: def.label,
-    icon: def.icon,
+export const STATUS_OPTIONS = STATUS_LIST.filter((status) => status !== 'saved') // Exclude 'saved' from user-selectable options in event creation
+  .map((status) => ({
+    value: status,
+    label: STATUS_DEFINITIONS[status].label,
+    icon: STATUS_DEFINITIONS[status].icon,
   }));
 
-export const STATUS_FILTER_OPTIONS = Object.entries(STATUS_DEFINITIONS).map(([value, def]) => ({
-  value: value as StatusEnum,
-  label: def.label,
-  icon: def.icon,
+export const STATUS_FILTER_OPTIONS = STATUS_LIST.map((status) => ({
+  value: status,
+  label: STATUS_DEFINITIONS[status].label,
+  icon: STATUS_DEFINITIONS[status].icon,
 }));
 
 export const getStatusText = (statusEvent: StatusEvent): string => {

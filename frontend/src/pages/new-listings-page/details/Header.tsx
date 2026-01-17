@@ -2,7 +2,7 @@ import { HStack, IconButton, Link as ChakraLink, Text, VStack } from '@chakra-ui
 import { PiBookmarkSimple, PiCheck } from 'react-icons/pi';
 
 import { CompanyLogo } from '@/components/custom/CompanyLogo';
-import type { ListingDraft, ListingDraftError, ListingDraftPending } from '@/types/listing';
+import type { ListingDraft, ListingDraftError, ListingDraftPending } from '@/types/listingDraft';
 
 export function Header({
   listingDraft,

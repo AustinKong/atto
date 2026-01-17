@@ -3,9 +3,8 @@ import { useCallback } from 'react';
 import { type Control, Controller, type UseFormRegister } from 'react-hook-form';
 import { PiCheck } from 'react-icons/pi';
 
-import { ISODateInput } from '@/components/custom/DatePickers';
 import { SortableListInput } from '@/components/custom/sortable-list-input';
-import type { GroundedItem } from '@/types/listing';
+import type { GroundedItem } from '@/types/listingDraft';
 
 import { useHighlightSetter } from '../reference/source';
 import type { FormValues } from '.';
@@ -51,13 +50,7 @@ export function FormFields({
 
       <Field.Root readOnly={isReadOnly}>
         <Field.Label>Posted Date</Field.Label>
-        <Controller
-          control={control}
-          name="postedDate"
-          render={({ field }) => (
-            <ISODateInput value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
-          )}
-        />
+        <Input type="date" {...register('postedDate')} />
       </Field.Root>
 
       <Controller

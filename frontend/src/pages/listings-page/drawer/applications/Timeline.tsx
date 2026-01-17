@@ -20,6 +20,7 @@ import type {
   StatusEventApplied,
   StatusEventInterview,
 } from '@/types/application';
+import { DateFormatPresets } from '@/utils/date';
 
 import { useStatusEvent } from './status-event-modal';
 
@@ -77,14 +78,7 @@ function InterviewEventDetails({ event }: { event: StatusEventInterview }) {
             fontSize="sm"
             color="fg.muted"
             date={scheduledAt}
-            options={{
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit',
-              hour12: true,
-            }}
+            options={DateFormatPresets.shortWithTime}
           />{' '}
         </HStack>
       )}

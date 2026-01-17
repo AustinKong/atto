@@ -24,7 +24,7 @@ import {
   getTitle,
 } from '@/constants/draftListings';
 import { useListingDraftsQuery } from '@/hooks/listings';
-import { type ListingDraft } from '@/types/listing';
+import type { ListingDraft } from '@/types/listingDraft';
 
 const columnHelper = createColumnHelper<ListingDraft>();
 
