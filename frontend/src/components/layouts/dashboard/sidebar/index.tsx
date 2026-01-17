@@ -1,6 +1,6 @@
 import { Box, Center, chakra, Heading, HStack, Icon, Image, Text, VStack } from '@chakra-ui/react';
 import { PiBookmarkSimple, PiCaretLeft, PiCaretRight, PiGear, PiPlus } from 'react-icons/pi';
-import { NavLink } from 'react-router';
+import { NavLink, useLocation } from 'react-router';
 
 import { useColorModeValue } from '@/components/ui/color-mode';
 import { useLocalStorage } from '@/hooks/utils/useLocalStorage';
@@ -12,10 +12,18 @@ type NavItemConfig = {
   label: string;
   path: string;
   icon: React.ReactNode;
+  isActive?: (pathname: string) => boolean;
 };
 
 const NAV_ITEMS: NavItemConfig[] = [
-  { label: 'Saved', path: '/listings', icon: <PiBookmarkSimple /> },
+  {
+    label: 'Saved',
+    path: '/listings',
+    icon: <PiBookmarkSimple />,
+    isActive: (path) =>
+      path === '/listings' ||
+      (!!path.match(/^\/listings\/[^/]+/) && !path.startsWith('/listings/new')),
+  },
   { label: 'New Listing', path: '/listings/new', icon: <PiPlus /> },
   { label: 'Settings', path: '/settings', icon: <PiGear /> },
 ];
@@ -83,9 +91,12 @@ function Logo({ isOpen }: { isOpen: boolean }) {
 }
 
 function NavItem({ isOpen, item }: { isOpen: boolean; item: NavItemConfig }) {
+  const { pathname } = useLocation();
+  const isActive = item.isActive ? item.isActive(pathname) : pathname.startsWith(item.path);
+
   return (
     <NavLink to={item.path}>
-      {({ isActive }: { isActive: boolean }) => (
+      {() => (
         <SidebarItem
           bg={isActive ? 'bg.emphasized' : 'transparent'}
           _hover={isActive ? undefined : { bg: 'bg.muted' }}
