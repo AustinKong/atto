@@ -40,3 +40,8 @@ export interface Resume {
   template: string;
   data: ResumeData;
 }
+
+// Form data type for React Hook Form
+export interface ResumeFormData {
+  data: ResumeData;
+}

@@ -11,28 +11,22 @@ export async function getResume(resumeId: string): Promise<Resume> {
   return json as Resume;
 }
 
-export async function getResumeHtml(resumeId: string): Promise<string> {
-  const response = await fetch(`/api/resumes/${resumeId}/html`);
+// TODO: Rename to render html
+export async function getResumeHtml(template: string, data: ResumeData): Promise<string> {
+  const response = await fetch(`/api/resumes/html`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ template, data }),
+  });
 
   if (!response.ok) {
     throw new Error('Failed to get resume HTML');
   }
 
-  const data = await response.json();
-  return data.html;
-}
-
-export async function createShellResume(applicationId: string): Promise<Resume> {
-  const response = await fetch(`/api/resumes/?application_id=${applicationId}`, {
-    method: 'POST',
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to create resume shell');
-  }
-
   const json = await response.json();
-  return json as Resume;
+  return json.html;
 }
 
 export async function generateResumeContent(resumeId: string): Promise<Resume> {

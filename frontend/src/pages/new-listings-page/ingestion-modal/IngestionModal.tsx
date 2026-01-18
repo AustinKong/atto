@@ -17,10 +17,7 @@ import { useListingMutations } from '@/hooks/listings';
 import { useIngestion } from './ingestionContext';
 
 const ingestionSchema = z.object({
-  url: z
-    .string()
-    .min(1, 'URL is required')
-    .regex(/^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(\/[\w-./?%&=]*)?$/, 'Please enter a valid URL'),
+  url: z.url('Please enter a valid URL'),
   content: z.string().optional(),
 });
 

@@ -1,18 +1,27 @@
 import { Badge, Box, VStack } from '@chakra-ui/react';
 import { useLayoutEffect, useRef, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
+
+import { useResumeHtml } from '@/hooks/resumes';
+import type { Resume, ResumeFormData } from '@/types/resume';
 
 const PAPER_WIDTH = 816;
 const PAPER_HEIGHT = 1056;
 
 interface PreviewProps {
-  html: string;
-  isSaving?: boolean;
-  isGenerating?: boolean;
+  resume: Resume;
 }
 
-export function Preview({ html, isSaving, isGenerating }: PreviewProps) {
+export function Preview({ resume }: PreviewProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+
+  // Get current form data - watch specific field to avoid unnecessary rerenders
+  const { watch } = useFormContext<ResumeFormData>();
+  const resumeData = watch('data');
+
+  // Get HTML with debounced query (500ms delay)
+  const { html, isLoading } = useResumeHtml(resume.id, resume.template, resumeData);
 
   useLayoutEffect(() => {
     const preview = previewRef.current;
@@ -47,21 +56,8 @@ export function Preview({ html, isSaving, isGenerating }: PreviewProps) {
       gap={2}
       position="relative"
     >
-      {/* Loading indicators */}
-      {isGenerating && (
-        <Badge
-          position="absolute"
-          top={4}
-          right={4}
-          colorScheme="purple"
-          variant="solid"
-          size="lg"
-          zIndex={10}
-        >
-          ✨ Generating...
-        </Badge>
-      )}
-      {isSaving && !isGenerating && (
+      {/* Loading indicator */}
+      {isLoading && (
         <Badge
           position="absolute"
           top={4}
@@ -71,7 +67,7 @@ export function Preview({ html, isSaving, isGenerating }: PreviewProps) {
           size="sm"
           zIndex={10}
         >
-          Saving...
+          Rendering...
         </Badge>
       )}
       {/* Ghost wrapper - takes up the space of the scaled content */}

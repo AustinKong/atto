@@ -1,6 +1,5 @@
 import { AddButton } from './AddButton';
 import { DeleteButton } from './DeleteButton';
-import { Input } from './Input';
 import { Item } from './Item';
 import { Label } from './Label';
 import { List } from './List';
@@ -11,57 +10,78 @@ import { Root } from './Root';
  * `SortableListInput` is a compound component for managing draggable, sortable
  * lists of inputs integrated with React Hook Form and dnd-kit.
  *
+ * Users provide their own input components (Textarea, Input, etc.) for maximum flexibility.
+ * Use `useSortableListInput` and `useSortableListInputItem` hooks to access form context.
+ *
  * @example
+ * // Simple string array with inline functions
  * interface FormData {
- *   favouriteAnimals: { value: string; reference: string }[];
+ *   skills: string[];
  * }
  *
  * const { control, register } = useForm<FormData>({
- *   defaultValues: { favouriteAnimals: [{ value: "", reference: "" }] }
+ *   defaultValues: { skills: "" }
  * });
- * // Note: The 'reference' field can only be changed via direct manipulation
- * // from React Hook Form or initialized as a default value. Only value is changeable by the user.
  *
  * <SortableListInput.Root<FormData>
  *   control={control}
  *   register={register}
- *   name="favouriteAnimals"
+ *   name="skills"
+ *   defaultItem=""
  * >
  *   <HStack justify="space-between">
- *     <SortableListInput.Label>Favourite Animals</SortableListInput.Label>
+ *     <SortableListInput.Label>Skills</SortableListInput.Label>
  *     <SortableListInput.AddButton />
  *   </HStack>
  *
  *   <SortableListInput.List>
- *     <SortableListInput.Item<FormData>
- *       onMouseEnter={(item) => console.log(item.value, item.reference)}
- *     >
- *       // To use a custom drag handle icon, pass it as children:
- *       // Defaults to PiDot icon if no children provided.
- *       <SortableListInput.Marker>
- *         <CustomIcon />
- *       </SortableListInput.Marker>
- *       <SortableListInput.Input placeholder="Enter animal..." />
- *       <SortableListInput.DeleteButton />
+ *     <SortableListInput.Item<FormData>>
+ *       {({ index, name, register}) => (
+ *         <>
+ *           <SortableListInput.Marker />
+ *           <Textarea {...register(`${name}.${index}`)} placeholder="Enter skill..." />
+ *           <SortableListInput.DeleteButton />
+ *         </>
+ *       )}
  *     </SortableListInput.Item>
  *   </SortableListInput.List>
  * </SortableListInput.Root>
  *
  * @example
- * // Custom layout with multiple fields per row (Avatar marker + Input + Select)
+ * // Complex object array with multiple fields and metadata
  * interface PersonItem {
  *   name: string;
  *   gender: 'male' | 'female' | 'other';
+ *   metadata: string | null;
  * }
  *
  * interface FormData {
  *   people: PersonItem[];
  * }
  *
+ * const { control, register } = useForm<FormData>({
+ *   defaultValues: { people: [{ name: 'Bob', gender: 'other', metadata: 'Some metadata' }] }
+ * });
+ *
+ * <SortableListInput.Root<FormData>
+ *   control={control}
+ *   register={register}
+ *   name="people"
+ *   defaultItem={{ name: '', gender: 'other', metadata: null }}
+ * >
+ *   <HStack justify="space-between">
+ *     <SortableListInput.Label>People</SortableListInput.Label>
+ *     <SortableListInput.AddButton />
+ *   </HStack>
+ *
+ *   <SortableListInput.List>
+ *     <ListItem />
+ *   </SortableListInput.List>
+ * </SortableListInput.Root>
+ *
  * function ListItem() {
  *   const { register, name, control } = useSortableListInput<FormData>();
  *   const { index } = useSortableListInputItem();
- *   const personName = useWatch({ control, name: `${name}.${index}.name` });
  *
  *   return (
  *     <SortableListInput.Item<FormData>>
@@ -71,54 +91,44 @@ import { Root } from './Root';
  *         </Avatar.Root>
  *       </SortableListInput.Marker>
  *       <Input {...register(`${name}.${index}.name`)} placeholder="Person name" />
- *       <Select.Root size="sm" collection={genderCollection}>
- *         <Select.Control>
- *           <Select.Trigger />
- *         </Select.Control>
- *         <Select.Content>
- *           {genderCollection.items.map((item) => (
- *             <Select.Item key={item.value} item={item} />
- *           ))}
- *         </Select.Content>
- *       </Select.Root>
+ *       <Controller
+ *         control={control}
+ *         name={`${name}.${index}.gender`}
+ *         render={({ field }) => {
+ *           return (
+ *             <Select.Root
+ *               name={field.name}
+ *               value={field.value}
+ *               onValueChange={({ value }) => field.onChange(value)}
+ *               onInteractOutside={() => field.onBlur()}
+ *               collection={genderCollection}
+ *             >
+ *               <Select.HiddenSelect />
+ *               <Select.Control>
+ *                 <Select.Trigger />
+ *               </Select.Control>
+ *               <Portal>
+ *                 <Select.Positioner>
+ *                   <Select.Content>
+ *                     {genderCollection.items.map((item) => (
+ *                       <Select.Item key={item.value} item={item} />
+ *                     ))}
+ *                   </Select.Content>
+ *               </Select.Positioner>
+ *             </Portal>
+ *           </Select.Root>
+ *         )}}
+ *       />
+ *       <Text>Metadata: {watch(`${name}.${index}.metadata`)}</Text>
  *       <SortableListInput.DeleteButton />
  *     </SortableListInput.Item>
  *   );
- * }
- *
- * function PeopleForm() {
- *   const { control, register } = useForm<FormData>({
- *     values: {
- *       people: [
- *         { name: 'Alice', gender: 'female' },
- *         { name: 'Bob', gender: 'male' },
- *       ],
- *     },
- *   });
- *
- *   return (
- *     <SortableListInput.Root<FormData>
- *       control={control}
- *       register={register}
- *       name="people"
- *       defaultItem={{ name: '', gender: 'other' }}
- *     >
- *       <HStack justify="space-between">
- *         <SortableListInput.Label>People</SortableListInput.Label>
- *         <SortableListInput.AddButton />
- *       </HStack>
- *       <SortableListInput.List>
- *         <ListItem />
- *       </SortableListInput.List>
- *     </SortableListInput.Root>
- *   );
- * }
+ * }}
  *
  * @note Do not manually map over the items array. The List component handles rendering
  * and mapping internally. Just provide the Item component as a child of List.
  *
- * @note When building custom field layouts, use the `useSortableListInput` and
- * `useSortableListInputItem` hooks to access form context and item metadata (index, isDragging).
+ * @note Avoid using inline functions for heavy list items to prevent unnecessary re-renders.
  *
  * @template TFieldValues - The shape of the entire form state.
  */
@@ -126,7 +136,6 @@ export const SortableListInput = {
   AddButton,
   DeleteButton,
   Marker,
-  Input,
   Item,
   Label,
   List,

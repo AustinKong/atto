@@ -1,10 +1,10 @@
 import asyncio
-from uuid import UUID, uuid4
+from typing import Annotated
+from uuid import UUID
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from fastapi.responses import Response
 
-from app.config import settings
 from app.resources.prompts import OPTIMIZATION_PROMPT
 from app.schemas import (
   DetailedItem,
@@ -18,6 +18,7 @@ from app.schemas import (
 from app.services import (
   applications_service,
   experience_service,
+  listings_service,
   llm_service,
   profile_service,
   resume_service,
@@ -36,38 +37,22 @@ async def get_resume(resume_id: UUID) -> Resume:
   return resume_service.get(resume_id)
 
 
-@router.get('/{resume_id}/html')
-async def get_html(resume_id: UUID):
-  resume = resume_service.get(resume_id)
+@router.post('/html')
+async def get_html(
+  template: Annotated[str, Body()],
+  data: Annotated[ResumeData, Body()],
+):
   profile = profile_service.get()
-  html = template_service.render(resume.template, profile, resume)
+  html = template_service.render(template, profile, data)
 
   return {'html': html}
-
-
-@router.post('/')
-async def create_resume(application_id: UUID):
-  # Validate application exists
-  application = applications_service.get(application_id)
-
-  resume = Resume(
-    id=uuid4(),
-    template=settings.resume.default_template,
-    data=ResumeData(sections=[]),
-  )
-  resume_service.create(resume)
-
-  application.resume_id = resume.id
-  applications_service.update(application)
-
-  return resume
 
 
 @router.post('/{resume_id}/generate')
 async def generate_resume_content(resume_id: UUID):
   resume = resume_service.get(resume_id)
   application = applications_service.get_by_resume_id(resume_id)
-  listing = application.listing
+  listing = listings_service.get(application.listing_id)
   relevant_experiences: list[Experience] = experience_service.find_relevant(listing)
   responses = await asyncio.gather(
     *[
@@ -150,7 +135,7 @@ async def export_resume(resume_id: UUID) -> Response:
   resume = resume_service.get(resume_id)
   profile = profile_service.get()
   try:
-    pdf_bytes = template_service.render_pdf(resume.template, profile, resume)
+    pdf_bytes = template_service.render_pdf(resume.template, profile, resume.data)
   except Exception as e:
     raise NotFoundError(f'Failed to render PDF: {e}') from e
 

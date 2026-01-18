@@ -58,11 +58,11 @@ def create_tables():
       CREATE TABLE IF NOT EXISTS applications (
         id TEXT PRIMARY KEY,
         listing_id TEXT NOT NULL,
-        resume_id TEXT,
+        resume_id TEXT NOT NULL,
         current_status TEXT NOT NULL,
         last_status_at TEXT NOT NULL,
         FOREIGN KEY (listing_id) REFERENCES listings (id) ON DELETE CASCADE,
-        FOREIGN KEY (resume_id) REFERENCES resumes (id) ON DELETE SET NULL
+        FOREIGN KEY (resume_id) REFERENCES resumes (id) ON DELETE CASCADE
       )
     """)
 

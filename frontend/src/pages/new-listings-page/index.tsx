@@ -63,15 +63,11 @@ export function NewListingsPage() {
                 setSelectedListingId={setSelectedListingId}
               />
             </Splitter.Panel>
-            <Splitter.ResizeTrigger id="table:details">
-              <Splitter.ResizeTriggerSeparator />
-            </Splitter.ResizeTrigger>
+            <Splitter.ResizeTrigger id="table:details" />
             <Splitter.Panel id="details">
               <Details listingDraft={selectedListing} key={selectedListingId} />
             </Splitter.Panel>
-            <Splitter.ResizeTrigger id="details:preview">
-              <Splitter.ResizeTriggerSeparator />
-            </Splitter.ResizeTrigger>
+            <Splitter.ResizeTrigger id="details:preview" />
             <Splitter.Panel id="preview">
               <Reference listing={selectedListing} key={selectedListingId} />
             </Splitter.Panel>

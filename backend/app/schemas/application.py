@@ -113,6 +113,7 @@ StatusEvent = Annotated[
 class Application(CamelModel):
   id: UUID = Field(default_factory=uuid4)
   listing_id: UUID
+  # resumeId is optional during creation but it's non-nullable in the database and frontend type
   resume_id: UUID | None = None
   status_events: list[StatusEvent] = Field(default_factory=list)
   # Denormalized to significantly simplify listings_service.list_all query

@@ -16,6 +16,9 @@ export function Reference({ listing }: { listing: ListingDraft | null }) {
 
   const [activeTab, setActiveTab] = useState<string>('source');
 
+  // An effect needs to exist to handle the case of:
+  // User is viewing Source tab -> User triggers manual extraction re-scrape
+  // -> Re-scrape resolves, source tab is disabled, user should be switched to Info tab
   useEffect(() => {
     let newActiveTab = 'info';
     if (!listing) newActiveTab = 'no-selection';

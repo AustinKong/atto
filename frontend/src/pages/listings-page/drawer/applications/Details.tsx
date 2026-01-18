@@ -4,13 +4,14 @@ import {
   Heading,
   HStack,
   IconButton,
+  Link,
   Menu,
   Portal,
   VStack,
 } from '@chakra-ui/react';
 import { LuMenu } from 'react-icons/lu';
 import { PiPlus } from 'react-icons/pi';
-import { useNavigate } from 'react-router';
+import { Link as RouterLink, useNavigate } from 'react-router';
 
 import { DisplayDate } from '@/components/custom/DisplayDate';
 import { getStatusText } from '@/constants/statuses';
@@ -97,7 +98,17 @@ export function Details({
         </DataList.Item>
         <DataList.Item>
           <DataList.ItemLabel>Resume</DataList.ItemLabel>
-          <DataList.ItemValue>{application.resumeId || '-'}</DataList.ItemValue>
+          <DataList.ItemValue>
+            {application.resumeId ? (
+              <Link asChild>
+                <RouterLink to={`/resumes/${application.resumeId}`}>
+                  {application.resumeId}
+                </RouterLink>
+              </Link>
+            ) : (
+              '-'
+            )}
+          </DataList.ItemValue>
         </DataList.Item>
         <DataList.Item>
           <DataList.ItemLabel>Applied</DataList.ItemLabel>

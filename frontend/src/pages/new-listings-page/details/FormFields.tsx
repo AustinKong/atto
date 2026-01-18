@@ -113,11 +113,26 @@ export function FormFields({
             onMouseEnter={handleReferenceHover}
             onMouseLeave={handleReferenceLeave}
           >
-            <SortableListInput.Marker color="green">
-              <PiCheck />
-            </SortableListInput.Marker>
-            <SortableListInput.Input placeholder="Enter requirement..." />
-            <SortableListInput.DeleteButton />
+            {({ index, name, register, readOnly }) => (
+              <>
+                <SortableListInput.Marker color="green">
+                  <PiCheck />
+                </SortableListInput.Marker>
+                <Textarea
+                  {...register(`${name}.${index}.value`)}
+                  placeholder="Enter requirement..."
+                  variant="flushed"
+                  rows={1}
+                  minH="auto"
+                  py="2"
+                  css={{ fieldSizing: 'content' }}
+                  resize="none"
+                  flex="1"
+                  readOnly={readOnly}
+                />
+                <SortableListInput.DeleteButton />
+              </>
+            )}
           </SortableListInput.Item>
         </SortableListInput.List>
       </SortableListInput.Root>

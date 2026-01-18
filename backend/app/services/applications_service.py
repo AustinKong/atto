@@ -1,12 +1,13 @@
 import json
 from sqlite3 import Row
 from typing import Any
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from pydantic import TypeAdapter
 
+from app.config import settings
 from app.repositories import DatabaseRepository
-from app.schemas import Application, StatusEnum, StatusEvent, StatusEventSaved
+from app.schemas import Application, Resume, ResumeData, StatusEnum, StatusEvent, StatusEventSaved
 from app.utils.errors import NotFoundError
 
 event_adapter = TypeAdapter(StatusEvent)
@@ -71,23 +72,36 @@ class ApplicationsService(DatabaseRepository):
 
   def create(self, application: Application) -> Application:
     with self.transaction():
-      # Create the application with initial "saved" status (uses defaults from schema)
+      resume = Resume(
+        id=uuid4(),
+        template=settings.resume.default_template,
+        data=ResumeData(sections=[]),
+      )
+      self.execute(
+        'INSERT INTO resumes (id, template, data) VALUES (?, ?, ?)',
+        (
+          str(resume.id),
+          resume.template,
+          resume.data.model_dump_json(),
+        ),
+      )
+
+      application.resume_id = resume.id
+
       self.execute(
         'INSERT INTO applications (id, listing_id, resume_id, current_status, last_status_at) '
         'VALUES (?, ?, ?, ?, ?)',
         (
           str(application.id),
           str(application.listing_id),
-          str(application.resume_id) if application.resume_id else None,
+          str(application.resume_id),
           application.current_status.value,
           application.last_status_at,
         ),
       )
 
-      # Sync status to create the initial "saved" event
       self._sync_application_status(application.id)
 
-    # Return the full application with the created event
     return self.get(application.id)
 
   def create_event(self, status_event: StatusEvent, application_id: UUID) -> StatusEvent:
