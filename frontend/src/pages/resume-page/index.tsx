@@ -4,11 +4,17 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useParams } from 'react-router';
 
 import { useResumeMutations, useResumeQuery } from '@/hooks/resumes';
-import type { ResumeFormData } from '@/types/resume';
+import { useDebouncedMutation } from '@/hooks/utils/useDebouncedMutation';
+import { useWatchForm } from '@/hooks/utils/useWatchForm';
+import { updateResume } from '@/services/resume';
+import type { ResumeData, ResumeFormData } from '@/types/resume';
+import { queryClient } from '@/utils/queryClient';
 
 import { Editor } from './editor';
 import { Preview } from './preview';
 
+// TODO: I will use this implementation for now. But I need to figure out a way to avoid double firing of updateResume
+// It seems that using `values: { data: resume?.data }}` will trigger useWatchForm when values changes
 export function ResumePage() {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { resume, isLoading } = useResumeQuery(resumeId);
@@ -20,27 +26,21 @@ export function ResumePage() {
     },
   });
 
-  // Watch for form changes - watch specific field to avoid unnecessary rerenders
-  const resumeData = methods.watch('data');
+  const { mutate: saveResume } = useDebouncedMutation({
+    mutationFn: async (resumeData: ResumeData) => {
+      return updateResume(resumeId!, resumeData);
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(['resume', resumeId], data);
+      // Do not need to reset() sync server state back to form state
+      // Doing so causes many headaches
+    },
+  });
 
-  // Sync form data with resume when it changes externally
-  useEffect(() => {
-    if (resume) {
-      methods.reset({ data: resume.data });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resume?.id]); // Only reset when resume ID changes
-
-  // Get mutations (autosave 1000ms)
-  const { saveResume } = useResumeMutations();
-
-  // Auto-save on form changes (1000ms debounce)
-  useEffect(() => {
-    if (resume) {
-      saveResume({ resumeId: resume.id, data: resumeData });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resumeData, resume?.id]); // Only depend on data and resume ID, not the whole resume object
+  useWatchForm<ResumeFormData>((formData) => {
+    console.log('Form data changed:', formData.data);
+    saveResume(formData.data);
+  }, methods.watch);
 
   if (isLoading) {
     return <Center>Loading...</Center>;
