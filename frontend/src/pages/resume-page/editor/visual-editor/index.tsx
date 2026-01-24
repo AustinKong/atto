@@ -6,15 +6,15 @@ import { useEffect, useRef } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { PiPlus } from 'react-icons/pi';
 
-import type { ResumeFormData, Section } from '@/types/resume';
+import type { ResumeData, Section } from '@/types/resume';
 
 import { SectionEditor } from './SectionEditor';
 
 export function VisualEditor() {
-  const { control } = useFormContext<ResumeFormData>();
+  const { control } = useFormContext<ResumeData>();
   const { fields, append, remove, move, update } = useFieldArray({
     control,
-    name: 'data.sections',
+    name: 'sections',
   });
 
   const idsRef = useRef<string[]>([]);

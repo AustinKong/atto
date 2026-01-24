@@ -3,13 +3,12 @@ import { useCallback } from 'react';
 
 import type { ListingDraft, ListingDraftPending, ListingExtraction } from '@/types/listingDraft';
 
-// DO NOT attempt to merge these functions into a single "updateListing" function
-// Doing so makes things prone to breaking and harder to reason about
-export function useListingDraftMutations() {
+// Individual hooks for client-side listing draft mutations
+
+export function useSetListingDraft() {
   const queryClient = useQueryClient();
 
-  // Replaces the entire listing object at the specified ID.
-  const setListingDraft = useCallback(
+  return useCallback(
     (id: string, listing: ListingDraft) => {
       queryClient.setQueryData<ListingDraft[]>(
         ['listing-drafts'],
@@ -18,9 +17,12 @@ export function useListingDraftMutations() {
     },
     [queryClient]
   );
+}
 
-  // Retains the ID and URL but resets status to 'pending'.
-  const setPendingListingDraft = useCallback(
+export function useSetPendingListingDraft() {
+  const queryClient = useQueryClient();
+
+  return useCallback(
     (id: string) => {
       queryClient.setQueryData<ListingDraft[]>(
         ['listing-drafts'],
@@ -32,9 +34,12 @@ export function useListingDraftMutations() {
     },
     [queryClient]
   );
+}
 
-  // Appends a new pending item with ID to the list.
-  const addPendingListingDraft = useCallback(
+export function useAddPendingListingDraft() {
+  const queryClient = useQueryClient();
+
+  return useCallback(
     (id: string, url: string) => {
       queryClient.setQueryData<ListingDraft[]>(['listing-drafts'], (old) => [
         ...(old ?? []),
@@ -43,9 +48,12 @@ export function useListingDraftMutations() {
     },
     [queryClient]
   );
+}
 
-  // Targets the nested data object without changing the listing status.
-  const patchListingDraftContent = useCallback(
+export function usePatchListingDraftContent() {
+  const queryClient = useQueryClient();
+
+  return useCallback(
     (id: string, updates: Partial<ListingExtraction>) => {
       queryClient.setQueryData<ListingDraft[]>(['listing-drafts'], (old) => {
         return (
@@ -60,9 +68,12 @@ export function useListingDraftMutations() {
     },
     [queryClient]
   );
+}
 
-  // Removes listings with the specified IDs from the cache.
-  const discardListingDrafts = useCallback(
+export function useDiscardListingDrafts() {
+  const queryClient = useQueryClient();
+
+  return useCallback(
     (ids: string[]) => {
       queryClient.setQueryData<ListingDraft[]>(
         ['listing-drafts'],
@@ -71,12 +82,4 @@ export function useListingDraftMutations() {
     },
     [queryClient]
   );
-
-  return {
-    setListingDraft,
-    setPendingListingDraft,
-    addPendingListingDraft,
-    patchListingDraftContent,
-    discardListingDrafts,
-  };
 }

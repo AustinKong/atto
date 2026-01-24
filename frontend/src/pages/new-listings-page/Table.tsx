@@ -23,7 +23,6 @@ import {
   getDomain,
   getTitle,
 } from '@/constants/draftListings';
-import { useListingDraftsQuery } from '@/hooks/listings';
 import type { ListingDraft } from '@/types/listingDraft';
 
 const columnHelper = createColumnHelper<ListingDraft>();
@@ -99,13 +98,13 @@ export function Table({
   rowSelection,
   setRowSelection,
   setSelectedListingId,
+  listingDrafts,
 }: {
   rowSelection: Record<string, boolean>;
   setRowSelection: Dispatch<SetStateAction<Record<string, boolean>>>;
   setSelectedListingId: (id: string | null) => void;
+  listingDrafts: ListingDraft[];
 }) {
-  const { listingDrafts } = useListingDraftsQuery();
-
   const table = useReactTable({
     data: listingDrafts,
     columns,

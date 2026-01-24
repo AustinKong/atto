@@ -30,5 +30,3 @@ export const Root = forwardRef<HTMLDivElement, SplitterRootProps>(function Anima
     </Splitter.Root>
   );
 });
-
-export default Root;

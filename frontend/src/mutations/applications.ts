@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router';
 
 import {
   createApplication as createApplicationSvc,
@@ -8,20 +9,27 @@ import {
 } from '@/services/applications';
 import type { StatusEvent } from '@/types/application';
 
-export function useApplicationMutations() {
+export function useCreateApplication() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-  const { mutateAsync: createApplication, isPending: isCreateApplicationLoading } = useMutation({
+  return useMutation({
     mutationFn: async (listingId: string) => {
       return await createApplicationSvc(listingId);
     },
     onSuccess: (data, listingId) => {
       queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
       queryClient.setQueryData(['application', data.id], data);
+      // Navigate to the new application
+      navigate(`/listings/${listingId}/applications/${data.id}`, { replace: true });
     },
   });
+}
 
-  const { mutateAsync: createStatusEvent, isPending: isCreateStatusEventLoading } = useMutation({
+export function useCreateStatusEvent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: async ({
       applicationId,
       statusEvent,
@@ -38,8 +46,12 @@ export function useApplicationMutations() {
       queryClient.invalidateQueries({ queryKey: ['listings'] }); // Invalidate main table
     },
   });
+}
 
-  const { mutateAsync: updateStatusEvent, isPending: isUpdateStatusEventLoading } = useMutation({
+export function useUpdateStatusEvent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: async ({
       applicationId,
       eventId,
@@ -58,8 +70,12 @@ export function useApplicationMutations() {
       queryClient.invalidateQueries({ queryKey: ['listings'] }); // Invalidate main table
     },
   });
+}
 
-  const { mutateAsync: deleteStatusEvent, isPending: isDeleteStatusEventLoading } = useMutation({
+export function useDeleteStatusEvent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: async ({
       applicationId,
       eventId,
@@ -76,15 +92,4 @@ export function useApplicationMutations() {
       queryClient.invalidateQueries({ queryKey: ['listings'] }); // Invalidate main table
     },
   });
-
-  return {
-    createApplication,
-    isCreateApplicationLoading,
-    createStatusEvent,
-    isCreateStatusEventLoading,
-    updateStatusEvent,
-    isUpdateStatusEventLoading,
-    deleteStatusEvent,
-    isDeleteStatusEventLoading,
-  };
 }

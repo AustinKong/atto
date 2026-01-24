@@ -1,4 +1,4 @@
-import { createDialogContext } from '@/hooks/utils/useDialogContext';
+import { createDialogContext } from '@/hooks/useDialogContext';
 import type { Application, StatusEvent } from '@/types/application';
 
 export interface StatusEventContextData {

@@ -11,11 +11,11 @@ import {
 } from '@chakra-ui/react';
 import { LuMenu } from 'react-icons/lu';
 import { PiPlus } from 'react-icons/pi';
-import { Link as RouterLink, useNavigate } from 'react-router';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router';
 
 import { DisplayDate } from '@/components/custom/DisplayDate';
 import { getStatusText } from '@/constants/statuses';
-import { useApplicationMutations } from '@/hooks/applications';
+import { useCreateApplication } from '@/mutations/applications';
 import type { Application } from '@/types/application';
 import type { Listing } from '@/types/listing';
 import { DateFormatPresets, ISODate } from '@/utils/date';
@@ -30,7 +30,8 @@ export function Details({
   handleCreateApplication: () => void;
 }) {
   const navigate = useNavigate();
-  const { isCreateApplicationLoading } = useApplicationMutations();
+  const { applicationId } = useParams<{ applicationId: string }>();
+  const createApplicationMutation = useCreateApplication();
 
   const applicationCollection = createListCollection({
     items: listing.applications.map((app) => {
@@ -64,11 +65,11 @@ export function Details({
                       <Menu.Item
                         key={value}
                         value={value}
-                        onClick={() =>
-                          navigate(`/listings/${listing.id}/applications/${value}`, {
-                            replace: true,
-                          })
-                        }
+                        onClick={() => {
+                          if (value !== applicationId) {
+                            navigate(`/listings/${listing.id}/applications/${value}`);
+                          }
+                        }}
                       >
                         {label}
                       </Menu.Item>
@@ -79,10 +80,10 @@ export function Details({
                 <Menu.Item
                   value="new-application"
                   onClick={handleCreateApplication}
-                  disabled={isCreateApplicationLoading}
+                  disabled={createApplicationMutation.isPending}
                 >
                   <PiPlus />
-                  {isCreateApplicationLoading ? 'Creating...' : 'New Application'}
+                  {createApplicationMutation.isPending ? 'Creating...' : 'New Application'}
                 </Menu.Item>
               </Menu.Content>
             </Menu.Positioner>

@@ -1,10 +1,12 @@
 import { Button, Checkbox, Field, Heading, HStack, Link, Text, VStack } from '@chakra-ui/react';
+// import BulletInput from '@/components/custom/BulletInput';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { PiArrowSquareOut } from 'react-icons/pi';
 
-// import BulletInput from '@/components/custom/BulletInput';
 import { FloatingLabelInput } from '@/components/ui/FloatingLabelInput';
-import { useExperienceMutations, useExperiencesQuery } from '@/hooks/experiences';
+import { useUpdateExperiences } from '@/mutations/experiences';
+import { experienceQueries } from '@/queries/experiences';
 import { emptyExperience, type Experience, type ExperienceType } from '@/types/experience';
 import { ISOYearMonth } from '@/utils/date';
 
@@ -22,7 +24,7 @@ interface ExperienceFormProps {
 
 function ExperienceForm({ initialData }: ExperienceFormProps) {
   const [formData, setFormData] = useState<Experience[]>(initialData);
-  const { updateExperiences } = useExperienceMutations();
+  const { mutateAsync: updateExperiences } = useUpdateExperiences();
 
   const setExperiences = (updater: Experience[] | ((prev: Experience[]) => Experience[])) => {
     setFormData(typeof updater === 'function' ? updater : updater);
@@ -98,7 +100,7 @@ function ExperienceForm({ initialData }: ExperienceFormProps) {
 }
 
 export function Experience() {
-  const { experiences, isLoading } = useExperiencesQuery();
+  const { data: experiences, isLoading } = useQuery(experienceQueries.list());
 
   if (isLoading || !experiences) {
     return <Text>Loading...</Text>;

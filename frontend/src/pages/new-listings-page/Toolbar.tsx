@@ -1,18 +1,21 @@
 import { Button, HStack, Spacer } from '@chakra-ui/react';
 
-import {
-  useListingDraftMutations,
-  useListingDraftsQuery,
-  useListingMutations,
-} from '@/hooks/listings';
+import { useDiscardListingDrafts } from '@/mutations/listingDrafts';
+import { useSaveListings } from '@/mutations/listings';
+import type { ListingDraft } from '@/types/listingDraft';
 
 import { useIngestion } from './ingestion-modal';
 
-export function Toolbar({ rowSelection }: { rowSelection: Record<string, boolean> }) {
-  const { listingDrafts } = useListingDraftsQuery();
-  const { saveListings } = useListingMutations();
+export function Toolbar({
+  rowSelection,
+  listingDrafts,
+}: {
+  rowSelection: Record<string, boolean>;
+  listingDrafts: ListingDraft[];
+}) {
+  const saveListings = useSaveListings();
   const { open } = useIngestion();
-  const { discardListingDrafts } = useListingDraftMutations();
+  const discardListingDrafts = useDiscardListingDrafts();
 
   const selectedCount = Object.values(rowSelection).filter(Boolean).length;
 

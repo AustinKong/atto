@@ -1,13 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { useDebouncedMutation } from '@/hooks/utils/useDebouncedMutation';
 import { exportResumePdf, generateResumeContent, updateResume } from '@/services/resume';
 import type { ResumeData } from '@/types/resume';
 
-export function useResumeMutations() {
+export function useGenerateResumeContent() {
   const queryClient = useQueryClient();
 
-  const { mutate: generateContent, isPending: isGenerating } = useMutation({
+  return useMutation({
     mutationFn: (resumeId: string) => generateResumeContent(resumeId),
     onSuccess: (data, resumeId) => {
       // Update cache with generated content
@@ -16,8 +15,12 @@ export function useResumeMutations() {
       queryClient.invalidateQueries({ queryKey: ['resume', resumeId, 'html'] });
     },
   });
+}
 
-  const { mutate: saveResume, isPending: isSaving } = useDebouncedMutation({
+export function useSaveResume() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: async ({ resumeId, data }: { resumeId: string; data: ResumeData }) => {
       return updateResume(resumeId, data);
     },
@@ -28,21 +31,13 @@ export function useResumeMutations() {
     onError: (error) => {
       console.error('Failed to save resume:', error);
     },
-    delay: 1000,
   });
+}
 
-  const { mutateAsync: exportPdf, isPending: isExporting } = useMutation({
+export function useExportResumePdf() {
+  return useMutation({
     mutationFn: ({ resumeId, data }: { resumeId: string; data: ResumeData }) => {
       return exportResumePdf(resumeId, data);
     },
   });
-
-  return {
-    generateContent,
-    isGenerating,
-    saveResume,
-    isSaving,
-    exportPdf,
-    isExporting,
-  };
 }

@@ -2,20 +2,20 @@ import { HStack, Textarea } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 
 import { SortableListInput } from '@/components/custom/sortable-list-input';
-import type { ResumeFormData } from '@/types/resume';
+import type { ResumeData } from '@/types/resume';
 
 interface SimpleBulletEditorProps {
   sectionIndex: number;
 }
 
 export function SimpleBulletEditor({ sectionIndex }: SimpleBulletEditorProps) {
-  const { control, register } = useFormContext<ResumeFormData>();
+  const { control, register } = useFormContext<ResumeData>();
 
   return (
-    <SortableListInput.Root<ResumeFormData>
+    <SortableListInput.Root<ResumeData>
       control={control}
       register={register}
-      name={`data.sections.${sectionIndex}.content.bullets`}
+      name={`sections.${sectionIndex}.content.bullets`}
       defaultItem=""
     >
       <HStack justify="space-between">
@@ -24,7 +24,7 @@ export function SimpleBulletEditor({ sectionIndex }: SimpleBulletEditorProps) {
       </HStack>
 
       <SortableListInput.List>
-        <SortableListInput.Item<ResumeFormData>>
+        <SortableListInput.Item<ResumeData>>
           {({ index, name, register }) => (
             <>
               <SortableListInput.Marker />

@@ -1,20 +1,15 @@
 import { Splitter, VStack } from '@chakra-ui/react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
-import { Outlet, useNavigate, useParams } from 'react-router';
+import { Center, Spinner } from '@chakra-ui/react';
+import { Suspense } from 'react';
+import { Outlet, useParams } from 'react-router';
 
-import { useDebouncedUrlSyncedState } from '@/hooks/utils/useDebouncedUrlSyncedState';
-import { useLocalStorage } from '@/hooks/utils/useLocalStorage';
-import { getListing } from '@/services/listings';
-import type { ListingSummary } from '@/types/listing';
+import { useDebouncedUrlSyncedState } from '@/hooks/useDebouncedUrlSyncedState';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 import { Table } from './table';
 import { Toolbar } from './Toolbar';
 
 export function ListingsPage() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
   const { listingId } = useParams<{ listingId: string }>();
   const [searchInput, debouncedSearchInput, setSearchInput] = useDebouncedUrlSyncedState('q', '', {
     type: 'STRING',
@@ -26,24 +21,6 @@ export function ListingsPage() {
   );
 
   const isDrawerOpen = Boolean(listingId);
-
-  // Stable callbacks to prevent Table re-renders (Table is memoized)
-  const handleRowClick = useCallback(
-    (listing: ListingSummary) => {
-      navigate(`/listings/${listing.id}`, { replace: true });
-    },
-    [navigate]
-  );
-
-  const handleRowHover = useCallback(
-    (id: string) => {
-      queryClient.prefetchQuery({
-        queryKey: ['listing', id],
-        queryFn: () => getListing(id),
-      });
-    },
-    [queryClient]
-  );
 
   return (
     <VStack h="full" alignItems="stretch" gap="0">
@@ -61,11 +38,15 @@ export function ListingsPage() {
         w="full"
       >
         <Splitter.Panel id="table">
-          <Table
-            debouncedSearch={debouncedSearchInput}
-            onRowClick={handleRowClick}
-            onRowHover={handleRowHover}
-          />
+          <Suspense
+            fallback={
+              <Center h="full">
+                <Spinner />
+              </Center>
+            }
+          >
+            <Table debouncedSearch={debouncedSearchInput} />
+          </Suspense>
         </Splitter.Panel>
         {isDrawerOpen && (
           <>

@@ -1,9 +1,11 @@
 import { DataList, Heading, HStack, Link, List, Tag, Text, VStack, Wrap } from '@chakra-ui/react';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { PiCheck } from 'react-icons/pi';
+import { useParams } from 'react-router';
 
 import { CompanyLogo } from '@/components/custom/CompanyLogo';
 import { DisplayDate } from '@/components/custom/DisplayDate';
-import { useDrawerContext } from '@/pages/listings-page/drawer/drawerContext';
+import { listingsQueries } from '@/queries/listings';
 import type { Listing } from '@/types/listing';
 
 function Header({ listing }: { listing: Listing }) {
@@ -32,7 +34,8 @@ function Header({ listing }: { listing: Listing }) {
 }
 
 export function Info() {
-  const { listing } = useDrawerContext();
+  const { listingId } = useParams<{ listingId: string }>();
+  const { data: listing } = useSuspenseQuery(listingsQueries.item(listingId!));
 
   return (
     <>

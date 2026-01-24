@@ -4,7 +4,11 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { STATUS_DEFINITIONS } from '@/constants/statuses';
-import { useApplicationMutations } from '@/hooks/applications';
+import {
+  useCreateStatusEvent,
+  useDeleteStatusEvent,
+  useUpdateStatusEvent,
+} from '@/mutations/applications';
 import type { StatusEvent, StatusEventApplied, StatusEventInterview } from '@/types/application';
 import { ISODate, ISODatetime } from '@/utils/date';
 
@@ -60,17 +64,14 @@ export function StatusEventModal() {
   const application = context?.application;
   const isNewEvent = !event;
 
-  const {
-    createStatusEvent,
-    isCreateStatusEventLoading,
-    updateStatusEvent,
-    isUpdateStatusEventLoading,
-    deleteStatusEvent,
-    isDeleteStatusEventLoading,
-  } = useApplicationMutations();
+  const createStatusEventMutation = useCreateStatusEvent();
+  const updateStatusEventMutation = useUpdateStatusEvent();
+  const deleteStatusEventMutation = useDeleteStatusEvent();
 
   const isLoading =
-    isCreateStatusEventLoading || isUpdateStatusEventLoading || isDeleteStatusEventLoading;
+    createStatusEventMutation.isPending ||
+    updateStatusEventMutation.isPending ||
+    deleteStatusEventMutation.isPending;
 
   const {
     register,
@@ -113,13 +114,13 @@ export function StatusEventModal() {
     }
 
     if (isNewEvent) {
-      await createStatusEvent({
+      await createStatusEventMutation.mutateAsync({
         applicationId: application.id,
         listingId: application.listingId,
         statusEvent: payload,
       });
     } else {
-      await updateStatusEvent({
+      await updateStatusEventMutation.mutateAsync({
         applicationId: application.id,
         listingId: application.listingId,
         eventId: event.id,
@@ -132,7 +133,7 @@ export function StatusEventModal() {
   const onDelete = async () => {
     if (!application || !event) return;
 
-    await deleteStatusEvent({
+    await deleteStatusEventMutation.mutateAsync({
       applicationId: application.id,
       listingId: application.listingId,
       eventId: event.id,

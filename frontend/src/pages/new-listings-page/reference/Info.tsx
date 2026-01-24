@@ -2,16 +2,16 @@ import { Button, ButtonGroup, EmptyState, List, VStack } from '@chakra-ui/react'
 import { PiCheck, PiLink, PiQuestion, PiWarning } from 'react-icons/pi';
 import { Link } from 'react-router';
 
-import { useListingDraftMutations } from '@/hooks/listings/useListingDraftMutations';
-import { useListingMutations } from '@/hooks/listings/useListingMutations';
+import { useDiscardListingDrafts } from '@/mutations/listingDrafts';
+import { useSaveListings } from '@/mutations/listings';
 import type { ListingDraft } from '@/types/listingDraft';
 
 import { useIngestion } from '../ingestion-modal/ingestionContext';
 
 export function Info({ listing }: { listing: ListingDraft }) {
   const { open } = useIngestion();
-  const { discardListingDrafts } = useListingDraftMutations();
-  const { saveListings } = useListingMutations();
+  const discardListingDrafts = useDiscardListingDrafts();
+  const saveListings = useSaveListings();
 
   switch (listing.status) {
     case 'duplicate_url':

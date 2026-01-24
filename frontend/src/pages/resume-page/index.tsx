@@ -1,14 +1,12 @@
-import { Center, Splitter, VStack } from '@chakra-ui/react';
-import { useEffect } from 'react';
+import { Splitter, VStack } from '@chakra-ui/react';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useParams } from 'react-router';
 
-import { useResumeMutations, useResumeQuery } from '@/hooks/resumes';
-import { useDebouncedMutation } from '@/hooks/utils/useDebouncedMutation';
-import { useWatchForm } from '@/hooks/utils/useWatchForm';
-import { updateResume } from '@/services/resume';
-import type { ResumeData, ResumeFormData } from '@/types/resume';
-import { queryClient } from '@/utils/queryClient';
+import { useWatchForm } from '@/hooks/useWatchForm';
+import { useSaveResume } from '@/mutations/resume';
+import { resumeQueries } from '@/queries/resume';
+import type { ResumeData } from '@/types/resume';
 
 import { Editor } from './editor';
 import { Preview } from './preview';
@@ -17,38 +15,17 @@ import { Preview } from './preview';
 // It seems that using `values: { data: resume?.data }}` will trigger useWatchForm when values changes
 export function ResumePage() {
   const { resumeId } = useParams<{ resumeId: string }>();
-  const { resume, isLoading } = useResumeQuery(resumeId);
+  const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
 
-  // Initialize React Hook Form
-  const methods = useForm<ResumeFormData>({
-    defaultValues: {
-      data: resume?.data || { sections: [] },
-    },
+  const methods = useForm<ResumeData>({
+    defaultValues: resume.data,
   });
 
-  const { mutate: saveResume } = useDebouncedMutation({
-    mutationFn: async (resumeData: ResumeData) => {
-      return updateResume(resumeId!, resumeData);
-    },
-    onSuccess: (data) => {
-      queryClient.setQueryData(['resume', resumeId], data);
-      // Do not need to reset() sync server state back to form state
-      // Doing so causes many headaches
-    },
-  });
+  const { mutate: saveResume } = useSaveResume();
 
-  useWatchForm<ResumeFormData>((formData) => {
-    console.log('Form data changed:', formData.data);
-    saveResume(formData.data);
+  useWatchForm<ResumeData>((formData) => {
+    saveResume({ resumeId: resumeId!, data: formData });
   }, methods.watch);
-
-  if (isLoading) {
-    return <Center>Loading...</Center>;
-  }
-
-  if (!resume) {
-    return <Center>No resume found.</Center>;
-  }
 
   return (
     <FormProvider {...methods}>

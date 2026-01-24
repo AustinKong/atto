@@ -1,12 +1,12 @@
-import { Box, Center, Separator, Spinner, VStack } from '@chakra-ui/react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Box, Separator, VStack } from '@chakra-ui/react';
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { toaster } from '@/components/ui/toaster';
-import { getSettings, updateSettings } from '@/services/settings';
-import type { SettingsSection } from '@/types/settings';
+import { settingsQueries } from '@/queries/settings';
+import { updateSettings } from '@/services/settings';
 
 import { Section } from './Section';
 import { Toolbar } from './Toolbar';
@@ -14,10 +14,7 @@ import { Toolbar } from './Toolbar';
 export function SettingsPage() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const queryClient = useQueryClient();
-  const { data: settings, isLoading } = useQuery<Record<string, SettingsSection>>({
-    queryKey: ['settings'],
-    queryFn: getSettings,
-  });
+  const { data: settings } = useSuspenseQuery(settingsQueries.all());
 
   const updateSettingsMutation = useMutation({
     mutationFn: updateSettings,
@@ -83,14 +80,6 @@ export function SettingsPage() {
 
     await updateSettingsMutation.mutateAsync(dirtyData);
   });
-
-  if (isLoading || !settings) {
-    return (
-      <Center w="full" h="full">
-        <Spinner />
-      </Center>
-    );
-  }
 
   return (
     <VStack h="full" w="full" as="form" align="stretch" onSubmit={onSubmit} gap="0">

@@ -1,13 +1,17 @@
 import { Button, Heading, Text, Textarea, VStack } from '@chakra-ui/react';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { LuSparkles } from 'react-icons/lu';
+import { useParams } from 'react-router';
 
-import { useListingMutations } from '@/hooks/listings';
-import { useDrawerContext } from '@/pages/listings-page/drawer/drawerContext';
+import { useGenerateListingInsights, useUpdateListingNotes } from '@/mutations/listings';
+import { listingsQueries } from '@/queries/listings';
 
 export function Research() {
-  const { listing } = useDrawerContext();
-  const { updateNotes, generateInsights, isGeneratingInsights } = useListingMutations();
+  const { listingId } = useParams<{ listingId: string }>();
+  const { data: listing } = useSuspenseQuery(listingsQueries.item(listingId!));
+  const updateNotes = useUpdateListingNotes();
+  const { generateInsights, isGeneratingInsights } = useGenerateListingInsights();
   const [notes, setNotes] = useState(listing.notes ?? '');
 
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

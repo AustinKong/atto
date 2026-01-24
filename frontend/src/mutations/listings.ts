@@ -1,53 +1,75 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { useListingDraftMutations } from '@/hooks/listings/useListingDraftMutations';
-import { useDebouncedMutation } from '@/hooks/utils/useDebouncedMutation';
+import { useDebouncedMutation } from '@/hooks/useDebouncedMutation';
 import {
   generateListingInsights as generateListingInsightsSvc,
   ingestListing as ingestListingSvc,
   saveListing as saveListingSvc,
   updateListingNotes as updateListingNotesSvc,
 } from '@/services/listings';
-import type { ListingDraft } from '@/types/listingDraft';
+import type { ListingDraft, ListingDraftPending } from '@/types/listingDraft';
 
-export function useListingMutations() {
+// Individual hooks for server-side listing mutations
+
+export function useIngestListing() {
   const queryClient = useQueryClient();
-  const { setListingDraft, setPendingListingDraft, addPendingListingDraft } =
-    useListingDraftMutations();
 
   const { mutate: runIngest } = useMutation({
     mutationFn: ({ id, url, content }: { id: string; url: string; content?: string }) =>
       ingestListingSvc(url, content, id),
     onSuccess: (newDraft) => {
-      setListingDraft(newDraft.id, newDraft);
+      queryClient.setQueryData<ListingDraft[]>(
+        ['listing-drafts'],
+        (old) => old?.map((l) => (l.id === newDraft.id ? newDraft : l)) ?? []
+      );
     },
     onError: (error, variables) => {
-      setListingDraft(variables.id, {
-        id: variables.id,
-        url: variables.url,
-        status: 'error',
-        error: (error as Error).message,
-        html: null,
-      } as ListingDraft);
+      queryClient.setQueryData<ListingDraft[]>(
+        ['listing-drafts'],
+        (old) =>
+          old?.map((l) =>
+            l.id === variables.id
+              ? ({
+                  id: variables.id,
+                  url: variables.url,
+                  status: 'error',
+                  error: (error as Error).message,
+                  html: null,
+                } as ListingDraft)
+              : l
+          ) ?? []
+      );
     },
   });
 
-  const ingestListing = (url: string, content?: string, existingId?: string) => {
+  return (url: string, content?: string, existingId?: string) => {
     const id = existingId ?? crypto.randomUUID();
     const isNew = !existingId;
 
     if (isNew) {
-      addPendingListingDraft(id, url);
+      queryClient.setQueryData<ListingDraft[]>(['listing-drafts'], (old) => [
+        ...(old ?? []),
+        { id, url, status: 'pending' } as ListingDraftPending,
+      ]);
     } else {
-      setPendingListingDraft(id);
+      queryClient.setQueryData<ListingDraft[]>(
+        ['listing-drafts'],
+        (old) =>
+          old?.map((l) =>
+            l.id === id ? ({ id: l.id, url: l.url, status: 'pending' } as ListingDraftPending) : l
+          ) ?? []
+      );
     }
 
     runIngest({ id, url, content });
 
     return id;
   };
+}
 
-  // Optimistically remove's listing from UI on save but rolls back if it fails
+export function useSaveListings() {
+  const queryClient = useQueryClient();
+
   const { mutateAsync: saveListing } = useMutation({
     mutationFn: saveListingSvc,
     onMutate: (listing: ListingDraft) => {
@@ -66,9 +88,13 @@ export function useListingMutations() {
     },
   });
 
-  const saveListings = async (listings: ListingDraft[]) => {
+  return async (listings: ListingDraft[]) => {
     return Promise.allSettled(listings.map((listing) => saveListing(listing)));
   };
+}
+
+export function useUpdateListingNotes() {
+  const queryClient = useQueryClient();
 
   const { mutate: updateNotes } = useDebouncedMutation({
     mutationFn: ({ listingId, notes }: { listingId: string; notes: string | null }) =>
@@ -79,6 +105,12 @@ export function useListingMutations() {
     delay: 500,
   });
 
+  return updateNotes;
+}
+
+export function useGenerateListingInsights() {
+  const queryClient = useQueryClient();
+
   const { mutate: generateInsights, isPending: isGeneratingInsights } = useMutation({
     mutationFn: (listingId: string) => generateListingInsightsSvc(listingId),
     onSuccess: (updatedListing) => {
@@ -86,11 +118,5 @@ export function useListingMutations() {
     },
   });
 
-  return {
-    ingestListing,
-    saveListings,
-    updateNotes,
-    generateInsights,
-    isGeneratingInsights,
-  };
+  return { generateInsights, isGeneratingInsights };
 }

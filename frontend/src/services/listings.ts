@@ -104,6 +104,9 @@ export async function getListing(listingId: string): Promise<Listing> {
   }
 
   const json = await response.json();
+  if (!json) {
+    throw new Error('Listing not found');
+  }
   return json as Listing;
 }
 

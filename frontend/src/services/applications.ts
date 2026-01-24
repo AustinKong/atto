@@ -8,6 +8,9 @@ export async function getApplication(applicationId: string): Promise<Application
   }
 
   const json = await response.json();
+  if (!json) {
+    throw new Error('Application not found');
+  }
   return json as Application;
 }
 

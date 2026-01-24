@@ -1,4 +1,4 @@
-import { createDialogContext } from '@/hooks/utils/useDialogContext';
+import { createDialogContext } from '@/hooks/useDialogContext';
 
 export interface IngestionScrapeData {
   id: string;

@@ -1,8 +1,10 @@
 import { Splitter, VStack } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { Center, Spinner } from '@chakra-ui/react';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { Suspense, useEffect, useState } from 'react';
 
-import { useListingDraftsQuery } from '@/hooks/listings';
-import { useLocalStorage } from '@/hooks/utils/useLocalStorage';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { listingDraftQueries } from '@/queries/listingDrafts';
 
 import { Details } from './details';
 import { Footer } from './Footer';
@@ -13,7 +15,7 @@ import { Table } from './Table';
 import { Toolbar } from './Toolbar';
 
 export function NewListingsPage() {
-  const { listingDrafts } = useListingDraftsQuery();
+  const { data: listingDrafts } = useSuspenseQuery(listingDraftQueries.all());
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [splitterSizes, setSplitterSizes] = useLocalStorage(
@@ -45,7 +47,7 @@ export function NewListingsPage() {
     <IngestionProvider>
       <HighlightProvider>
         <VStack h="full" gap="0" alignItems="stretch">
-          <Toolbar rowSelection={rowSelection} />
+          <Toolbar rowSelection={rowSelection} listingDrafts={listingDrafts} />
           <Splitter.Root
             panels={[
               { id: 'table', minSize: 15, maxSize: 40 },
@@ -57,11 +59,20 @@ export function NewListingsPage() {
             h="full"
           >
             <Splitter.Panel id="table">
-              <Table
-                rowSelection={rowSelection}
-                setRowSelection={setRowSelection}
-                setSelectedListingId={setSelectedListingId}
-              />
+              <Suspense
+                fallback={
+                  <Center h="full">
+                    <Spinner />
+                  </Center>
+                }
+              >
+                <Table
+                  rowSelection={rowSelection}
+                  setRowSelection={setRowSelection}
+                  setSelectedListingId={setSelectedListingId}
+                  listingDrafts={listingDrafts}
+                />
+              </Suspense>
             </Splitter.Panel>
             <Splitter.ResizeTrigger id="table:details" />
             <Splitter.Panel id="details">

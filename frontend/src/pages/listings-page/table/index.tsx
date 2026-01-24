@@ -1,4 +1,6 @@
 import { Badge, HStack, Table as ChakraTable, Text } from '@chakra-ui/react';
+import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   createColumnHelper,
   getCoreRowModel,
@@ -6,14 +8,15 @@ import {
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import React, { type Dispatch, type SetStateAction, useCallback } from 'react';
+import React, { type Dispatch, type SetStateAction, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router';
 
 import { CompanyLogo } from '@/components/custom/CompanyLogo';
 import { DisplayDate } from '@/components/custom/DisplayDate';
 import { STATUS_DEFINITIONS } from '@/constants/statuses';
-import { useListingsQuery } from '@/hooks/listings';
-import { useDebouncedUrlSyncedState } from '@/hooks/utils/useDebouncedUrlSyncedState';
-import { type ParamHandler, useUrlSyncedState } from '@/hooks/utils/useUrlSyncedState';
+import { useDebouncedUrlSyncedState } from '@/hooks/useDebouncedUrlSyncedState';
+import { type ParamHandler, useUrlSyncedState } from '@/hooks/useUrlSyncedState';
+import { listingsQueries } from '@/queries/listings';
 import type { StatusEnum } from '@/types/application';
 import type { ListingSummary } from '@/types/listing';
 
@@ -113,15 +116,10 @@ const columns = [
   }),
 ];
 
-const Table = React.memo(function Table({
-  debouncedSearch,
-  onRowClick,
-  onRowHover,
-}: {
-  debouncedSearch: string;
-  onRowClick: (listing: ListingSummary) => void;
-  onRowHover: (id: string) => void;
-}) {
+const Table = React.memo(function Table({ debouncedSearch }: { debouncedSearch: string }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const [sorting, setSorting] = useUrlSyncedState<SortingState>('sort', [], {
     custom: tableSortHandler,
   });
@@ -153,12 +151,30 @@ const Table = React.memo(function Table({
     [setStatuses, statuses]
   );
 
-  const { listings, fetchNextPage, hasNextPage, isLoading } = useListingsQuery({
-    search: debouncedSearch,
-    sortBy: sortBy as 'title' | 'company' | 'posted_at' | 'last_status_at',
-    sortOrder: sortOrder as 'asc' | 'desc',
-    statuses: debouncedStatuses as StatusEnum[],
-  });
+  const handleRowClick = useCallback(
+    (listing: ListingSummary) => {
+      navigate(`/listings/${listing.id}`, { replace: true });
+    },
+    [navigate]
+  );
+
+  const handleRowHover = useCallback(
+    (id: string) => {
+      queryClient.prefetchQuery(listingsQueries.item(id));
+    },
+    [queryClient]
+  );
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useSuspenseInfiniteQuery(
+    listingsQueries.list({
+      search: debouncedSearch,
+      sortBy: sortBy as 'title' | 'company' | 'posted_at' | 'last_status_at',
+      sortOrder: sortOrder as 'asc' | 'desc',
+      statuses: debouncedStatuses as StatusEnum[],
+    })
+  );
+
+  const listings = useMemo(() => data?.pages.flatMap((page) => page.items) ?? [], [data]);
 
   const table = useReactTable({
     data: listings,
@@ -195,14 +211,14 @@ const Table = React.memo(function Table({
             <TableRow
               key={row.id}
               row={row}
-              onRowClick={() => onRowClick(row.original)}
-              onRowHover={() => onRowHover(row.original.id)}
+              onRowClick={() => handleRowClick(row.original)}
+              onRowHover={() => handleRowHover(row.original.id)}
             />
           ))}
           <TableFooter
             onFetchNext={fetchNextPage}
             hasNextPage={hasNextPage}
-            isLoading={isLoading}
+            isLoading={isFetchingNextPage}
           />
         </ChakraTable.Body>
       </ChakraTable.Root>

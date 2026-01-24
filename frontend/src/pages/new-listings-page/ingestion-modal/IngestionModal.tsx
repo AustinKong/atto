@@ -12,7 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { useListingMutations } from '@/hooks/listings';
+import { useIngestListing } from '@/mutations/listings';
 
 import { useIngestion } from './ingestionContext';
 
@@ -24,7 +24,7 @@ const ingestionSchema = z.object({
 export type FormValues = z.infer<typeof ingestionSchema>;
 
 export function IngestionModal() {
-  const { ingestListing } = useListingMutations();
+  const ingestListing = useIngestListing();
   const { dialog, context, close } = useIngestion();
 
   const {

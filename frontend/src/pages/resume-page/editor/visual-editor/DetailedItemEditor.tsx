@@ -13,17 +13,17 @@ import { useFieldArray, useFormContext } from 'react-hook-form';
 import { PiDotsSixVertical, PiPlus, PiTrash } from 'react-icons/pi';
 
 import { SortableListInput } from '@/components/custom/sortable-list-input';
-import type { ResumeFormData } from '@/types/resume';
+import type { ResumeData } from '@/types/resume';
 
 interface DetailedItemEditorProps {
   sectionIndex: number;
 }
 
 export function DetailedItemEditor({ sectionIndex }: DetailedItemEditorProps) {
-  const { control } = useFormContext<ResumeFormData>();
+  const { control } = useFormContext<ResumeData>();
   const { fields, append, remove, move } = useFieldArray({
     control,
-    name: `data.sections.${sectionIndex}.content.bullets`,
+    name: `sections.${sectionIndex}.content.bullets`,
   });
 
   const idsRef = useRef<string[]>([]);
@@ -116,7 +116,7 @@ function DetailedItemCard({
   itemIndex: number;
   onDelete: () => void;
 }) {
-  const { register, control } = useFormContext<ResumeFormData>();
+  const { register, control } = useFormContext<ResumeData>();
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
   const style = {
@@ -162,13 +162,13 @@ function DetailedItemCard({
       <VStack gap="2" w="full" align="stretch">
         <HStack gap="2" w="full">
           <Input
-            {...register(`data.sections.${sectionIndex}.content.bullets.${itemIndex}.title`)}
+            {...register(`sections.${sectionIndex}.content.bullets.${itemIndex}.title`)}
             placeholder="Title (e.g., Job Title)"
             variant="flushed"
             flex="1"
           />
           <Input
-            {...register(`data.sections.${sectionIndex}.content.bullets.${itemIndex}.subtitle`)}
+            {...register(`sections.${sectionIndex}.content.bullets.${itemIndex}.subtitle`)}
             placeholder="Subtitle (e.g., Company)"
             variant="flushed"
             flex="1"
@@ -177,13 +177,13 @@ function DetailedItemCard({
 
         <HStack gap="2" w="full">
           <Input
-            {...register(`data.sections.${sectionIndex}.content.bullets.${itemIndex}.startDate`)}
+            {...register(`sections.${sectionIndex}.content.bullets.${itemIndex}.startDate`)}
             placeholder="Start Date"
             variant="flushed"
             flex="1"
           />
           <Input
-            {...register(`data.sections.${sectionIndex}.content.bullets.${itemIndex}.endDate`)}
+            {...register(`sections.${sectionIndex}.content.bullets.${itemIndex}.endDate`)}
             placeholder="End Date"
             variant="flushed"
             flex="1"
@@ -194,7 +194,7 @@ function DetailedItemCard({
           control={control}
           register={register}
           // @ts-expect-error - nested path type inference limitation
-          name={`data.sections.${sectionIndex}.content.bullets.${itemIndex}.bullets`}
+          name={`sections.${sectionIndex}.content.bullets.${itemIndex}.bullets`}
           defaultItem=""
         >
           <HStack justify="space-between">
@@ -203,7 +203,7 @@ function DetailedItemCard({
           </HStack>
 
           <SortableListInput.List>
-            <SortableListInput.Item<ResumeFormData>>
+            <SortableListInput.Item<ResumeData>>
               {({ index, name, register }) => (
                 <>
                   <SortableListInput.Marker />

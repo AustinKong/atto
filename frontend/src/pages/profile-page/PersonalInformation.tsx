@@ -1,8 +1,10 @@
 import { Button, Field, Input, VStack } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
 // import BulletInput from '@/components/custom/BulletInput';
-import { useProfileMutations, useProfileQuery } from '@/hooks/profile';
+import { useUpdateProfile } from '@/mutations/profile';
+import { profileQueries } from '@/queries/profile';
 import type { Profile } from '@/types/profile';
 
 interface PersonalInformationProps {
@@ -11,7 +13,7 @@ interface PersonalInformationProps {
 
 function PersonalInformationForm({ initialData }: PersonalInformationProps) {
   const [formData, setFormData] = useState<Profile>(initialData);
-  const { updateProfile } = useProfileMutations();
+  const { mutateAsync: updateProfile } = useUpdateProfile();
 
   const setFormField = (updates: Partial<Profile>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
@@ -86,7 +88,7 @@ function PersonalInformationForm({ initialData }: PersonalInformationProps) {
 }
 
 export function PersonalInformation() {
-  const { profile, isLoading } = useProfileQuery();
+  const { data: profile, isLoading } = useQuery(profileQueries.item());
 
   if (isLoading || !profile) {
     return <div>Loading...</div>;

@@ -1,17 +1,10 @@
-import {
-  HStack,
-  IconButton,
-  Input,
-  Text,
-  Textarea,
-  VStack,
-} from '@chakra-ui/react';
+import { HStack, IconButton, Input, Text, Textarea, VStack } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useFormContext } from 'react-hook-form';
 import { PiDotsSixVertical, PiTrash } from 'react-icons/pi';
 
-import type { ResumeFormData } from '@/types/resume';
+import type { ResumeData } from '@/types/resume';
 
 import { DetailedItemEditor } from './DetailedItemEditor';
 import { SimpleBulletEditor } from './SimpleBulletEditor';
@@ -23,10 +16,10 @@ interface SectionEditorProps {
 }
 
 export function SectionEditor({ id, index, onDelete }: SectionEditorProps) {
-  const { register, watch } = useFormContext<ResumeFormData>();
+  const { register, watch } = useFormContext<ResumeData>();
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
-  const section = watch(`data.sections.${index}`);
+  const section = watch(`sections.${index}`);
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -40,7 +33,7 @@ export function SectionEditor({ id, index, onDelete }: SectionEditorProps) {
       // Paragraph section
       return (
         <Textarea
-          {...register(`data.sections.${index}.content.text`)}
+          {...register(`sections.${index}.content.text`)}
           placeholder="Enter paragraph text..."
           rows={3}
           variant="flushed"
@@ -84,7 +77,7 @@ export function SectionEditor({ id, index, onDelete }: SectionEditorProps) {
           </HStack>
 
           <Input
-            {...register(`data.sections.${index}.title`)}
+            {...register(`sections.${index}.title`)}
             placeholder="Section Title"
             variant="flushed"
             fontWeight="medium"

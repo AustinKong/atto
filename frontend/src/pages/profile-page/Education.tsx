@@ -9,12 +9,14 @@ import {
   Timeline,
   VStack,
 } from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { PiAcorn, PiArrowSquareOut } from 'react-icons/pi';
 
 // import BulletInput from '@/components/custom/BulletInput';
 import { FloatingLabelInput } from '@/components/ui/FloatingLabelInput';
-import { useProfileMutations, useProfileQuery } from '@/hooks/profile';
+import { useUpdateProfile } from '@/mutations/profile';
+import { profileQueries } from '@/queries/profile';
 import { type Education, emptyEducation, type Profile } from '@/types/profile';
 import { ISOYearMonth } from '@/utils/date';
 
@@ -24,7 +26,7 @@ interface EducationFormProps {
 
 function EducationForm({ initialData }: EducationFormProps) {
   const [formData, setFormData] = useState<Profile>(initialData);
-  const { updateProfile } = useProfileMutations();
+  const { mutateAsync: updateProfile } = useUpdateProfile();
 
   const setFormField = (updates: Partial<Profile>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
@@ -97,7 +99,7 @@ function EducationForm({ initialData }: EducationFormProps) {
 }
 
 export function Education() {
-  const { profile, isLoading } = useProfileQuery();
+  const { data: profile, isLoading } = useQuery(profileQueries.item());
 
   if (isLoading || !profile) {
     return <Text>Loading...</Text>;

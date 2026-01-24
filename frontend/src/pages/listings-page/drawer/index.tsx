@@ -1,45 +1,14 @@
-import { Box, Center, CloseButton, Spinner, Tabs } from '@chakra-ui/react';
+import { Box, CloseButton, Tabs } from '@chakra-ui/react';
 import { Link, Outlet, useMatch, useNavigate, useParams } from 'react-router';
-
-import { useListingQuery } from '@/hooks/listings';
-
-import { type DrawerContext } from './drawerContext';
-
-export { Applications } from './applications';
-export { Info } from './info';
-export { Research } from './research';
 
 export function ListingDrawer() {
   const navigate = useNavigate();
   const { listingId } = useParams<{ listingId: string; applicationId?: string }>();
-  const { data: listing, isLoading } = useListingQuery(listingId!);
 
   const isResearch = useMatch('/listings/:listingId/research');
   const isApplications = useMatch('/listings/:listingId/applications/*');
 
   const activeTab = isResearch ? 'research' : isApplications ? 'applications' : 'info';
-
-  if (isLoading) {
-    return (
-      <Center h="full">
-        <Spinner size="lg" />
-      </Center>
-    );
-  }
-
-  if (!listing) {
-    return (
-      <Center h="full">
-        <CloseButton
-          position="absolute"
-          right="0"
-          onClick={() => navigate('/listings', { replace: true })}
-          variant="plain"
-        />
-        Listing not found.
-      </Center>
-    );
-  }
 
   return (
     <Tabs.Root h="full" display="flex" flexDirection="column" value={activeTab} navigate={() => {}}>
@@ -61,7 +30,7 @@ export function ListingDrawer() {
         />
       </Tabs.List>
       <Box flex="1" overflowY="auto" py="2">
-        <Outlet context={{ listing } satisfies DrawerContext} />
+        <Outlet />
       </Box>
     </Tabs.Root>
   );

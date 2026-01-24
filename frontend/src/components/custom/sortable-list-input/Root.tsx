@@ -18,7 +18,7 @@ import {
   type UseFormRegister,
 } from 'react-hook-form';
 
-import { useStableValue } from '@/hooks/utils/useStableValue';
+import { useStableValue } from '@/hooks/useStableValue';
 
 import { SortableListInputContext } from './contexts';
 

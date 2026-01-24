@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { PiBrowser } from 'react-icons/pi';
 import z from 'zod';
 
-import { useListingDraftMutations } from '@/hooks/listings';
+import { usePatchListingDraftContent } from '@/mutations/listingDrafts';
 import type {
   GroundedItem,
   ListingDraft,
@@ -86,7 +86,7 @@ function DetailsForm({
 }: {
   listingDraft: Exclude<ListingDraft, ListingDraftPending | ListingDraftError>;
 }) {
-  const { patchListingDraftContent } = useListingDraftMutations();
+  const patchListingDraftContent = usePatchListingDraftContent();
 
   const {
     register,

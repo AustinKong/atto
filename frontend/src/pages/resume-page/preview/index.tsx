@@ -2,8 +2,9 @@ import { Badge, Box, VStack } from '@chakra-ui/react';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import { useResumeHtml } from '@/hooks/resumes';
-import type { Resume, ResumeFormData } from '@/types/resume';
+import { useDebouncedQuery } from '@/hooks/useDebouncedQuery';
+import { resumeQueries } from '@/queries/resume';
+import type { Resume, ResumeData } from '@/types/resume';
 
 const PAPER_WIDTH = 816;
 const PAPER_HEIGHT = 1056;
@@ -17,11 +18,14 @@ export function Preview({ resume }: PreviewProps) {
   const [scale, setScale] = useState(1);
 
   // Get current form data - watch specific field to avoid unnecessary rerenders
-  const { watch } = useFormContext<ResumeFormData>();
-  const resumeData = watch('data');
+  const { watch } = useFormContext<ResumeData>();
+  const resumeData = watch();
 
-  // Get HTML with debounced query (500ms delay)
-  const { html, isLoading } = useResumeHtml(resume.id, resume.template, resumeData);
+  // Get HTML with debounced query - all config is in the query factory
+  const dataKey = JSON.stringify(resumeData);
+  const { data: html = '', isLoading } = useDebouncedQuery(
+    resumeQueries.debouncedHtml(resume.id, resume.template, dataKey)
+  );
 
   useLayoutEffect(() => {
     const preview = previewRef.current;

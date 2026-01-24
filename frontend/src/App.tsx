@@ -1,14 +1,12 @@
-import { createBrowserRouter, Navigate, Outlet, redirect, RouterProvider } from 'react-router';
+import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router';
 
 import { DashboardLayout } from '@/components/layouts/dashboard';
 import { Toaster } from '@/components/ui/toaster';
 import { AboutPage } from '@/pages/about-page';
-import { ListingsPage } from '@/pages/listings-page';
-import { Applications, Info, ListingDrawer, Research } from '@/pages/listings-page/drawer';
-import { NewListingsPage } from '@/pages/new-listings-page';
-import { ResumePage } from '@/pages/resume-page';
-import { SettingsPage } from '@/pages/settings-page';
-import { getListing } from '@/services/listings';
+import { listingsRoute } from '@/pages/listings-page/route';
+import { newListingsRoute } from '@/pages/new-listings-page/route';
+import { resumeRoute } from '@/pages/resume-page/route';
+import { settingsRoute } from '@/pages/settings-page/route';
 import { queryClient } from '@/utils/queryClient';
 
 function RootLayout() {
@@ -35,61 +33,10 @@ const router = createBrowserRouter([
             path: 'about',
             element: <AboutPage />,
           },
-          {
-            path: 'listings',
-            element: <ListingsPage />,
-            children: [
-              {
-                path: ':listingId',
-                element: <ListingDrawer />,
-                children: [
-                  {
-                    index: true,
-                    element: <Info />,
-                  },
-                  {
-                    path: 'research',
-                    element: <Research />,
-                  },
-                  {
-                    path: 'applications',
-                    element: <Applications />,
-                    loader: async ({ params }) => {
-                      const listingId = params.listingId!;
-
-                      const listing = await queryClient.ensureQueryData({
-                        queryKey: ['listing', listingId],
-                        queryFn: () => getListing(listingId),
-                      });
-
-                      if (listing.applications.length > 0) {
-                        return redirect(
-                          `/listings/${listingId}/applications/${listing.applications[0].id}`
-                        );
-                      }
-                      return null;
-                    },
-                  },
-                  {
-                    path: 'applications/:applicationId',
-                    element: <Applications />,
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            path: 'listings/new',
-            element: <NewListingsPage />,
-          },
-          {
-            path: 'resumes/:resumeId',
-            element: <ResumePage />,
-          },
-          {
-            path: 'settings',
-            element: <SettingsPage />,
-          },
+          listingsRoute(queryClient),
+          newListingsRoute(),
+          resumeRoute(queryClient),
+          settingsRoute(queryClient),
         ],
       },
     ],

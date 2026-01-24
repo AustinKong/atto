@@ -3,7 +3,7 @@ import { PiBookmarkSimple, PiCaretLeft, PiCaretRight, PiGear, PiPlus } from 'rea
 import { NavLink, useLocation } from 'react-router';
 
 import { useColorModeValue } from '@/components/ui/color-mode';
-import { useLocalStorage } from '@/hooks/utils/useLocalStorage';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 import rootPackage from '../../../../../package.json';
 import { Alert } from './Alert';
