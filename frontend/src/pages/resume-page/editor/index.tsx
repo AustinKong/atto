@@ -29,7 +29,7 @@ export function Editor({ resume }: { resume: Resume }) {
         <Tabs.Trigger value="generate">Generate</Tabs.Trigger>
       </Tabs.List>
 
-      <Tabs.Content value="visual" overflowY="scroll" p="0" flex="1">
+      <Tabs.Content value="visual" overflowY="scroll" p="0" flex="1" overflowX="hidden">
         <VisualEditor />
       </Tabs.Content>
 

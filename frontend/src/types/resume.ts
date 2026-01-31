@@ -1,8 +1,8 @@
 export interface DetailedItem {
   title: string;
-  subtitle?: string;
-  startDate?: string;
-  endDate?: string;
+  subtitle: string | null;
+  startDate: string | null;
+  endDate: string | null;
   bullets: string[];
 }
 
@@ -27,7 +27,6 @@ export interface Section {
   id: string;
   type: string;
   title: string;
-  order: number;
   content: SectionContent;
 }
 

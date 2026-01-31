@@ -1,7 +1,8 @@
 import { HStack, IconButton, Input, Text, Textarea, VStack } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useFormContext } from 'react-hook-form';
+import { memo, useMemo } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { PiDotsSixVertical, PiTrash } from 'react-icons/pi';
 
 import type { ResumeData } from '@/types/resume';
@@ -15,22 +16,29 @@ interface SectionEditorProps {
   onDelete: () => void;
 }
 
-export function SectionEditor({ id, index, onDelete }: SectionEditorProps) {
-  const { register, watch } = useFormContext<ResumeData>();
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+// FIXME: This component (not its children) is extra heavy every rerender. figure out why
+function SectionEditorComponent({ id, index, onDelete }: SectionEditorProps) {
+  const { register, control } = useFormContext<ResumeData>();
+  // Only subscribe to the section type. Watching the entire section object
+  // causes this component to re-render for any nested field change (bullets,
+  // item text, etc.) which is unnecessary for choosing which editor to show.
+  const type = useWatch({ name: `sections.${index}.type`, control }) as string | undefined;
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+  });
 
-  const section = watch(`sections.${index}`);
+  const style = useMemo(
+    () => ({
+      transform: CSS.Translate.toString(transform),
+      transition,
+      zIndex: isDragging ? 999 : 0,
+    }),
+    [transform, transition, isDragging]
+  );
+  const content = useMemo(() => {
+    if (!type) return null;
 
-  const style = {
-    transform: CSS.Translate.toString(transform),
-    transition,
-  };
-
-  const renderContent = () => {
-    if (!section) return null;
-
-    if ('text' in section.content) {
-      // Paragraph section
+    if (type === 'paragraph') {
       return (
         <Textarea
           {...register(`sections.${index}.content.text`)}
@@ -39,18 +47,18 @@ export function SectionEditor({ id, index, onDelete }: SectionEditorProps) {
           variant="flushed"
         />
       );
-    } else if ('bullets' in section.content && Array.isArray(section.content.bullets)) {
-      const firstBullet = section.content.bullets[0];
-      if (firstBullet && typeof firstBullet === 'object' && 'title' in firstBullet) {
-        // Detailed section
-        return <DetailedItemEditor sectionIndex={index} />;
-      } else {
-        // Simple section
-        return <SimpleBulletEditor sectionIndex={index} />;
-      }
     }
+
+    if (type === 'detailed') {
+      return <DetailedItemEditor sectionIndex={index} control={control} />;
+    }
+
+    if (type === 'simple') {
+      return <SimpleBulletEditor sectionIndex={index} />;
+    }
+
     return <Text color="fg.muted">Unknown section type</Text>;
-  };
+  }, [type, control, register, index]);
 
   return (
     <VStack
@@ -63,6 +71,7 @@ export function SectionEditor({ id, index, onDelete }: SectionEditorProps) {
       bg="bg.panel"
       position="relative"
       zIndex={transform ? 1 : 0}
+      overflowX="visible"
     >
       <HStack justify="space-between" w="full" p="3" bg="bg.subtle">
         <HStack gap="2" flex="1">
@@ -96,9 +105,12 @@ export function SectionEditor({ id, index, onDelete }: SectionEditorProps) {
         </IconButton>
       </HStack>
 
-      <VStack p="4" w="full" align="stretch" overflow="visible">
-        {renderContent()}
+      <VStack p="4" w="full" align="stretch" overflow="visible" pl="8">
+        {content}
       </VStack>
     </VStack>
   );
 }
+
+export const SectionEditor = memo(SectionEditorComponent);
+SectionEditor.displayName = 'SectionEditor';

@@ -34,10 +34,8 @@ export function useWatchForm<T extends FieldValues>(
   });
 
   useEffect(() => {
-    const subscription = watchFn((value, { type }) => {
-      if (type === 'change') {
-        onChangeRef.current(value as T);
-      }
+    const subscription = watchFn((value) => {
+      onChangeRef.current(value as T);
     });
 
     return () => subscription.unsubscribe();

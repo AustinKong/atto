@@ -30,7 +30,6 @@ class Section(BaseModel):
   id: str
   type: str
   title: str
-  order: int
   content: SectionContent
 
 

@@ -8,7 +8,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import {
   type ArrayPath,
   type Control,

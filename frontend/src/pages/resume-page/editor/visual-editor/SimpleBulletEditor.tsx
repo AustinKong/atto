@@ -1,4 +1,5 @@
 import { HStack, Textarea } from '@chakra-ui/react';
+import { memo } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 import { SortableListInput } from '@/components/custom/sortable-list-input';
@@ -8,7 +9,9 @@ interface SimpleBulletEditorProps {
   sectionIndex: number;
 }
 
-export function SimpleBulletEditor({ sectionIndex }: SimpleBulletEditorProps) {
+export const SimpleBulletEditor = memo(function SimpleBulletEditor({
+  sectionIndex,
+}: SimpleBulletEditorProps) {
   const { control, register } = useFormContext<ResumeData>();
 
   return (
@@ -46,4 +49,6 @@ export function SimpleBulletEditor({ sectionIndex }: SimpleBulletEditorProps) {
       </SortableListInput.List>
     </SortableListInput.Root>
   );
-}
+});
+
+SimpleBulletEditor.displayName = 'SimpleBulletEditor';

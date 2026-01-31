@@ -1,10 +1,10 @@
 import { Badge, Box, VStack } from '@chakra-ui/react';
-import { useLayoutEffect, useRef, useState } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useQuery } from '@tanstack/react-query';
+import { memo, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { useDebouncedQuery } from '@/hooks/useDebouncedQuery';
 import { resumeQueries } from '@/queries/resume';
-import type { Resume, ResumeData } from '@/types/resume';
+import type { Resume } from '@/types/resume';
 
 const PAPER_WIDTH = 816;
 const PAPER_HEIGHT = 1056;
@@ -14,18 +14,33 @@ interface PreviewProps {
 }
 
 export function Preview({ resume }: PreviewProps) {
-  const previewRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
+  // Read the canonical saved resume from react-query cache so Preview only
+  // updates when the saved data changes (e.g. on successful save).
+  const { data: cachedResume } = useQuery(resumeQueries.item(resume.id));
+  const resumeData = cachedResume?.data;
 
-  // Get current form data - watch specific field to avoid unnecessary rerenders
-  const { watch } = useFormContext<ResumeData>();
-  const resumeData = watch();
+  // Use an empty string when no saved data is present so the debounced query
+  // stays disabled until there's something to render.
+  const dataKey = useMemo(() => (resumeData ? JSON.stringify(resumeData) : ''), [resumeData]);
 
-  // Get HTML with debounced query - all config is in the query factory
-  const dataKey = JSON.stringify(resumeData);
   const { data: html = '', isLoading } = useDebouncedQuery(
     resumeQueries.debouncedHtml(resume.id, resume.template, dataKey)
   );
+
+  return <PreviewContent html={html} isLoading={isLoading} />;
+}
+
+interface PreviewContentProps {
+  html: string;
+  isLoading: boolean;
+}
+
+export const PreviewContent = memo(function PreviewContent({
+  html,
+  isLoading,
+}: PreviewContentProps) {
+  const previewRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
 
   useLayoutEffect(() => {
     const preview = previewRef.current;
@@ -95,4 +110,4 @@ export function Preview({ resume }: PreviewProps) {
       </Box>
     </VStack>
   );
-}
+});

@@ -23,6 +23,7 @@ export function ResumePage() {
 
   const { mutate: saveResume } = useSaveResume();
 
+  // This will cause the entire ResumePage component to re-render, remounting FormProvider. Which causes children who use useFormContext to also remount
   useWatchForm<ResumeData>((formData) => {
     saveResume({ resumeId: resumeId!, data: formData });
   }, methods.watch);

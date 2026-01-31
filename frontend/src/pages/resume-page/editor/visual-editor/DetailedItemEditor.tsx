@@ -1,63 +1,50 @@
-import { Button, HStack, IconButton, Input, Textarea, VStack } from '@chakra-ui/react';
+/* eslint-disable simple-import-sort/imports */
+import React, { type CSSProperties, useCallback, useMemo } from 'react';
+import { Button, HStack, Icon, IconButton, Input, Textarea, VStack } from '@chakra-ui/react';
 import { closestCorners, DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useEffect, useRef } from 'react';
-import { useFieldArray, useFormContext } from 'react-hook-form';
+import { useFieldArray, useController, useFormContext, type Control } from 'react-hook-form';
 import { PiDotsSixVertical, PiPlus, PiTrash } from 'react-icons/pi';
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
 import { SortableListInput } from '@/components/custom/sortable-list-input';
 import type { ResumeData } from '@/types/resume';
 
+import { DateRangeSelector } from './DateRangeSelector';
+
 interface DetailedItemEditorProps {
   sectionIndex: number;
+  // pass the form control from the parent to avoid coupling to form context here
+  control: Control<ResumeData>;
 }
 
-export function DetailedItemEditor({ sectionIndex }: DetailedItemEditorProps) {
-  const { control } = useFormContext<ResumeData>();
+/*
+ DO NOT attempt to use DragOverlay with this. it is not performant enough to work...
+*/
+function DetailedItemEditorComponent({ sectionIndex, control }: DetailedItemEditorProps) {
   const { fields, append, remove, move } = useFieldArray({
     control,
     name: `sections.${sectionIndex}.content.bullets`,
   });
 
-  const idsRef = useRef<string[]>([]);
-
-  // Sync ids with fields length
-  useEffect(() => {
-    if (idsRef.current.length < fields.length) {
-      idsRef.current.push(
-        ...Array.from({ length: fields.length - idsRef.current.length }, () => crypto.randomUUID())
-      );
-    } else if (idsRef.current.length > fields.length) {
-      idsRef.current = idsRef.current.slice(0, fields.length);
-    }
-  }, [fields.length]);
-
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: { y: 8 } },
+      activationConstraint: { distance: { y: 2 } },
     })
   );
 
   const handleDragEnd = (event: { active: { id: unknown }; over: { id: unknown } | null }) => {
     const { active, over } = event;
-    if (!over || active.id === over.id) return;
+    if (over && active.id !== over.id) {
+      const oldIndex = fields.findIndex((f) => f.id === active.id);
+      const newIndex = fields.findIndex((f) => f.id === over.id);
 
-    const oldIndex = idsRef.current.indexOf(active.id as string);
-    const newIndex = idsRef.current.indexOf(over.id as string);
-
-    idsRef.current = arrayMove(idsRef.current, oldIndex, newIndex);
-    move(oldIndex, newIndex);
+      move(oldIndex, newIndex);
+    }
   };
 
   const addItem = () => {
-    idsRef.current.push(crypto.randomUUID());
     append({
       title: '',
       subtitle: '',
@@ -67,32 +54,26 @@ export function DetailedItemEditor({ sectionIndex }: DetailedItemEditorProps) {
     });
   };
 
-  const removeAt = (index: number) => {
-    if (fields.length <= 1) return;
-
-    const nextIds = [...idsRef.current];
-    nextIds.splice(index, 1);
-    idsRef.current = nextIds;
-
-    remove(index);
-  };
+  const items = useMemo(() => fields.map((f) => f.id), [fields]);
 
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
       onDragEnd={handleDragEnd}
-      modifiers={[restrictToVerticalAxis]}
+      collisionDetection={closestCorners}
+      modifiers={[restrictToParentElement, restrictToVerticalAxis]}
+      autoScroll={false}
     >
-      <SortableContext items={idsRef.current} strategy={verticalListSortingStrategy}>
+      <SortableContext items={items} strategy={verticalListSortingStrategy}>
         <VStack gap="4" w="full" align="stretch">
-          {fields.map((_field, index) => (
-            <DetailedItemCard
-              key={idsRef.current[index]}
-              id={idsRef.current[index]}
+          {fields.map((field, index) => (
+            <DetailedItemCardWrapper
+              key={field.id}
+              id={field.id}
               sectionIndex={sectionIndex}
               itemIndex={index}
-              onDelete={() => removeAt(index)}
+              remove={remove}
+              minItems={1}
             />
           ))}
         </VStack>
@@ -105,7 +86,44 @@ export function DetailedItemEditor({ sectionIndex }: DetailedItemEditorProps) {
   );
 }
 
-function DetailedItemCard({
+// Memoize the whole editor so parent re-renders don't force it to update when props are stable.
+export const DetailedItemEditor = React.memo(DetailedItemEditorComponent, (prev, next) => {
+  return prev.sectionIndex === next.sectionIndex && prev.control === next.control;
+});
+
+DetailedItemEditor.displayName = 'DetailedItemEditor';
+
+const DetailedItemCardWrapper = React.memo(function DetailedItemCardWrapper({
+  id,
+  sectionIndex,
+  itemIndex,
+  remove,
+  minItems,
+}: {
+  id: string;
+  sectionIndex: number;
+  itemIndex: number;
+  remove: (index: number) => void;
+  minItems: number;
+}) {
+  const onDelete = useCallback(() => {
+    if (minItems <= 1) return;
+    remove(itemIndex);
+  }, [remove, itemIndex, minItems]);
+
+  return (
+    <DetailedItemCard
+      id={id}
+      sectionIndex={sectionIndex}
+      itemIndex={itemIndex}
+      onDelete={onDelete}
+    />
+  );
+});
+
+DetailedItemCardWrapper.displayName = 'DetailedItemCardWrapper';
+
+function DetailedItemCardComponent({
   id,
   sectionIndex,
   itemIndex,
@@ -116,18 +134,23 @@ function DetailedItemCard({
   itemIndex: number;
   onDelete: () => void;
 }) {
-  const { register, control } = useFormContext<ResumeData>();
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  // useSortable provides the drag refs and transform; call it unconditionally.
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+  });
+
+  // endDate is managed within DateRangeSelector popover
 
   const style = {
     transform: CSS.Translate.toString(transform),
     transition,
+    zIndex: isDragging ? 999 : 0,
   };
 
   return (
     <VStack
       ref={setNodeRef}
-      style={style}
+      style={style as CSSProperties}
       w="full"
       align="stretch"
       borderWidth="1px"
@@ -135,17 +158,29 @@ function DetailedItemCard({
       p="3"
       bg="bg.subtle"
       position="relative"
-      zIndex={transform ? 1 : 0}
     >
       <HStack justify="space-between" w="full">
-        <HStack
-          {...attributes}
-          {...listeners}
-          cursor="grab"
-          color="fg.muted"
-          _active={{ cursor: 'grabbing' }}
-        >
-          <PiDotsSixVertical />
+        <HStack align="center" gap="3" flex="1">
+          <HStack
+            {...attributes}
+            {...listeners}
+            cursor="grab"
+            color="fg.muted"
+            _active={{ cursor: 'grabbing' }}
+          >
+            <Icon>
+              <PiDotsSixVertical />
+            </Icon>
+          </HStack>
+
+          <TitleInput sectionIndex={sectionIndex} itemIndex={itemIndex} />
+
+          <DateRangeSelector
+            startName={`sections.${sectionIndex}.content.bullets.${itemIndex}.startDate`}
+            endName={`sections.${sectionIndex}.content.bullets.${itemIndex}.endDate`}
+            type="month"
+            size="sm"
+          />
         </HStack>
 
         <IconButton
@@ -159,72 +194,131 @@ function DetailedItemCard({
         </IconButton>
       </HStack>
 
-      <VStack gap="2" w="full" align="stretch">
-        <HStack gap="2" w="full">
-          <Input
-            {...register(`sections.${sectionIndex}.content.bullets.${itemIndex}.title`)}
-            placeholder="Title (e.g., Job Title)"
-            variant="flushed"
-            flex="1"
-          />
-          <Input
-            {...register(`sections.${sectionIndex}.content.bullets.${itemIndex}.subtitle`)}
-            placeholder="Subtitle (e.g., Company)"
-            variant="flushed"
-            flex="1"
-          />
-        </HStack>
+      {/* pad content so it lines up with the title on the top row (which sits after the handle) */}
+      <VStack gap="2" w="full" align="stretch" pl="8">
+        <SubtitleInput sectionIndex={sectionIndex} itemIndex={itemIndex} />
 
-        <HStack gap="2" w="full">
-          <Input
-            {...register(`sections.${sectionIndex}.content.bullets.${itemIndex}.startDate`)}
-            placeholder="Start Date"
-            variant="flushed"
-            flex="1"
-          />
-          <Input
-            {...register(`sections.${sectionIndex}.content.bullets.${itemIndex}.endDate`)}
-            placeholder="End Date"
-            variant="flushed"
-            flex="1"
-          />
-        </HStack>
-
-        <SortableListInput.Root
-          control={control}
-          register={register}
-          // @ts-expect-error - nested path type inference limitation
-          name={`sections.${sectionIndex}.content.bullets.${itemIndex}.bullets`}
-          defaultItem=""
-        >
-          <HStack justify="space-between">
-            <SortableListInput.Label>Bullet Points</SortableListInput.Label>
-            <SortableListInput.AddButton />
-          </HStack>
-
-          <SortableListInput.List>
-            <SortableListInput.Item<ResumeData>>
-              {({ index, name, register }) => (
-                <>
-                  <SortableListInput.Marker />
-                  <Textarea
-                    {...register(`${name}.${index}`)}
-                    placeholder="Enter bullet point..."
-                    variant="flushed"
-                    rows={1}
-                    minH="auto"
-                    py="2"
-                    css={{ fieldSizing: 'content' }}
-                    resize="none"
-                    flex="1"
-                  />
-                  <SortableListInput.DeleteButton />
-                </>
-              )}
-            </SortableListInput.Item>
-          </SortableListInput.List>
-        </SortableListInput.Root>
+        <BulletsField sectionIndex={sectionIndex} itemIndex={itemIndex} />
       </VStack>
     </VStack>
   );
 }
+
+DetailedItemCardComponent.displayName = 'DetailedItemCardComponent';
+
+const DetailedItemCard = React.memo(DetailedItemCardComponent, (prevProps, nextProps) => {
+  // Only re-render if the identifying props change. Ignore context-driven parent renders.
+  return (
+    prevProps.id === nextProps.id &&
+    prevProps.sectionIndex === nextProps.sectionIndex &&
+    prevProps.itemIndex === nextProps.itemIndex &&
+    prevProps.onDelete === nextProps.onDelete
+  );
+});
+
+DetailedItemCard.displayName = 'DetailedItemCard';
+
+// Small, memoized form field components to avoid subscribing the whole card to form context
+const TitleInput = React.memo(function TitleInput({
+  sectionIndex,
+  itemIndex,
+}: {
+  sectionIndex: number;
+  itemIndex: number;
+}) {
+  const { control } = useFormContext<ResumeData>();
+  const { field } = useController({
+    name: `sections.${sectionIndex}.content.bullets.${itemIndex}.title`,
+    control,
+    defaultValue: '',
+  });
+  const { onChange, onBlur, name, ref, value } = field;
+  return (
+    <Input
+      onChange={onChange}
+      onBlur={onBlur}
+      name={name}
+      ref={ref}
+      value={value ?? ''}
+      placeholder="Title (e.g., Job Title)"
+      variant="flushed"
+      flex="1"
+    />
+  );
+});
+TitleInput.displayName = 'TitleInput';
+
+const SubtitleInput = React.memo(function SubtitleInput({
+  sectionIndex,
+  itemIndex,
+}: {
+  sectionIndex: number;
+  itemIndex: number;
+}) {
+  const { control } = useFormContext<ResumeData>();
+  const { field } = useController({
+    name: `sections.${sectionIndex}.content.bullets.${itemIndex}.subtitle`,
+    control,
+    defaultValue: '',
+  });
+  const { onChange, onBlur, name, ref, value } = field;
+  return (
+    <Input
+      onChange={onChange}
+      onBlur={onBlur}
+      name={name}
+      ref={ref}
+      value={value ?? ''}
+      placeholder="Subtitle (e.g., Company)"
+      variant="flushed"
+    />
+  );
+});
+SubtitleInput.displayName = 'SubtitleInput';
+
+const BulletsField = React.memo(function BulletsField({
+  sectionIndex,
+  itemIndex,
+}: {
+  sectionIndex: number;
+  itemIndex: number;
+}) {
+  const { control, register } = useFormContext<ResumeData>();
+  return (
+    <SortableListInput.Root
+      control={control}
+      register={register}
+      // @ts-expect-error - nested path type inference limitation
+      name={`sections.${sectionIndex}.content.bullets.${itemIndex}.bullets`}
+      defaultItem=""
+    >
+      <HStack justify="space-between">
+        <SortableListInput.Label>Bullet Points</SortableListInput.Label>
+        <SortableListInput.AddButton />
+      </HStack>
+
+      <SortableListInput.List>
+        <SortableListInput.Item<ResumeData>>
+          {({ index, name, register }) => (
+            <>
+              <SortableListInput.Marker />
+              <Textarea
+                {...register(`${name}.${index}`)}
+                placeholder="Enter bullet point..."
+                variant="flushed"
+                rows={1}
+                minH="auto"
+                py="2"
+                css={{ fieldSizing: 'content' }}
+                resize="none"
+                flex="1"
+              />
+              <SortableListInput.DeleteButton />
+            </>
+          )}
+        </SortableListInput.Item>
+      </SortableListInput.List>
+    </SortableListInput.Root>
+  );
+});
+BulletsField.displayName = 'BulletsField';

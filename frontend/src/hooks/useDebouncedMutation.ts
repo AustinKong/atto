@@ -4,7 +4,7 @@ import {
   type UseMutationOptions,
   type UseMutationResult,
 } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 interface UseDebouncedMutationOptions<TData, TError, TVariables, TContext>
   extends UseMutationOptions<TData, TError, TVariables, TContext> {
@@ -35,23 +35,18 @@ export function useDebouncedMutation<
   const mutation = useMutation(options);
   const mutationRef = useRef(mutation);
 
-  const [isDebouncing, setIsDebouncing] = useState(false);
-
   useEffect(() => {
     mutationRef.current = mutation;
-  }); // Intentionally no dependencies - updates every render
+  }, [mutation]);
 
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const previousResolveRef = useRef<((data: TData) => void) | undefined>(undefined);
 
   const debouncedMutate = useCallback(
     (variables: TVariables, mutateOptions?: MutateOptions<TData, TError, TVariables, TContext>) => {
-      setIsDebouncing(true);
-
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
       timeoutRef.current = setTimeout(() => {
-        setIsDebouncing(false);
         mutationRef.current.mutate(variables, mutateOptions);
       }, delay);
     },
@@ -60,8 +55,6 @@ export function useDebouncedMutation<
 
   const debouncedMutateAsync = useCallback(
     (variables: TVariables): Promise<TData> => {
-      setIsDebouncing(true);
-
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
       // When a new mutation is triggered, we "ghost" the previous promise.
@@ -75,8 +68,6 @@ export function useDebouncedMutation<
         previousResolveRef.current = currentResolve;
 
         timeoutRef.current = setTimeout(() => {
-          setIsDebouncing(false);
-
           mutationRef.current
             .mutateAsync(variables)
             .then((res) => {
@@ -95,12 +86,9 @@ export function useDebouncedMutation<
     [delay]
   );
 
-  const combinedIsPending = isDebouncing || mutation.isPending;
-
   return {
     ...mutation,
     mutate: debouncedMutate,
     mutateAsync: debouncedMutateAsync,
-    isPending: combinedIsPending,
   } as UseMutationResult<TData, TError, TVariables, TContext>;
 }

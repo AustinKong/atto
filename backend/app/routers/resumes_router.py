@@ -103,7 +103,6 @@ async def generate_resume_content(resume_id: UUID):
         id='1',
         type='detailed',
         title='Work Experience',
-        order=0,
         content=DetailedSectionContent(bullets=detailed_items),
       )
     ]
