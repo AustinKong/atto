@@ -100,8 +100,14 @@ async def generate_resume_content(resume_id: UUID):
   # Map pruned experiences to DetailedItem objects
   # Sort by end_date (desc), then start_date (desc)
   def sort_key(exp: Experience):
-    # If end_date is None, treat as ongoing (sort first)
-    end = exp.end_date or '9999-12'
+    # If end_date is 'present', treat as ongoing (sort first).
+    # If end_date is None, the user hasn't filled it yet; don't treat as ongoing.
+    if exp.end_date == 'present':
+      end = '9999-12'
+    elif exp.end_date is None:
+      end = '0000-00'
+    else:
+      end = exp.end_date
     start = exp.start_date or '0000-00'
     return (end, start)
 

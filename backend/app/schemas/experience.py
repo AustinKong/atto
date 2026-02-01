@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Literal
 from uuid import UUID, uuid4
 
 from pydantic import Field
@@ -22,7 +23,7 @@ class Experience(CamelModel):
   type: ExperienceType
   location: str | None = None
   start_date: ISOYearMonth
-  end_date: ISOYearMonth | None = None
+  end_date: ISOYearMonth | Literal['present'] | None = None
 
   bullets: list[str] = Field(
     default_factory=list,

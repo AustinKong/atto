@@ -1,8 +1,10 @@
+import type { ISOYearMonth } from '@/utils/date';
+
 export interface DetailedItem {
   title: string;
   subtitle: string | null;
-  startDate: string | null;
-  endDate: string | null;
+  startDate: ISOYearMonth | null;
+  endDate: ISOYearMonth | 'present' | null;
   bullets: string[];
 }
 

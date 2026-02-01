@@ -3,17 +3,18 @@ import { memo } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 import { SortableListInput } from '@/components/custom/sortable-list-input';
-import type { ResumeData } from '@/types/resume';
+
+import type { SectionsEditorData } from '../../types';
 
 export const SimpleBulletSection = memo(function SimpleBulletSection({
   sectionIndex,
 }: {
   sectionIndex: number;
 }) {
-  const { control, register } = useFormContext<ResumeData>();
+  const { control, register } = useFormContext<SectionsEditorData>();
 
   return (
-    <SortableListInput.Root<ResumeData>
+    <SortableListInput.Root<SectionsEditorData>
       control={control}
       register={register}
       name={`sections.${sectionIndex}.content.bullets`}

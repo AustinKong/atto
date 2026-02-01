@@ -162,15 +162,15 @@ function Entry({
           <FloatingLabelInput
             label="End Date"
             type="month"
-            value={experience.endDate || ''}
+            value={experience.endDate && experience.endDate !== 'present' ? experience.endDate : ''}
             onChange={(e) => updateExperience({ endDate: ISOYearMonth.parse(e.target.value) })}
-            disabled={!experience.endDate}
+            disabled={experience.endDate === 'present'}
           />
         </Field.Root>
         <Checkbox.Root
-          checked={!experience.endDate}
+          checked={experience.endDate === 'present'}
           onCheckedChange={(e) =>
-            updateExperience({ endDate: e.checked ? undefined : ISOYearMonth.today() })
+            updateExperience({ endDate: e.checked ? 'present' : ISOYearMonth.today() })
           }
         >
           <Checkbox.HiddenInput />

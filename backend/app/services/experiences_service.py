@@ -147,7 +147,7 @@ class ExperiencesService(DatabaseRepository, VectorRepository):
         experience.type.value,
         experience.location,
         experience.start_date,
-        experience.end_date if experience.end_date else None,
+        experience.end_date,
       ),
     )
 
@@ -191,7 +191,7 @@ class ExperiencesService(DatabaseRepository, VectorRepository):
         experience.type.value,
         experience.location,
         experience.start_date,
-        experience.end_date if experience.end_date else None,
+        experience.end_date,
         str(experience.id),
       ),
     )

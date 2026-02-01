@@ -1,6 +1,7 @@
 import base64
 import re
 import urllib.parse
+from urllib.robotparser import RobotFileParser
 
 from bs4 import BeautifulSoup
 from playwright.async_api import Page, async_playwright
@@ -68,9 +69,6 @@ class ScrapingResult(BaseModel):
   html: str
 
 
-# TODO: Need to respect robots.txt?
-# Generally my-use case doesn't violate any legal guidelines. But we should include a
-# "Ethical scraping" setting and respect robots.txt for those who enable it.
 class ScrapingService:
   def _clean_html(self, html: str) -> str:
     soup = BeautifulSoup(html, 'html.parser')
@@ -105,6 +103,19 @@ class ScrapingService:
       text = ' '.join(filtered_sentences)
 
     return text[: settings.ingestion.max_length]
+
+  def _check_robots(self, url: HttpUrl, user_agent: str = '*') -> bool:
+    try:
+      rp = RobotFileParser()
+      parsed_url = urllib.parse.urlparse(str(url))
+      robots_url = f'{parsed_url.scheme}://{parsed_url.netloc}/robots.txt'
+
+      rp.set_url(robots_url)
+      rp.read()
+
+      return rp.can_fetch(user_agent, str(url))
+    except Exception:
+      return True
 
   async def _inline_assets(self, page: Page, base_url: str):
     # Ensures links are resolved correctly
@@ -184,6 +195,9 @@ class ScrapingService:
     return str(soup)
 
   async def fetch_and_clean(self, url: HttpUrl) -> ScrapingResult:
+    if not self._check_robots(url):
+      raise ServiceError(f'Scraping disallowed by robots.txt: {url}')
+
     try:
       async with async_playwright() as p:
         browser = await p.chromium.launch(headless=settings.ingestion.headless)
@@ -248,6 +262,12 @@ class ScrapingService:
           if not href or not text:
             continue
 
+          # Ensure href is a string (BeautifulSoup may return AttributeValueList)
+          if isinstance(href, list):
+            href = ' '.join(str(item) for item in href)
+          else:
+            href = str(href)
+
           # Resolve relative URLs to absolute URLs
           if not href.startswith(('http://', 'https://', 'mailto:', 'tel:', '#')):
             href = urllib.parse.urljoin(str(url), href)
@@ -258,7 +278,7 @@ class ScrapingService:
 
           # Normalize URL for consistent deduplication
           try:
-            normalized_href = str(normalize_url(href))
+            normalized_href = str(normalize_url(HttpUrl(href)))
           except Exception:
             # Skip URLs that can't be normalized
             continue

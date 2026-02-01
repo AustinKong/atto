@@ -1,13 +1,16 @@
+from typing import Literal
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
+
+from app.schemas.dates import ISOYearMonth
 
 
 class DetailedItem(BaseModel):
   title: str
   subtitle: str | None = None
-  start_date: str | None = None
-  end_date: str | None = None
+  start_date: ISOYearMonth | None = None
+  end_date: ISOYearMonth | Literal['present'] | None = None
   bullets: list[str]
 
 

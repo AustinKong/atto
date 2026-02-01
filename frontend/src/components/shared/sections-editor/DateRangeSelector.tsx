@@ -1,6 +1,3 @@
-// DateRangeSelector
-// Popover based date range editor that integrates with react-hook-form.
-
 import {
   Box,
   Checkbox,
@@ -12,23 +9,24 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { type FieldValues, type Path, useFormContext, useWatch } from 'react-hook-form';
+import { type Path, useFormContext, useWatch } from 'react-hook-form';
 import { PiArrowRight } from 'react-icons/pi';
 
 import { ISOYearMonthInput } from '@/components/custom/DatePickers';
 import { DisplayDate } from '@/components/custom/DisplayDate';
 import { type ISOYearMonth } from '@/utils/date';
 
-type UnknownRecord = Record<string, unknown>;
+import type { SectionsEditorData } from './types';
 
-export function DateRangeSelector<T extends FieldValues>({
+// TODO: See if can be made uncontrolled for better performance
+export function DateRangeSelector({
   startName,
   endName,
 }: {
-  startName: Path<T>;
-  endName: Path<T>;
+  startName: Path<SectionsEditorData>;
+  endName: Path<SectionsEditorData>;
 }) {
-  const { setValue } = useFormContext<UnknownRecord>();
+  const { setValue } = useFormContext<SectionsEditorData>();
   const { open, onToggle } = useDisclosure();
 
   const start = useWatch({ name: startName });
@@ -90,9 +88,7 @@ export function DateRangeSelector<T extends FieldValues>({
                     <ISOYearMonthInput
                       size="sm"
                       value={(start ?? null) as ISOYearMonth | null}
-                      onChange={(v: ISOYearMonth | null) =>
-                        setValue(startName as Path<UnknownRecord>, v ?? null)
-                      }
+                      onChange={(v: ISOYearMonth | null) => setValue(startName, v ?? null)}
                     />
                   </Box>
                 </VStack>
@@ -104,9 +100,7 @@ export function DateRangeSelector<T extends FieldValues>({
                       <Checkbox.Root
                         size="xs"
                         checked={isPresent}
-                        onCheckedChange={(e) =>
-                          setValue(endName as Path<UnknownRecord>, e.checked ? null : '')
-                        }
+                        onCheckedChange={(e) => setValue(endName, e.checked ? null : '')}
                       >
                         <Checkbox.HiddenInput />
                         <Checkbox.Control />
@@ -119,9 +113,7 @@ export function DateRangeSelector<T extends FieldValues>({
                     <ISOYearMonthInput
                       size="sm"
                       value={(isPresent ? null : (end ?? null)) as ISOYearMonth | null}
-                      onChange={(v: ISOYearMonth | null) =>
-                        setValue(endName as Path<UnknownRecord>, v ?? '')
-                      }
+                      onChange={(v: ISOYearMonth | null) => setValue(endName, v ?? '')}
                       disabled={isPresent}
                     />
                   </HStack>

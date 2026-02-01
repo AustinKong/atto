@@ -14,10 +14,12 @@ import { PiPlus } from 'react-icons/pi';
 
 import { sectionTypes } from '@/constants/sectionTypes';
 import { useWatchForm } from '@/hooks/useWatchForm';
-import type { ResumeData, Section } from '@/types/resume';
+import type { Section } from '@/types/resume';
 
 import { SectionEditor } from './section-editor';
+import type { SectionsEditorData } from './types';
 
+// TODO: See if I can clean up things to use <Card> instead
 export function SectionsEditor({
   defaultValues,
   onChange,
@@ -25,7 +27,7 @@ export function SectionsEditor({
   defaultValues: Section[];
   onChange: (sections: Section[]) => void;
 }) {
-  const methods = useForm<ResumeData>({
+  const methods = useForm<SectionsEditorData>({
     defaultValues: { sections: defaultValues },
   });
 
@@ -34,7 +36,7 @@ export function SectionsEditor({
     name: 'sections',
   });
 
-  useWatchForm<ResumeData>((value) => {
+  useWatchForm<SectionsEditorData>((value) => {
     onChange(value.sections as Section[]);
   }, methods.watch);
 
@@ -70,38 +72,40 @@ export function SectionsEditor({
 
   return (
     <FormProvider {...methods}>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragEnd={handleDragEnd}
-        modifiers={[restrictToParentElement, restrictToVerticalAxis]}
-      >
-        <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
-          <VStack gap="3" align="stretch" p="4">
-            {fields.map((field, index) => (
-              <SectionEditor
-                key={field.id}
-                id={field.id}
-                index={index}
-                onDelete={() => remove(index)}
-              />
-            ))}
-
-            <HStack justify="center" py="2" gap="2">
-              {sectionTypes.map((config) => (
-                <Button
-                  key={config.type}
-                  onClick={() => addSection(config.type)}
-                  variant="ghost"
-                  size="sm"
-                >
-                  <PiPlus /> Add {config.label}
-                </Button>
+      <form autoComplete="off" spellCheck="false">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragEnd={handleDragEnd}
+          modifiers={[restrictToParentElement, restrictToVerticalAxis]}
+        >
+          <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+            <VStack gap="3" align="stretch" p="4">
+              {fields.map((field, index) => (
+                <SectionEditor
+                  key={field.id}
+                  id={field.id}
+                  index={index}
+                  onDelete={() => remove(index)}
+                />
               ))}
-            </HStack>
-          </VStack>
-        </SortableContext>
-      </DndContext>
+
+              <HStack justify="center" py="2" gap="2">
+                {sectionTypes.map((config) => (
+                  <Button
+                    key={config.type}
+                    onClick={() => addSection(config.type)}
+                    variant="ghost"
+                    size="sm"
+                  >
+                    <PiPlus /> Add {config.label}
+                  </Button>
+                ))}
+              </HStack>
+            </VStack>
+          </SortableContext>
+        </DndContext>
+      </form>
     </FormProvider>
   );
 }

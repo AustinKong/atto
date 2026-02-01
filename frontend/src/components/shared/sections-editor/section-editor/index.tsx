@@ -6,8 +6,7 @@ import type { Control, UseFormRegister } from 'react-hook-form';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { PiDotsSixVertical, PiTrash } from 'react-icons/pi';
 
-import type { ResumeData } from '@/types/resume';
-
+import type { SectionsEditorData } from '../types';
 import { DetailedItemSection } from './detailed-item-section';
 import { SimpleBulletSection } from './simple-bullet-section';
 
@@ -21,7 +20,7 @@ export const SectionEditor = memo(function SectionEditor({
   index: number;
   onDelete: () => void;
 }) {
-  const { register, control } = useFormContext<ResumeData>();
+  const { register, control } = useFormContext<SectionsEditorData>();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
   });
@@ -92,8 +91,8 @@ const SectionContent = memo(function SectionContent({
   register,
 }: {
   sectionIndex: number;
-  control: Control<ResumeData>;
-  register: UseFormRegister<ResumeData>;
+  control: Control<SectionsEditorData>;
+  register: UseFormRegister<SectionsEditorData>;
 }) {
   const type = useWatch({ name: `sections.${sectionIndex}.type`, control });
 

@@ -20,8 +20,8 @@ export const sectionTypes: SectionTypeConfig[] = [
         {
           title: '',
           subtitle: '',
-          startDate: '',
-          endDate: '',
+          startDate: null,
+          endDate: null,
           bullets: [''],
         },
       ],

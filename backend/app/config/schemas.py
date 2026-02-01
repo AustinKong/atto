@@ -173,6 +173,12 @@ class IngestionPrefs(BaseModel):
     description='Run the web browser without a visible interface. Faster and uses less resources, but disable for debugging scraping issues.',
     exposure='advanced',
   )
+  respect_robots_txt: bool = ConfigField(
+    default=True,
+    title='Respect robots.txt',
+    description="Whether to follow the rules set in a website's robots.txt file. Enabling this ensures ethical scraping practices.",
+    exposure='normal',
+  )
   max_length: int = ConfigField(
     default=10000,
     title='Maximum Text Length',

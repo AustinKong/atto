@@ -1,17 +1,17 @@
 import { HStack, Icon, IconButton, Input, Textarea, VStack } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import React, { type CSSProperties } from 'react';
+import { memo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { PiDotsSixVertical, PiTrash } from 'react-icons/pi';
 
 import { SortableListInput } from '@/components/custom/sortable-list-input';
-import type { ResumeData } from '@/types/resume';
 
 import { DateRangeSelector } from '../../DateRangeSelector';
+import type { SectionsEditorData } from '../../types';
 
 // Must split into two components because useSortable necessarily causes re-renders every drag frame.
-export const DetailedItem = React.memo(function DetailedItem({
+export const DetailedItem = memo(function DetailedItem({
   id,
   sectionIndex,
   itemIndex,
@@ -35,7 +35,7 @@ export const DetailedItem = React.memo(function DetailedItem({
   return (
     <VStack
       ref={setNodeRef}
-      style={style as CSSProperties}
+      style={style}
       w="full"
       align="stretch"
       borderWidth="1px"
@@ -55,7 +55,7 @@ export const DetailedItem = React.memo(function DetailedItem({
   );
 });
 
-const DetailedItemContent = React.memo(function DetailedItemContent({
+const DetailedItemContent = memo(function DetailedItemContent({
   sectionIndex,
   itemIndex,
   onDelete,
@@ -68,7 +68,7 @@ const DetailedItemContent = React.memo(function DetailedItemContent({
   attributes: ReturnType<typeof useSortable>['attributes'];
   listeners: ReturnType<typeof useSortable>['listeners'];
 }) {
-  const { register, control } = useFormContext<ResumeData>();
+  const { register, control } = useFormContext<SectionsEditorData>();
 
   return (
     <>
@@ -96,8 +96,6 @@ const DetailedItemContent = React.memo(function DetailedItemContent({
           <DateRangeSelector
             startName={`sections.${sectionIndex}.content.bullets.${itemIndex}.startDate`}
             endName={`sections.${sectionIndex}.content.bullets.${itemIndex}.endDate`}
-            type="month"
-            size="sm"
           />
         </HStack>
 
@@ -112,7 +110,6 @@ const DetailedItemContent = React.memo(function DetailedItemContent({
         </IconButton>
       </HStack>
 
-      {/* pad content so it lines up with the title on the top row (which sits after the handle) */}
       <VStack gap="2" w="full" align="stretch" pl="8">
         <Input
           {...register(`sections.${sectionIndex}.content.bullets.${itemIndex}.subtitle`)}
@@ -120,7 +117,7 @@ const DetailedItemContent = React.memo(function DetailedItemContent({
           variant="flushed"
         />
 
-        <SortableListInput.Root<ResumeData>
+        <SortableListInput.Root<SectionsEditorData>
           control={control}
           register={register}
           // @ts-expect-error - Deeply nested template literal types exceed TypeScript's inference limits

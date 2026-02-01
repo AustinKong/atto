@@ -2,24 +2,20 @@ import { Button, VStack } from '@chakra-ui/react';
 import { closestCorners, DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import React, { useMemo } from 'react';
+import { memo } from 'react';
 import { type Control, useFieldArray } from 'react-hook-form';
 import { PiPlus } from 'react-icons/pi';
 
-import type { ResumeData } from '@/types/resume';
-
+import type { SectionsEditorData } from '../../types';
 import { DetailedItem } from './DetailedItem';
 
-/*
- DO NOT attempt to use DragOverlay with this. it is not performant enough to work...
-*/
-export const DetailedItemSection = React.memo(
+export const DetailedItemSection = memo(
   function DetailedItemSection({
     sectionIndex,
     control,
   }: {
     sectionIndex: number;
-    control: Control<ResumeData>;
+    control: Control<SectionsEditorData>;
   }) {
     const { fields, append, remove, move } = useFieldArray({
       control,
@@ -46,13 +42,11 @@ export const DetailedItemSection = React.memo(
       append({
         title: '',
         subtitle: '',
-        startDate: '',
-        endDate: '',
+        startDate: null,
+        endDate: null,
         bullets: [''],
       });
     };
-
-    const items = useMemo(() => fields.map((f) => f.id), [fields]);
 
     return (
       <DndContext
@@ -62,7 +56,7 @@ export const DetailedItemSection = React.memo(
         modifiers={[restrictToParentElement, restrictToVerticalAxis]}
         autoScroll={false}
       >
-        <SortableContext items={items} strategy={verticalListSortingStrategy}>
+        <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
           <VStack gap="4" w="full" align="stretch">
             {fields.map((field, index) => (
               <DetailedItem

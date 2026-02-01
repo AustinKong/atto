@@ -9,7 +9,7 @@ export type Experience = {
   type: ExperienceType;
   location: string | null;
   startDate: ISOYearMonth;
-  endDate: ISOYearMonth | null;
+  endDate: ISOYearMonth | 'present' | null;
   bullets: string[];
 };
 
