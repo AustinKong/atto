@@ -5,11 +5,11 @@ import type { Resume } from '@/types/resume';
 
 import { Generate } from './Generate';
 import { JsonEditor } from './JsonEditor';
-import { VisualEditor } from './visual-editor';
+import { ResumeSectionsEditor } from './ResumeSectionsEditor';
 
 export { Generate } from './Generate';
 export { JsonEditor } from './JsonEditor';
-export { VisualEditor } from './visual-editor';
+export { ResumeSectionsEditor } from './ResumeSectionsEditor';
 
 export function Editor({ resume }: { resume: Resume }) {
   const defaultTab = resume.data.sections.length === 0 ? 'generate' : 'visual';
@@ -30,7 +30,7 @@ export function Editor({ resume }: { resume: Resume }) {
       </Tabs.List>
 
       <Tabs.Content value="visual" overflowY="scroll" p="0" flex="1" overflowX="hidden">
-        <VisualEditor />
+        <ResumeSectionsEditor />
       </Tabs.Content>
 
       <Tabs.Content value="json" overflowY="scroll" p="0" flex="1">

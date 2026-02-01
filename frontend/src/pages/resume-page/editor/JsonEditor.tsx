@@ -1,18 +1,16 @@
 import { CodeBlock } from '@chakra-ui/react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { useParams } from 'react-router';
 
 import { useColorMode } from '@/components/ui/color-mode';
-import type { ResumeData } from '@/types/resume';
+import { resumeQueries } from '@/queries/resume';
 
 export function JsonEditor() {
-  const { control } = useFormContext<ResumeData>();
+  const { resumeId } = useParams<{ resumeId: string }>();
+  const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
   const { colorMode } = useColorMode();
 
-  const formData = useWatch({
-    control,
-  });
-
-  const jsonString = JSON.stringify(formData, null, 2);
+  const jsonString = JSON.stringify(resume.data, null, 2);
 
   return (
     <CodeBlock.Root

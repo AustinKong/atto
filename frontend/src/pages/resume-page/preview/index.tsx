@@ -1,30 +1,27 @@
 import { Badge, Box, VStack } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { memo, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useParams } from 'react-router';
 
 import { useDebouncedQuery } from '@/hooks/useDebouncedQuery';
 import { resumeQueries } from '@/queries/resume';
-import type { Resume } from '@/types/resume';
 
 const PAPER_WIDTH = 816;
 const PAPER_HEIGHT = 1056;
 
-interface PreviewProps {
-  resume: Resume;
-}
-
-export function Preview({ resume }: PreviewProps) {
+export function Preview() {
+  const { resumeId } = useParams<{ resumeId: string }>();
   // Read the canonical saved resume from react-query cache so Preview only
   // updates when the saved data changes (e.g. on successful save).
-  const { data: cachedResume } = useQuery(resumeQueries.item(resume.id));
-  const resumeData = cachedResume?.data;
+  const { data: resume } = useQuery(resumeQueries.item(resumeId!));
+  const resumeData = resume?.data;
 
   // Use an empty string when no saved data is present so the debounced query
   // stays disabled until there's something to render.
   const dataKey = useMemo(() => (resumeData ? JSON.stringify(resumeData) : ''), [resumeData]);
 
   const { data: html = '', isLoading } = useDebouncedQuery(
-    resumeQueries.debouncedHtml(resume.id, resume.template, dataKey)
+    resumeQueries.debouncedHtml(resumeId!, resume?.template || '', dataKey)
   );
 
   return <PreviewContent html={html} isLoading={isLoading} />;

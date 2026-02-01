@@ -5,13 +5,11 @@ import { useFormContext } from 'react-hook-form';
 import { SortableListInput } from '@/components/custom/sortable-list-input';
 import type { ResumeData } from '@/types/resume';
 
-interface SimpleBulletEditorProps {
-  sectionIndex: number;
-}
-
-export const SimpleBulletEditor = memo(function SimpleBulletEditor({
+export const SimpleBulletSection = memo(function SimpleBulletSection({
   sectionIndex,
-}: SimpleBulletEditorProps) {
+}: {
+  sectionIndex: number;
+}) {
   const { control, register } = useFormContext<ResumeData>();
 
   return (
@@ -27,7 +25,7 @@ export const SimpleBulletEditor = memo(function SimpleBulletEditor({
       </HStack>
 
       <SortableListInput.List>
-        <SortableListInput.Item<ResumeData>>
+        <SortableListInput.Item>
           {({ index, name, register }) => (
             <>
               <SortableListInput.Marker />
@@ -51,4 +49,4 @@ export const SimpleBulletEditor = memo(function SimpleBulletEditor({
   );
 });
 
-SimpleBulletEditor.displayName = 'SimpleBulletEditor';
+SimpleBulletSection.displayName = 'SimpleBulletEditor';

@@ -1,6 +1,6 @@
 import asyncio
 from typing import Annotated
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Body
 from fastapi.responses import Response
@@ -46,6 +46,27 @@ async def get_html(
   html = template_service.render(template, profile, data)
 
   return {'html': html}
+
+
+@router.post('/{resume_id}/populate')
+async def populate_resume_base_sections(resume_id: UUID):
+  resume = resume_service.get(resume_id)
+
+  profile = profile_service.get()
+  base_sections = []
+  for section in profile.base_sections:
+    base_sections.append(
+      Section(
+        id=str(uuid4()),
+        type=section.type,
+        title=section.title,
+        content=section.content,
+      )
+    )
+
+  resume.data.sections = base_sections
+  updated_resume = resume_service.update(resume)
+  return updated_resume
 
 
 @router.post('/{resume_id}/generate')
@@ -96,21 +117,29 @@ async def generate_resume_content(resume_id: UUID):
     for exp in sorted_experiences
   ]
 
-  # Create a single "Work Experience" section (exclude skills for now)
-  generated_data = ResumeData(
-    sections=[
+  # Populate base sections from profile
+  profile = profile_service.get()
+  base_sections = []
+  for section in profile.base_sections:
+    base_sections.append(
       Section(
-        id='1',
-        type='detailed',
-        title='Work Experience',
-        content=DetailedSectionContent(bullets=detailed_items),
+        id=str(uuid4()),
+        type=section.type,
+        title=section.title,
+        content=section.content,
       )
-    ]
+    )
+
+  # Create work experience section
+  work_experience_section = Section(
+    id=str(uuid4()),
+    type='detailed',
+    title='Work Experience',
+    content=DetailedSectionContent(bullets=detailed_items),
   )
 
-  # TODO: Add a projects section
-
-  resume.data = generated_data
+  # Set resume sections to base sections + work experience
+  resume.data.sections = base_sections + [work_experience_section]
   updated_resume = resume_service.update(resume)
   return updated_resume
 

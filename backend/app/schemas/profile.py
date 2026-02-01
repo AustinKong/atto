@@ -2,20 +2,8 @@ from typing import Self
 
 from pydantic import EmailStr, Field
 
-from app.schemas.dates import ISOYearMonth
+from app.schemas.resume import Section
 from app.schemas.types import CamelModel
-
-
-class Education(CamelModel):
-  institution: str
-  program: str
-  location: str | None = None
-  start_date: ISOYearMonth
-  end_date: ISOYearMonth | None = None
-  bullets: list[str] = Field(
-    default_factory=list,
-    description='Key courses, GPA, thesis, or other relevant details',
-  )
 
 
 class Profile(CamelModel):
@@ -25,19 +13,9 @@ class Profile(CamelModel):
   location: str | None = None
   website: str | None = None
 
-  education: list[Education] = Field(
+  base_sections: list[Section] = Field(
     default_factory=list,
-    description='Education history',
-  )
-
-  certifications: list[str] = Field(
-    default_factory=list,
-    description='List of certifications',
-  )
-
-  awards: list[str] = Field(
-    default_factory=list,
-    description='List of awards and honors',
+    description='Base sections to prepopulate new resumes',
   )
 
   @classmethod
@@ -48,7 +26,5 @@ class Profile(CamelModel):
       phone=None,
       location=None,
       website=None,
-      education=[],
-      certifications=[],
-      awards=[],
+      base_sections=[],
     )

@@ -5,15 +5,16 @@ import { ISODate, ISODatetime, ISOYearMonth } from '@/utils/date';
 interface DisplayDateProps extends TextProps {
   date: string | null | undefined;
   options?: Intl.DateTimeFormatOptions;
+  fallback?: string;
 }
 
-export function DisplayDate({ date, options, ...props }: DisplayDateProps) {
+export function DisplayDate({ date, options, fallback = '-', ...props }: DisplayDateProps) {
   const { locale = 'en-US' } = useLocaleContext();
 
   if (!date) {
     return (
       <Text as="span" color="fg.muted" {...props}>
-        -
+        {fallback}
       </Text>
     );
   }

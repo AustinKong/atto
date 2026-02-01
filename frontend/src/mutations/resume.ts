@@ -1,7 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useDebouncedMutation } from '@/hooks/useDebouncedMutation';
-import { exportResumePdf, generateResumeContent, updateResume } from '@/services/resume';
+import {
+  exportResumePdf,
+  generateResumeContent,
+  populateResumeBaseSections,
+  updateResume,
+} from '@/services/resume';
 import type { Resume, ResumeData } from '@/types/resume';
 
 export function useGenerateResumeContent() {
@@ -11,6 +16,20 @@ export function useGenerateResumeContent() {
     mutationFn: (resumeId: string) => generateResumeContent(resumeId),
     onSuccess: (data: Resume, resumeId: string) => {
       // Update cache with generated content
+      queryClient.setQueryData(['resume', resumeId], data);
+      // Invalidate HTML cache to get fresh render
+      queryClient.invalidateQueries({ queryKey: ['resume', resumeId, 'html'] });
+    },
+  });
+}
+
+export function usePopulateResumeBaseSections() {
+  const queryClient = useQueryClient();
+
+  return useMutation<Resume, Error, string>({
+    mutationFn: (resumeId: string) => populateResumeBaseSections(resumeId),
+    onSuccess: (data: Resume, resumeId: string) => {
+      // Update cache with populated content
       queryClient.setQueryData(['resume', resumeId], data);
       // Invalidate HTML cache to get fresh render
       queryClient.invalidateQueries({ queryKey: ['resume', resumeId, 'html'] });

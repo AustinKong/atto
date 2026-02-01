@@ -1,13 +1,4 @@
-import { ISOYearMonth } from '@/utils/date';
-
-export type Education = {
-  institution: string;
-  program: string;
-  location: string | null;
-  startDate: ISOYearMonth;
-  endDate: ISOYearMonth | null;
-  bullets: string[];
-};
+import type { Section } from '@/types/resume';
 
 export type Profile = {
   fullName: string;
@@ -15,9 +6,7 @@ export type Profile = {
   phone: string | null;
   location: string | null;
   website: string | null;
-  education: Education[];
-  certifications: string[];
-  awards: string[];
+  baseSections: Section[];
 };
 
 export const emptyProfile: Profile = {
@@ -26,16 +15,5 @@ export const emptyProfile: Profile = {
   phone: null,
   location: null,
   website: null,
-  education: [],
-  certifications: [],
-  awards: [],
-};
-
-export const emptyEducation: Education = {
-  institution: '',
-  program: '',
-  location: null,
-  startDate: ISOYearMonth.today(),
-  endDate: null,
-  bullets: [],
+  baseSections: [],
 };

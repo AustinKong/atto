@@ -34,3 +34,5 @@ backend/config/
 build/
 
 *.local.py
+
+.github

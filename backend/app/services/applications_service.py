@@ -7,7 +7,14 @@ from pydantic import TypeAdapter
 
 from app.config import settings
 from app.repositories import DatabaseRepository
-from app.schemas import Application, Resume, ResumeData, StatusEnum, StatusEvent, StatusEventSaved
+from app.schemas import (
+  Application,
+  Resume,
+  ResumeData,
+  StatusEnum,
+  StatusEvent,
+  StatusEventSaved,
+)
 from app.utils.errors import NotFoundError
 
 event_adapter = TypeAdapter(StatusEvent)

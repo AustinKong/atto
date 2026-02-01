@@ -72,16 +72,6 @@ function PersonalInformationForm({ initialData }: PersonalInformationProps) {
         />
         <Field.HelperText>Your personal or professional website.</Field.HelperText>
       </Field.Root>
-      {/* <BulletInput
-        label="Certifications"
-        bullets={formData.certifications}
-        onBulletsChange={(certifications) => setFormField({ certifications })}
-      /> */}
-      {/* <BulletInput
-        label="Awards"
-        bullets={formData.awards}
-        onBulletsChange={(awards) => setFormField({ awards })}
-      /> */}
       <Button onClick={() => updateProfile(formData)}>Save Changes</Button>
     </VStack>
   );

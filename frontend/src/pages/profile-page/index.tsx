@@ -1,12 +1,10 @@
 import { Tabs } from '@chakra-ui/react';
 
-import { Education } from './Education';
 import { Experience } from './Experience';
 import { PersonalInformation } from './PersonalInformation';
 
 const TABS = [
   { label: 'Personal Information', value: 'personal', page: <PersonalInformation /> },
-  { label: 'Education', value: 'education', page: <Education /> },
   { label: 'Experience', value: 'experience', page: <Experience /> },
 ];
 

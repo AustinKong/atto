@@ -1,64 +1,36 @@
 import { HStack, IconButton, Input, Text, Textarea, VStack } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
+import type { Control, UseFormRegister } from 'react-hook-form';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { PiDotsSixVertical, PiTrash } from 'react-icons/pi';
 
 import type { ResumeData } from '@/types/resume';
 
-import { DetailedItemEditor } from './DetailedItemEditor';
-import { SimpleBulletEditor } from './SimpleBulletEditor';
+import { DetailedItemSection } from './detailed-item-section';
+import { SimpleBulletSection } from './simple-bullet-section';
 
-interface SectionEditorProps {
+// Must split into two components because useSortable necessarily causes re-renders every drag frame.
+export const SectionEditor = memo(function SectionEditor({
+  id,
+  index,
+  onDelete,
+}: {
   id: string;
   index: number;
   onDelete: () => void;
-}
-
-// FIXME: This component (not its children) is extra heavy every rerender. figure out why
-function SectionEditorComponent({ id, index, onDelete }: SectionEditorProps) {
+}) {
   const { register, control } = useFormContext<ResumeData>();
-  // Only subscribe to the section type. Watching the entire section object
-  // causes this component to re-render for any nested field change (bullets,
-  // item text, etc.) which is unnecessary for choosing which editor to show.
-  const type = useWatch({ name: `sections.${index}.type`, control }) as string | undefined;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
   });
 
-  const style = useMemo(
-    () => ({
-      transform: CSS.Translate.toString(transform),
-      transition,
-      zIndex: isDragging ? 999 : 0,
-    }),
-    [transform, transition, isDragging]
-  );
-  const content = useMemo(() => {
-    if (!type) return null;
-
-    if (type === 'paragraph') {
-      return (
-        <Textarea
-          {...register(`sections.${index}.content.text`)}
-          placeholder="Enter paragraph text..."
-          rows={3}
-          variant="flushed"
-        />
-      );
-    }
-
-    if (type === 'detailed') {
-      return <DetailedItemEditor sectionIndex={index} control={control} />;
-    }
-
-    if (type === 'simple') {
-      return <SimpleBulletEditor sectionIndex={index} />;
-    }
-
-    return <Text color="fg.muted">Unknown section type</Text>;
-  }, [type, control, register, index]);
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    zIndex: isDragging ? 999 : 0,
+  };
 
   return (
     <VStack
@@ -105,12 +77,46 @@ function SectionEditorComponent({ id, index, onDelete }: SectionEditorProps) {
         </IconButton>
       </HStack>
 
-      <VStack p="4" w="full" align="stretch" overflow="visible" pl="8">
-        {content}
+      <VStack pr="4" pb="4" w="full" align="stretch" overflow="visible" pl="8">
+        <SectionContent sectionIndex={index} control={control} register={register} />
       </VStack>
     </VStack>
   );
-}
+});
 
-export const SectionEditor = memo(SectionEditorComponent);
 SectionEditor.displayName = 'SectionEditor';
+
+const SectionContent = memo(function SectionContent({
+  sectionIndex,
+  control,
+  register,
+}: {
+  sectionIndex: number;
+  control: Control<ResumeData>;
+  register: UseFormRegister<ResumeData>;
+}) {
+  const type = useWatch({ name: `sections.${sectionIndex}.type`, control });
+
+  switch (type) {
+    case 'paragraph':
+      return (
+        <Textarea
+          {...register(`sections.${sectionIndex}.content.text`)}
+          placeholder="Enter paragraph text..."
+          rows={3}
+          variant="flushed"
+        />
+      );
+
+    case 'detailed':
+      return <DetailedItemSection sectionIndex={sectionIndex} control={control} />;
+
+    case 'simple':
+      return <SimpleBulletSection sectionIndex={sectionIndex} />;
+
+    default:
+      return <Text color="fg.muted">Unknown section type</Text>;
+  }
+});
+
+SectionContent.displayName = 'SectionContent';

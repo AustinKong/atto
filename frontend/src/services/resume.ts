@@ -42,6 +42,19 @@ export async function generateResumeContent(resumeId: string): Promise<Resume> {
   return json as Resume;
 }
 
+export async function populateResumeBaseSections(resumeId: string): Promise<Resume> {
+  const response = await fetch(`/api/resumes/${resumeId}/populate`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to populate resume base sections');
+  }
+
+  const json = await response.json();
+  return json as Resume;
+}
+
 export async function updateResume(resumeId: string, data: ResumeData): Promise<Resume> {
   const response = await fetch(`/api/resumes/${resumeId}`, {
     method: 'PUT',

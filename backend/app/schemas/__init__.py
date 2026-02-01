@@ -7,7 +7,7 @@ from .experience import (
 )
 from .insights import LinkSelectionResponse
 from .listing import Listing, ListingBase, ListingSummary
-from .profile import Education, Profile
+from .profile import Profile
 from .resume import (
   DetailedItem,
   DetailedSectionContent,
@@ -56,7 +56,6 @@ __all__ = [
   'ListingDraftUnique',
   'ListingExtraction',
   # Profile
-  'Education',
   'Profile',
   # Resume
   'DetailedItem',
