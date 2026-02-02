@@ -2,6 +2,7 @@ import { Box, HStack, VStack } from '@chakra-ui/react';
 import { Outlet } from 'react-router';
 
 import { Navbar } from './navbar';
+import { Popup } from './Popup';
 import { Sidebar } from './sidebar';
 
 export function DashboardLayout() {
@@ -14,6 +15,7 @@ export function DashboardLayout() {
           <Outlet />
         </Box>
       </VStack>
+      <Popup />
     </HStack>
   );
 }

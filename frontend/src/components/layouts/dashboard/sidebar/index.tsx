@@ -4,8 +4,8 @@ import { NavLink, useLocation } from 'react-router';
 
 import { useColorModeValue } from '@/components/ui/color-mode';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { getCurrentVersion } from '@/services/releaseNotes';
 
-import rootPackage from '../../../../../package.json';
 import { Alert } from './Alert';
 
 type NavItemConfig = {
@@ -83,7 +83,7 @@ function Logo({ isOpen }: { isOpen: boolean }) {
           Atto
         </Heading>
         <Text textStyle="xs" color="fg.muted">
-          v{rootPackage.version}
+          v{getCurrentVersion()}
         </Text>
       </SidebarLabel>
     </SidebarItem>
