@@ -17,7 +17,7 @@
     "lint:fix": "npm run lint:fix:backend && npm run lint:fix:frontend",
 
     "build:frontend": "cd frontend && npm run build",
-    "build:exe": "backend/venv/bin/pyinstaller atto.spec",
+    "build:exe": "pyinstaller atto.spec",
     "dist": "npm run build:frontend && npm run build:exe"
   }
 }

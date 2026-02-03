@@ -1,0 +1,127 @@
+name: Build and Release
+permissions:
+  contents: write
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (must match package.json)'
+        required: true
+        type: string
+      skip_release:
+        description: 'Skip creating a GitHub Release (build only)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  validate_and_build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate Version
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          INPUT_VERSION="${{ github.event.inputs.version }}"
+
+          if [ "$PACKAGE_VERSION" != "$INPUT_VERSION" ]; then
+            echo "[ERROR] Version mismatch!"
+            echo "The package.json says $PACKAGE_VERSION but you entered $INPUT_VERSION."
+            exit 1
+          fi
+        shell: bash
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+          npm ci --prefix frontend
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller
+          python -m pip install ./backend
+        shell: bash
+
+      - name: Build
+        run: npm run dist
+        shell: bash
+
+      - name: Rename
+        run: |
+          for f in dist/atto*; do
+            if [ -f "$f" ]; then
+              ext="${f##*.}"
+              filename="${f%.*}"
+              if [ "$ext" = "$filename" ]; then
+                mv "$f" "${f}-${{ matrix.os }}"
+              else
+                mv "$f" "${filename}-${{ matrix.os }}.${ext}"
+              fi
+            fi
+          done
+        shell: bash
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: atto-binaries-${{ matrix.os }}
+          path: dist/
+          retention-days: 5
+
+  release:
+    runs-on: ubuntu-latest
+    needs: validate_and_build
+    if: ${{ github.event.inputs.skip_release == 'false' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: atto-binaries-ubuntu-latest
+          path: artifacts/ubuntu
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: atto-binaries-windows-latest
+          path: artifacts/windows
+
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: atto-binaries-macos-latest
+          path: artifacts/macos
+
+      - name: Create Release
+        id: gh_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          name: Release v${{ github.event.inputs.version }}
+          files: artifacts/**
+          overwrite: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Post Release
+        if: success()
+        run: |
+          echo "Release v${{ github.event.inputs.version }} created successfully."
+          echo "View Release Page: https://github.com/AustinKong/atto/releases/tag/v${{ github.event.inputs.version }}"

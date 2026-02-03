@@ -35,4 +35,4 @@ build/
 
 *.local.py
 
-.github
+.github/copilot-instructions.md
