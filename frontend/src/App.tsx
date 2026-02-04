@@ -2,7 +2,6 @@ import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-rou
 
 import { DashboardLayout } from '@/components/layouts/dashboard';
 import { Toaster } from '@/components/ui/toaster';
-import { AboutPage } from '@/pages/about-page';
 import { listingsRoute } from '@/pages/listings-page/route';
 import { newListingsRoute } from '@/pages/new-listings-page/route';
 import { releaseNotesRoute } from '@/pages/release-notes-page/route';
@@ -29,10 +28,6 @@ const router = createBrowserRouter([
           {
             index: true,
             element: <Navigate to="listings" replace />,
-          },
-          {
-            path: 'about',
-            element: <AboutPage />,
           },
           releaseNotesRoute(queryClient),
           listingsRoute(queryClient),

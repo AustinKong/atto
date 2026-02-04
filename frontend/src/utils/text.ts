@@ -8,7 +8,8 @@ export function toTitleCase(text: string): string {
 
 export function compareSemVer(v1: string, v2: string): number {
   const parseVersion = (version: string) => {
-    const numericPart = version.split('-')[0];
+    const normalizedVersion = normalizeSemVer(version);
+    const numericPart = normalizedVersion.split('-')[0];
     const parts = numericPart.split('.').map(Number);
     return [parts[0] || 0, parts[1] || 0, parts[2] || 0];
   };
@@ -23,4 +24,8 @@ export function compareSemVer(v1: string, v2: string): number {
     return minor1 - minor2;
   }
   return patch1 - patch2;
+}
+
+export function normalizeSemVer(s: string) {
+  return s.trim().replace(/^[vV]/, '');
 }

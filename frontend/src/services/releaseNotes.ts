@@ -1,9 +1,13 @@
+import { normalizeSemVer } from '@/utils/text';
+
 import rootPackage from '../../../package.json';
 
 const RELEASE_NOTES_URL = 'https://api.github.com/repos/austinkong/atto/releases';
 
 export function getCurrentVersion() {
-  return rootPackage.version;
+  const raw = String(rootPackage.version);
+  const numeric = normalizeSemVer(raw);
+  return `v${numeric}`;
 }
 
 export async function getLatestVersion() {

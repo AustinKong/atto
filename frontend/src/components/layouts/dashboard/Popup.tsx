@@ -17,8 +17,16 @@ export function Popup() {
   const { data: latestVersion } = useSuspenseQuery(releaseNotesQueries.latestVersion());
   const currentVersion = getCurrentVersion();
 
-  const hasUpdates = compareSemVer(latestVersion, currentVersion) > 0;
-  const shouldShowPopup = compareSemVer(latestVersion, hideReleaseNotesVersion) > 0;
+  const cmpCurrent = compareSemVer(latestVersion, currentVersion);
+  const cmpHidden = compareSemVer(latestVersion, hideReleaseNotesVersion);
+
+  const hasUpdates = Number.isFinite(cmpCurrent)
+    ? cmpCurrent > 0
+    : latestVersion !== currentVersion;
+
+  const shouldShowPopup = Number.isFinite(cmpHidden)
+    ? cmpHidden > 0
+    : latestVersion !== hideReleaseNotesVersion;
 
   const { open, setOpen } = useDisclosure({ defaultOpen: true });
   const viewReleaseNotesButton = useRef(null);
@@ -42,14 +50,14 @@ export function Popup() {
             />
             <Dialog.Header>
               <Dialog.Title textStyle="2xl">
-                {hasUpdates ? `Update available: v${latestVersion}` : `You're up to date`}
+                {hasUpdates ? `Update available: ${latestVersion}` : `You're up to date`}
               </Dialog.Title>
             </Dialog.Header>
             <Dialog.Body>
               <Text>
                 {hasUpdates
                   ? "A new release is available, view the release notes to learn what's new."
-                  : `You're running the latest version (v${currentVersion}), view the release notes to learn what's changed.`}
+                  : `You're running the latest version (${currentVersion}), view the release notes to learn what's changed.`}
               </Text>
             </Dialog.Body>
             <Dialog.Footer>
@@ -63,7 +71,9 @@ export function Popup() {
                 Don't show again
               </Button>
               <Button ref={viewReleaseNotesButton} asChild>
-                <Link to={`/release-notes/${latestVersion}`}>View Release Notes</Link>
+                <Link to={`/release-notes/${latestVersion}`} onClick={() => setOpen(false)}>
+                  View Release Notes
+                </Link>
               </Button>
             </Dialog.Footer>
             <Dialog.CloseTrigger asChild>

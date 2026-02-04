@@ -1,12 +1,32 @@
-import { Box, Center, chakra, Heading, HStack, Icon, Image, Text, VStack } from '@chakra-ui/react';
-import { PiBookmarkSimple, PiCaretLeft, PiCaretRight, PiGear, PiPlus } from 'react-icons/pi';
+import {
+  Box,
+  Center,
+  chakra,
+  Heading,
+  HStack,
+  Icon,
+  Image,
+  Link,
+  Spacer,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
+import {
+  PiBookmarkSimple,
+  PiCaretLeft,
+  PiCaretRight,
+  PiClipboard,
+  PiGear,
+  PiGithubLogo,
+  PiPlus,
+} from 'react-icons/pi';
 import { NavLink, useLocation } from 'react-router';
 
 import { useColorModeValue } from '@/components/ui/color-mode';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { getCurrentVersion } from '@/services/releaseNotes';
 
-import { Alert } from './Alert';
+// FIXME: This component is doing too much abstraction to the point it becomes anti-productive.
 
 type NavItemConfig = {
   label: string;
@@ -26,6 +46,16 @@ const NAV_ITEMS: NavItemConfig[] = [
   },
   { label: 'New Listing', path: '/listings/new', icon: <PiPlus /> },
   { label: 'Settings', path: '/settings', icon: <PiGear /> },
+];
+
+// TODO: Add release notes internal link to this
+const BOTTOM_NAV_ITEMS: NavItemConfig[] = [
+  {
+    label: 'Feedback / Bug Report',
+    path: 'https://forms.gle/SMe8QTp6e8dpDeYUA',
+    icon: <PiClipboard />,
+  },
+  { label: 'GitHub', path: 'https://github.com/AustinKong/atto', icon: <PiGithubLogo /> },
 ];
 
 export function Sidebar() {
@@ -59,11 +89,17 @@ export function Sidebar() {
 
       <VStack as="nav" alignItems="stretch" gap="0" flex="1" p="2">
         {NAV_ITEMS.map((item) => (
-          <NavItem key={item.path} isOpen={isOpen} item={item} />
+          <NavItem key={item.path} isOpen={isOpen} item={item} isExternal={false} />
         ))}
       </VStack>
 
-      {isOpen && <Alert />}
+      <Spacer />
+
+      <VStack alignItems="stretch" gap="0" p="2">
+        {BOTTOM_NAV_ITEMS.map((item) => (
+          <NavItem key={item.path} isOpen={isOpen} item={item} isExternal />
+        ))}
+      </VStack>
 
       <CollapseButton isOpen={isOpen} onToggle={onToggle} />
     </VStack>
@@ -83,16 +119,43 @@ function Logo({ isOpen }: { isOpen: boolean }) {
           Atto
         </Heading>
         <Text textStyle="xs" color="fg.muted">
-          v{getCurrentVersion()}
+          {getCurrentVersion()}
         </Text>
       </SidebarLabel>
     </SidebarItem>
   );
 }
 
-function NavItem({ isOpen, item }: { isOpen: boolean; item: NavItemConfig }) {
+function NavItem({
+  isOpen,
+  item,
+  isExternal,
+}: {
+  isOpen: boolean;
+  item: NavItemConfig;
+  isExternal: boolean;
+}) {
   const { pathname } = useLocation();
   const isActive = item.isActive ? item.isActive(pathname) : pathname.startsWith(item.path);
+
+  if (isExternal) {
+    return (
+      <Link href={item.path} textDecoration="none" target="_blank" rel="noopener noreferrer">
+        <SidebarItem
+          bg={'transparent'}
+          _hover={{ bg: 'bg.muted' }}
+          title={!isOpen ? item.label : undefined}
+          w="full"
+          color="fg.muted"
+        >
+          <SidebarIcon size="md" aria-hidden="true">
+            {item.icon}
+          </SidebarIcon>
+          <SidebarLabel opacity={isOpen ? 1 : 0}>{item.label}</SidebarLabel>
+        </SidebarItem>
+      </Link>
+    );
+  }
 
   return (
     <NavLink to={item.path}>
