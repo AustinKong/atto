@@ -18,7 +18,6 @@ import { useStatusEvent } from './statusEventContext';
 const personSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   contact: z.string().nullable(),
-  avatarUrl: z.string().nullable(),
 });
 
 const statusValues = Object.keys(STATUS_DEFINITIONS) as [

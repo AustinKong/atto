@@ -4,7 +4,7 @@ export async function getExperiences(): Promise<Experience[]> {
   const response = await fetch('/api/experience');
 
   if (!response.ok) {
-    throw new Error('Failed to fetch experiences');
+    throw response;
   }
 
   const json = await response.json();
@@ -15,7 +15,7 @@ export async function getExperience(id: string): Promise<Experience> {
   const response = await fetch(`/api/experience/${id}`);
 
   if (!response.ok) {
-    throw new Error('Failed to fetch experience');
+    throw response;
   }
 
   const json = await response.json();
@@ -32,7 +32,7 @@ export async function createExperience(experience: Omit<Experience, 'id'>): Prom
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create experience');
+    throw response;
   }
 
   const json = await response.json();
@@ -49,7 +49,7 @@ export async function updateExperience(experience: Experience): Promise<Experien
   });
 
   if (!response.ok) {
-    throw new Error('Failed to update experience');
+    throw response;
   }
 
   const json = await response.json();
@@ -62,6 +62,6 @@ export async function deleteExperience(id: string): Promise<void> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to delete experience');
+    throw response;
   }
 }

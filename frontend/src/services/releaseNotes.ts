@@ -27,7 +27,7 @@ export async function getReleaseNotes(version: string) {
   const response = await fetch(`${RELEASE_NOTES_URL}/tags/${version}`);
 
   if (!response.ok) {
-    throw new Error('Failed to fetch release notes');
+    throw response;
   }
 
   const json = await response.json();

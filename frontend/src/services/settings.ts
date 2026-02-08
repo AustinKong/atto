@@ -4,7 +4,7 @@ export async function getSettings(): Promise<Record<string, SettingsSection>> {
   const response = await fetch('/api/config');
 
   if (!response.ok) {
-    throw new Error('Failed to fetch settings');
+    throw response;
   }
 
   const json = await response.json();
@@ -23,7 +23,7 @@ export async function updateSettings(
   });
 
   if (!response.ok) {
-    throw new Error('Failed to update settings');
+    throw response;
   }
 
   const json = await response.json();

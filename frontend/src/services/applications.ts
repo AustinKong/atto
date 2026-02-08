@@ -4,13 +4,10 @@ export async function getApplication(applicationId: string): Promise<Application
   const response = await fetch(`/api/applications/${applicationId}`);
 
   if (!response.ok) {
-    throw new Error('Failed to fetch application');
+    throw response;
   }
 
   const json = await response.json();
-  if (!json) {
-    throw new Error('Application not found');
-  }
   return json as Application;
 }
 
@@ -27,7 +24,7 @@ export async function createApplication(listingId: string): Promise<Application>
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create application');
+    throw response;
   }
 
   const json = await response.json();
@@ -47,7 +44,7 @@ export async function createStatusEvent(
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create status event');
+    throw response;
   }
 
   const json = await response.json();
@@ -68,7 +65,7 @@ export async function updateStatusEvent(
   });
 
   if (!response.ok) {
-    throw new Error('Failed to update status event');
+    throw response;
   }
 
   const json = await response.json();
@@ -84,7 +81,7 @@ export async function deleteStatusEvent(
   });
 
   if (!response.ok) {
-    throw new Error('Failed to delete status event');
+    throw response;
   }
 
   const json = await response.json();

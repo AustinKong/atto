@@ -4,7 +4,7 @@ export async function getResume(resumeId: string): Promise<Resume> {
   const response = await fetch(`/api/resumes/${resumeId}`);
 
   if (!response.ok) {
-    throw new Error('Failed to get resume');
+    throw response;
   }
 
   const json = await response.json();
@@ -22,7 +22,7 @@ export async function getResumeHtml(template: string, data: ResumeData): Promise
   });
 
   if (!response.ok) {
-    throw new Error('Failed to get resume HTML');
+    throw response;
   }
 
   const json = await response.json();
@@ -35,7 +35,7 @@ export async function generateResumeContent(resumeId: string): Promise<Resume> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to generate resume content');
+    throw response;
   }
 
   const json = await response.json();
@@ -48,7 +48,7 @@ export async function populateResumeBaseSections(resumeId: string): Promise<Resu
   });
 
   if (!response.ok) {
-    throw new Error('Failed to populate resume base sections');
+    throw response;
   }
 
   const json = await response.json();
@@ -65,7 +65,7 @@ export async function updateResume(resumeId: string, data: ResumeData): Promise<
   });
 
   if (!response.ok) {
-    throw new Error('Failed to update resume');
+    throw response;
   }
 
   const json = await response.json();
@@ -78,7 +78,7 @@ export async function deleteResume(resumeId: string): Promise<void> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to delete resume');
+    throw response;
   }
 }
 
@@ -88,7 +88,7 @@ export async function exportResumePdf(resumeId: string, latestData: ResumeData):
   const response = await fetch(`/api/resumes/${resumeId}/export`);
 
   if (!response.ok) {
-    throw new Error('Failed to export resume as PDF');
+    throw response;
   }
 
   const blob = await response.blob();

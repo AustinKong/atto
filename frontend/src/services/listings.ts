@@ -25,7 +25,7 @@ export async function ingestListing(
   });
 
   if (!response.ok) {
-    throw new Error('Failed to ingest listing');
+    throw response;
   }
 
   const json = await response.json();
@@ -36,7 +36,7 @@ export async function ingestListing(
 export async function saveListing(listingDraft: ListingDraft) {
   // Only unique listings or duplicate_content (after editing) can be saved
   if (listingDraft.status !== 'unique' && listingDraft.status !== 'duplicate_content') {
-    throw new Error('Only unique or edited duplicate listings can be saved');
+    throw new Response('Only unique or edited duplicate listings can be saved', { status: 400 });
   }
 
   const listingToSave: Listing = {
@@ -59,7 +59,7 @@ export async function saveListing(listingDraft: ListingDraft) {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to save listing');
+    throw response;
   }
 
   const json = await response.json();
@@ -89,7 +89,7 @@ export async function getListings(
   const response = await fetch(`/api/listings?${params.toString()}`);
 
   if (!response.ok) {
-    throw new Error('Failed to fetch listings');
+    throw response;
   }
 
   const json = await response.json();
@@ -100,13 +100,10 @@ export async function getListing(listingId: string): Promise<Listing> {
   const response = await fetch(`/api/listings/${listingId}`);
 
   if (!response.ok) {
-    throw new Error('Failed to fetch listing');
+    throw response;
   }
 
   const json = await response.json();
-  if (!json) {
-    throw new Error('Listing not found');
-  }
   return json as Listing;
 }
 
@@ -123,7 +120,7 @@ export async function updateListingNotes(
   });
 
   if (!response.ok) {
-    throw new Error('Failed to update listing notes');
+    throw response;
   }
 
   const json = await response.json();
@@ -136,7 +133,7 @@ export async function generateListingInsights(listingId: string): Promise<Listin
   });
 
   if (!response.ok) {
-    throw new Error('Failed to generate listing insights');
+    throw response;
   }
 
   const json = await response.json();

@@ -1,4 +1,5 @@
 import { Center, Spinner } from '@chakra-ui/react';
+import type { QueryClient } from '@tanstack/react-query';
 import { Suspense } from 'react';
 
 import { ErrorElement } from '@/components/ui/ErrorBoundary';
@@ -8,7 +9,7 @@ import { ListingDrawer } from './index';
 import { infoRoute } from './info/route';
 import { researchRoute } from './research/route';
 
-export const listingDrawerRoute = () => ({
+export const listingDrawerRoute = (queryClient: QueryClient) => ({
   path: ':listingId',
   element: (
     <Suspense
@@ -22,5 +23,5 @@ export const listingDrawerRoute = () => ({
     </Suspense>
   ),
   errorElement: <ErrorElement />,
-  children: [infoRoute(), researchRoute(), applicationsRoute()],
+  children: [infoRoute(), researchRoute(), applicationsRoute(queryClient)],
 });
