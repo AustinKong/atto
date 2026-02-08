@@ -80,7 +80,7 @@ export function SectionsEditor({
           modifiers={[restrictToParentElement, restrictToVerticalAxis]}
         >
           <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
-            <VStack gap="3" align="stretch" p="4">
+            <VStack gap="3" align="stretch">
               {fields.map((field, index) => (
                 <SectionEditor
                   key={field.id}

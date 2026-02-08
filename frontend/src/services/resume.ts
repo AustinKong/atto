@@ -87,13 +87,13 @@ export async function deleteResume(resumeId: string): Promise<void> {
   }
 }
 
-export async function exportResumePdf(resumeId: string, sections: Section[]): Promise<Blob> {
-  const response = await fetch(`/api/resumes/${resumeId}/export`);
+// export async function exportResumePdf(resumeId: string, sections: Section[]): Promise<Blob> {
+//   const response = await fetch(`/api/resumes/${resumeId}/export`);
 
-  if (!response.ok) {
-    throw response;
-  }
+//   if (!response.ok) {
+//     throw response;
+//   }
 
-  const blob = await response.blob();
-  return blob;
-}
+//   const blob = await response.blob();
+//   return blob;
+// }

@@ -1,19 +1,27 @@
 import { Tabs } from '@chakra-ui/react';
 import { useState } from 'react';
 
-import type { Resume } from '@/types/resume';
+import { SectionsEditor } from '@/components/shared/sections-editor';
+import { useSaveResume } from '@/mutations/resume';
+import type { Resume, Section } from '@/types/resume';
 
 import { Generate } from './Generate';
 import { JsonEditor } from './JsonEditor';
-import { ResumeSectionsEditor } from './ResumeSectionsEditor';
 
 export { Generate } from './Generate';
 export { JsonEditor } from './JsonEditor';
-export { ResumeSectionsEditor } from './ResumeSectionsEditor';
 
 export function Editor({ resume }: { resume: Resume }) {
   const defaultTab = resume.sections.length === 0 ? 'generate' : 'visual';
   const [activeTab, setActiveTab] = useState(defaultTab);
+  const { mutate: saveResume } = useSaveResume();
+
+  const handleSectionsChange = (sections: Section[]) => {
+    saveResume({
+      resumeId: resume.id,
+      sections,
+    });
+  };
 
   return (
     <Tabs.Root
@@ -29,8 +37,8 @@ export function Editor({ resume }: { resume: Resume }) {
         <Tabs.Trigger value="generate">Generate</Tabs.Trigger>
       </Tabs.List>
 
-      <Tabs.Content value="visual" overflowY="scroll" p="0" flex="1" overflowX="hidden">
-        <ResumeSectionsEditor />
+      <Tabs.Content value="visual" overflowY="scroll" p="4" flex="1" overflowX="hidden">
+        <SectionsEditor defaultValues={resume.sections} onChange={handleSectionsChange} />
       </Tabs.Content>
 
       <Tabs.Content value="json" overflowY="scroll" p="0" flex="1">

@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useDebouncedMutation } from '@/hooks/useDebouncedMutation';
 import {
-  exportResumePdf,
+  // exportResumePdf,
   generateResumeContent,
   populateResumeBaseSections,
   updateResume,
@@ -48,10 +48,10 @@ export function useSaveResume() {
   });
 }
 
-export function useExportResumePdf() {
-  return useMutation<Blob, Error, { resumeId: string; sections: Section[] }>({
-    mutationFn: ({ resumeId, sections }: { resumeId: string; sections: Section[] }) => {
-      return exportResumePdf(resumeId, sections);
-    },
-  });
-}
+// export function useExportResumePdf() {
+//   return useMutation<Blob, Error, { resumeId: string; sections: Section[] }>({
+//     mutationFn: ({ resumeId, sections }: { resumeId: string; sections: Section[] }) => {
+//       return exportResumePdf(resumeId, sections);
+//     },
+//   });
+// }
