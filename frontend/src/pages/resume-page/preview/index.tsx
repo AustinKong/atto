@@ -14,15 +14,17 @@ export function Preview() {
   // Read the canonical saved resume from react-query cache so Preview only
   // updates when the saved data changes (e.g. on successful save).
   const { data: resume } = useQuery(resumeQueries.item(resumeId!));
-  const resumeData = resume?.data;
+  const resumeSections = resume?.sections;
 
   // Use an empty string when no saved data is present so the debounced query
   // stays disabled until there's something to render.
-  const dataKey = useMemo(() => (resumeData ? JSON.stringify(resumeData) : ''), [resumeData]);
+  const dataKey = useMemo(
+    () => (resumeSections ? JSON.stringify(resumeSections) : ''),
+    [resumeSections]
+  );
 
-  const { data: html = '', isLoading } =
-    useDebouncedQuery();
-    // resumeQueries.debouncedHtml(resumeId!, resume?.template || '', dataKey)
+  const { data: html = '', isLoading } = useDebouncedQuery();
+  // resumeQueries.debouncedHtml(resumeId!, resume?.template || '', dataKey)
 
   return <PreviewContent html={html} isLoading={isLoading} />;
 }

@@ -7,7 +7,7 @@ import {
   populateResumeBaseSections,
   updateResume,
 } from '@/services/resume';
-import type { Resume, ResumeData } from '@/types/resume';
+import type { Resume, Section } from '@/types/resume';
 
 export function useGenerateResumeContent() {
   const queryClient = useQueryClient();
@@ -15,10 +15,7 @@ export function useGenerateResumeContent() {
   return useMutation<Resume, Error, string>({
     mutationFn: (resumeId: string) => generateResumeContent(resumeId),
     onSuccess: (data: Resume, resumeId: string) => {
-      // Update cache with generated content
       queryClient.setQueryData(['resume', resumeId], data);
-      // Invalidate HTML cache to get fresh render
-      queryClient.invalidateQueries({ queryKey: ['resume', resumeId, 'html'] });
     },
   });
 }
@@ -29,10 +26,7 @@ export function usePopulateResumeBaseSections() {
   return useMutation<Resume, Error, string>({
     mutationFn: (resumeId: string) => populateResumeBaseSections(resumeId),
     onSuccess: (data: Resume, resumeId: string) => {
-      // Update cache with populated content
       queryClient.setQueryData(['resume', resumeId], data);
-      // Invalidate HTML cache to get fresh render
-      queryClient.invalidateQueries({ queryKey: ['resume', resumeId, 'html'] });
     },
   });
 }
@@ -40,14 +34,12 @@ export function usePopulateResumeBaseSections() {
 export function useSaveResume() {
   const queryClient = useQueryClient();
 
-  return useDebouncedMutation<Resume, Error, { resumeId: string; data: ResumeData }>({
+  return useDebouncedMutation<Resume, Error, { resumeId: string; sections: Section[] }>({
     delay: 750,
-    mutationFn: async ({ resumeId, data }: { resumeId: string; data: ResumeData }) => {
-      return updateResume(resumeId, data);
+    mutationFn: async ({ resumeId, sections }: { resumeId: string; sections: Section[] }) => {
+      return updateResume(resumeId, sections);
     },
     onSuccess: (data, { resumeId }) => {
-      // Update cache with saved data
-      // FIXME: Do i even need this still? Because the form is the definitive source of truth anyways
       queryClient.setQueryData(['resume', resumeId], data);
     },
     onError: (error) => {
@@ -57,9 +49,9 @@ export function useSaveResume() {
 }
 
 export function useExportResumePdf() {
-  return useMutation<Blob, Error, { resumeId: string; data: ResumeData }>({
-    mutationFn: ({ resumeId, data }: { resumeId: string; data: ResumeData }) => {
-      return exportResumePdf(resumeId, data);
+  return useMutation<Blob, Error, { resumeId: string; sections: Section[] }>({
+    mutationFn: ({ resumeId, sections }: { resumeId: string; sections: Section[] }) => {
+      return exportResumePdf(resumeId, sections);
     },
   });
 }

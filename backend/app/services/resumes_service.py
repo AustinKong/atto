@@ -1,7 +1,8 @@
+import json
 from uuid import UUID
 
 from app.repositories import DatabaseRepository
-from app.schemas import Resume, ResumeData
+from app.schemas import Resume, Section
 from app.utils.errors import NotFoundError
 
 
@@ -14,19 +15,24 @@ class ResumesService(DatabaseRepository):
     if not row:
       raise NotFoundError(f'Resume {resume_id} not found')
 
+    sections_data = json.loads(row['sections'])
+    if isinstance(sections_data, list):
+      sections = [Section(**section) for section in sections_data]
+    else:
+      sections = []
     return Resume(
       id=row['id'],
       template=row['template'],
-      data=ResumeData.model_validate_json(row['data']),
+      sections=sections,
     )
 
   def create(self, resume: Resume) -> Resume:
     self.execute(
-      'INSERT INTO resumes (id, template, data) VALUES (?, ?, ?)',
+      'INSERT INTO resumes (id, template, sections) VALUES (?, ?, ?)',
       (
         str(resume.id),
         resume.template,
-        resume.data.model_dump_json(),
+        json.dumps([section.model_dump() for section in resume.sections]),
       ),
     )
 
@@ -38,10 +44,10 @@ class ResumesService(DatabaseRepository):
       raise NotFoundError(f'Resume {resume.id} not found')
 
     self.execute(
-      'UPDATE resumes SET template = ?, data = ? WHERE id = ?',
+      'UPDATE resumes SET template = ?, sections = ? WHERE id = ?',
       (
         resume.template,
-        resume.data.model_dump_json(),
+        json.dumps([section.model_dump() for section in resume.sections]),
         str(resume.id),
       ),
     )

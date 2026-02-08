@@ -12,7 +12,6 @@ export function useUpdateProfile() {
     mutationFn: (profile: Profile) => updateProfile(profile),
     onSuccess: (data) => {
       queryClient.setQueryData(['profile'], data);
-      queryClient.invalidateQueries({ queryKey: ['resume', 'preview', 'html'] });
     },
   });
 }

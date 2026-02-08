@@ -4,6 +4,7 @@ import { useParams } from 'react-router';
 
 import { ResumePreview } from '@/components/shared/resume-preview';
 import { useDevelopmentOnly } from '@/hooks/useDevelopmentOnly';
+import { profileQueries } from '@/queries/profile';
 import { resumeQueries } from '@/queries/resume';
 
 import { Editor } from './editor';
@@ -11,6 +12,7 @@ import { Editor } from './editor';
 export function ResumePage() {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
+  const { data: profile } = useSuspenseQuery(profileQueries.item());
 
   useDevelopmentOnly();
 
@@ -28,7 +30,7 @@ export function ResumePage() {
         </Splitter.Panel>
         <Splitter.ResizeTrigger id="editor:preview" />
         <Splitter.Panel id="preview">
-          <ResumePreview template={resume.template} sections={resume.data.sections} />
+          <ResumePreview template={resume.template} sections={resume.sections} profile={profile} />
         </Splitter.Panel>
       </Splitter.Root>
       <div>Footer</div>

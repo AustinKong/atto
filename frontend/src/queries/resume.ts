@@ -1,6 +1,7 @@
-import { queryOptions } from '@tanstack/react-query';
+import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 
 import { getResume, getResumeHtml } from '@/services/resume';
+import type { Profile } from '@/types/profile';
 import type { Section } from '@/types/resume';
 
 export const resumeQueries = {
@@ -13,12 +14,18 @@ export const resumeQueries = {
       retry: false,
     }),
 
-  html: (template: string, sections: Section[]) =>
+  html: (template: string, sections: Section[], profile: Profile) =>
     queryOptions({
-      queryKey: ['resume', 'html', template] as const,
-      queryFn: () => getResumeHtml(template, sections),
-      enabled: !!template && !!sections,
+      queryKey: [
+        'resume',
+        'html',
+        template,
+        JSON.stringify(sections),
+        JSON.stringify(profile),
+      ] as const,
+      queryFn: () => getResumeHtml(template, sections, profile),
+      enabled: !!template && !!sections && !!profile,
       staleTime: 0, // Always fetch fresh HTML
-      placeholderData: (previous) => previous,
+      placeholderData: keepPreviousData,
     }),
 };

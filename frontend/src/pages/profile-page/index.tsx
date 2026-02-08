@@ -30,7 +30,7 @@ export function ProfilePage() {
         </Splitter.Panel>
         <Splitter.ResizeTrigger id="editor:preview" />
         <Splitter.Panel id="preview">
-          <ResumePreview template={template} sections={profile.baseSections} />
+          <ResumePreview template={template} sections={profile.baseSections} profile={profile} />
         </Splitter.Panel>
       </Splitter.Root>
       <div>Footer</div>

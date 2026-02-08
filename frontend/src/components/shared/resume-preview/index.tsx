@@ -3,13 +3,22 @@ import { useQuery } from '@tanstack/react-query';
 import { useLayoutEffect, useRef, useState } from 'react';
 
 import { resumeQueries } from '@/queries/resume';
+import type { Profile } from '@/types/profile';
 import type { Section } from '@/types/resume';
 
 const PAPER_WIDTH = 816;
 const PAPER_HEIGHT = 1056;
 
-export function ResumePreview({ template, sections }: { template: string; sections: Section[] }) {
-  const { data: html, isLoading } = useQuery(resumeQueries.html(template, sections));
+export function ResumePreview({
+  template,
+  sections,
+  profile,
+}: {
+  template: string;
+  sections: Section[];
+  profile: Profile;
+}) {
+  const { data: html, isLoading } = useQuery(resumeQueries.html(template, sections, profile));
 
   const previewRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);

@@ -12,7 +12,7 @@ export { JsonEditor } from './JsonEditor';
 export { ResumeSectionsEditor } from './ResumeSectionsEditor';
 
 export function Editor({ resume }: { resume: Resume }) {
-  const defaultTab = resume.data.sections.length === 0 ? 'generate' : 'visual';
+  const defaultTab = resume.sections.length === 0 ? 'generate' : 'visual';
   const [activeTab, setActiveTab] = useState(defaultTab);
 
   return (

@@ -36,11 +36,7 @@ class Section(BaseModel):
   content: SectionContent
 
 
-class ResumeData(BaseModel):
-  sections: list[Section]
-
-
 class Resume(BaseModel):
   id: UUID = Field(default_factory=uuid4)
   template: str
-  data: ResumeData
+  sections: list[Section]

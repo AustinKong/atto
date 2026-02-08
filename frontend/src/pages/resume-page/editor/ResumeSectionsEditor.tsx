@@ -15,12 +15,9 @@ export function ResumeSectionsEditor() {
     if (!resume) return;
     saveResume({
       resumeId: resumeId!,
-      data: {
-        ...resume.data,
-        sections,
-      },
+      sections,
     });
   };
 
-  return <SectionsEditor defaultValues={resume?.data.sections ?? []} onChange={handleChange} />;
+  return <SectionsEditor defaultValues={resume?.sections ?? []} onChange={handleChange} />;
 }

@@ -1,4 +1,5 @@
-import type { Resume, ResumeData, Section } from '@/types/resume';
+import type { Profile } from '@/types/profile';
+import type { Resume, Section } from '@/types/resume';
 
 export async function getResume(resumeId: string): Promise<Resume> {
   const response = await fetch(`/api/resumes/${resumeId}`);
@@ -12,13 +13,17 @@ export async function getResume(resumeId: string): Promise<Resume> {
 }
 
 // TODO: Rename to render html
-export async function getResumeHtml(template: string, sections: Section[]): Promise<string> {
+export async function getResumeHtml(
+  template: string,
+  sections: Section[],
+  profile: Profile
+): Promise<string> {
   const response = await fetch(`/api/resumes/html`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ template, sections }),
+    body: JSON.stringify({ template, sections, profile }),
   });
 
   if (!response.ok) {
@@ -55,13 +60,13 @@ export async function populateResumeBaseSections(resumeId: string): Promise<Resu
   return json as Resume;
 }
 
-export async function updateResume(resumeId: string, data: ResumeData): Promise<Resume> {
+export async function updateResume(resumeId: string, sections: Section[]): Promise<Resume> {
   const response = await fetch(`/api/resumes/${resumeId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(sections),
   });
 
   if (!response.ok) {
@@ -82,9 +87,7 @@ export async function deleteResume(resumeId: string): Promise<void> {
   }
 }
 
-export async function exportResumePdf(resumeId: string, latestData: ResumeData): Promise<Blob> {
-  await updateResume(resumeId, latestData);
-
+export async function exportResumePdf(resumeId: string, sections: Section[]): Promise<Blob> {
   const response = await fetch(`/api/resumes/${resumeId}/export`);
 
   if (!response.ok) {

@@ -5,7 +5,7 @@ from weasyprint import HTML
 
 from app.config import settings
 from app.repositories.file_repository import FileRepository
-from app.schemas import Profile, ResumeData, Section
+from app.schemas import Profile, Section
 from app.utils.errors import NotFoundError
 
 
@@ -27,8 +27,8 @@ class TemplateService(FileRepository):
     except NotFoundError as e:
       raise NotFoundError(f"Template '{template_name}' not found") from e
 
-  def render_pdf(self, template_name: str, profile: Profile, resume_data: ResumeData) -> bytes:
-    html = self.render(template_name, profile, resume_data)
+  def render_pdf(self, template_name: str, profile: Profile, sections: list[Section]) -> bytes:
+    html = self.render(template_name, profile, sections)
     base_url = str(Path(settings.paths.templates_dir).resolve())
     try:
       pdf = HTML(string=html, base_url=base_url).write_pdf(

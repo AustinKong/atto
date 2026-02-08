@@ -10,7 +10,6 @@ from app.repositories import DatabaseRepository
 from app.schemas import (
   Application,
   Resume,
-  ResumeData,
   StatusEnum,
   StatusEvent,
   StatusEventSaved,
@@ -82,14 +81,14 @@ class ApplicationsService(DatabaseRepository):
       resume = Resume(
         id=uuid4(),
         template=settings.resume.default_template,
-        data=ResumeData(sections=[]),
+        sections=[],
       )
       self.execute(
-        'INSERT INTO resumes (id, template, data) VALUES (?, ?, ?)',
+        'INSERT INTO resumes (id, template, sections) VALUES (?, ?, ?)',
         (
           str(resume.id),
           resume.template,
-          resume.data.model_dump_json(),
+          json.dumps([]),
         ),
       )
 

@@ -11,8 +11,8 @@ from app.schemas import (
   DetailedSectionContent,
   Experience,
   LLMResponseExperience,
+  Profile,
   Resume,
-  ResumeData,
   Section,
 )
 from app.services import (
@@ -41,8 +41,8 @@ async def get_resume(resume_id: UUID) -> Resume:
 async def get_html(
   template: Annotated[str, Body()],
   sections: Annotated[list[Section], Body()],
+  profile: Annotated[Profile, Body()],
 ):
-  profile = profile_service.get()
   html = template_service.render(template, profile, sections)
 
   return {'html': html}
@@ -64,7 +64,7 @@ async def populate_resume_base_sections(resume_id: UUID):
       )
     )
 
-  resume.data.sections = base_sections
+  resume.sections = base_sections
   updated_resume = resume_service.update(resume)
   return updated_resume
 
@@ -145,15 +145,15 @@ async def generate_resume_content(resume_id: UUID):
   )
 
   # Set resume sections to base sections + work experience
-  resume.data.sections = base_sections + [work_experience_section]
+  resume.sections = base_sections + [work_experience_section]
   updated_resume = resume_service.update(resume)
   return updated_resume
 
 
 @router.put('/{resume_id}')
-async def update_resume(resume_id: UUID, data: ResumeData) -> Resume:
+async def update_resume(resume_id: UUID, sections: list[Section]) -> Resume:
   resume = resume_service.get(resume_id)
-  resume.data = data
+  resume.sections = sections
   updated_resume = resume_service.update(resume)
   return updated_resume
 
@@ -169,7 +169,7 @@ async def export_resume(resume_id: UUID) -> Response:
   resume = resume_service.get(resume_id)
   profile = profile_service.get()
   try:
-    pdf_bytes = template_service.render_pdf(resume.template, profile, resume.data)
+    pdf_bytes = template_service.render_pdf(resume.template, profile, resume.sections)
   except Exception as e:
     raise NotFoundError(f'Failed to render PDF: {e}') from e
 

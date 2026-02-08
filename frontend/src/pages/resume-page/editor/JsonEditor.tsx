@@ -10,7 +10,7 @@ export function JsonEditor() {
   const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
   const { colorMode } = useColorMode();
 
-  const jsonString = JSON.stringify(resume.data, null, 2);
+  const jsonString = JSON.stringify({ sections: resume.sections }, null, 2);
 
   return (
     <CodeBlock.Root

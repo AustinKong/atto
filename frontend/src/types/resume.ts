@@ -32,12 +32,8 @@ export interface Section {
   content: SectionContent;
 }
 
-export interface ResumeData {
-  sections: Section[];
-}
-
 export interface Resume {
   id: string;
   template: string;
-  data: ResumeData;
+  sections: Section[];
 }

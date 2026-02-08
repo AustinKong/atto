@@ -50,7 +50,7 @@ def create_tables():
       CREATE TABLE IF NOT EXISTS resumes (
         id TEXT PRIMARY KEY,
         template TEXT NOT NULL,
-        data JSON NOT NULL
+        sections JSON NOT NULL
       )
     """)
 
