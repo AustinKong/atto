@@ -1,34 +1,16 @@
 import { Badge, Box, VStack } from '@chakra-ui/react';
-import { memo, useLayoutEffect, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useLayoutEffect, useRef, useState } from 'react';
 
-import { useDebouncedQuery } from '@/hooks/useDebouncedQuery';
 import { resumeQueries } from '@/queries/resume';
-import type { ResumeData } from '@/types/resume';
-
-export function ResumePreview({
-  template,
-  resumeData,
-}: {
-  template: string;
-  resumeData: ResumeData;
-}) {
-  const { data: html, isLoading } = useDebouncedQuery(
-    resumeQueries.debouncedHtml('preview', template, JSON.stringify(resumeData))
-  );
-
-  return <PreviewContent html={html || ''} isLoading={isLoading} />;
-}
+import type { Section } from '@/types/resume';
 
 const PAPER_WIDTH = 816;
 const PAPER_HEIGHT = 1056;
 
-const PreviewContent = memo(function PreviewContent({
-  html,
-  isLoading,
-}: {
-  html: string;
-  isLoading: boolean;
-}) {
+export function ResumePreview({ template, sections }: { template: string; sections: Section[] }) {
+  const { data: html, isLoading } = useQuery(resumeQueries.html(template, sections));
+
   const previewRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
@@ -38,13 +20,16 @@ const PreviewContent = memo(function PreviewContent({
 
     const updateScale = () => {
       const styles = window.getComputedStyle(preview);
-      const paddingLeft = parseFloat(styles.paddingLeft);
-      const paddingRight = parseFloat(styles.paddingRight);
+      const paddingLeft = parseFloat(styles.paddingLeft) || 0;
+      const paddingRight = parseFloat(styles.paddingRight) || 0;
       const totalPadding = paddingLeft + paddingRight;
 
       const availableWidth = preview.clientWidth - totalPadding;
       setScale(Math.min(availableWidth / PAPER_WIDTH, 1));
     };
+
+    updateScale();
+
     const observer = new ResizeObserver(updateScale);
     observer.observe(preview);
 
@@ -65,7 +50,6 @@ const PreviewContent = memo(function PreviewContent({
       gap={2}
       position="relative"
     >
-      {/* Loading indicator */}
       {isLoading && (
         <Badge
           position="absolute"
@@ -79,13 +63,12 @@ const PreviewContent = memo(function PreviewContent({
           Rendering...
         </Badge>
       )}
-      {/* Ghost wrapper - takes up the space of the scaled content */}
+
       <Box
         width={`${PAPER_WIDTH * scale}px`}
         height={`${PAPER_HEIGHT * scale}px`}
         position="relative"
       >
-        {/* The actual paper - overlaid on top */}
         <Box
           position="absolute"
           top={0}
@@ -95,9 +78,9 @@ const PreviewContent = memo(function PreviewContent({
           scale={scale}
           transformOrigin="top left"
         >
-          <iframe srcDoc={html} width="100%" height="100%" style={{ border: 'none' }} />
+          <iframe srcDoc={html || ''} width="100%" height="100%" style={{ border: 'none' }} />
         </Box>
       </Box>
     </VStack>
   );
-});
+}

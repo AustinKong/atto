@@ -66,3 +66,34 @@ class FileRepository:
         filepath.unlink()
     except Exception as e:
       raise ServiceError(f'Failed to delete file {filepath}: {str(e)}') from e
+
+  def list_directory(self, dirpath: Path, file_extensions: list[str] | None = None) -> list[Path]:
+    """
+    Lists all files in a directory, optionally filtered by extension.
+
+    Args:
+      dirpath: Path to the directory to list.
+      file_extensions: Optional list of file extensions to filter by (e.g.,
+        ['.html', '.htm']). If None, all files are included. Extensions should
+        include the leading dot and be lowercase.
+
+    Returns:
+      A sorted list of Path objects for files matching the criteria. Returns an
+      empty list if the directory doesn't exist.
+
+    Raises:
+      ServiceError: If listing the directory fails.
+    """
+    if not dirpath.exists() or not dirpath.is_dir():
+      return []
+
+    try:
+      files: list[Path] = []
+      for p in dirpath.iterdir():
+        if p.is_file():
+          if file_extensions is None or p.suffix.lower() in file_extensions:
+            files.append(p)
+      files.sort()
+      return files
+    except Exception as e:
+      raise ServiceError(f'Failed to list directory {dirpath}: {str(e)}') from e

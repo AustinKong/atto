@@ -40,10 +40,10 @@ async def get_resume(resume_id: UUID) -> Resume:
 @router.post('/html')
 async def get_html(
   template: Annotated[str, Body()],
-  data: Annotated[ResumeData, Body()],
+  sections: Annotated[list[Section], Body()],
 ):
   profile = profile_service.get()
-  html = template_service.render(template, profile, data)
+  html = template_service.render(template, profile, sections)
 
   return {'html': html}
 

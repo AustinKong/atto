@@ -1,4 +1,4 @@
-import type { Resume, ResumeData } from '@/types/resume';
+import type { Resume, ResumeData, Section } from '@/types/resume';
 
 export async function getResume(resumeId: string): Promise<Resume> {
   const response = await fetch(`/api/resumes/${resumeId}`);
@@ -12,13 +12,13 @@ export async function getResume(resumeId: string): Promise<Resume> {
 }
 
 // TODO: Rename to render html
-export async function getResumeHtml(template: string, data: ResumeData): Promise<string> {
+export async function getResumeHtml(template: string, sections: Section[]): Promise<string> {
   const response = await fetch(`/api/resumes/html`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ template, data }),
+    body: JSON.stringify({ template, sections }),
   });
 
   if (!response.ok) {

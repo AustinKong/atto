@@ -20,9 +20,9 @@ export function Preview() {
   // stays disabled until there's something to render.
   const dataKey = useMemo(() => (resumeData ? JSON.stringify(resumeData) : ''), [resumeData]);
 
-  const { data: html = '', isLoading } = useDebouncedQuery(
-    resumeQueries.debouncedHtml(resumeId!, resume?.template || '', dataKey)
-  );
+  const { data: html = '', isLoading } =
+    useDebouncedQuery();
+    // resumeQueries.debouncedHtml(resumeId!, resume?.template || '', dataKey)
 
   return <PreviewContent html={html} isLoading={isLoading} />;
 }

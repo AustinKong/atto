@@ -4,8 +4,15 @@ from fastapi import APIRouter, Body
 
 from app.config import settings
 from app.config.schemas import AppConfig
+from app.services import template_service
 
 router = APIRouter(prefix='/config', tags=['Config'])
+
+
+# (category_key, field_key) -> provider function
+DYNAMIC_ENUM_PROVIDERS = {
+  ('resume', 'default_template'): template_service.list_templates,
+}
 
 
 @router.get('')
@@ -37,6 +44,13 @@ def get_settings():
         'enum': field_meta.get('enum'),
       }
 
+      if (provider := DYNAMIC_ENUM_PROVIDERS.get((category_key, field_key))) is not None:
+        try:
+          dynamic_enum = provider()
+          fields_config[field_key]['enum'] = dynamic_enum
+        except Exception:
+          pass
+
     ui_structure[category_key] = {
       'title': category_meta.get('title', category_key),
       'description': category_meta.get('description', ''),
@@ -49,5 +63,4 @@ def get_settings():
 @router.patch('')
 def update_settings(updates: dict[str, Any] = Body(...)):  # noqa: B008
   settings.save(updates)
-
   return get_settings()

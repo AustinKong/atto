@@ -5,7 +5,7 @@ from weasyprint import HTML
 
 from app.config import settings
 from app.repositories.file_repository import FileRepository
-from app.schemas import Profile, ResumeData
+from app.schemas import Profile, ResumeData, Section
 from app.utils.errors import NotFoundError
 
 
@@ -13,10 +13,10 @@ class TemplateService(FileRepository):
   def __init__(self):
     super().__init__()
 
-  def render(self, template_name: str, profile: Profile, resume_data: ResumeData) -> str:
+  def render(self, template_name: str, profile: Profile, sections: list[Section]) -> str:
     context = {
       'profile': profile.model_dump(mode='json'),
-      'resume': resume_data.model_dump(mode='json'),
+      'sections': [section.model_dump(mode='json') for section in sections],
     }
 
     try:
@@ -40,3 +40,8 @@ class TemplateService(FileRepository):
       return pdf
     except Exception as exc:
       raise RuntimeError(f'Failed to render PDF: {exc}') from exc
+
+  def list_templates(self) -> list[str]:
+    templates_dir = Path(settings.paths.templates_dir)
+    template_files = self.list_directory(templates_dir, ['.html', '.htm'])
+    return [p.name for p in template_files]

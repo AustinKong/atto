@@ -1,32 +1,39 @@
-import { Tabs } from '@chakra-ui/react';
+import { Splitter, VStack } from '@chakra-ui/react';
+import { useSuspenseQuery } from '@tanstack/react-query';
 
-import { Experience } from './Experience';
-import { PersonalInformation } from './PersonalInformation';
+import { ResumePreview } from '@/components/shared/resume-preview';
+import { useDevelopmentOnly } from '@/hooks/useDevelopmentOnly';
+import { profileQueries } from '@/queries/profile';
+import { settingsQueries } from '@/queries/settings';
 
-const TABS = [
-  { label: 'Personal Information', value: 'personal', page: <PersonalInformation /> },
-  { label: 'Experience', value: 'experience', page: <Experience /> },
-];
+import { Editor } from './editor';
 
-// TODO: The forms are pretty shit right now. either:
-// A) Continue using key resetting: https://react.dev/learn/preserving-and-resetting-state
-// B) Use RHF + Controllers to manage form state instead
-// Either way, the entire profile page needs to be redone
 export function ProfilePage() {
+  const { data: profile } = useSuspenseQuery(profileQueries.item());
+  const { data: settings } = useSuspenseQuery(settingsQueries.all());
+
+  const template = String(settings.resume.fields.default_template.value);
+
+  useDevelopmentOnly();
+
   return (
-    <Tabs.Root defaultValue="personal" w="full">
-      <Tabs.List mb="4">
-        {TABS.map(({ label, value }) => (
-          <Tabs.Trigger key={value} value={value}>
-            {label}
-          </Tabs.Trigger>
-        ))}
-      </Tabs.List>
-      {TABS.map(({ value, page }) => (
-        <Tabs.Content key={value} value={value}>
-          {page}
-        </Tabs.Content>
-      ))}
-    </Tabs.Root>
+    <VStack h="full" gap="0" alignItems="stretch">
+      <div>Toolbar</div>
+      <Splitter.Root
+        panels={[
+          { id: 'editor', minSize: 30, maxSize: 70 },
+          { id: 'preview', minSize: 30, maxSize: 70 },
+        ]}
+      >
+        <Splitter.Panel id="editor">
+          <Editor profile={profile} />
+        </Splitter.Panel>
+        <Splitter.ResizeTrigger id="editor:preview" />
+        <Splitter.Panel id="preview">
+          <ResumePreview template={template} sections={profile.baseSections} />
+        </Splitter.Panel>
+      </Splitter.Root>
+      <div>Footer</div>
+    </VStack>
   );
 }

@@ -2,11 +2,11 @@ import { Splitter, VStack } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router';
 
+import { ResumePreview } from '@/components/shared/resume-preview';
 import { useDevelopmentOnly } from '@/hooks/useDevelopmentOnly';
 import { resumeQueries } from '@/queries/resume';
 
 import { Editor } from './editor';
-import { Preview } from './preview';
 
 export function ResumePage() {
   const { resumeId } = useParams<{ resumeId: string }>();
@@ -28,7 +28,7 @@ export function ResumePage() {
         </Splitter.Panel>
         <Splitter.ResizeTrigger id="editor:preview" />
         <Splitter.Panel id="preview">
-          <Preview />
+          <ResumePreview template={resume.template} sections={resume.data.sections} />
         </Splitter.Panel>
       </Splitter.Root>
       <div>Footer</div>

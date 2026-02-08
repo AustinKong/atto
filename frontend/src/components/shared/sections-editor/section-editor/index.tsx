@@ -1,13 +1,14 @@
-import { HStack, IconButton, Input, Text, Textarea, VStack } from '@chakra-ui/react';
+import { HStack, IconButton, Input, Text, VStack } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { memo } from 'react';
-import type { Control, UseFormRegister } from 'react-hook-form';
+import type { Control } from 'react-hook-form';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { PiDotsSixVertical, PiTrash } from 'react-icons/pi';
 
 import type { SectionsEditorData } from '../types';
 import { DetailedItemSection } from './detailed-item-section';
+import { ParagraphSection } from './paragraph-section';
 import { SimpleBulletSection } from './simple-bullet-section';
 
 // Must split into two components because useSortable necessarily causes re-renders every drag frame.
@@ -77,7 +78,7 @@ export const SectionEditor = memo(function SectionEditor({
       </HStack>
 
       <VStack pr="4" pb="4" w="full" align="stretch" overflow="visible" pl="8">
-        <SectionContent sectionIndex={index} control={control} register={register} />
+        <SectionContent sectionIndex={index} control={control} />
       </VStack>
     </VStack>
   );
@@ -88,24 +89,15 @@ SectionEditor.displayName = 'SectionEditor';
 const SectionContent = memo(function SectionContent({
   sectionIndex,
   control,
-  register,
 }: {
   sectionIndex: number;
   control: Control<SectionsEditorData>;
-  register: UseFormRegister<SectionsEditorData>;
 }) {
   const type = useWatch({ name: `sections.${sectionIndex}.type`, control });
 
   switch (type) {
     case 'paragraph':
-      return (
-        <Textarea
-          {...register(`sections.${sectionIndex}.content.text`)}
-          placeholder="Enter paragraph text..."
-          rows={3}
-          variant="flushed"
-        />
-      );
+      return <ParagraphSection sectionIndex={sectionIndex} />;
 
     case 'detailed':
       return <DetailedItemSection sectionIndex={sectionIndex} control={control} />;
