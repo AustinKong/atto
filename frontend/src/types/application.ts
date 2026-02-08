@@ -18,7 +18,6 @@ export type StatusEnum = (typeof STATUS_LIST)[number];
 export type Person = {
   name: string;
   contact: string | null;
-  avatarUrl: string | null;
 };
 
 type BaseStatusEvent = {

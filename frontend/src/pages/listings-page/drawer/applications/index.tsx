@@ -1,8 +1,7 @@
 import { Heading, IconButton, Text, VStack } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import React from 'react';
 import { PiPlus } from 'react-icons/pi';
-import { useNavigate, useParams } from 'react-router';
+import { useParams } from 'react-router';
 
 import { useCreateApplication } from '@/mutations/applications';
 import { applicationQueries } from '@/queries/applications';
@@ -13,29 +12,14 @@ import { StatusEventModal, StatusEventProvider } from './status-event-modal';
 import { Timeline } from './Timeline';
 
 export function ApplicationsEmpty() {
-  const navigate = useNavigate();
   const { listingId } = useParams<{ listingId: string }>();
   const { data: listing } = useSuspenseQuery(listingsQueries.item(listingId!));
 
   const createApplicationMutation = useCreateApplication();
 
-  // Redirect to first application if there are applications
-  React.useEffect(() => {
-    if (listing.applications && listing.applications.length > 0 && listing.applications[0].id) {
-      navigate(`/listings/${listingId}/applications/${listing.applications[0].id}`, {
-        replace: true,
-      });
-    }
-  }, [listing, listingId, navigate]);
-
   const handleCreateApplication = async () => {
     await createApplicationMutation.mutateAsync(listing.id);
   };
-
-  // If there are applications, don't render anything (redirect will happen)
-  if (listing.applications && listing.applications.length > 0) {
-    return null;
-  }
 
   return (
     <VStack align="stretch" gap="4" px="4" mb="4">
@@ -66,8 +50,6 @@ export function Applications() {
 
   const handleCreateApplication = async () => {
     await createApplicationMutation.mutateAsync(listing.id);
-    // Navigation will be handled by the route redirect
-    // TODO: Not sure what to do with this
   };
 
   const { data: application } = useSuspenseQuery(applicationQueries.item(applicationId!));

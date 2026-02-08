@@ -2,6 +2,7 @@ import { Splitter, VStack } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router';
 
+import { useDevelopmentOnly } from '@/hooks/useDevelopmentOnly';
 import { resumeQueries } from '@/queries/resume';
 
 import { Editor } from './editor';
@@ -10,6 +11,8 @@ import { Preview } from './preview';
 export function ResumePage() {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
+
+  useDevelopmentOnly();
 
   return (
     <VStack h="full" gap="0" alignItems="stretch">

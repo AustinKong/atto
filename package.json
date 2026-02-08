@@ -7,14 +7,17 @@
     "concurrently": "^9.2.1"
   },
   "scripts": {
-    "dev:frontend": "npm --prefix frontend run dev",
     "lint:fix:frontend": "npm --prefix frontend run lint:fix",
-
-    "dev:backend": "backend/venv/bin/python backend/run.py",
     "lint:fix:backend": "cd backend && ruff check --fix app",
-
-    "dev": "concurrently -n backend,frontend -c magenta,cyan \"npm:dev:backend\" \"npm:dev:frontend\"",
     "lint:fix": "npm run lint:fix:backend && npm run lint:fix:frontend",
+
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "backend/venv/bin/python backend/run.py",
+    "dev": "concurrently -n backend,frontend -c magenta,cyan \"npm:dev:backend\" \"npm:dev:frontend\"",
+
+    "preview:frontend": "npm --prefix frontend run build",
+    "preview:backend": "backend/venv/bin/python backend/run.py",
+    "preview": "npm run preview:frontend && npm run preview:backend",
 
     "build:frontend": "cd frontend && npm run build",
     "build:exe": "pyinstaller atto.spec",

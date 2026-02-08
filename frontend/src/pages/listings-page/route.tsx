@@ -18,6 +18,6 @@ export function listingsRoute(queryClient: QueryClient) {
     element: <ListingsPage />,
     loader: listingsLoader(queryClient),
     errorElement: <ErrorElement />,
-    children: [listingDrawerRoute()],
+    children: [listingDrawerRoute(queryClient)],
   };
 }

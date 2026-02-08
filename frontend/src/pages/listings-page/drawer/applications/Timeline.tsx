@@ -4,6 +4,7 @@ import {
   HStack,
   Icon,
   IconButton,
+  Spacer,
   Text,
   Timeline as ChakraTimeline,
   VStack,
@@ -164,6 +165,7 @@ function TimelineItem({ event, application }: { event: StatusEvent; application:
                 </Text>
               </Collapsible.Trigger>
             )}
+            <Spacer />
             {isEditable && (
               <Text
                 as="button"

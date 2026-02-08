@@ -4,7 +4,7 @@ export async function getProfile(): Promise<Profile> {
   const response = await fetch(`/api/profile`);
 
   if (!response.ok) {
-    throw new Error('Failed to fetch profile data');
+    throw response;
   }
 
   const json = await response.json();
@@ -21,7 +21,7 @@ export async function updateProfile(profile: Profile): Promise<Profile> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to update profile data');
+    throw response;
   }
 
   const json = await response.json();
