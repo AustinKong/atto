@@ -9,6 +9,7 @@ import {
 } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { forwardRef, useImperativeHandle } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { PiPlus } from 'react-icons/pi';
 
@@ -19,14 +20,21 @@ import type { Section } from '@/types/resume';
 import { SectionEditor } from './section-editor';
 import type { SectionsEditorData } from './types';
 
+// Escape-hatch to export reset function for when we want to hard reset the form to defaultValues (e.g., after populating base sections)
+// I've already tried using an effect that watches defaultValues, but that will cause input to lose focus when defaultValues change, affecting UX
+// I've also tried using key prop to force remount, but that causes the same focus loss issue
+export type SectionsEditorHandle = {
+  reset: () => void;
+};
+
 // TODO: See if I can clean up things to use <Card> instead
-export function SectionsEditor({
-  defaultValues,
-  onChange,
-}: {
-  defaultValues: Section[];
-  onChange: (sections: Section[]) => void;
-}) {
+export const SectionsEditor = forwardRef<
+  SectionsEditorHandle,
+  {
+    defaultValues: Section[];
+    onChange: (sections: Section[]) => void;
+  }
+>(function SectionsEditor({ defaultValues, onChange }, ref) {
   const methods = useForm<SectionsEditorData>({
     defaultValues: { sections: defaultValues },
   });
@@ -70,6 +78,12 @@ export function SectionsEditor({
     append(newSection);
   };
 
+  useImperativeHandle(ref, () => ({
+    reset: () => {
+      methods.reset({ sections: defaultValues });
+    },
+  }));
+
   return (
     <FormProvider {...methods}>
       <form autoComplete="off" spellCheck="false">
@@ -108,4 +122,4 @@ export function SectionsEditor({
       </form>
     </FormProvider>
   );
-}
+});

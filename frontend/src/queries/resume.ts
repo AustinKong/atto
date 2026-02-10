@@ -1,6 +1,6 @@
 import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 
-import { getResume, getResumeHtml } from '@/services/resume';
+import { getResume, renderResume } from '@/services/resume';
 import type { Profile } from '@/types/profile';
 import type { Section } from '@/types/resume';
 
@@ -23,7 +23,7 @@ export const resumeQueries = {
         JSON.stringify(sections),
         JSON.stringify(profile),
       ] as const,
-      queryFn: () => getResumeHtml(template, sections, profile),
+      queryFn: () => renderResume(template, sections, profile, 'html') as Promise<string>,
       enabled: !!template && !!sections && !!profile,
       staleTime: 0, // Always fetch fresh HTML
       placeholderData: keepPreviousData,

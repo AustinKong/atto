@@ -8,6 +8,7 @@ import { profileQueries } from '@/queries/profile';
 import { resumeQueries } from '@/queries/resume';
 
 import { Editor } from './editor';
+import { ResumeToolbar } from './Toolbar';
 
 export function ResumePage() {
   const { resumeId } = useParams<{ resumeId: string }>();
@@ -18,7 +19,7 @@ export function ResumePage() {
 
   return (
     <VStack h="full" gap="0" alignItems="stretch">
-      <div>Toolbar</div>
+      <ResumeToolbar />
       <Splitter.Root
         panels={[
           { id: 'editor', minSize: 30, maxSize: 70 },

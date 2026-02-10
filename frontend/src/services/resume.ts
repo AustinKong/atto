@@ -12,28 +12,6 @@ export async function getResume(resumeId: string): Promise<Resume> {
   return json as Resume;
 }
 
-// TODO: Rename to render html
-export async function getResumeHtml(
-  template: string,
-  sections: Section[],
-  profile: Profile
-): Promise<string> {
-  const response = await fetch(`/api/resumes/html`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ template, sections, profile }),
-  });
-
-  if (!response.ok) {
-    throw response;
-  }
-
-  const json = await response.json();
-  return json.html;
-}
-
 export async function generateResumeContent(resumeId: string): Promise<Resume> {
   const response = await fetch(`/api/resumes/${resumeId}/generate`, {
     method: 'POST',
@@ -87,13 +65,32 @@ export async function deleteResume(resumeId: string): Promise<void> {
   }
 }
 
-// export async function exportResumePdf(resumeId: string, sections: Section[]): Promise<Blob> {
-//   const response = await fetch(`/api/resumes/${resumeId}/export`);
+export async function renderResume(
+  template: string,
+  sections: Section[],
+  profile: Profile,
+  format: 'pdf' | 'html'
+): Promise<Blob | string> {
+  const response = await fetch(`/api/resumes/render?format=${format}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ template, sections, profile }),
+  });
 
-//   if (!response.ok) {
-//     throw response;
-//   }
+  if (!response.ok) {
+    throw response;
+  }
 
-//   const blob = await response.blob();
-//   return blob;
-// }
+  if (format === 'html') {
+    const json = await response.json();
+    return json.html;
+  }
+
+  if (format === 'pdf') {
+    return response.blob();
+  }
+
+  throw new Error(`Unsupported format: ${format}`);
+}

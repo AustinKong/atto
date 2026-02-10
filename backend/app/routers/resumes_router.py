@@ -37,17 +37,6 @@ async def get_resume(resume_id: UUID) -> Resume:
   return resume_service.get(resume_id)
 
 
-@router.post('/html')
-async def get_html(
-  template: Annotated[str, Body()],
-  sections: Annotated[list[Section], Body()],
-  profile: Annotated[Profile, Body()],
-):
-  html = template_service.render(template, profile, sections)
-
-  return {'html': html}
-
-
 @router.post('/{resume_id}/populate')
 async def populate_resume_base_sections(resume_id: UUID):
   resume = resume_service.get(resume_id)
@@ -164,20 +153,25 @@ async def delete_resume(resume_id: UUID):
   return {'message': 'Resume deleted successfully'}
 
 
-@router.get('/{resume_id}/export')
-async def export_resume(resume_id: UUID) -> Response:
-  resume = resume_service.get(resume_id)
-  profile = profile_service.get()
-  try:
-    pdf_bytes = template_service.render_pdf(resume.template, profile, resume.sections)
-  except Exception as e:
-    raise NotFoundError(f'Failed to render PDF: {e}') from e
+@router.post('/render')
+async def render_resume(
+  template: Annotated[str, Body()],
+  sections: Annotated[list[Section], Body()],
+  profile: Annotated[Profile, Body()],
+  format: str = 'pdf',
+):
+  if format == 'html':
+    html = template_service.render(template, profile, sections)
+    return {'html': html}
 
-  filename = f'resume_{resume.id}.pdf'
-  return Response(
-    content=pdf_bytes,
-    media_type='application/pdf',
-    headers={
-      'Content-Disposition': f'attachment; filename="{filename}"',
-    },
-  )
+  if format == 'pdf':
+    pdf_bytes = template_service.render_pdf(template, profile, sections)
+    return Response(
+      content=pdf_bytes,
+      media_type='application/pdf',
+      headers={
+        'Content-Disposition': 'attachment; filename="resume.pdf"',
+      },
+    )
+
+  raise NotFoundError(f'Unsupported format: {format}')

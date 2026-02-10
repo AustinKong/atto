@@ -2,11 +2,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useDebouncedMutation } from '@/hooks/useDebouncedMutation';
 import {
-  // exportResumePdf,
   generateResumeContent,
   populateResumeBaseSections,
+  renderResume,
   updateResume,
 } from '@/services/resume';
+import type { Profile } from '@/types/profile';
 import type { Resume, Section } from '@/types/resume';
 
 export function useGenerateResumeContent() {
@@ -20,13 +21,14 @@ export function useGenerateResumeContent() {
   });
 }
 
-export function usePopulateResumeBaseSections() {
+export function usePopulateResumeBaseSections(options?: { onSuccess?: () => void }) {
   const queryClient = useQueryClient();
 
   return useMutation<Resume, Error, string>({
     mutationFn: (resumeId: string) => populateResumeBaseSections(resumeId),
     onSuccess: (data: Resume, resumeId: string) => {
       queryClient.setQueryData(['resume', resumeId], data);
+      options?.onSuccess?.();
     },
   });
 }
@@ -48,10 +50,14 @@ export function useSaveResume() {
   });
 }
 
-// export function useExportResumePdf() {
-//   return useMutation<Blob, Error, { resumeId: string; sections: Section[] }>({
-//     mutationFn: ({ resumeId, sections }: { resumeId: string; sections: Section[] }) => {
-//       return exportResumePdf(resumeId, sections);
-//     },
-//   });
-// }
+export function useExportResume() {
+  return useMutation<
+    Blob | string,
+    Error,
+    { template: string; sections: Section[]; profile: Profile; type: 'pdf' | 'html' }
+  >({
+    mutationFn: async ({ template, sections, profile, type }) => {
+      return renderResume(template, sections, profile, type);
+    },
+  });
+}
