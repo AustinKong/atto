@@ -23,6 +23,7 @@ Atto — _**A**nother **T**ool for **T**racking & **O**ptimizing (Applications)_
 - **Smart Scraper**: Paste a job URL, and Atto automatically extracts job titles, companies, and requirements into a clean, structured format for you to review before saving.
 - **Centralized Job List**: View all your saved listings in one place, organized for easy management.
 - **Progress Tracking**: Simple status updates to keep track of where each application stands in your pipeline.
+- **Resume Builder**: Choose from our list of templates, add or remove sections to build your resume that's just right for the job.
 
 # Roadmap
 Atto is in early development. Here is what we're working on next:

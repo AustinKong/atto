@@ -6,10 +6,12 @@ from collections.abc import Callable
 
 class ServerManager:
   """Manage a server subprocess with async start/stop and output capture."""
+
   def __init__(
     self,
     command: list[str],
     on_line: Callable[[str], None] | None = None,
+    on_exit: Callable[[int], None] | None = None,
     log_buffer_size: int = 500,
   ):
     """
@@ -18,10 +20,12 @@ class ServerManager:
     Args:
       command: List of command and args (e.g., ["uvicorn", "app.main:app", ...]).
       on_line: Optional callback(line) invoked for each captured output line.
+      on_exit: Optional callback(return_code) invoked when the process exits.
       log_buffer_size: Max lines to keep in ring buffer (prevents unbounded memory).
     """
     self.command = command
     self.on_line = on_line
+    self.on_exit = on_exit
     self.log_buffer = deque(maxlen=log_buffer_size)
     self.proc: asyncio.subprocess.Process | None = None
     self._read_task: asyncio.Task | None = None
@@ -39,9 +43,7 @@ class ServerManager:
       return False
 
     self.proc = await asyncio.create_subprocess_exec(
-      *self.command,
-      stdout=asyncio.subprocess.PIPE,
-      stderr=asyncio.subprocess.PIPE
+      *self.command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
     )
     self._read_task = asyncio.create_task(self._read_output_loop())
 
@@ -93,7 +95,7 @@ class ServerManager:
       return
 
   async def _read_output_loop(self) -> None:
-    """Concurrently read stdout and stderr until stream ends."""
+    """Concurrently read stdout and stderr, then trigger exit callback."""
     try:
       assert self.proc is not None
       assert self.proc.stdout is not None
@@ -103,11 +105,14 @@ class ServerManager:
         self._read_stream(self.proc.stdout, ''),
         self._read_stream(self.proc.stderr, ''),
       )
+
+      return_code = await self.proc.wait()
+
+      if self.on_exit:
+        self.on_exit(return_code)
+
     except asyncio.CancelledError:
       return
-    finally:
-      if self.proc and self.proc.returncode is None:
-        await self.proc.wait()
 
   def get_logs(self) -> list[str]:
     return list(self.log_buffer)
