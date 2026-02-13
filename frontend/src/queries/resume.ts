@@ -23,7 +23,9 @@ export const resumeQueries = {
         JSON.stringify(sections),
         JSON.stringify(profile),
       ] as const,
-      queryFn: () => renderResume(template, sections, profile, 'html') as Promise<string>,
+      queryFn: async () => {
+        return renderResume(template, sections, profile, 'html') as Promise<string>;
+      },
       enabled: !!template && !!sections && !!profile,
       staleTime: 0, // Always fetch fresh HTML
       placeholderData: keepPreviousData,

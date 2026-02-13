@@ -4,6 +4,7 @@ from .experiences_router import router as experiences_router
 from .listings_router import router as listings_router
 from .profile_router import router as profile_router
 from .resumes_router import router as resumes_router
+from .templates_router import router as templates_router
 
 __all__ = [
   'applications_router',
@@ -12,4 +13,5 @@ __all__ = [
   'listings_router',
   'profile_router',
   'resumes_router',
+  'templates_router',
 ]

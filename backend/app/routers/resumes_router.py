@@ -1,9 +1,7 @@
 import asyncio
-from typing import Annotated
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Body
-from fastapi.responses import Response
+from fastapi import APIRouter
 
 from app.resources.prompts import OPTIMIZATION_PROMPT
 from app.schemas import (
@@ -11,7 +9,6 @@ from app.schemas import (
   DetailedSectionContent,
   Experience,
   LLMResponseExperience,
-  Profile,
   Resume,
   Section,
 )
@@ -22,9 +19,7 @@ from app.services import (
   llm_service,
   profile_service,
   resume_service,
-  template_service,
 )
-from app.utils.errors import NotFoundError
 
 router = APIRouter(
   prefix='/resumes',
@@ -151,27 +146,3 @@ async def update_resume(resume_id: UUID, sections: list[Section]) -> Resume:
 async def delete_resume(resume_id: UUID):
   resume_service.delete(resume_id)
   return {'message': 'Resume deleted successfully'}
-
-
-@router.post('/render')
-async def render_resume(
-  template: Annotated[str, Body()],
-  sections: Annotated[list[Section], Body()],
-  profile: Annotated[Profile, Body()],
-  format: str = 'pdf',
-):
-  if format == 'html':
-    html = template_service.render(template, profile, sections)
-    return {'html': html}
-
-  if format == 'pdf':
-    pdf_bytes = template_service.render_pdf(template, profile, sections)
-    return Response(
-      content=pdf_bytes,
-      media_type='application/pdf',
-      headers={
-        'Content-Disposition': 'attachment; filename="resume.pdf"',
-      },
-    )
-
-  raise NotFoundError(f'Unsupported format: {format}')

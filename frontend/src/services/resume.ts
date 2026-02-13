@@ -65,13 +65,27 @@ export async function deleteResume(resumeId: string): Promise<void> {
   }
 }
 
+export async function getTemplate(
+  templateName: string,
+  source: 'local' | 'remote' = 'local'
+): Promise<string> {
+  const response = await fetch(`/api/templates/${source}/${templateName}`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${source} template: ${templateName}`);
+  }
+
+  const json = await response.json();
+  return json.content as string;
+}
+
 export async function renderResume(
   template: string,
   sections: Section[],
   profile: Profile,
   format: 'pdf' | 'html'
 ): Promise<Blob | string> {
-  const response = await fetch(`/api/resumes/render?format=${format}`, {
+  const response = await fetch(`/api/templates/render?format=${format}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

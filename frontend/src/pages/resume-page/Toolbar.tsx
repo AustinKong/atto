@@ -6,6 +6,7 @@ import { useParams } from 'react-router';
 import { useExportResume } from '@/mutations/resume';
 import { profileQueries } from '@/queries/profile';
 import { resumeQueries } from '@/queries/resume';
+import { getTemplate } from '@/services/resume';
 
 export function ResumeToolbar() {
   const { resumeId } = useParams<{ resumeId: string }>();
@@ -14,8 +15,9 @@ export function ResumeToolbar() {
   const { mutateAsync: exportResume } = useExportResume();
 
   const handleExport = async (): Promise<Blob> => {
+    const template = await getTemplate(resume.template);
     const blob = (await exportResume({
-      template: resume.template,
+      template,
       sections: resume.sections,
       profile,
       type: 'pdf',
