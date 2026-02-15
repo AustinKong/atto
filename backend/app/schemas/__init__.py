@@ -10,12 +10,12 @@ from .listing import Listing, ListingBase, ListingSummary
 from .profile import Profile
 from .resume import (
   DetailedItem,
-  DetailedSectionContent,
-  ParagraphSectionContent,
+  DetailedSection,
+  ParagraphSection,
   Resume,
   Section,
-  SectionContent,
-  SimpleSectionContent,
+  SectionTypeEnum,
+  SimpleSection,
 )
 from .scraping import (
   ExtractionResponse,
@@ -58,12 +58,12 @@ __all__ = [
   'Profile',
   # Resume
   'DetailedItem',
-  'DetailedSectionContent',
-  'ParagraphSectionContent',
+  'DetailedSection',
+  'ParagraphSection',
   'Resume',
   'Section',
-  'SectionContent',
-  'SimpleSectionContent',
+  'SectionTypeEnum',
+  'SimpleSection',
   # Application
   'Application',
   # StatusEvent

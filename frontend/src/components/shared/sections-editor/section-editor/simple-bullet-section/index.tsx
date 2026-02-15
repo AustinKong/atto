@@ -17,8 +17,8 @@ export const SimpleBulletSection = memo(function SimpleBulletSection({
     <SortableListInput.Root<SectionsEditorData>
       control={control}
       register={register}
-      name={`sections.${sectionIndex}.content.bullets`}
-      defaultItem=""
+      name={`sections.${sectionIndex}.content`}
+      defaultItem={'' as never}
     >
       <HStack justify="space-between">
         <SortableListInput.Label>Bullet Points</SortableListInput.Label>

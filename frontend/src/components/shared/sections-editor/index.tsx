@@ -15,6 +15,7 @@ import { PiPlus } from 'react-icons/pi';
 
 import { sectionTypes } from '@/constants/sectionTypes';
 import { useWatchForm } from '@/hooks/useWatchForm';
+import type { SectionType } from '@/types/resume';
 import type { Section } from '@/types/resume';
 
 import { SectionEditor } from './section-editor';
@@ -24,7 +25,7 @@ import type { SectionsEditorData } from './types';
 // I've already tried using an effect that watches defaultValues, but that will cause input to lose focus when defaultValues change, affecting UX
 // I've also tried using key prop to force remount, but that causes the same focus loss issue
 export type SectionsEditorHandle = {
-  reset: () => void;
+  reset: (newSections?: Section[]) => void;
 };
 
 // TODO: See if I can clean up things to use <Card> instead
@@ -64,7 +65,7 @@ export const SectionsEditor = forwardRef<
     move(oldIndex, newIndex);
   };
 
-  const addSection = (type: string) => {
+  const addSection = (type: SectionType) => {
     const config = sectionTypes.find((t) => t.type === type);
     if (!config) return;
 
@@ -73,14 +74,16 @@ export const SectionsEditor = forwardRef<
       type,
       title: 'New Section',
       content: config.createContent(),
-    };
+    } as Section;
 
     append(newSection);
   };
 
   useImperativeHandle(ref, () => ({
-    reset: () => {
-      methods.reset({ sections: defaultValues });
+    reset: (newSections) => {
+      methods.reset({
+        sections: newSections ?? defaultValues,
+      });
     },
   }));
 

@@ -6,7 +6,7 @@ import { memo } from 'react';
 import { type Control, useFieldArray } from 'react-hook-form';
 import { PiPlus } from 'react-icons/pi';
 
-import type { SectionsEditorData } from '../../types';
+import type { SectionsEditorData, TypedFieldArray } from '../../types';
 import { DetailedItem } from './DetailedItem';
 
 export const DetailedItemSection = memo(
@@ -19,8 +19,8 @@ export const DetailedItemSection = memo(
   }) {
     const { fields, append, remove, move } = useFieldArray({
       control,
-      name: `sections.${sectionIndex}.content.bullets`,
-    });
+      name: `sections.${sectionIndex}.content`,
+    }) as TypedFieldArray;
 
     const sensors = useSensors(
       useSensor(PointerSensor, {

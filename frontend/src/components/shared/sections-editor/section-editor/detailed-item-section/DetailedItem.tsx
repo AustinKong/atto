@@ -87,15 +87,15 @@ const DetailedItemContent = memo(function DetailedItemContent({
           </HStack>
 
           <Input
-            {...register(`sections.${sectionIndex}.content.bullets.${itemIndex}.title`)}
+            {...register(`sections.${sectionIndex}.content.${itemIndex}.title`)}
             placeholder="Title (e.g., Job Title)"
             variant="flushed"
             flex="1"
           />
 
           <DateRangeSelector
-            startName={`sections.${sectionIndex}.content.bullets.${itemIndex}.startDate`}
-            endName={`sections.${sectionIndex}.content.bullets.${itemIndex}.endDate`}
+            startName={`sections.${sectionIndex}.content.${itemIndex}.startDate`}
+            endName={`sections.${sectionIndex}.content.${itemIndex}.endDate`}
           />
         </HStack>
 
@@ -112,7 +112,7 @@ const DetailedItemContent = memo(function DetailedItemContent({
 
       <VStack gap="2" w="full" align="stretch" pl="8">
         <Input
-          {...register(`sections.${sectionIndex}.content.bullets.${itemIndex}.subtitle`)}
+          {...register(`sections.${sectionIndex}.content.${itemIndex}.subtitle`)}
           placeholder="Subtitle (e.g., Company)"
           variant="flushed"
         />
@@ -121,8 +121,8 @@ const DetailedItemContent = memo(function DetailedItemContent({
           control={control}
           register={register}
           // @ts-expect-error - Deeply nested template literal types exceed TypeScript's inference limits
-          name={`sections.${sectionIndex}.content.bullets.${itemIndex}.bullets`}
-          defaultItem=""
+          name={`sections.${sectionIndex}.content.${itemIndex}.bullets`}
+          defaultItem={'' as never}
         >
           <HStack justify="space-between">
             <SortableListInput.Label>Bullet Points</SortableListInput.Label>

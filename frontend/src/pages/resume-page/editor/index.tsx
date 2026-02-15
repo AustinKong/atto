@@ -1,5 +1,5 @@
 import { Tabs } from '@chakra-ui/react';
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import type { SectionsEditorHandle } from '@/components/shared/sections-editor';
 import { SectionsEditor } from '@/components/shared/sections-editor';
@@ -21,6 +21,10 @@ export function Editor({ resume }: { resume: Resume }) {
       sections,
     });
   };
+
+  const handleResetSections = useCallback((sections: Section[]) => {
+    sectionsEditorRef.current?.reset(sections);
+  }, []);
 
   return (
     <Tabs.Root
@@ -49,7 +53,7 @@ export function Editor({ resume }: { resume: Resume }) {
       </Tabs.Content>
 
       <Tabs.Content value="generate" flex="1" overflowY="auto" p="0" h="full">
-        <Generate sectionsEditorRef={sectionsEditorRef} />
+        <Generate onResetSections={handleResetSections} />
       </Tabs.Content>
     </Tabs.Root>
   );

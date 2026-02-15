@@ -13,7 +13,7 @@ export const ParagraphSection = memo(function ParagraphSection({
 
   return (
     <Textarea
-      {...register(`sections.${sectionIndex}.content.text`)}
+      {...register(`sections.${sectionIndex}.content`)}
       placeholder="Enter paragraph text..."
       rows={3}
       variant="flushed"

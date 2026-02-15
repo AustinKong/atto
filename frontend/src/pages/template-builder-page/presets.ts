@@ -1,5 +1,6 @@
 import type { Profile } from '@/types/profile';
-import type { Section, SectionContent } from '@/types/resume';
+import type { Section } from '@/types/resume';
+import { ISOYearMonth } from '@/utils/date';
 
 interface EdgeCasePreset {
   name: string;
@@ -23,23 +24,21 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
         id: 'min-1',
         type: 'simple',
         title: 'Empty Simple Section',
-        content: { bullets: [] } as SectionContent,
+        content: [],
       },
       {
         id: 'min-2',
         type: 'detailed',
         title: 'Empty Detailed Section',
-        content: {
-          bullets: [
-            {
-              title: 'Job Title Only',
-              subtitle: null,
-              startDate: null,
-              endDate: null,
-              bullets: [],
-            },
-          ],
-        },
+        content: [
+          {
+            title: 'Job Title Only',
+            subtitle: '',
+            startDate: null,
+            endDate: null,
+            bullets: [],
+          },
+        ],
       },
     ],
   },
@@ -59,25 +58,22 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
         id: 'flow-1',
         type: 'paragraph',
         title: 'Text Flow Test',
-        content: {
-          text: 'This is a long paragraph.\n\nIt has double newlines to test spacing.\nIt also has a single newline.\nFinally, we include a very long word: Donaudampfschifffahrtselektrizitätenhauptbetriebswerkbauunterbeamtengesellschaft.',
-        } as SectionContent,
+        content:
+          'This is a long paragraph.\n\nIt has double newlines to test spacing.\nIt also has a single newline.\nFinally, we include a very long word: Donaudampfschifffahrtselektrizitätenhauptbetriebswerkbauunterbeamtengesellschaft.',
       },
       {
         id: 'flow-2',
         type: 'detailed',
         title: 'Flexbox Collision',
-        content: {
-          bullets: [
-            {
-              title: 'Lead Software Engineer and Architectural Design Consultant for Cloud Systems',
-              subtitle: 'Global Consolidated Industries and Technologies Corporation',
-              startDate: '2020-01',
-              endDate: 'present',
-              bullets: ['Unbroken_string_test_01234567890123456789012345678901234567890123456789'],
-            },
-          ],
-        } as SectionContent,
+        content: [
+          {
+            title: 'Lead Software Engineer and Architectural Design Consultant for Cloud Systems',
+            subtitle: 'Global Consolidated Industries and Technologies Corporation',
+            startDate: ISOYearMonth.parse('2020-01'),
+            endDate: 'present',
+            bullets: ['Unbroken_string_test_01234567890123456789012345678901234567890123456789'],
+          },
+        ],
       },
     ],
   },
@@ -97,32 +93,36 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
         id: 'date-1',
         type: 'detailed',
         title: 'Date Logic',
-        content: {
-          bullets: [
-            {
-              title: 'Standard Present',
-              subtitle: null,
-              startDate: '2022-01',
-              endDate: 'present',
-              bullets: [],
-            },
-            {
-              title: 'Incomplete Range',
-              subtitle: null,
-              startDate: '2021-01',
-              endDate: null,
-              bullets: [],
-            },
-            {
-              title: 'No Start Date',
-              subtitle: null,
-              startDate: null,
-              endDate: '2020-12',
-              bullets: [],
-            },
-            { title: 'No Dates', subtitle: null, startDate: null, endDate: null, bullets: [] },
-          ],
-        } as SectionContent,
+        content: [
+          {
+            title: 'Standard Present',
+            subtitle: '',
+            startDate: ISOYearMonth.parse('2022-01'),
+            endDate: 'present',
+            bullets: [],
+          },
+          {
+            title: 'Incomplete Range',
+            subtitle: '',
+            startDate: ISOYearMonth.parse('2021-01'),
+            endDate: null,
+            bullets: [],
+          },
+          {
+            title: 'No Start Date',
+            subtitle: '',
+            startDate: null,
+            endDate: ISOYearMonth.parse('2020-12'),
+            bullets: [],
+          },
+          {
+            title: 'No Dates',
+            subtitle: '',
+            startDate: null,
+            endDate: null,
+            bullets: [],
+          },
+        ],
       },
     ],
   },

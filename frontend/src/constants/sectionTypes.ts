@@ -1,35 +1,34 @@
-import type { Section } from '@/types/resume';
+import type { Section, SectionType } from '@/types/resume';
+import { SECTION_TYPES } from '@/types/resume';
 
 interface SectionTypeConfig {
-  type: string;
+  type: SectionType;
   label: string;
   createContent: () => Section['content'];
 }
 
 export const sectionTypes: SectionTypeConfig[] = [
   {
-    type: 'simple',
+    type: SECTION_TYPES.SIMPLE,
     label: 'Simple Section',
-    createContent: () => ({ bullets: [] }),
+    createContent: () => [''],
   },
   {
-    type: 'detailed',
+    type: SECTION_TYPES.DETAILED,
     label: 'Detailed Section',
-    createContent: () => ({
-      bullets: [
-        {
-          title: '',
-          subtitle: '',
-          startDate: null,
-          endDate: null,
-          bullets: [],
-        },
-      ],
-    }),
+    createContent: () => [
+      {
+        title: '',
+        subtitle: null,
+        startDate: null,
+        endDate: null,
+        bullets: [],
+      },
+    ],
   },
   {
-    type: 'paragraph',
+    type: SECTION_TYPES.PARAGRAPH,
     label: 'Paragraph Section',
-    createContent: () => ({ text: '' }),
+    createContent: () => '',
   },
 ];

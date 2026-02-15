@@ -1,21 +1,19 @@
 import { Button, Center, Text, VStack } from '@chakra-ui/react';
-import type { RefObject } from 'react';
 import { useParams } from 'react-router';
 
-import type { SectionsEditorHandle } from '@/components/shared/sections-editor';
 import { useGenerateResumeContent, usePopulateResumeBaseSections } from '@/mutations/resume';
+import type { Section } from '@/types/resume';
 
-export function Generate({
-  sectionsEditorRef,
-}: {
-  sectionsEditorRef: RefObject<SectionsEditorHandle | null>;
-}) {
+export function Generate({ onResetSections }: { onResetSections: (sections: Section[]) => void }) {
   const { resumeId } = useParams<{ resumeId: string }>();
-  const generateMutation = useGenerateResumeContent();
+  const generateMutation = useGenerateResumeContent({
+    onSuccess: (sections) => {
+      onResetSections(sections);
+    },
+  });
   const populateMutation = usePopulateResumeBaseSections({
-    onSuccess: () => {
-      // TODO: Change to passing in fn instead of passing entire ref
-      sectionsEditorRef.current?.reset();
+    onSuccess: (sections) => {
+      onResetSections(sections);
     },
   });
 

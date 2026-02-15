@@ -1,5 +1,13 @@
 import type { ISOYearMonth } from '@/utils/date';
 
+export const SECTION_TYPES = {
+  SIMPLE: 'simple',
+  DETAILED: 'detailed',
+  PARAGRAPH: 'paragraph',
+} as const;
+
+export type SectionType = (typeof SECTION_TYPES)[keyof typeof SECTION_TYPES];
+
 export interface DetailedItem {
   title: string;
   subtitle: string | null;
@@ -8,29 +16,27 @@ export interface DetailedItem {
   bullets: string[];
 }
 
-export interface DetailedSectionContent {
-  bullets: DetailedItem[];
-}
-
-export interface SimpleSectionContent {
-  bullets: string[];
-}
-
-export interface ParagraphSectionContent {
-  text: string;
-}
-
-export type SectionContent =
-  | DetailedSectionContent
-  | SimpleSectionContent
-  | ParagraphSectionContent;
-
-export interface Section {
+export interface BaseSection {
   id: string;
-  type: string;
   title: string;
-  content: SectionContent;
 }
+
+export interface SimpleSection extends BaseSection {
+  type: 'simple';
+  content: string[];
+}
+
+export interface DetailedSection extends BaseSection {
+  type: 'detailed';
+  content: DetailedItem[];
+}
+
+export interface ParagraphSection extends BaseSection {
+  type: 'paragraph';
+  content: string;
+}
+
+export type Section = SimpleSection | DetailedSection | ParagraphSection;
 
 export interface Resume {
   id: string;

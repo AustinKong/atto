@@ -64,13 +64,15 @@
           <h2>{{ section.title }}</h2>
 
           {% if section.type == 'detailed' %}
-            {% for item in section.content.bullets %}
+            {% for item in section.content %}
               <div>
                 <div class="date-title-row">
                   <span class="item-title">{{ item.title }}</span>
                   {% if item.start_date or item.end_date %}
                     <span class="item-date">
-                      {{ item.start_date or '' }}{% if item.start_date and (item.end_date or item.end_date == 'present') %} – {% endif %}{% if item.end_date == 'present' %}Present{% elif item.end_date %}{{ item.end_date }}{% endif %}
+                      {% set start = item.start_date or '' %}
+                      {% set end = 'Present' if item.end_date == 'present' else (item.end_date or '') %}
+                      {{ start }}{% if start and end %} – {% endif %}{{ end }}
                     </span>
                   {% endif %}
                 </div>
@@ -88,16 +90,16 @@
             {% endfor %}
 
           {% elif section.type == 'simple' %}
-            {% if section.content.bullets %}
+            {% if section.content %}
               <ul>
-                {% for bullet in section.content.bullets %}
+                {% for bullet in section.content %}
                   <li>{{ bullet }}</li>
                 {% endfor %}
               </ul>
             {% endif %}
 
           {% elif section.type == 'paragraph' %}
-            <p>{{ section.content.text }}</p>
+            <p>{{ section.content }}</p>
 
           {% endif %}
         </section>

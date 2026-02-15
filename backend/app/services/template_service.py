@@ -15,8 +15,11 @@ class TemplateService(FileRepository):
     super().__init__()
 
   def render_html(self, template_content: str, profile: Profile, sections: list[Section]) -> str:
+    profile_dict = profile.model_dump(mode='json')
+    profile_dict.pop('base_sections', None)
+
     context = {
-      'profile': profile.model_dump(mode='json'),
+      'profile': profile_dict,
       'sections': [section.model_dump(mode='json') for section in sections],
     }
 

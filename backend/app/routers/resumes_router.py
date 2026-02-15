@@ -6,7 +6,7 @@ from fastapi import APIRouter
 from app.resources.prompts import OPTIMIZATION_PROMPT
 from app.schemas import (
   DetailedItem,
-  DetailedSectionContent,
+  DetailedSection,
   Experience,
   LLMResponseExperience,
   Resume,
@@ -37,18 +37,7 @@ async def populate_resume_base_sections(resume_id: UUID):
   resume = resume_service.get(resume_id)
 
   profile = profile_service.get()
-  base_sections = []
-  for section in profile.base_sections:
-    base_sections.append(
-      Section(
-        id=str(uuid4()),
-        type=section.type,
-        title=section.title,
-        content=section.content,
-      )
-    )
-
-  resume.sections = base_sections
+  resume.sections = profile.base_sections
   updated_resume = resume_service.update(resume)
   return updated_resume
 
@@ -109,27 +98,17 @@ async def generate_resume_content(resume_id: UUID):
 
   # Populate base sections from profile
   profile = profile_service.get()
-  base_sections = []
-  for section in profile.base_sections:
-    base_sections.append(
-      Section(
-        id=str(uuid4()),
-        type=section.type,
-        title=section.title,
-        content=section.content,
-      )
-    )
+  resume.sections = profile.base_sections
 
-  # Create work experience section
-  work_experience_section = Section(
-    id=str(uuid4()),
-    type='detailed',
-    title='Work Experience',
-    content=DetailedSectionContent(bullets=detailed_items),
+  # Append work experience section
+  resume.sections.append(
+    DetailedSection(
+      id=str(uuid4()),
+      title='Work Experience',
+      content=detailed_items,
+    )
   )
 
-  # Set resume sections to base sections + work experience
-  resume.sections = base_sections + [work_experience_section]
   updated_resume = resume_service.update(resume)
   return updated_resume
 

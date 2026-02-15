@@ -2,7 +2,7 @@ import json
 from uuid import UUID
 
 from app.repositories import DatabaseRepository
-from app.schemas import Resume, Section
+from app.schemas import Resume
 from app.utils.errors import NotFoundError
 
 
@@ -16,14 +16,11 @@ class ResumesService(DatabaseRepository):
       raise NotFoundError(f'Resume {resume_id} not found')
 
     sections_data = json.loads(row['sections'])
-    if isinstance(sections_data, list):
-      sections = [Section(**section) for section in sections_data]
-    else:
-      sections = []
+
     return Resume(
       id=row['id'],
       template_id=row['template_id'],
-      sections=sections,
+      sections=sections_data,
     )
 
   def create(self, resume: Resume) -> Resume:
