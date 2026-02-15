@@ -22,16 +22,16 @@ class ResumesService(DatabaseRepository):
       sections = []
     return Resume(
       id=row['id'],
-      template=row['template'],
+      template_id=row['template_id'],
       sections=sections,
     )
 
   def create(self, resume: Resume) -> Resume:
     self.execute(
-      'INSERT INTO resumes (id, template, sections) VALUES (?, ?, ?)',
+      'INSERT INTO resumes (id, template_id, sections) VALUES (?, ?, ?)',
       (
         str(resume.id),
-        resume.template,
+        resume.template_id,
         json.dumps([section.model_dump() for section in resume.sections]),
       ),
     )
@@ -44,9 +44,9 @@ class ResumesService(DatabaseRepository):
       raise NotFoundError(f'Resume {resume.id} not found')
 
     self.execute(
-      'UPDATE resumes SET template = ?, sections = ? WHERE id = ?',
+      'UPDATE resumes SET template_id = ?, sections = ? WHERE id = ?',
       (
-        resume.template,
+        resume.template_id,
         json.dumps([section.model_dump() for section in resume.sections]),
         str(resume.id),
       ),

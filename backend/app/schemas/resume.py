@@ -1,12 +1,13 @@
 from typing import Literal
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from app.schemas.dates import ISOYearMonth
+from app.schemas.types import CamelModel
 
 
-class DetailedItem(BaseModel):
+class DetailedItem(CamelModel):
   title: str
   subtitle: str | None = None
   start_date: ISOYearMonth | None = None
@@ -14,29 +15,29 @@ class DetailedItem(BaseModel):
   bullets: list[str]
 
 
-class DetailedSectionContent(BaseModel):
+class DetailedSectionContent(CamelModel):
   bullets: list[DetailedItem]
 
 
-class SimpleSectionContent(BaseModel):
+class SimpleSectionContent(CamelModel):
   bullets: list[str]
 
 
-class ParagraphSectionContent(BaseModel):
+class ParagraphSectionContent(CamelModel):
   text: str
 
 
 SectionContent = DetailedSectionContent | SimpleSectionContent | ParagraphSectionContent
 
 
-class Section(BaseModel):
+class Section(CamelModel):
   id: str
   type: str
   title: str
   content: SectionContent
 
 
-class Resume(BaseModel):
+class Resume(CamelModel):
   id: UUID = Field(default_factory=uuid4)
-  template: str
+  template_id: str
   sections: list[Section]

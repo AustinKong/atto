@@ -44,7 +44,7 @@ export const DetailedItemSection = memo(
         subtitle: '',
         startDate: null,
         endDate: null,
-        bullets: [''],
+        bullets: [],
       });
     };
 

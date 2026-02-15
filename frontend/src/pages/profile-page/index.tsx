@@ -5,6 +5,7 @@ import { ResumePreview } from '@/components/shared/resume-preview';
 import { useDevelopmentOnly } from '@/hooks/useDevelopmentOnly';
 import { profileQueries } from '@/queries/profile';
 import { settingsQueries } from '@/queries/settings';
+import { templateQueries } from '@/queries/template';
 
 import { Editor } from './editor';
 
@@ -12,7 +13,8 @@ export function ProfilePage() {
   const { data: profile } = useSuspenseQuery(profileQueries.item());
   const { data: settings } = useSuspenseQuery(settingsQueries.all());
 
-  const template = String(settings.resume.fields.default_template.value);
+  const templateId = String(settings.resume.fields.default_template.value);
+  const { data: template } = useSuspenseQuery(templateQueries.item(templateId));
 
   useDevelopmentOnly();
 

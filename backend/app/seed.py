@@ -49,7 +49,7 @@ def create_tables():
     db.execute("""
       CREATE TABLE IF NOT EXISTS resumes (
         id TEXT PRIMARY KEY,
-        template TEXT NOT NULL,
+        template_id TEXT NOT NULL,
         sections JSON NOT NULL
       )
     """)

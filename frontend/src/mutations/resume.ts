@@ -1,13 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useDebouncedMutation } from '@/hooks/useDebouncedMutation';
-import {
-  generateResumeContent,
-  populateResumeBaseSections,
-  renderResume,
-  updateResume,
-} from '@/services/resume';
-import type { Profile } from '@/types/profile';
+import { generateResumeContent, populateResumeBaseSections, updateResume } from '@/services/resume';
 import type { Resume, Section } from '@/types/resume';
 
 export function useGenerateResumeContent() {
@@ -46,18 +40,6 @@ export function useSaveResume() {
     },
     onError: (error) => {
       console.error('Failed to save resume:', error);
-    },
-  });
-}
-
-export function useExportResume() {
-  return useMutation<
-    Blob | string,
-    Error,
-    { template: string; sections: Section[]; profile: Profile; type: 'pdf' | 'html' }
-  >({
-    mutationFn: async ({ template, sections, profile, type }) => {
-      return renderResume(template, sections, profile, type);
     },
   });
 }

@@ -8,10 +8,13 @@ from app.services import template_service
 
 router = APIRouter(prefix='/config', tags=['Config'])
 
+# TODO: Add a "hidden" exposure level for fields that shouldn't be shown in settings UI
+# But are still configurable via direct API calls
+
 
 # (category_key, field_key) -> provider function
 DYNAMIC_ENUM_PROVIDERS = {
-  ('resume', 'default_template'): template_service.list_templates,
+  ('resume', 'default_template'): template_service.list_local_templates,
 }
 
 

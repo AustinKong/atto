@@ -18,7 +18,6 @@ import { type ISOYearMonth } from '@/utils/date';
 
 import type { SectionsEditorData } from './types';
 
-// TODO: See if can be made uncontrolled for better performance
 export function DateRangeSelector({
   startName,
   endName,
@@ -32,7 +31,7 @@ export function DateRangeSelector({
   const start = useWatch({ name: startName });
   const end = useWatch({ name: endName });
 
-  const isPresent = end === null;
+  const isPresent = end === 'present';
 
   return (
     <Popover.Root open={open} onOpenChange={onToggle}>
@@ -100,7 +99,7 @@ export function DateRangeSelector({
                       <Checkbox.Root
                         size="xs"
                         checked={isPresent}
-                        onCheckedChange={(e) => setValue(endName, e.checked ? null : '')}
+                        onCheckedChange={(e) => setValue(endName, e.checked ? 'present' : null)}
                       >
                         <Checkbox.HiddenInput />
                         <Checkbox.Control />
@@ -113,7 +112,7 @@ export function DateRangeSelector({
                     <ISOYearMonthInput
                       size="sm"
                       value={(isPresent ? null : (end ?? null)) as ISOYearMonth | null}
-                      onChange={(v: ISOYearMonth | null) => setValue(endName, v ?? '')}
+                      onChange={(v: ISOYearMonth | null) => setValue(endName, v ?? null)}
                       disabled={isPresent}
                     />
                   </HStack>

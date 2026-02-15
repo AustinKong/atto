@@ -34,6 +34,6 @@ export interface Section {
 
 export interface Resume {
   id: string;
-  template: string;
+  templateId: string;
   sections: Section[];
 }

@@ -2,7 +2,7 @@ import { Badge, Box, VStack } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useLayoutEffect, useRef, useState } from 'react';
 
-import { resumeQueries } from '@/queries/resume';
+import { templateQueries } from '@/queries/template';
 import type { Profile } from '@/types/profile';
 import type { Section } from '@/types/resume';
 
@@ -18,7 +18,9 @@ export function ResumePreview({
   sections: Section[];
   profile: Profile;
 }) {
-  const { data: html, isLoading } = useQuery(resumeQueries.html(template, sections, profile));
+  const { data: html, isLoading } = useQuery(
+    templateQueries.renderHtml(template, sections, profile)
+  );
 
   const previewRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -56,6 +58,7 @@ export function ResumePreview({
       overflowX="hidden"
       p={4}
       align="center"
+      justify="center"
       gap={2}
       position="relative"
     >

@@ -10,7 +10,7 @@ export const sectionTypes: SectionTypeConfig[] = [
   {
     type: 'simple',
     label: 'Simple Section',
-    createContent: () => ({ bullets: [''] }),
+    createContent: () => ({ bullets: [] }),
   },
   {
     type: 'detailed',
@@ -22,7 +22,7 @@ export const sectionTypes: SectionTypeConfig[] = [
           subtitle: '',
           startDate: null,
           endDate: null,
-          bullets: [''],
+          bullets: [],
         },
       ],
     }),

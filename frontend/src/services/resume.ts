@@ -1,4 +1,3 @@
-import type { Profile } from '@/types/profile';
 import type { Resume, Section } from '@/types/resume';
 
 export async function getResume(resumeId: string): Promise<Resume> {
@@ -63,48 +62,4 @@ export async function deleteResume(resumeId: string): Promise<void> {
   if (!response.ok) {
     throw response;
   }
-}
-
-export async function getTemplate(
-  templateName: string,
-  source: 'local' | 'remote' = 'local'
-): Promise<string> {
-  const response = await fetch(`/api/templates/${source}/${templateName}`);
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${source} template: ${templateName}`);
-  }
-
-  const json = await response.json();
-  return json.content as string;
-}
-
-export async function renderResume(
-  template: string,
-  sections: Section[],
-  profile: Profile,
-  format: 'pdf' | 'html'
-): Promise<Blob | string> {
-  const response = await fetch(`/api/templates/render?format=${format}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ template, sections, profile }),
-  });
-
-  if (!response.ok) {
-    throw response;
-  }
-
-  if (format === 'html') {
-    const json = await response.json();
-    return json.html;
-  }
-
-  if (format === 'pdf') {
-    return response.blob();
-  }
-
-  throw new Error(`Unsupported format: ${format}`);
 }

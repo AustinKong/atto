@@ -78,16 +78,18 @@ class ApplicationsService(DatabaseRepository):
 
   def create(self, application: Application) -> Application:
     with self.transaction():
+      template_id = settings.resume.default_template
+
       resume = Resume(
         id=uuid4(),
-        template=settings.resume.default_template,
+        template_id=template_id,
         sections=[],
       )
       self.execute(
-        'INSERT INTO resumes (id, template, sections) VALUES (?, ?, ?)',
+        'INSERT INTO resumes (id, template_id, sections) VALUES (?, ?, ?)',
         (
           str(resume.id),
-          resume.template,
+          resume.template_id,
           json.dumps([]),
         ),
       )

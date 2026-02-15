@@ -3,25 +3,24 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { PiDownload } from 'react-icons/pi';
 import { useParams } from 'react-router';
 
-import { useExportResume } from '@/mutations/resume';
+import { useRenderTemplatePdf } from '@/mutations/templates';
 import { profileQueries } from '@/queries/profile';
 import { resumeQueries } from '@/queries/resume';
-import { getTemplate } from '@/services/resume';
+import { templateQueries } from '@/queries/template';
 
 export function ResumeToolbar() {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
   const { data: profile } = useSuspenseQuery(profileQueries.item());
-  const { mutateAsync: exportResume } = useExportResume();
+  const { data: template } = useSuspenseQuery(templateQueries.item(resume.templateId));
+  const { mutateAsync: renderPdf } = useRenderTemplatePdf();
 
   const handleExport = async (): Promise<Blob> => {
-    const template = await getTemplate(resume.template);
-    const blob = (await exportResume({
+    const blob = await renderPdf({
       template,
       sections: resume.sections,
       profile,
-      type: 'pdf',
-    })) as Blob;
+    });
 
     return blob;
   };
