@@ -2,7 +2,6 @@ import { Splitter, VStack } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
 import { ResumePreview } from '@/components/shared/resume-preview';
-import { useDevelopmentOnly } from '@/hooks/useDevelopmentOnly';
 import { profileQueries } from '@/queries/profile';
 import { settingsQueries } from '@/queries/settings';
 import { templateQueries } from '@/queries/template';
@@ -16,7 +15,7 @@ export function ProfilePage() {
   const templateId = String(settings.resume.fields.default_template.value);
   const { data: template } = useSuspenseQuery(templateQueries.item(templateId));
 
-  useDevelopmentOnly();
+  // useDevelopmentOnly();
 
   return (
     <VStack h="full" gap="0" alignItems="stretch">

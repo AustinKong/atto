@@ -66,9 +66,9 @@ class ConsoleApp(App):
 
   def __init__(self, **kwargs):
     super().__init__(**kwargs)
-    # Spawn the server via python -m app.run with --run-server flag
+    # Spawn the server subprocess via headless script.
     self.server = ServerManager(
-      command=[sys.executable, '-m', 'app.run', '--run-server'],
+      command=[sys.executable, '--headless'],
       on_line=lambda line: self.log_widget.write(line),
       on_exit=lambda return_code: (
         setattr(self.restart_button, 'disabled', False) if return_code != 0 else None

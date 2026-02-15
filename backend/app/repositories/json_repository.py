@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import TypeVar
+from typing import TypeVar, cast
 
 from pydantic import BaseModel
 
@@ -14,7 +14,7 @@ class JSONRepository(FileRepository):
   def __init__(self, **kwargs):
     super().__init__(**kwargs)
 
-  def read_json(self, filepath: Path, model: type[T]) -> T:
+  def read_json(self, filepath: Path, model: type[T], create_if_missing: bool = False) -> T:
     """
     Read and parse a JSON file into a Pydantic model.
 
@@ -29,6 +29,18 @@ class JSONRepository(FileRepository):
       NotFoundError: If file does not exist.
       ServiceError: If file reading or parsing fails.
     """
+    if create_if_missing and not filepath.exists():
+      try:
+        if hasattr(model, 'empty') and callable(model.empty):
+          default_instance = model.empty()
+        else:
+          default_instance = model()
+
+        self.write_json(filepath, default_instance)
+        return cast(T, default_instance)
+      except Exception as e:
+        raise ServiceError(f'Failed to create default JSON file {filepath}: {str(e)}') from e
+
     try:
       content = self.read_text(filepath)
       data = json.loads(content)

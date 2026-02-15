@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ profile.full_name }} - Resume</title>
+  <style>
+    /* Typography & Core Styles */
+    :root {
+      --primary-text: #1a1a1a;
+      --divider-weight: 2px;
+    }
+
+    body {
+      font-family: "Times New Roman", Times, serif;
+      line-height: 1.5;
+      color: var(--primary-text);
+      margin: 0;
+      padding: 0;
+      font-size: 11pt;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+
+    /* Header Section */
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 26pt;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+      letter-spacing: 1px;
+    }
+
+    .contact-info {
+      font-size: 10pt;
+      font-style: italic;
+    }
+
+    .contact-info span:not(:last-child)::after {
+      content: " | ";
+      margin: 0 5px;
+      font-style: normal;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Section Styling */
+    section {
+      margin-bottom: 25px;
+      clear: both;
+    }
+
+    h2 {
+      font-size: 14pt;
+      text-align: center;
+      text-transform: uppercase;
+      border-bottom: var(--divider-weight) solid var(--primary-text);
+      margin-bottom: 15px;
+      padding-bottom: 3px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Content Types */
+    .item {
+      margin-bottom: 15px;
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-weight: bold;
+    }
+
+    .item-subtitle {
+      font-style: italic;
+      margin-bottom: 5px;
+    }
+
+    .item-dates {
+      font-weight: normal;
+      font-size: 10pt;
+    }
+
+    ul {
+      margin: 5px 0;
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 3px;
+    }
+
+    .skills-list {
+      text-align: center;
+      list-style: none;
+      padding: 0;
+    }
+
+    .skills-list li {
+      display: inline;
+    }
+
+    .skills-list li:not(:last-child)::after {
+      content: " \2022 "; /* Bullet point separator */
+      margin: 0 8px;
+    }
+
+    p {
+      margin: 0;
+      text-align: justify;
+    }
+
+    /* Print Optimizations */
+    @media print {
+      body { padding: 0; }
+      .container { padding: 0; width: 100%; }
+      h2 { break-after: avoid; }
+      .item { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>{{ profile.full_name }}</h1>
+      <div class="contact-info">
+        {% if profile.location %}<span>{{ profile.location }}</span>{% endif %}
+        {% if profile.phone %}<span>{{ profile.phone }}</span>{% endif %}
+        {% if profile.email %}<span><a href="mailto:{{ profile.email }}">{{ profile.email }}</a></span>{% endif %}
+        {% if profile.website %}<span><a href="{{ profile.website }}">{{ profile.website }}</a></span>{% endif %}
+      </div>
+    </header>
+
+    <main>
+      {% for section in sections %}
+        <section>
+          <h2>{{ section.title }}</h2>
+
+          {% if section.type == 'detailed' %}
+            {% for item in section.content %}
+              <div class="item">
+                <div class="item-header">
+                  <span class="item-title">{{ item.title }}</span>
+                  {% if item.start_date or item.end_date %}
+                    <span class="item-dates">
+                      {% set start = item.start_date or '' %}
+                      {% set end = 'Present' if item.end_date == 'present' else (item.end_date or '') %}
+                      {{ start }}{% if start and end %} – {% endif %}{{ end }}
+                    </span>
+                  {% endif %}
+                </div>
+                
+                {% if item.subtitle %}
+                  <div class="item-subtitle">{{ item.subtitle }}</div>
+                {% endif %}
+
+                {% if item.bullets %}
+                  <ul>
+                    {% for bullet in item.bullets %}
+                      <li>{{ bullet }}</li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </div>
+            {% endfor %}
+
+          {% elif section.type == 'simple' %}
+            {% if section.content %}
+              <ul class="skills-list">
+                {% for bullet in section.content %}
+                  <li>{{ bullet }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+
+          {% elif section.type == 'paragraph' %}
+            <p>{{ section.content }}</p>
+          {% endif %}
+        </section>
+      {% endfor %}
+    </main>
+  </div>
+</body>
+</html>

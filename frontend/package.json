@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "postbuild": "node ./scripts/copy-pdf-worker.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
@@ -30,6 +31,7 @@
     "react-icons": "^5.5.0",
     "react-intersection-observer": "^10.0.0",
     "react-markdown": "^10.1.0",
+    "react-pdf": "^10.3.0",
     "react-router": "^7.9.4",
     "remark-gfm": "^4.0.1",
     "zod": "^4.1.13"

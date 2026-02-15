@@ -1,13 +1,21 @@
-import { Badge, Box, VStack } from '@chakra-ui/react';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
+
+import { Center, Spinner, VStack } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useLayoutEffect, useRef, useState } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
 
 import { templateQueries } from '@/queries/template';
 import type { Profile } from '@/types/profile';
 import type { Section } from '@/types/resume';
 
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url
+).toString();
+
 const PAPER_WIDTH = 816;
-const PAPER_HEIGHT = 1056;
 
 export function ResumePreview({
   template,
@@ -18,12 +26,17 @@ export function ResumePreview({
   sections: Section[];
   profile: Profile;
 }) {
-  const { data: html, isLoading } = useQuery(
-    templateQueries.renderHtml(template, sections, profile)
+  const { data: pdfBlob, isLoading } = useQuery(
+    templateQueries.renderPdf(template, sections, profile)
   );
 
   const previewRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  const [numPages, setNumPages] = useState(0);
+
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+    setNumPages(numPages);
+  };
 
   useLayoutEffect(() => {
     const preview = previewRef.current;
@@ -47,6 +60,22 @@ export function ResumePreview({
     return () => observer.disconnect();
   }, []);
 
+  if (isLoading) {
+    return (
+      <Center h="full" bg="gray.100" _dark={{ bg: 'gray.800' }}>
+        <Spinner size="xl" />
+      </Center>
+    );
+  }
+
+  if (!pdfBlob) {
+    return (
+      <Center h="full" bg="gray.100" _dark={{ bg: 'gray.800' }} color="gray.500">
+        No preview available
+      </Center>
+    );
+  }
+
   return (
     <VStack
       w="full"
@@ -54,45 +83,29 @@ export function ResumePreview({
       ref={previewRef}
       bg="gray.100"
       _dark={{ bg: 'gray.800' }}
-      overflowY="scroll"
+      overflowY="auto"
       overflowX="hidden"
-      p={4}
+      p={8}
       align="center"
-      justify="center"
-      gap={2}
+      justify="flex-start"
+      gap={6}
       position="relative"
+      asChild
     >
-      {isLoading && (
-        <Badge
-          position="absolute"
-          top={4}
-          right={4}
-          colorScheme="blue"
-          variant="solid"
-          size="sm"
-          zIndex={10}
-        >
-          Rendering...
-        </Badge>
-      )}
-
-      <Box
-        width={`${PAPER_WIDTH * scale}px`}
-        height={`${PAPER_HEIGHT * scale}px`}
-        position="relative"
+      <Document
+        file={pdfBlob}
+        onLoadSuccess={onDocumentLoadSuccess}
+        loading={<Spinner size="xl" />}
       >
-        <Box
-          position="absolute"
-          top={0}
-          left={0}
-          width={`${PAPER_WIDTH}px`}
-          height={`${PAPER_HEIGHT}px`}
-          scale={scale}
-          transformOrigin="top left"
-        >
-          <iframe srcDoc={html || ''} width="100%" height="100%" style={{ border: 'none' }} />
-        </Box>
-      </Box>
+        {Array.from(new Array(numPages), (_, index) => (
+          <Page
+            pageNumber={index + 1}
+            scale={scale}
+            renderAnnotationLayer={false}
+            renderTextLayer={true}
+          />
+        ))}
+      </Document>
     </VStack>
   );
 }

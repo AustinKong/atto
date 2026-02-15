@@ -63,10 +63,10 @@ def main():
 
 
 # Used by server manager when spawning subprocesses
-if '--run-server' in sys.argv:
-  try:
-    sys.argv.remove('--run-server')
-  except ValueError:
-    pass
+# if '--run-server' in sys.argv:
+#   try:
+#     sys.argv.remove('--run-server')
+#   except ValueError:
+#     pass
 
-  main()
+#   main()

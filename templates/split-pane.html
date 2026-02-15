@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ profile.full_name }} - Split-Pane Resume</title>
+  <style>
+    :root {
+      --sidebar-bg: #f8f9fa;
+      --sidebar-width: 240px;
+      --accent-color: #334155;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 10pt;
+      color: var(--text-main);
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Styling */
+    aside {
+      width: var(--sidebar-width);
+      background-color: var(--sidebar-bg);
+      padding: 40px 25px;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .profile-header h1 {
+      font-size: 18pt;
+      font-weight: 800;
+      margin: 0 0 15px 0;
+      line-height: 1.1;
+      color: var(--accent-color);
+    }
+
+    .contact-item {
+      margin-bottom: 10px;
+      word-break: break-all;
+    }
+
+    .contact-label {
+      font-size: 8pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .sidebar-section {
+      margin-top: 30px;
+    }
+
+    .sidebar-section h3 {
+      font-size: 10pt;
+      text-transform: uppercase;
+      border-bottom: 2px solid #cbd5e1;
+      padding-bottom: 5px;
+      margin-bottom: 12px;
+    }
+
+    .sidebar-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .sidebar-list li {
+      margin-bottom: 6px;
+      padding-left: 0;
+    }
+
+    /* Main Content Styling */
+    main {
+      flex: 1;
+      padding: 40px 40px;
+    }
+
+    .main-section {
+      margin-bottom: 25px;
+    }
+
+    .main-section h2 {
+      font-size: 14pt;
+      color: var(--accent-color);
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 5px;
+      margin-bottom: 15px;
+    }
+
+    .item {
+      margin-bottom: 20px;
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .item-title {
+      font-weight: 700;
+      font-size: 11pt;
+    }
+
+    .item-subtitle {
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    .item-dates {
+      font-size: 9pt;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    ul.bullets {
+      margin: 5px 0;
+      padding-left: 18px;
+    }
+
+    ul.bullets li {
+      margin-bottom: 4px;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Print Controls */
+    @media print {
+      aside { background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; }
+      .main-section { break-inside: avoid; }
+      h2 { break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside>
+      <div class="profile-header">
+        <h1>{{ profile.full_name }}</h1>
+        
+        {% if profile.email %}
+          <div class="contact-item">
+            <span class="contact-label">Email</span>
+            <a href="mailto:{{ profile.email }}">{{ profile.email }}</a>
+          </div>
+        {% endif %}
+        
+        {% if profile.phone %}
+          <div class="contact-item">
+            <span class="contact-label">Phone</span>
+            {{ profile.phone }}
+          </div>
+        {% endif %}
+
+        {% if profile.location %}
+          <div class="contact-item">
+            <span class="contact-label">Location</span>
+            {{ profile.location }}
+          </div>
+        {% endif %}
+
+        {% if profile.website %}
+          <div class="contact-item">
+            <span class="contact-label">Web</span>
+            <a href="{{ profile.website }}">{{ profile.website | replace('https://', '') | replace('http://', '') }}</a>
+          </div>
+        {% endif %}
+      </div>
+
+      {# Render simple sections in the sidebar #}
+      {% for section in sections if section.type == 'simple' %}
+        <div class="sidebar-section">
+          <h3>{{ section.title }}</h3>
+          <ul class="sidebar-list">
+            {% for item in section.content %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+    </aside>
+
+    <main>
+      {# Render paragraph and detailed sections in the main column #}
+      {% for section in sections if section.type != 'simple' %}
+        <section class="main-section">
+          <h2>{{ section.title }}</h2>
+
+          {% if section.type == 'detailed' %}
+            {% for item in section.content %}
+              <div class="item">
+                <div class="item-header">
+                  <span class="item-title">{{ item.title }}</span>
+                  {% if item.start_date or item.end_date %}
+                    <span class="item-dates">
+                      {% set start = item.start_date or '' %}
+                      {% set end = 'Present' if item.end_date == 'present' else (item.end_date or '') %}
+                      {{ start }}{% if start and end %} – {% endif %}{{ end }}
+                    </span>
+                  {% endif %}
+                </div>
+                
+                {% if item.subtitle %}
+                  <div class="item-subtitle">{{ item.subtitle }}</div>
+                {% endif %}
+
+                {% if item.bullets %}
+                  <ul class="bullets">
+                    {% for bullet in item.bullets %}
+                      <li>{{ bullet }}</li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </div>
+            {% endfor %}
+
+          {% elif section.type == 'paragraph' %}
+            <p>{{ section.content }}</p>
+          {% endif %}
+        </section>
+      {% endfor %}
+    </main>
+  </div>
+</body>
+</html>
