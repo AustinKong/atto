@@ -11,7 +11,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { PiArrowClockwise, PiMagnifyingGlass } from 'react-icons/pi';
 
-import { ResumePreview } from '@/components/shared/resume-preview';
+import { ReadonlyResumePreview } from '@/components/shared/resume-preview';
 import { templateQueries } from '@/queries/template';
 
 import { EDGE_CASE_PRESETS } from './presets';
@@ -138,9 +138,9 @@ export function TemplateBuilderPage() {
         </Box>
       </HStack>
 
-      <Box flex="1" overflow="hidden">
+      <Box resize="both" overflow="auto" w="500px" h="400px">
         {selectedTemplate && templateContent ? (
-          <ResumePreview
+          <ReadonlyResumePreview
             template={templateContent}
             sections={preset.sections}
             profile={preset.profile}

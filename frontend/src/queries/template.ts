@@ -2,6 +2,7 @@ import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 
 import {
   getLocalTemplateNames,
+  getRemoteTemplateNames,
   getTemplate,
   renderTemplateHtml,
   renderTemplatePdf,
@@ -14,6 +15,11 @@ export const templateQueries = {
     queryOptions({
       queryKey: ['templates', 'list'],
       queryFn: () => getLocalTemplateNames(),
+    }),
+  remoteList: () =>
+    queryOptions({
+      queryKey: ['templates', 'remote', 'list'],
+      queryFn: () => getRemoteTemplateNames(),
     }),
   item: (templateId: string) =>
     queryOptions({

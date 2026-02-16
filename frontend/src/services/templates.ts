@@ -11,6 +11,16 @@ export async function getLocalTemplateNames(): Promise<string[]> {
   return response.json();
 }
 
+export async function getRemoteTemplateNames(): Promise<string[]> {
+  const response = await fetch('/api/templates/remote');
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch remote templates');
+  }
+
+  return response.json();
+}
+
 export async function getTemplate(
   templateName: string,
   source: 'local' | 'remote' = 'local'
