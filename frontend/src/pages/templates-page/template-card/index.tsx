@@ -1,77 +1,84 @@
-import { Button, Card, Center, Spinner, Text, VStack } from '@chakra-ui/react';
-import { useQuery } from '@tanstack/react-query';
+import { Badge, Button, Card, Center, Spinner, Text, VStack } from '@chakra-ui/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { memo } from 'react';
 import { useNavigate } from 'react-router';
 
 import { ReadonlyResumePreview } from '@/components/shared/resume-preview';
+import { toaster } from '@/components/ui/toaster';
+import { DEFAULT_TEMPLATE_PROFILE, DEFAULT_TEMPLATE_SECTIONS } from '@/constants/templates';
 import { templateQueries } from '@/queries/template';
-import type { Profile } from '@/types/profile';
-import type { Section } from '@/types/resume';
-import { ISOYearMonth } from '@/utils/date';
+import { downloadRemoteTemplate } from '@/services/templates';
+import type { Template, TemplateSummary } from '@/types/template';
 
 type TemplateCardProps = {
-  template: string | { name: string; description?: string };
-  source: 'local' | 'remote';
+  template: TemplateSummary;
 };
 
-// Default sample profile for template preview
-const DEFAULT_SAMPLE_PROFILE: Profile = {
-  fullName: 'Jane Doe',
-  email: 'jane@example.com',
-  phone: '(555) 123-4567',
-  location: 'San Francisco, CA',
-  website: '',
-  baseSections: [],
-};
-
-// Default sample sections for template preview
-const DEFAULT_SAMPLE_SECTIONS: Section[] = [
-  {
-    id: 'exp-1',
-    type: 'detailed',
-    title: 'Experience',
-    content: [
-      {
-        title: 'Senior Software Engineer',
-        subtitle: 'Tech Company',
-        startDate: '2020-01' as ISOYearMonth,
-        endDate: null,
-        bullets: ['Led team of 5 engineers', 'Improved performance by 40%'],
-      },
-    ],
-  },
-  {
-    id: 'edu-1',
-    type: 'detailed',
-    title: 'Education',
-    content: [
-      {
-        title: 'Bachelor of Science',
-        subtitle: 'Computer Science, University',
-        startDate: '2015-09' as ISOYearMonth,
-        endDate: '2019-05' as ISOYearMonth,
-        bullets: [],
-      },
-    ],
-  },
-];
-
-// A4 aspect ratio: width / height = 210 / 297 ≈ 0.707
-const A4_ASPECT_RATIO = 210 / 297;
-
-export const TemplateCard = memo(function TemplateCard({ template, source }: TemplateCardProps) {
+export const TemplateCard = memo(function TemplateCard({ template }: TemplateCardProps) {
   const navigate = useNavigate();
-  const templateName = typeof template === 'string' ? template : template.name;
-  const templateDescription = typeof template === 'string' ? undefined : template.description;
+  const queryClient = useQueryClient();
 
   // Fetch the actual template HTML content
-  const { data: templateContent, isLoading } = useQuery(templateQueries.item(templateName));
+  const queryOption =
+    template.source === 'local'
+      ? templateQueries.localItem(template.id)
+      : templateQueries.remoteItem(template.id);
 
-  // TODO: Add virtualization for fetching and rendering templates
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: templateContent, isLoading } = useQuery(queryOption as any);
+
+  const downloadMutation = useMutation({
+    mutationFn: () => downloadRemoteTemplate(template.id),
+    onSuccess: () => {
+      toaster.success({
+        title: 'Template downloaded',
+        description: `${template.title || template.id} has been downloaded successfully.`,
+      });
+      // Invalidate both local and remote template lists to refresh source badges
+      queryClient.invalidateQueries({ queryKey: ['templates', 'list', 'local'] });
+      queryClient.invalidateQueries({ queryKey: ['templates', 'remote', 'list'] });
+    },
+    onError: (error: Error) => {
+      toaster.error({
+        title: 'Failed to download template',
+        description: error.message,
+      });
+    },
+  });
 
   const handleSelect = () => {
     // Navigate to template builder with selected template
-    navigate(`/template-builder?template=${templateName}&source=${source}`);
+    navigate(`/template-builder?template=${template.id}&source=${template.source}`);
+  };
+
+  const handleDownload = () => {
+    downloadMutation.mutate();
+  };
+
+  const getSourceBadgeLabel = () => {
+    switch (template.source) {
+      case 'local':
+        return 'Local';
+      case 'remote':
+        return 'Remote';
+      case 'both':
+        return 'Downloaded';
+      default:
+        return template.source;
+    }
+  };
+
+  const getSourceBadgeColor = () => {
+    switch (template.source) {
+      case 'local':
+        return 'green';
+      case 'remote':
+        return 'blue';
+      case 'both':
+        return 'purple';
+      default:
+        return 'gray';
+    }
   };
 
   return (
@@ -92,9 +99,9 @@ export const TemplateCard = memo(function TemplateCard({ template, source }: Tem
           </Center>
         ) : templateContent ? (
           <ReadonlyResumePreview
-            template={templateContent}
-            sections={DEFAULT_SAMPLE_SECTIONS}
-            profile={DEFAULT_SAMPLE_PROFILE}
+            template={templateContent as Template}
+            sections={DEFAULT_TEMPLATE_SECTIONS}
+            profile={DEFAULT_TEMPLATE_PROFILE}
           />
         ) : (
           <Center h="full" w="full">
@@ -103,16 +110,31 @@ export const TemplateCard = memo(function TemplateCard({ template, source }: Tem
         )}
       </VStack>
       <Card.Body gap="2" display="flex" flexDirection="column">
-        <Card.Title>{templateName}</Card.Title>
-        {templateDescription && <Card.Description>{templateDescription}</Card.Description>}
-        <Text textStyle="sm" color="fg.muted" mt="auto">
-          {source === 'remote' ? 'Community Template' : 'Local Template'}
-        </Text>
+        <Card.Title>{template.title || template.id}</Card.Title>
+        {template.description && <Card.Description>{template.description}</Card.Description>}
+        <Badge colorScheme={getSourceBadgeColor()} width="fit-content" mt="auto">
+          {getSourceBadgeLabel()}
+        </Badge>
       </Card.Body>
       <Card.Footer gap="2">
-        <Button variant="solid" flex="1" onClick={handleSelect}>
-          Use Template
-        </Button>
+        {template.source === 'remote' ? (
+          <Button
+            variant="solid"
+            flex="1"
+            onClick={handleDownload}
+            loading={downloadMutation.isPending}
+          >
+            Download
+          </Button>
+        ) : template.source === 'both' ? (
+          <Button variant="solid" flex="1" onClick={handleSelect} disabled>
+            Downloaded
+          </Button>
+        ) : (
+          <Button variant="solid" flex="1" onClick={handleSelect}>
+            Use Template
+          </Button>
+        )}
       </Card.Footer>
     </Card.Root>
   );

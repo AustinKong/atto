@@ -8,7 +8,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PiArrowClockwise, PiMagnifyingGlass } from 'react-icons/pi';
 
 import { ReadonlyResumePreview } from '@/components/shared/resume-preview';
@@ -19,17 +19,19 @@ import { EDGE_CASE_PRESETS } from './presets';
 export function TemplateBuilderPage() {
   const queryClient = useQueryClient();
   const {
-    data: templateNames = [],
+    data: templateData,
     isLoading: namesLoading,
     refetch: refetchNames,
   } = useQuery(templateQueries.list());
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [selectedPreset, setSelectedPreset] = useState<string>(Object.keys(EDGE_CASE_PRESETS)[0]);
 
+  const templateNames = useMemo(() => templateData?.items || [], [templateData]);
+
   const templateCollection = createListCollection({
-    items: templateNames.map((name: string) => ({
-      label: name,
-      value: name,
+    items: templateNames.map((summary) => ({
+      label: summary.title || summary.id,
+      value: summary.id,
     })),
   });
 
@@ -43,7 +45,7 @@ export function TemplateBuilderPage() {
   // Auto-select first template when templates load
   useEffect(() => {
     if (templateNames.length > 0 && !selectedTemplate) {
-      setSelectedTemplate(templateNames[0]);
+      setSelectedTemplate(templateNames[0].id);
     }
   }, [templateNames, selectedTemplate]);
 
@@ -51,15 +53,15 @@ export function TemplateBuilderPage() {
     EDGE_CASE_PRESETS[selectedPreset as keyof typeof EDGE_CASE_PRESETS] ||
     EDGE_CASE_PRESETS[Object.keys(EDGE_CASE_PRESETS)[0]];
 
-  const { data: templateContent = '' } = useQuery({
-    ...templateQueries.item(selectedTemplate),
+  const { data: templateContent } = useQuery({
+    ...templateQueries.localItem(selectedTemplate),
     enabled: !!selectedTemplate,
   });
 
   const handleRefreshTemplate = () => {
     if (selectedTemplate) {
       queryClient.invalidateQueries({
-        queryKey: ['template', selectedTemplate],
+        queryKey: ['templates', 'local', selectedTemplate],
       });
     }
   };

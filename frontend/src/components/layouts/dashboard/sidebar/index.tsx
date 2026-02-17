@@ -1,5 +1,12 @@
 import { Box, chakra, HStack, Icon, Spacer, Text, VStack } from '@chakra-ui/react';
-import { LuBookmark, LuClipboard, LuGithub, LuPlus, LuSettings, LuUser } from 'react-icons/lu';
+import {
+  LuBookmark,
+  LuClipboard,
+  LuGithub,
+  LuLayoutTemplate,
+  LuPlus,
+  LuSettings,
+} from 'react-icons/lu';
 
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
@@ -17,7 +24,7 @@ const INTERNAL_NAV_ITEMS = [
       (!!path.match(/^\/listings\/[^/]+/) && !path.startsWith('/listings/new')),
   },
   { label: 'New Listing', path: '/listings/new', icon: <LuPlus /> },
-  { label: 'Profile', path: '/profile', icon: <LuUser /> },
+  { label: 'Templates', path: '/templates', icon: <LuLayoutTemplate /> },
   { label: 'Settings', path: '/settings', icon: <LuSettings /> },
 ];
 

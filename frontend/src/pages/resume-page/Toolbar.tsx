@@ -12,7 +12,7 @@ export function ResumeToolbar() {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
   const { data: profile } = useSuspenseQuery(profileQueries.item());
-  const { data: template } = useSuspenseQuery(templateQueries.item(resume.templateId));
+  const { data: template } = useSuspenseQuery(templateQueries.localItem(resume.templateId));
   const { mutateAsync: renderPdf } = useRenderTemplatePdf();
 
   const handleExport = async (): Promise<Blob> => {

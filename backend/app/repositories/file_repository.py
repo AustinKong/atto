@@ -1,3 +1,4 @@
+from itertools import count
 from pathlib import Path
 
 from app.utils.errors import NotFoundError, ServiceError
@@ -29,13 +30,36 @@ class FileRepository:
     except Exception as e:
       raise ServiceError(f'Failed to read file {filepath}: {str(e)}') from e
 
-  def write_text(self, filepath: Path, content: str) -> Path:
+  def read_bytes(self, filepath: Path) -> bytes:
+    """
+    Reads raw bytes from a file.
+
+    Args:
+      filepath: Full path to the file.
+
+    Returns:
+      The content of the file as bytes.
+
+    Raises:
+      NotFoundError: If the file does not exist.
+      ServiceError: If reading the file fails.
+    """
+    if not filepath.exists():
+      raise NotFoundError(f'File {filepath} not found')
+
+    try:
+      return filepath.read_bytes()
+    except Exception as e:
+      raise ServiceError(f'Failed to read file {filepath}: {str(e)}') from e
+
+  def write_text(self, filepath: Path, content: str, dedup: bool = False) -> Path:
     """
     Writes raw text to a file and returns the filepath.
 
     Args:
       filepath: Full path to the file.
       content: The text content to write.
+      dedup: Whether to deduplicate existing files.
 
     Returns:
       The filepath of the written file.
@@ -46,8 +70,17 @@ class FileRepository:
     try:
       self._ensure_directory(filepath)
 
-      filepath.write_text(content, encoding='utf-8')
-      return filepath
+      # Add suffix -N (e.g. file-1.txt, file-2.txt) until available filename found
+      target_path = filepath
+      if dedup and target_path.exists():
+        for counter in count(1):
+          candidate = filepath.with_name(f'{target_path.stem}-{counter}{target_path.suffix}')
+          if not candidate.exists():
+            target_path = candidate
+            break
+
+      target_path.write_text(content, encoding='utf-8')
+      return target_path
     except Exception as e:
       raise ServiceError(f'Failed to write file {filepath}: {str(e)}') from e
 

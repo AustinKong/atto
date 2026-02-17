@@ -1,18 +1,26 @@
+import type { Page } from '@/types/common';
 import type { Profile } from '@/types/profile';
 import type { Section } from '@/types/resume';
+import type { Template, TemplateSummary } from '@/types/template';
 
-export async function getLocalTemplateNames(): Promise<string[]> {
-  const response = await fetch('/api/templates/local');
+export async function getLocalTemplates(
+  page: number = 1,
+  size: number = 10
+): Promise<Page<TemplateSummary>> {
+  const response = await fetch(`/api/templates/local?page=${page}&size=${size}`);
 
   if (!response.ok) {
-    throw new Error('Failed to fetch template names');
+    throw new Error('Failed to fetch local templates');
   }
 
   return response.json();
 }
 
-export async function getRemoteTemplateNames(): Promise<string[]> {
-  const response = await fetch('/api/templates/remote');
+export async function getRemoteTemplates(
+  page: number = 1,
+  size: number = 10
+): Promise<Page<TemplateSummary>> {
+  const response = await fetch(`/api/templates/remote?page=${page}&size=${size}`);
 
   if (!response.ok) {
     throw new Error('Failed to fetch remote templates');
@@ -21,22 +29,28 @@ export async function getRemoteTemplateNames(): Promise<string[]> {
   return response.json();
 }
 
-export async function getTemplate(
-  templateName: string,
-  source: 'local' | 'remote' = 'local'
-): Promise<string> {
-  const response = await fetch(`/api/templates/${source}/${templateName}`);
+export async function getLocalTemplate(templateId: string): Promise<Template> {
+  const response = await fetch(`/api/templates/local/${templateId}`);
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch ${source} template: ${templateName}`);
+    throw new Error(`Failed to fetch local template: ${templateId}`);
   }
 
-  const json = await response.json();
-  return json.content as string;
+  return response.json();
+}
+
+export async function getRemoteTemplate(templateId: string): Promise<Template> {
+  const response = await fetch(`/api/templates/remote/${templateId}`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch remote template: ${templateId}`);
+  }
+
+  return response.json();
 }
 
 export async function renderTemplateHtml(
-  template: string,
+  template: Template,
   sections: Section[],
   profile: Profile
 ): Promise<string> {
@@ -57,7 +71,7 @@ export async function renderTemplateHtml(
 }
 
 export async function renderTemplatePdf(
-  template: string,
+  template: Template,
   sections: Section[],
   profile: Profile
 ): Promise<Blob> {
@@ -74,4 +88,14 @@ export async function renderTemplatePdf(
   }
 
   return response.blob();
+}
+
+export async function downloadRemoteTemplate(templateId: string): Promise<void> {
+  const response = await fetch(`/api/templates/remote/${templateId}/download`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to download template: ${templateId}`);
+  }
 }

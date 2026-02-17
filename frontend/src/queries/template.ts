@@ -1,41 +1,52 @@
 import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 
 import {
-  getLocalTemplateNames,
-  getRemoteTemplateNames,
-  getTemplate,
+  getLocalTemplate,
+  getLocalTemplates,
+  getRemoteTemplate,
+  getRemoteTemplates,
   renderTemplateHtml,
   renderTemplatePdf,
 } from '@/services/templates';
 import type { Profile } from '@/types/profile';
 import type { Section } from '@/types/resume';
+import type { Template } from '@/types/template';
 
 export const templateQueries = {
-  list: () =>
+  list: (page: number = 1, size: number = 10) =>
     queryOptions({
-      queryKey: ['templates', 'list'],
-      queryFn: () => getLocalTemplateNames(),
+      queryKey: ['templates', 'list', 'local', page, size] as const,
+      queryFn: () => getLocalTemplates(page, size),
     }),
-  remoteList: () =>
+  remoteList: (page: number = 1, size: number = 10) =>
     queryOptions({
-      queryKey: ['templates', 'remote', 'list'],
-      queryFn: () => getRemoteTemplateNames(),
+      queryKey: ['templates', 'remote', 'list', page, size] as const,
+      queryFn: () => getRemoteTemplates(page, size),
+      staleTime: 1000 * 60 * 60 * 24,
+      gcTime: 1000 * 60 * 60 * 24 * 7,
     }),
-  item: (templateId: string) =>
+  localItem: (templateId: string) =>
     queryOptions({
-      queryKey: ['template', templateId] as const,
-      queryFn: () => getTemplate(templateId, 'local'),
+      queryKey: ['templates', 'local', templateId] as const,
+      queryFn: () => getLocalTemplate(templateId),
       enabled: !!templateId,
       staleTime: Infinity,
     }),
+  remoteItem: (templateId: string) =>
+    queryOptions({
+      queryKey: ['templates', 'remote', templateId] as const,
+      queryFn: () => getRemoteTemplate(templateId),
+      enabled: !!templateId,
+      staleTime: 1000 * 60 * 60,
+    }),
   // TODO: Deprecate html rendering
-  renderHtml: (template: string, sections: Section[], profile: Profile) =>
+  renderHtml: (template: Template, sections: Section[], profile: Profile) =>
     queryOptions({
       queryKey: [
         'templates',
         'render',
         'html',
-        template,
+        template.content,
         JSON.stringify(sections),
         JSON.stringify(profile),
       ] as const,
@@ -46,13 +57,19 @@ export const templateQueries = {
       staleTime: 0,
       placeholderData: keepPreviousData,
     }),
-  renderPdf: (template: string, sections: Section[], profile: Profile) =>
+  renderPdf: (
+    template: Template,
+    sections: Section[],
+    profile: Profile,
+    readonly: boolean = false
+  ) =>
     queryOptions({
       queryKey: [
         'templates',
         'render',
         'pdf',
-        template,
+        readonly ? 'readonly' : 'editable',
+        template.content,
         JSON.stringify(sections),
         JSON.stringify(profile),
       ] as const,
@@ -60,7 +77,8 @@ export const templateQueries = {
         return renderTemplatePdf(template, sections, profile);
       },
       enabled: !!template && !!sections && !!profile,
-      staleTime: 0,
+      staleTime: readonly ? 1000 * 60 * 60 * 24 : 0, // 24 hours for readonly, immediate for editable
+      gcTime: readonly ? 1000 * 60 * 5 : 1000 * 60, // 5 minutes for readonly, 1 minute for editable
       placeholderData: keepPreviousData,
     }),
 };

@@ -13,8 +13,6 @@ import { templateBuilderRoute } from '@/pages/template-builder-page/route';
 import { templatesRoute } from '@/pages/templates-page/route';
 import { queryClient } from '@/utils/queryClient';
 
-import { ProfilePage } from './pages/profile-page';
-
 function RootLayout() {
   return (
     <>
@@ -47,10 +45,6 @@ const router = createBrowserRouter([
           settingsRoute(queryClient),
           templateBuilderRoute,
           templatesRoute,
-          {
-            path: '/profile',
-            element: <ProfilePage />,
-          },
         ],
       },
     ],

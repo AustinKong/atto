@@ -9,6 +9,7 @@ import { Document as ReactPDFDocument, Page, pdfjs } from 'react-pdf';
 import { templateQueries } from '@/queries/template';
 import type { Profile } from '@/types/profile';
 import type { Section } from '@/types/resume';
+import type { Template } from '@/types/template';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -24,7 +25,7 @@ export function Document({
   limitPages = Infinity,
   pageWidth = 595,
 }: {
-  template: string;
+  template: Template;
   sections: Section[];
   profile: Profile;
   interactable?: boolean;
@@ -33,13 +34,13 @@ export function Document({
   pageWidth?: number;
 }) {
   const { data: blob, isFetching } = useQuery(
-    templateQueries.renderPdf(template, sections, profile)
+    templateQueries.renderPdf(template, sections, profile, !interactable)
   );
 
   const targetVersion = useMemo(() => {
     const profileStr = JSON.stringify(profile);
     const sectionsStr = JSON.stringify(sections);
-    return `${template}-${profileStr}-${sectionsStr}-${template}-${scale}`;
+    return `${template.id}-${profileStr}-${sectionsStr}-${template.content}-${scale}`;
   }, [template, sections, profile, scale]);
 
   useEffect(() => {

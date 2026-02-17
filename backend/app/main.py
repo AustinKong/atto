@@ -3,6 +3,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.exception_handlers import (
   application_error_exception_handler,
+  duplicate_error_exception_handler,
   not_found_exception_handler,
   service_error_exception_handler,
 )
@@ -18,6 +19,7 @@ from app.routers import (
 )
 from app.utils.errors import (
   ApplicationError,
+  DuplicateError,
   NotFoundError,
   ServiceError,
 )
@@ -35,6 +37,7 @@ def create_app() -> FastAPI:
   app.include_router(templates_router, prefix='/api')
 
   app.add_exception_handler(NotFoundError, not_found_exception_handler)
+  app.add_exception_handler(DuplicateError, duplicate_error_exception_handler)
   app.add_exception_handler(ServiceError, service_error_exception_handler)
   app.add_exception_handler(ApplicationError, application_error_exception_handler)
 

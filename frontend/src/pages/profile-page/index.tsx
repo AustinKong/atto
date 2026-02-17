@@ -13,7 +13,7 @@ export function ProfilePage() {
   const { data: settings } = useSuspenseQuery(settingsQueries.all());
 
   const templateId = String(settings.resume.fields.default_template.value);
-  const { data: template } = useSuspenseQuery(templateQueries.item(templateId));
+  const { data: template } = useSuspenseQuery(templateQueries.localItem(templateId));
 
   // useDevelopmentOnly();
 

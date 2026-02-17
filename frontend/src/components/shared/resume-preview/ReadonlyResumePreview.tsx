@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import type { Profile } from '@/types/profile';
 import type { Section } from '@/types/resume';
+import type { Template } from '@/types/template';
 
 import { Document } from './Document';
 
@@ -14,7 +15,7 @@ export function ReadonlyResumePreview({
   sections,
   profile,
 }: {
-  template: string;
+  template: Template;
   sections: Section[];
   profile: Profile;
 }) {

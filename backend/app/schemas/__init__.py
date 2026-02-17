@@ -27,6 +27,7 @@ from .scraping import (
   ListingDraftUnique,
   ListingExtraction,
 )
+from .template import Template, TemplateSummary
 from .types import CamelModel, Page
 
 __all__ = [
@@ -70,5 +71,9 @@ __all__ = [
   'StatusEnum',
   'StatusEvent',
   'StatusEventSaved',
+  # Templates
+  'Template',
+  'TemplateSummary',
+  # Pagination
   'Page',
 ]

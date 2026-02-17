@@ -5,6 +5,40 @@ This document explains how the templating system works and how to create new res
 ## Overview
 Templates are plain HTML files with Jinja2 markup. The backend loads the template text and renders it with Jinja2 using a small context containing two objects: `profile` and `sections`.
 
+## Template Metadata (Frontmatter)
+
+Every template should include metadata at the very beginning of the file (in the first 1024 bytes) using HTML comment blocks. This metadata is used to identify and catalog templates in the Atto system.
+
+### Frontmatter Format
+Add the following comment blocks at the very top of your HTML file, immediately after the opening `<!DOCTYPE>` or `<html>` tag:
+
+```html
+<!DOCTYPE html>
+<!--template-id: 550e8400-e29b-41d4-a716-446655440000-->
+<!--template-title: Professional Blue-->
+<!--template-description: A modern, minimalist blue-themed resume template-->
+<html lang="en">
+  <!-- rest of template content -->
+</html>
+```
+
+### Metadata Fields
+
+- **`template-id`** (required): A UUID (v4) that uniquely identifies this template. This ID is used to track which templates have been downloaded locally and prevents duplicate downloads.
+  - Format: standard UUID format (e.g., `550e8400-e29b-41d4-a716-446655440000`)
+  - Example: `<!--template-id: 550e8400-e29b-41d4-a716-446655440000-->`
+
+- **`template-title`** (optional): A human-readable name for the template.
+  - Example: `<!--template-title: Professional Blue-->`
+
+- **`template-description`** (optional): A brief description of the template's style or intended use.
+  - Example: `<!--template-description: A modern, minimalist blue-themed resume template-->`
+
+### Important Notes
+
+- The metadata comments must appear in the first 1024 bytes of the file (typically right after the DOCTYPE or opening html tag).
+- The regex patterns are case-insensitive, so you can write `Template-ID`, `TEMPLATE-ID`, or `template-id`.
+
 ## Where Templates Live
 - **Community templates**: These live in the repository `templates/` folder (this folder).
 - **Local templates**:
@@ -132,10 +166,13 @@ Here are the canonical patterns you'll want to use when authoring templates.
 - Add print-friendly rules via `@media print` to control page breaks and margins.
 - No asset support is available right now. When adding images or external assets, prefer absolute URLs or inline them (data URIs) if you need them in PDF output.
 
-## Example Minimal Template Skeleton
+## Example Minimal Template Skeleton with Frontmatter
 ```html
 <!doctype html>
-<html>
+<!--template-id: 550e8400-e29b-41d4-a716-446655440000-->
+<!--template-title: Minimalist Resume-->
+<!--template-description: A clean, simple resume template-->
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <title>{{ profile.full_name }} - Resume</title>
@@ -159,3 +196,4 @@ Here are the canonical patterns you'll want to use when authoring templates.
   </body>
 </html>
 ```
+

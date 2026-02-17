@@ -23,6 +23,11 @@ function handleError(
 
 // Add `meta: { suppressErrorToast: true }` to queries/mutations to suppress automatic toasts
 export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
   queryCache: new QueryCache({
     onError: (error, query) => handleError(error, query),
   }),

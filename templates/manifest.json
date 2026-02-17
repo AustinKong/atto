@@ -1,0 +1,26 @@
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "title": "Minimalist",
+    "description": "A clean, minimal resume template with elegant typography",
+    "download_url": "https://raw.githubusercontent.com/AustinKong/atto/main/templates/minimalist.html"
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "title": "Corporate Blue",
+    "description": "A professional corporate-style resume with blue accents",
+    "download_url": "https://raw.githubusercontent.com/AustinKong/atto/main/templates/corporate.html"
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440002",
+    "title": "Developer Dark",
+    "description": "A technical-focused resume template with a dark, modern design",
+    "download_url": "https://raw.githubusercontent.com/AustinKong/atto/main/templates/developer.html"
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440003",
+    "title": "Split Pane",
+    "description": "A two-column split-pane layout with distinct left and right sections",
+    "download_url": "https://raw.githubusercontent.com/AustinKong/atto/main/templates/split-pane.html"
+  }
+]
