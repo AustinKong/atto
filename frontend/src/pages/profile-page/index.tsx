@@ -1,19 +1,19 @@
 import { Splitter, VStack } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
-import { ReadonlyResumePreview } from '@/components/shared/resume-preview';
+import { ResumePreview } from '@/components/shared/resume-preview';
 import { profileQueries } from '@/queries/profile';
-import { settingsQueries } from '@/queries/settings';
 import { templateQueries } from '@/queries/template';
 
 import { Editor } from './editor';
 
 export function ProfilePage() {
   const { data: profile } = useSuspenseQuery(profileQueries.item());
-  const { data: settings } = useSuspenseQuery(settingsQueries.all());
+  const { data: defaultTemplate } = useSuspenseQuery(templateQueries.default());
 
-  const templateId = String(settings.resume.fields.default_template.value);
-  const { data: template } = useSuspenseQuery(templateQueries.localItem(templateId));
+  const { data: template } = useSuspenseQuery(
+    templateQueries.localItem(defaultTemplate.template_id)
+  );
 
   // useDevelopmentOnly();
 
@@ -31,11 +31,7 @@ export function ProfilePage() {
         </Splitter.Panel>
         <Splitter.ResizeTrigger id="editor:preview" />
         <Splitter.Panel id="preview">
-          <ReadonlyResumePreview
-            template={template}
-            sections={profile.baseSections}
-            profile={profile}
-          />
+          <ResumePreview template={template} sections={profile.baseSections} profile={profile} />
         </Splitter.Panel>
       </Splitter.Root>
       <div>Footer</div>

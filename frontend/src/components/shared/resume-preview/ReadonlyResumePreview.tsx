@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react';
+import { Box, type BoxProps } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 
 import type { Profile } from '@/types/profile';
@@ -14,11 +14,12 @@ export function ReadonlyResumePreview({
   template,
   sections,
   profile,
+  ...props
 }: {
   template: Template;
   sections: Section[];
   profile: Profile;
-}) {
+} & BoxProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0);
 
@@ -56,7 +57,15 @@ export function ReadonlyResumePreview({
   }, []);
 
   return (
-    <Box h="full" w="full" p="2" ref={containerRef}>
+    <Box
+      h="full"
+      w="full"
+      ref={containerRef}
+      p="2" // Padding has to be here to be included in the scale calculation
+      bgColor="gray.300"
+      _dark={{ bgColor: 'gray.700' }}
+      {...props}
+    >
       <Document
         template={template}
         sections={sections}

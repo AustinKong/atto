@@ -27,7 +27,7 @@ def get_data_dir() -> Path:
 
 def ConfigField(
   *,
-  exposure: Literal['normal', 'advanced', 'secret'] = 'normal',
+  exposure: Literal['normal', 'advanced', 'secret', 'hidden'] = 'normal',
   **kwargs: Any,
 ) -> Any:
   """
@@ -99,10 +99,10 @@ class ModelPrefs(BaseModel):
 
 class ResumePrefs(BaseModel):
   default_template: str = ConfigField(
-    default='template-1.html',
+    default='00000000-0000-0000-0000-000000000000',
     title='Default Resume Template',
     description='The HTML template used when generating new resumes. Templates are stored in the templates directory and determine the visual layout and styling.',
-    exposure='normal',
+    exposure='hidden',
   )
 
 

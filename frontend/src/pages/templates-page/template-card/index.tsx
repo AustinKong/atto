@@ -1,21 +1,24 @@
-import { Badge, Button, Card, Center, Spinner, Text, VStack } from '@chakra-ui/react';
+import { Card, Center, Float, IconButton, Spinner, Text, VStack } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { memo } from 'react';
-import { useNavigate } from 'react-router';
+import { LuCheck, LuDownload, LuStar } from 'react-icons/lu';
 
 import { ReadonlyResumePreview } from '@/components/shared/resume-preview';
 import { toaster } from '@/components/ui/toaster';
 import { DEFAULT_TEMPLATE_PROFILE, DEFAULT_TEMPLATE_SECTIONS } from '@/constants/templates';
 import { templateQueries } from '@/queries/template';
-import { downloadRemoteTemplate } from '@/services/templates';
+import { downloadRemoteTemplate, setDefaultTemplate } from '@/services/templates';
 import type { Template, TemplateSummary } from '@/types/template';
 
 type TemplateCardProps = {
   template: TemplateSummary;
+  isSelected?: boolean;
 };
 
-export const TemplateCard = memo(function TemplateCard({ template }: TemplateCardProps) {
-  const navigate = useNavigate();
+export const TemplateCard = memo(function TemplateCard({
+  template,
+  isSelected,
+}: TemplateCardProps) {
   const queryClient = useQueryClient();
 
   // Fetch the actual template HTML content
@@ -46,44 +49,44 @@ export const TemplateCard = memo(function TemplateCard({ template }: TemplateCar
     },
   });
 
+  const setDefaultMutation = useMutation({
+    mutationFn: () => setDefaultTemplate(template.id),
+    onSuccess: () => {
+      toaster.success({
+        title: 'Default template set',
+        description: `${template.title || template.id} is now your default template.`,
+      });
+      // Invalidate the default template query and both template lists to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['templates', 'default'] });
+      queryClient.invalidateQueries({ queryKey: ['templates', 'list', 'local'] });
+      queryClient.invalidateQueries({ queryKey: ['templates', 'remote', 'list'] });
+    },
+    onError: (error: Error) => {
+      toaster.error({
+        title: 'Failed to set default template',
+        description: error.message,
+      });
+    },
+  });
+
   const handleSelect = () => {
+    // Set as default template
+    setDefaultMutation.mutate();
     // Navigate to template builder with selected template
-    navigate(`/template-builder?template=${template.id}&source=${template.source}`);
+    // navigate(`/template-builder?template=${template.id}&source=${template.source}`);
   };
 
   const handleDownload = () => {
     downloadMutation.mutate();
   };
 
-  const getSourceBadgeLabel = () => {
-    switch (template.source) {
-      case 'local':
-        return 'Local';
-      case 'remote':
-        return 'Remote';
-      case 'both':
-        return 'Downloaded';
-      default:
-        return template.source;
-    }
-  };
-
-  const getSourceBadgeColor = () => {
-    switch (template.source) {
-      case 'local':
-        return 'green';
-      case 'remote':
-        return 'blue';
-      case 'both':
-        return 'purple';
-      default:
-        return 'gray';
-    }
-  };
-
   return (
-    <Card.Root>
-      <VStack
+    <Card.Root
+      outline="2px solid"
+      outlineColor={isSelected ? 'blue.500' : 'transparent'}
+      overflow="hidden"
+    >
+      {/* <VStack
         h="sm"
         bg="gray.100"
         _dark={{ bg: 'gray.800' }}
@@ -92,50 +95,61 @@ export const TemplateCard = memo(function TemplateCard({ template }: TemplateCar
         p="0"
         position="relative"
         overflow="hidden"
-      >
-        {isLoading ? (
-          <Center h="full" w="full">
-            <Spinner size="sm" />
-          </Center>
-        ) : templateContent ? (
-          <ReadonlyResumePreview
-            template={templateContent as Template}
-            sections={DEFAULT_TEMPLATE_SECTIONS}
-            profile={DEFAULT_TEMPLATE_PROFILE}
-          />
-        ) : (
-          <Center h="full" w="full">
-            <Text color="fg.muted">Template not found</Text>
-          </Center>
-        )}
-      </VStack>
-      <Card.Body gap="2" display="flex" flexDirection="column">
-        <Card.Title>{template.title || template.id}</Card.Title>
-        {template.description && <Card.Description>{template.description}</Card.Description>}
-        <Badge colorScheme={getSourceBadgeColor()} width="fit-content" mt="auto">
-          {getSourceBadgeLabel()}
-        </Badge>
-      </Card.Body>
-      <Card.Footer gap="2">
+      > */}
+      {isLoading ? (
+        <Center h="full" w="full">
+          <Spinner size="sm" />
+        </Center>
+      ) : templateContent ? (
+        <ReadonlyResumePreview
+          template={templateContent as Template}
+          sections={DEFAULT_TEMPLATE_SECTIONS}
+          profile={DEFAULT_TEMPLATE_PROFILE}
+          h="sm"
+        />
+      ) : (
+        <Center h="full" w="full">
+          <Text color="fg.muted">Template not found</Text>
+        </Center>
+      )}
+      <Float placement="top-end" offset="8">
         {template.source === 'remote' ? (
-          <Button
-            variant="solid"
-            flex="1"
+          <IconButton
+            aria-label="Download template"
             onClick={handleDownload}
             loading={downloadMutation.isPending}
+            variant="ghost"
+            size="lg"
           >
-            Download
-          </Button>
-        ) : template.source === 'both' ? (
-          <Button variant="solid" flex="1" onClick={handleSelect} disabled>
-            Downloaded
-          </Button>
+            <LuDownload />
+          </IconButton>
+        ) : isSelected ? (
+          <IconButton
+            aria-label="Default template"
+            variant="ghost"
+            size="lg"
+            disabled
+            _disabled={{ opacity: 1 }}
+          >
+            <LuStar />
+          </IconButton>
         ) : (
-          <Button variant="solid" flex="1" onClick={handleSelect}>
-            Use Template
-          </Button>
+          <IconButton
+            aria-label="Set as default"
+            onClick={handleSelect}
+            loading={setDefaultMutation.isPending}
+            variant="ghost"
+            size="lg"
+          >
+            <LuCheck />
+          </IconButton>
         )}
-      </Card.Footer>
+      </Float>
+      {/* </VStack> */}
+      <Card.Body gap="2">
+        <Card.Title>{template.title || template.id}</Card.Title>
+        {template.description && <Card.Description>{template.description}</Card.Description>}
+      </Card.Body>
     </Card.Root>
   );
 });

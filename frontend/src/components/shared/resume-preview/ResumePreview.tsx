@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react';
+import { Center } from '@chakra-ui/react';
 
 import type { Profile } from '@/types/profile';
 import type { Section } from '@/types/resume';
@@ -16,8 +16,8 @@ export function ResumePreview({
   profile: Profile;
 }) {
   return (
-    <Box h="full" w="full">
+    <Center h="full" w="full" bgColor="gray.300" _dark={{ bgColor: 'gray.700' }}>
       <Document template={template} sections={sections} profile={profile} interactable={true} />
-    </Box>
+    </Center>
   );
 }

@@ -21,7 +21,7 @@ export function Document({
   sections,
   profile,
   interactable = false,
-  scale = 0,
+  scale = 1,
   limitPages = Infinity,
   pageWidth = 595,
 }: {

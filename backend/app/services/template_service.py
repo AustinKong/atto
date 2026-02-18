@@ -12,6 +12,8 @@ from app.utils.errors import DuplicateError
 
 
 class TemplateService(FileRepository):
+  SYSTEM_DEFAULT_TEMPLATE_ID = '00000000-0000-0000-0000-000000000000'
+
   def __init__(self):
     super().__init__()
 
@@ -66,8 +68,19 @@ class TemplateService(FileRepository):
     return pdf
 
   def list_local_templates(self) -> list[TemplateSummary]:
-    templates_dir = self.list_directory(Path(settings.paths.templates_dir), ['.html'])
     summaries = []
+
+    template = self.get_local_template(self.SYSTEM_DEFAULT_TEMPLATE_ID)
+    summaries.append(
+      TemplateSummary(
+        id=template.id,
+        title=template.title,
+        description=template.description,
+        source='local',
+      )
+    )
+
+    templates_dir = self.list_directory(Path(settings.paths.templates_dir), ['.html'])
 
     for filepath in templates_dir:
       try:
@@ -88,17 +101,29 @@ class TemplateService(FileRepository):
     return summaries
 
   def get_local_template(self, template_id: str) -> Template:
+    if template_id == self.SYSTEM_DEFAULT_TEMPLATE_ID:
+      system_template_path = Path(__file__).parent.parent / 'assets' / 'system.html'
+      content = self.read_text(system_template_path)
+      id, title, description = self._extract_frontmatter(content)
+      return Template(
+        id=template_id,
+        title=title,
+        description=description,
+        content=content,
+        source='local',
+      )
+
     templates_dir = self.list_directory(Path(settings.paths.templates_dir), ['.html'])
 
     for filepath in templates_dir:
       try:
         content = self.read_text(filepath)
-        fm_id, fm_title, fm_description = self._extract_frontmatter(content)
-        if fm_id == template_id:
+        id, title, description = self._extract_frontmatter(content)
+        if id == template_id:
           return Template(
             id=template_id,
-            title=fm_title,
-            description=fm_description,
+            title=title,
+            description=description,
             content=content,
             source='local',
           )
@@ -141,10 +166,27 @@ class TemplateService(FileRepository):
   async def get_remote_template(self, template_id: str) -> Template:
     try:
       async with httpx.AsyncClient() as client:
-        response = await client.get(
-          f'https://raw.githubusercontent.com/AustinKong/atto/main/templates/{template_id}.html',
+        manifest_response = await client.get(
+          'https://raw.githubusercontent.com/AustinKong/atto/main/templates/manifest.json',
           timeout=10.0,
         )
+        manifest_response.raise_for_status()
+        manifest = manifest_response.json()
+    except Exception as e:
+      raise RuntimeError(f'Failed to fetch remote manifest: {str(e)}') from e
+
+    download_url = None
+    for item in manifest:
+      if item['id'] == template_id:
+        download_url = item.get('download_url')
+        break
+
+    if not download_url:
+      raise RuntimeError(f'Template {template_id} not found in remote manifest')
+
+    try:
+      async with httpx.AsyncClient() as client:
+        response = await client.get(download_url, timeout=10.0)
         response.raise_for_status()
         content = response.text
     except Exception as e:

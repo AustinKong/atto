@@ -6,6 +6,7 @@ import { ErrorElement } from '@/components/ui/ErrorBoundary';
 import { Toaster } from '@/components/ui/toaster';
 import { listingsRoute } from '@/pages/listings-page/route';
 import { newListingsRoute } from '@/pages/new-listings-page/route';
+import { profileRoute } from '@/pages/profile-page/route';
 import { releaseNotesRoute } from '@/pages/release-notes-page/route';
 import { resumeRoute } from '@/pages/resume-page/route';
 import { settingsRoute } from '@/pages/settings-page/route';
@@ -41,6 +42,7 @@ const router = createBrowserRouter([
           releaseNotesRoute(queryClient),
           listingsRoute(queryClient),
           newListingsRoute(),
+          profileRoute(queryClient),
           resumeRoute(queryClient),
           settingsRoute(queryClient),
           templateBuilderRoute,

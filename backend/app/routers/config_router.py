@@ -4,17 +4,13 @@ from fastapi import APIRouter, Body
 
 from app.config import settings
 from app.config.schemas import AppConfig
-from app.services import template_service
 
 router = APIRouter(prefix='/config', tags=['Config'])
-
-# TODO: Add a "hidden" exposure level for fields that shouldn't be shown in settings UI
-# But are still configurable via direct API calls
 
 
 # (category_key, field_key) -> provider function
 DYNAMIC_ENUM_PROVIDERS = {
-  ('resume', 'default_template'): template_service.list_local_templates,
+  # ('resume', 'default_template'): template_service.list_local_templates,
 }
 
 
@@ -36,12 +32,17 @@ def get_settings():
     fields_config = {}
 
     for field_key, field_meta in category_def.get('properties', {}).items():
+      exposure = field_meta.get('exposure', 'normal')
+
+      if exposure == 'hidden':
+        continue
+
       fields_config[field_key] = {
         'value': category_values.get(field_key),
         'title': field_meta.get('title', field_key),
         'description': field_meta.get('description', ''),
         'type': field_meta.get('type'),
-        'exposure': field_meta.get('exposure', 'normal'),
+        'exposure': exposure,
         'minimum': field_meta.get('minimum'),
         'maximum': field_meta.get('maximum'),
         'enum': field_meta.get('enum'),

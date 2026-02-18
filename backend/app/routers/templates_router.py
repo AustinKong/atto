@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Body
 from fastapi.responses import Response
 
+from app.config import settings
 from app.schemas import Page, Profile, Section, Template, TemplateSummary
 from app.services import template_service
 from app.utils.errors import NotFoundError
@@ -83,3 +84,28 @@ async def render_template(
 async def download_remote_template(template_id: str):
   await template_service.download_remote_template(template_id)
   return {'message': f"Template '{template_id}' downloaded successfully"}
+
+
+@router.get('/default')
+async def get_default_template():
+  """Get the ID of the default template with self-healing."""
+  default_template_id = settings.config.resume.default_template
+
+  # Verify that the configured default template actually exists
+  try:
+    template_service.get_local_template(default_template_id)
+  except Exception:
+    # If it doesn't exist, reset to system default and save
+    default_template_id = template_service.SYSTEM_DEFAULT_TEMPLATE_ID
+    settings.save({'resume': {'default_template': template_service.SYSTEM_DEFAULT_TEMPLATE_ID}})
+
+  return {'template_id': default_template_id}
+
+
+@router.put('/default')
+async def set_default_template(template_id: Annotated[str, Body(embed=True)]):
+  template_service.get_local_template(template_id)
+
+  settings.config.resume.default_template = template_id
+  settings.save({'resume': {'default_template': template_id}})
+  return {'template_id': template_id}
