@@ -68,7 +68,7 @@ async def render_template(
     return {'html': html}
 
   if format == 'pdf':
-    pdf_bytes = template_service.render_pdf(template.content, profile, sections)
+    pdf_bytes = await template_service.render_pdf(template.content, profile, sections)
     return Response(
       content=pdf_bytes,
       media_type='application/pdf',

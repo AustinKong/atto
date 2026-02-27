@@ -3,7 +3,7 @@ from pathlib import Path
 
 import httpx
 from jinja2 import Template as JinjaTemplate
-from weasyprint import CSS, HTML
+from playwright.async_api import async_playwright
 
 from app.config import settings
 from app.repositories.file_repository import FileRepository
@@ -55,17 +55,24 @@ class TemplateService(FileRepository):
     template = JinjaTemplate(template_content)
     return template.render(**context)
 
-  def render_pdf(self, template_content: str, profile: Profile, sections: list[Section]) -> bytes:
+  async def render_pdf(
+    self, template_content: str, profile: Profile, sections: list[Section]
+  ) -> bytes:
     html = self.render_html(template_content, profile, sections)
 
-    default_css = CSS(string='@page { margin: 0; padding: 0; }')
+    async with async_playwright() as p:
+      browser = await p.chromium.launch(headless=True)
+      page = await browser.new_page()
+      await page.set_content(html, wait_until='networkidle')
 
-    pdf = HTML(string=html, base_url=None).write_pdf(
-      presentational_hints=True, uncompressed_pdf=False, stylesheets=[default_css]
-    )
+      # Inject print CSS to ensure margins are handled correctly if not in the template
+      await page.add_style_tag(content='@page { margin: 0; padding: 0; }')
 
-    if pdf is None:
-      raise RuntimeError('WeasyPrint returned no data')
+      pdf = await page.pdf(
+        format='A4',
+        print_background=True,
+        margin={'top': '0', 'right': '0', 'bottom': '0', 'left': '0'},
+      )
 
     return pdf
 
