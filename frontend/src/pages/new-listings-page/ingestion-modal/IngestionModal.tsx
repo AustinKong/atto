@@ -5,6 +5,7 @@ import {
   Field,
   Input,
   Portal,
+  Text,
   Textarea,
   VStack,
 } from '@chakra-ui/react';
@@ -83,6 +84,10 @@ export function IngestionModal() {
                     rows={10}
                   />
                 </Field.Root>
+                <Text textStyle="xs" w="full" color="fg.subtle">
+                  If no OpenAI API key is set, this will create an empty listing for you to fill
+                  manually. URL is still required.
+                </Text>
               </VStack>
             </Dialog.Body>
             <Dialog.Footer>

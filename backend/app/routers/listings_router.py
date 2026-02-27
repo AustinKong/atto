@@ -5,6 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Body, Query
 from pydantic import HttpUrl
 
+from app.config import settings
 from app.resources.prompts import (
   COMPANY_INSIGHTS_PROMPT,
   LINK_SELECTION_PROMPT,
@@ -52,6 +53,20 @@ async def ingest_listing(
       id=id,
       url=url,
       duplicate_of=existing_listing,
+    )
+
+  # If no API key, skip extraction and return empty listing for manual filling
+  if not settings.config.model.openai_api_key:
+    return ListingDraftUnique(
+      id=id,
+      url=url,
+      listing=ListingExtraction(
+        title='',
+        company='',
+        domain=url.host or '',
+        description='',
+      ),
+      html=None,
     )
 
   if content is None:
@@ -187,9 +202,9 @@ async def generate_insights(id: UUID):
   )
 
   page_contents = []
-  for url in link_selection:
+  for url in link_selection.links:
     try:
-      page = await scraping_service.fetch_and_clean(url.url)
+      page = await scraping_service.fetch_and_clean(HttpUrl(url))
       content = f'URL: {url}\n\n{page.content}'
       page_contents.append(content)
     except Exception:

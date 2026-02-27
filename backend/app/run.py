@@ -1,3 +1,4 @@
+import subprocess
 import sys
 import webbrowser
 from pathlib import Path
@@ -7,6 +8,7 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from playwright.sync_api import sync_playwright
 
 from app.main import create_app
 from app.seed import create_tables
@@ -39,16 +41,23 @@ if dist_path.exists():
     return FileResponse(str(dist_path / 'index.html'))
 
 
-def open_browser():
-  webbrowser.open_new('http://127.0.0.1:8000')
+def install_playwright_browsers():
+  try:
+    with sync_playwright() as p:
+      browser = p.chromium.launch(headless=True)
+      browser.close()
+  except Exception:
+    print('Downloading Chromium... please wait.')
+    subprocess.run([sys.executable, '-m', 'playwright', 'install', 'chromium'], check=True)
 
 
 def main():
+  install_playwright_browsers()
   create_tables()
 
   frozen = getattr(sys, 'frozen', False)
   if frozen:
-    Timer(1.5, open_browser).start()
+    Timer(1.5, lambda: webbrowser.open_new('http://127.0.0.1:8000')).start()
 
   uvicorn_config = {
     'app': 'app.run:app',
@@ -60,13 +69,3 @@ def main():
   }
 
   uvicorn.run(**uvicorn_config)
-
-
-# Used by server manager when spawning subprocesses
-# if '--run-server' in sys.argv:
-#   try:
-#     sys.argv.remove('--run-server')
-#   except ValueError:
-#     pass
-
-#   main()
