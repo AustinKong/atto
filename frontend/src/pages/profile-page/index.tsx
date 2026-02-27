@@ -19,7 +19,7 @@ export function ProfilePage() {
 
   return (
     <VStack h="full" gap="0" alignItems="stretch">
-      <div>Toolbar</div>
+      {/* Toolbar here */}
       <Splitter.Root
         panels={[
           { id: 'editor', minSize: 30, maxSize: 70 },

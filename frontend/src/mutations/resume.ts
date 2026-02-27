@@ -35,14 +35,35 @@ export function useSaveResume() {
 
   return useDebouncedMutation<Resume, Error, { resumeId: string; sections: Section[] }>({
     delay: 750,
-    mutationFn: async ({ resumeId, sections }: { resumeId: string; sections: Section[] }) => {
-      return updateResume(resumeId, sections);
+    mutationFn: ({ resumeId, sections }) => {
+      const currentResume = queryClient.getQueryData<Resume>(['resume', resumeId]);
+      if (!currentResume) {
+        throw new Error('Resume not found in cache');
+      }
+      return updateResume({ ...currentResume, sections });
     },
     onSuccess: (data, { resumeId }) => {
       queryClient.setQueryData(['resume', resumeId], data);
     },
     onError: (error) => {
       console.error('Failed to save resume:', error);
+    },
+  });
+}
+
+export function useUpdateResumeTemplate() {
+  const queryClient = useQueryClient();
+
+  return useMutation<Resume, Error, { resumeId: string; templateId: string }>({
+    mutationFn: ({ resumeId, templateId }) => {
+      const currentResume = queryClient.getQueryData<Resume>(['resume', resumeId]);
+      if (!currentResume) {
+        throw new Error('Resume not found in cache');
+      }
+      return updateResume({ ...currentResume, templateId });
+    },
+    onSuccess: (data, { resumeId }) => {
+      queryClient.setQueryData(['resume', resumeId], data);
     },
   });
 }

@@ -1,4 +1,4 @@
-import type { Resume, Section } from '@/types/resume';
+import type { Resume } from '@/types/resume';
 
 export async function getResume(resumeId: string): Promise<Resume> {
   const response = await fetch(`/api/resumes/${resumeId}`);
@@ -37,13 +37,13 @@ export async function populateResumeBaseSections(resumeId: string): Promise<Resu
   return json as Resume;
 }
 
-export async function updateResume(resumeId: string, sections: Section[]): Promise<Resume> {
-  const response = await fetch(`/api/resumes/${resumeId}`, {
+export async function updateResume(resume: Resume): Promise<Resume> {
+  const response = await fetch(`/api/resumes/${resume.id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(sections),
+    body: JSON.stringify(resume),
   });
 
   if (!response.ok) {

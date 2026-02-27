@@ -10,7 +10,6 @@ from app.schemas import (
   Experience,
   LLMResponseExperience,
   Resume,
-  Section,
 )
 from app.services import (
   applications_service,
@@ -19,6 +18,7 @@ from app.services import (
   llm_service,
   profile_service,
   resume_service,
+  template_service,
 )
 
 router = APIRouter(
@@ -29,7 +29,16 @@ router = APIRouter(
 
 @router.get('/{resume_id}')
 async def get_resume(resume_id: UUID) -> Resume:
-  return resume_service.get(resume_id)
+  resume = resume_service.get(resume_id)
+
+  # Self-healing
+  try:
+    template_service.get_local_template(resume.template_id)
+  except FileNotFoundError:
+    resume.template_id = template_service.SYSTEM_DEFAULT_TEMPLATE_ID
+    resume = resume_service.update(resume)
+
+  return resume
 
 
 @router.post('/{resume_id}/populate')
@@ -114,11 +123,9 @@ async def generate_resume_content(resume_id: UUID):
 
 
 @router.put('/{resume_id}')
-async def update_resume(resume_id: UUID, sections: list[Section]) -> Resume:
-  resume = resume_service.get(resume_id)
-  resume.sections = sections
-  updated_resume = resume_service.update(resume)
-  return updated_resume
+async def update_resume(resume_id: UUID, resume: Resume) -> Resume:
+  resume.id = resume_id
+  return resume_service.update(resume)
 
 
 @router.delete('/{resume_id}')

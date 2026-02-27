@@ -1,7 +1,8 @@
-import { Card, Center, Float, IconButton, Spinner, Text, VStack } from '@chakra-ui/react';
+import { Card, Center, Float, IconButton, Spinner, Text } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { memo } from 'react';
-import { LuCheck, LuDownload, LuStar } from 'react-icons/lu';
+import { LuDownload } from 'react-icons/lu';
+import { PiStar, PiStarFill } from 'react-icons/pi';
 
 import { ReadonlyResumePreview } from '@/components/shared/resume-preview';
 import { toaster } from '@/components/ui/toaster';
@@ -52,10 +53,6 @@ export const TemplateCard = memo(function TemplateCard({
   const setDefaultMutation = useMutation({
     mutationFn: () => setDefaultTemplate(template.id),
     onSuccess: () => {
-      toaster.success({
-        title: 'Default template set',
-        description: `${template.title || template.id} is now your default template.`,
-      });
       // Invalidate the default template query and both template lists to refresh UI
       queryClient.invalidateQueries({ queryKey: ['templates', 'default'] });
       queryClient.invalidateQueries({ queryKey: ['templates', 'list', 'local'] });
@@ -131,7 +128,7 @@ export const TemplateCard = memo(function TemplateCard({
             disabled
             _disabled={{ opacity: 1 }}
           >
-            <LuStar />
+            <PiStarFill />
           </IconButton>
         ) : (
           <IconButton
@@ -141,7 +138,7 @@ export const TemplateCard = memo(function TemplateCard({
             variant="ghost"
             size="lg"
           >
-            <LuCheck />
+            <PiStar />
           </IconButton>
         )}
       </Float>
