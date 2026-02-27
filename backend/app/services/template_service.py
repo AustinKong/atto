@@ -3,7 +3,7 @@ from pathlib import Path
 
 import httpx
 from jinja2 import Template as JinjaTemplate
-from weasyprint import HTML
+from weasyprint import CSS, HTML
 
 from app.config import settings
 from app.repositories.file_repository import FileRepository
@@ -57,9 +57,11 @@ class TemplateService(FileRepository):
 
   def render_pdf(self, template_content: str, profile: Profile, sections: list[Section]) -> bytes:
     html = self.render_html(template_content, profile, sections)
+
+    default_css = CSS(string='@page { margin: 0; padding: 0; }')
+
     pdf = HTML(string=html, base_url=None).write_pdf(
-      presentational_hints=True,
-      uncompressed_pdf=False,
+      presentational_hints=True, uncompressed_pdf=False, stylesheets=[default_css]
     )
 
     if pdf is None:

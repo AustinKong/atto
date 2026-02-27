@@ -15,8 +15,6 @@ export function ProfilePage() {
     templateQueries.localItem(defaultTemplate.template_id)
   );
 
-  // useDevelopmentOnly();
-
   return (
     <VStack h="full" gap="0" alignItems="stretch">
       {/* Toolbar here */}
@@ -34,7 +32,7 @@ export function ProfilePage() {
           <ResumePreview template={template} sections={profile.baseSections} profile={profile} />
         </Splitter.Panel>
       </Splitter.Root>
-      <div>Footer</div>
+      {/* Footer here */}
     </VStack>
   );
 }

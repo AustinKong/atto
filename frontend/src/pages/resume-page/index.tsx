@@ -36,7 +36,6 @@ export function ResumePage() {
           <ResumePreview template={template} sections={resume.sections} profile={profile} />
         </Splitter.Panel>
       </Splitter.Root>
-      <div>Footer</div>
     </VStack>
   );
 }

@@ -6,7 +6,7 @@ import type { Profile } from '@/types/profile';
 import type { Section } from '@/types/resume';
 import type { Template } from '@/types/template';
 
-import { Document } from './Document';
+import { Document } from './document';
 
 const MIN_SCALE = 0.5;
 const MAX_SCALE = 2;
@@ -33,22 +33,24 @@ export function ResumePreview({
 
   return (
     <Box w="full" h="full" position="relative">
-      <Center
+      <Box
         w="full"
         h="full"
-        overflowY="auto"
+        overflow="auto"
         bgColor="gray.300"
         _dark={{ bgColor: 'gray.700' }}
         position="relative"
       >
-        <Document
-          template={template}
-          sections={sections}
-          profile={profile}
-          interactable={true}
-          scale={scale}
-        />
-      </Center>
+        <Center minW="fit-content" minH="fit-content" p="8">
+          <Document
+            template={template}
+            sections={sections}
+            profile={profile}
+            interactable={true}
+            scale={scale}
+          />
+        </Center>
+      </Box>
       <HStack
         borderRadius="md"
         bottom="4"

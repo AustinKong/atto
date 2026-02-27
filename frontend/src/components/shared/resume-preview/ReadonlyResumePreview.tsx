@@ -5,7 +5,7 @@ import type { Profile } from '@/types/profile';
 import type { Section } from '@/types/resume';
 import type { Template } from '@/types/template';
 
-import { Document } from './Document';
+import { Document } from './document';
 
 const PAPER_WIDTH = 595;
 const PAPER_HEIGHT = 842;

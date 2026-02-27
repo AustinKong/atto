@@ -63,6 +63,9 @@ export function TemplateBuilderPage() {
       queryClient.invalidateQueries({
         queryKey: ['templates', 'local', selectedTemplate],
       });
+      queryClient.invalidateQueries({
+        queryKey: ['templates', 'render'],
+      });
     }
   };
 
