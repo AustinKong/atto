@@ -4,9 +4,13 @@
 <!--template-description: A technical-focused resume template with a dark, modern design-->
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <title>{{ profile.full_name }} - Technical Resume</title>
   <style>
+    @page {
+      margin: 10mm;
+    }
+
     /* System font stack with monospace for data */
     :root {
       --main-font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -26,122 +30,24 @@
       padding: 0;
     }
 
-    .container {
-      max-width: 850px;
-      margin: 0 auto;
-      padding: 30px;
-    }
-
-    /* Header: High Density */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      border-bottom: 2px solid var(--text-dark);
-      padding-bottom: 10px;
-      margin-bottom: 20px;
-    }
-
-    h1 {
-      font-size: 22pt;
-      margin: 0;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
-    .contact-grid {
-      display: grid;
-      grid-template-columns: auto auto;
-      gap: 2px 15px;
-      font-family: var(--mono-font);
-      font-size: 8.5pt;
-      text-align: right;
-    }
-
     a {
       color: var(--accent);
       text-decoration: none;
-    }
-
-    /* Section Logic */
-    section {
-      margin-bottom: 18px;
-    }
-
-    h2 {
-      font-family: var(--mono-font);
-      font-size: 11pt;
-      text-transform: uppercase;
-      background: #f3f4f6;
-      padding: 2px 8px;
-      margin: 0 0 10px 0;
-      display: inline-block;
-    }
-
-    /* Detailed Items */
-    .item {
-      margin-bottom: 12px;
-    }
-
-    .item-header {
-      display: flex;
-      justify-content: space-between;
-      font-weight: 700;
-    }
-
-    .item-subtitle {
-      color: var(--text-light);
-      font-weight: 500;
-    }
-
-    .item-dates {
-      font-family: var(--mono-font);
-      font-size: 9pt;
-      color: var(--text-light);
-      background-color: #f9fafb;
-      padding: 0 4px;
-    }
-
-    ul {
-      margin: 4px 0 0 0;
-      padding-left: 18px;
-    }
-
-    li {
-      margin-bottom: 2px;
-    }
-
-    /* Tag Cloud for Simple Sections (Skills) */
-    .tag-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .tag {
-      font-family: var(--mono-font);
-      font-size: 8.5pt;
-      border: 1px solid var(--border-color);
-      padding: 1px 6px;
-      border-radius: 3px;
-      background: #fff;
     }
 
     p { margin: 0; }
 
     /* Print Tweaks */
     @media print {
-      .container { padding: 0; }
       h2 { break-after: avoid; }
-      .item { break-inside: avoid; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>{{ profile.full_name }}</h1>
-      <div class="contact-grid">
+  <div style="max-width: 210mm; margin: 0 auto;">
+    <header style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2pt solid var(--text-dark); padding-bottom: 3mm; margin-bottom: 6mm;">
+      <h1 style="font-size: 22pt; margin: 0; font-weight: 800; letter-spacing: -0.02em;">{{ profile.full_name }}</h1>
+      <div style="display: grid; grid-template-columns: auto auto; gap: 1mm 4mm; font-family: var(--mono-font); font-size: 8.5pt; text-align: right;">
         {% if profile.email %}<div><a href="mailto:{{ profile.email }}">{{ profile.email }}</a></div>{% endif %}
         {% if profile.location %}<div>{{ profile.location }}</div>{% endif %}
         {% if profile.phone %}<div>{{ profile.phone }}</div>{% endif %}
@@ -151,16 +57,16 @@
 
     <main>
       {% for section in sections %}
-        <section>
-          <h2>// {{ section.title }}</h2>
+        <section style="margin-bottom: 5mm;">
+          <h2 style="font-family: var(--mono-font); font-size: 11pt; text-transform: uppercase; background: #f3f4f6; padding: 1mm 2.5mm; margin: 0 0 3mm 0; display: inline-block;">// {{ section.title }}</h2>
 
           {% if section.type == 'detailed' %}
             {% for item in section.content %}
-              <div class="item">
-                <div class="item-header">
-                  <span class="item-title">{{ item.title }}</span>
+              <div style="margin-bottom: 3.5mm; break-inside: avoid;">
+                <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                  <span style="font-size: 10pt;">{{ item.title }}</span>
                   {% if item.start_date or item.end_date %}
-                    <span class="item-dates">
+                    <span style="font-family: var(--mono-font); font-size: 9pt; color: var(--text-light); background-color: #f9fafb; padding: 0 1mm;">
                       {% set start = item.start_date or '' %}
                       {% set end = 'present' if item.end_date == 'present' else (item.end_date or '') %}
                       [{{ start }} - {{ end }}]
@@ -169,13 +75,13 @@
                 </div>
                 
                 {% if item.subtitle %}
-                  <div class="item-subtitle">{{ item.subtitle }}</div>
+                  <div style="color: var(--text-light); font-weight: 500;">{{ item.subtitle }}</div>
                 {% endif %}
 
                 {% if item.bullets %}
-                  <ul>
+                  <ul style="margin: 1mm 0 0 0; padding-left: 5mm;">
                     {% for bullet in item.bullets %}
-                      <li>{{ bullet }}</li>
+                      <li style="margin-bottom: 0.5mm;">{{ bullet }}</li>
                     {% endfor %}
                   </ul>
                 {% endif %}
@@ -183,14 +89,14 @@
             {% endfor %}
 
           {% elif section.type == 'simple' %}
-            <div class="tag-container">
+            <div style="display: flex; flex-wrap: wrap; gap: 2mm; break-inside: avoid;">
               {% for bullet in section.content %}
-                <span class="tag">{{ bullet }}</span>
+                <span style="font-family: var(--mono-font); font-size: 8.5pt; border: 1pt solid var(--border-color); padding: 0.5mm 2mm; border-radius: 1mm; background: #fff;">{{ bullet }}</span>
               {% endfor %}
             </div>
 
           {% elif section.type == 'paragraph' %}
-            <p>{{ section.content }}</p>
+            <p style="break-inside: avoid;">{{ section.content }}</p>
           {% endif %}
         </section>
       {% endfor %}

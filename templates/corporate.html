@@ -4,52 +4,20 @@
 <!--template-description: A professional corporate-style resume with blue accents-->
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <title>{{ profile.full_name }} - Resume</title>
   <style>
-    /* Typography & Core Styles */
-    :root {
-      --primary-text: #1a1a1a;
-      --divider-weight: 2px;
+    @page {
+      margin: 10mm;
     }
 
     body {
       font-family: "Times New Roman", Times, serif;
       line-height: 1.5;
-      color: var(--primary-text);
+      color: #1a1a1a;
       margin: 0;
       padding: 0;
       font-size: 11pt;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 40px;
-    }
-
-    /* Header Section */
-    header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    h1 {
-      font-size: 26pt;
-      text-transform: uppercase;
-      margin-bottom: 5px;
-      letter-spacing: 1px;
-    }
-
-    .contact-info {
-      font-size: 10pt;
-      font-style: italic;
-    }
-
-    .contact-info span:not(:last-child)::after {
-      content: " | ";
-      margin: 0 5px;
-      font-style: normal;
     }
 
     a {
@@ -57,115 +25,62 @@
       text-decoration: none;
     }
 
-    /* Section Styling */
-    section {
-      margin-bottom: 25px;
-      clear: both;
-    }
-
-    h2 {
-      font-size: 14pt;
-      text-align: center;
-      text-transform: uppercase;
-      border-bottom: var(--divider-weight) solid var(--primary-text);
-      margin-bottom: 15px;
-      padding-bottom: 3px;
-      letter-spacing: 0.5px;
-    }
-
-    /* Content Types */
-    .item {
-      margin-bottom: 15px;
-    }
-
-    .item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      font-weight: bold;
-    }
-
-    .item-subtitle {
-      font-style: italic;
-      margin-bottom: 5px;
-    }
-
-    .item-dates {
-      font-weight: normal;
-      font-size: 10pt;
-    }
-
     ul {
-      margin: 5px 0;
-      padding-left: 20px;
+      margin: 2mm 0;
+      padding-left: 5mm;
     }
 
     li {
-      margin-bottom: 3px;
-    }
-
-    .skills-list {
-      text-align: center;
-      list-style: none;
-      padding: 0;
-    }
-
-    .skills-list li {
-      display: inline;
-    }
-
-    .skills-list li:not(:last-child)::after {
-      content: " \2022 "; /* Bullet point separator */
-      margin: 0 8px;
-    }
-
-    p {
-      margin: 0;
-      text-align: justify;
+      margin-bottom: 1mm;
     }
 
     /* Print Optimizations */
     @media print {
       body { padding: 0; }
-      .container { padding: 0; width: 100%; }
       h2 { break-after: avoid; }
-      .item { break-inside: avoid; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>{{ profile.full_name }}</h1>
-      <div class="contact-info">
+  <div style="max-width: 210mm; margin: 0 auto;">
+    <header style="text-align: center; margin-bottom: 8mm;">
+      <h1 style="font-size: 26pt; text-transform: uppercase; margin: 0 0 1.5mm 0; letter-spacing: 1pt; line-height: 1.2;">
+        {{ profile.full_name }}
+      </h1>
+      <div style="font-size: 10pt; font-style: italic;">
         {% if profile.location %}<span>{{ profile.location }}</span>{% endif %}
+        {% if profile.location and profile.phone %}<span> | </span>{% endif %}
         {% if profile.phone %}<span>{{ profile.phone }}</span>{% endif %}
+        {% if (profile.location or profile.phone) and profile.email %}<span> | </span>{% endif %}
         {% if profile.email %}<span><a href="mailto:{{ profile.email }}">{{ profile.email }}</a></span>{% endif %}
+        {% if (profile.location or profile.phone or profile.email) and profile.website %}<span> | </span>{% endif %}
         {% if profile.website %}<span><a href="{{ profile.website }}">{{ profile.website }}</a></span>{% endif %}
       </div>
     </header>
 
     <main>
       {% for section in sections %}
-        <section>
-          <h2>{{ section.title }}</h2>
+        <section style="margin-bottom: 6mm; clear: both;">
+          <h2 style="font-size: 14pt; text-align: center; text-transform: uppercase; border-bottom: 1.5pt solid #1a1a1a; margin: 0 0 4mm 0; padding-bottom: 1mm; letter-spacing: 0.5pt; line-height: 1.2;">
+            {{ section.title }}
+          </h2>
 
           {% if section.type == 'detailed' %}
             {% for item in section.content %}
-              <div class="item">
-                <div class="item-header">
-                  <span class="item-title">{{ item.title }}</span>
+              <div style="margin-bottom: 4mm; break-inside: avoid;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; font-weight: bold;">
+                  <span>{{ item.title }}</span>
                   {% if item.start_date or item.end_date %}
-                    <span class="item-dates">
+                    <span style="font-weight: normal; font-size: 10pt;">
                       {% set start = item.start_date or '' %}
                       {% set end = 'Present' if item.end_date == 'present' else (item.end_date or '') %}
-                      {{ start }}{% if start and end %} – {% endif %}{{ end }}
+                      {{ start }}{% if start and end %} - {% endif %}{{ end }}
                     </span>
                   {% endif %}
                 </div>
                 
                 {% if item.subtitle %}
-                  <div class="item-subtitle">{{ item.subtitle }}</div>
+                  <div style="font-style: italic; margin-bottom: 1.5mm;">{{ item.subtitle }}</div>
                 {% endif %}
 
                 {% if item.bullets %}
@@ -180,7 +95,7 @@
 
           {% elif section.type == 'simple' %}
             {% if section.content %}
-              <ul class="skills-list">
+              <ul style="break-inside: avoid;">
                 {% for bullet in section.content %}
                   <li>{{ bullet }}</li>
                 {% endfor %}
@@ -188,7 +103,7 @@
             {% endif %}
 
           {% elif section.type == 'paragraph' %}
-            <p>{{ section.content }}</p>
+            <p style="margin: 0; text-align: justify; break-inside: avoid;">{{ section.content }}</p>
           {% endif %}
         </section>
       {% endfor %}

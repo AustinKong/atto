@@ -63,16 +63,9 @@ class TemplateService(FileRepository):
     async with async_playwright() as p:
       browser = await p.chromium.launch(headless=True)
       page = await browser.new_page()
+
       await page.set_content(html, wait_until='networkidle')
-
-      # Inject print CSS to ensure margins are handled correctly if not in the template
-      await page.add_style_tag(content='@page { margin: 0; padding: 0; }')
-
-      pdf = await page.pdf(
-        format='A4',
-        print_background=True,
-        margin={'top': '0', 'right': '0', 'bottom': '0', 'left': '0'},
-      )
+      pdf = await page.pdf(format='A4', print_background=True)
 
     return pdf
 

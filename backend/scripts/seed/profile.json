@@ -1,0 +1,85 @@
+{
+  "fullName": "Jane Doe",
+  "email": "jane.doe@example.com",
+  "phone": "555-019-2045",
+  "location": "San Francisco, CA",
+  "website": "https://janedoe.me",
+  "baseSections": [
+    {
+      "type": "paragraph",
+      "id": "introduction",
+      "title": "Introduction",
+      "content": "Results-driven Software Engineer with over 8 years of experience building scalable, high-performance applications. Adept at full-stack development, cloud architecture, and mentoring engineering teams to deliver impactful software solutions."
+    },
+    {
+      "type": "simple",
+      "id": "skills",
+      "title": "Skills",
+      "content": [
+        "Programming: Python, TypeScript, Java, Go, Rust",
+        "Frontend: React, Vue, HTML/CSS, TailwindCSS",
+        "Backend: Django, FastAPI, Node.js, Express, Spring Boot",
+        "Data: PostgreSQL, Redis, MongoDB, Elasticsearch",
+        "Infrastructure: AWS, Docker, Kubernetes, Terraform, CI/CD"
+      ]
+    },
+    {
+      "type": "detailed",
+      "id": "experience",
+      "title": "Experience",
+      "content": [
+        {
+          "title": "Senior Software Engineer",
+          "subtitle": "TechCorp Inc.",
+          "startDate": "2021-06",
+          "endDate": "present",
+          "bullets": [
+            "Led the design and implementation of a microservices backend in Python (FastAPI), reducing average response time by 40% using Redis caching and optimized PostgreSQL queries.",
+            "Architected a scalable event-driven messaging system using Apache Kafka to process over 1 million daily user events.",
+            "Mentored 4 junior engineers and conducted daily code reviews to ensure code quality and adherence to best practices."
+          ]
+        },
+        {
+          "title": "Software Engineer",
+          "subtitle": "WebSolutions LLC",
+          "startDate": "2018-08",
+          "endDate": "2021-05",
+          "bullets": [
+            "Developed responsive and accessible frontend components using React and TypeScript, improving user engagement by 25%.",
+            "Migrated a legacy monolith application to a serverless architecture using AWS Lambda and API Gateway, cutting infrastructure costs by 30%.",
+            "Implemented comprehensive unit and integration test suites using Jest and Pytest, raising code coverage from 55% to 85%."
+          ]
+        },
+        {
+          "title": "Junior Web Developer",
+          "subtitle": "Creative Agency Inc.",
+          "startDate": "2016-05",
+          "endDate": "2018-07",
+          "bullets": [
+            "Actively collaborated with UX/UI designers to translate wireframes into interactive prototypes.",
+            "Integrated third-party RESTful APIs to deliver secure payment processing and content management capabilities.",
+            "Built dynamic client-side web applications using JavaScript, HTML5, and CSS3, serving over 50 regional business clients."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "detailed",
+      "id": "education",
+      "title": "Education",
+      "content": [
+        {
+          "title": "B.S. in Computer Science",
+          "subtitle": "University of Technology",
+          "startDate": "2014-08",
+          "endDate": "2018-05",
+          "bullets": [
+            "Cumulative GPA: 3.8/4.0",
+            "Relevant Coursework: Data Structures, Algorithms, Distributed Systems, Database Architecture",
+            "President of the Computer Science Student Association (2017-2018)"
+          ]
+        }
+      ]
+    }
+  ]
+}

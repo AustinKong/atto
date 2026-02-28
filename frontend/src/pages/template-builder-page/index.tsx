@@ -11,7 +11,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { PiArrowClockwise, PiMagnifyingGlass } from 'react-icons/pi';
 
-import { ReadonlyResumePreview } from '@/components/shared/resume-preview';
+import { ResumePreview } from '@/components/shared/resume-preview';
 import { templateQueries } from '@/queries/template';
 
 import { EDGE_CASE_PRESETS } from './presets';
@@ -22,7 +22,10 @@ export function TemplateBuilderPage() {
     data: templateData,
     isLoading: namesLoading,
     refetch: refetchNames,
-  } = useQuery(templateQueries.list());
+  } = useQuery({
+    ...templateQueries.list(),
+    refetchInterval: 1000,
+  });
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [selectedPreset, setSelectedPreset] = useState<string>(Object.keys(EDGE_CASE_PRESETS)[0]);
 
@@ -56,7 +59,19 @@ export function TemplateBuilderPage() {
   const { data: templateContent } = useQuery({
     ...templateQueries.localItem(selectedTemplate),
     enabled: !!selectedTemplate,
+    refetchInterval: 1000,
+    staleTime: 0,
   });
+
+  useEffect(() => {
+    if (!selectedTemplate) return;
+    const interval = setInterval(() => {
+      queryClient.invalidateQueries({
+        queryKey: ['templates', 'render'],
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [selectedTemplate, queryClient]);
 
   const handleRefreshTemplate = () => {
     if (selectedTemplate) {
@@ -145,7 +160,7 @@ export function TemplateBuilderPage() {
 
       <Box resize="both" overflow="auto" w="500px" h="400px">
         {selectedTemplate && templateContent ? (
-          <ReadonlyResumePreview
+          <ResumePreview
             template={templateContent}
             sections={preset.sections}
             profile={preset.profile}

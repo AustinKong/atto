@@ -223,4 +223,170 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
       },
     ],
   },
+  multiPageResume: {
+    name: 'Multi-Page Résumé (Long)',
+    profile: {
+      fullName: 'Eleanor Shellstrop',
+      email: 'eleanor@example.com',
+      phone: '+1 (555) 987-6543',
+      location: 'Phoenix, AZ, USA',
+      website: 'https://eleanor.dev',
+      baseSections: [],
+    },
+    sections: [
+      {
+        id: 'multi-summary-1',
+        type: 'paragraph',
+        title: 'Summary',
+        content:
+          'Highly experienced Principal Software Architect with over 15 years of experience in designing, building, and scaling enterprise-level applications. Proven track record of leading large, cross-functional teams to deliver mission-critical software solutions. Expert in cloud-native architectures, distributed systems, and high-performance computing. Adept at navigating complex technical challenges, fostering a culture of engineering excellence, and driving strategic technology initiatives that align with business objectives.',
+      },
+      {
+        id: 'multi-skills-1',
+        type: 'simple',
+        title: 'Skills',
+        content: [
+          'Languages: Python, Go, TypeScript, Java, Rust, C++, C#, Kotlin, Scala, Ruby, Swift, Haskell, SQL, Bash',
+          'Cloud & Infrastructure: AWS, GCP, Azure, Kubernetes, Docker, Terraform, Helm, Istio, Consul, Envoy, Unix/Linux',
+          'Databases: PostgreSQL, MySQL, Cassandra, MongoDB, DynamoDB, Redis, Memcached, Elasticsearch, Kafka, Elasticsearch',
+          'Messaging & Streaming: Kafka, RabbitMQ, ActiveMQ, SQS, SNS, Kinesis, Google Pub/Sub, gRPC, Protocol Buffers',
+          'Observability & APM: Prometheus, Grafana, Datadog, Jaeger, OpenTelemetry, New Relic, Splunk, Elastic Stack',
+          'Practices: Domain-Driven Design (DDD), Test-Driven Development (TDD), CI/CD, Agile/Scrum, SRE, Chaos Engineering',
+        ],
+      },
+      {
+        id: 'multi-exp-1',
+        type: 'detailed',
+        title: 'Experience',
+        content: [
+          {
+            title: 'Principal Software Architect',
+            subtitle: 'Global Tech Innovators — New York, NY',
+            startDate: ISOYearMonth.parse('2018-05'),
+            endDate: 'present',
+            bullets: [
+              'Spearheaded the architectural redesign of the flagship e-commerce platform, transitioning from a monolithic architecture to a fully distributed microservices ecosystem using Go and Kubernetes.',
+              'Designed and implemented a multi-region active-active deployment strategy on AWS, achieving 99.999% uptime and reducing latency for international users by 40%.',
+              'Developed a proprietary distributed tracing library using OpenTelemetry, which became the standard across 50+ engineering teams, drastically reducing Mean Time To Resolution (MTTR) for complex system outages.',
+              'Mentored a team of 15 senior engineers and tech leads, establishing comprehensive engineering guidelines, RFC processes, and architecture review boards.',
+              'Led the evaluation and adoption of Apache Kafka as the central event bus, successfully migrating legacy message queues with zero downtime and supporting 5M+ events per second.',
+              'Championed the introduction of Chaos Engineering practices, implementing automated resilience tests that surfaced and mitigated over a dozen critical hidden failures before they impacted production.',
+            ],
+          },
+          {
+            title: 'Senior Staff Engineer / Tech Lead',
+            subtitle: 'DataSphere Analytics — Boston, MA',
+            startDate: ISOYearMonth.parse('2014-08'),
+            endDate: ISOYearMonth.parse('2018-04'),
+            bullets: [
+              'Architected a massive-scale data ingestion and processing pipeline using Apache Spark, AWS EMR, and S3, capable of processing petabytes of telemetry data daily.',
+              'Designed a high-throughput, low-latency querying engine on top of Elasticsearch and DynamoDB, serving real-time analytics dashboards for Fortune 500 clients.',
+              'Reduced infrastructure costs by 35% ($2M+ annually) through aggressive resource optimization, spot instance utilization, and efficient data retention lifecycle policies.',
+              'Spearheaded the migration of the critical billing system from on-premise infrastructure to GCP, navigating stringent compliance and security requirements (PCI-DSS, SOC 2).',
+              'Created and maintained a suite of internal developer tools (CLI and Web interfaces) that automated repetitive DevOps tasks, boosting engineering productivity across the entire organization.',
+              'Managed vendor relationships with cloud providers and technology partners, negotiating enterprise agreements and influencing product roadmaps to benefit internal use cases.',
+            ],
+          },
+          {
+            title: 'Senior Software Engineer',
+            subtitle: 'FinTech Solutions LLC — Chicago, MA',
+            startDate: ISOYearMonth.parse('2010-02'),
+            endDate: ISOYearMonth.parse('2014-07'),
+            bullets: [
+              'Developed core transaction processing modules in Java and Spring Boot, handling millions of financial transactions daily with stringent consistency guarantees.',
+              'Implemented a robust fraud detection engine using early machine learning models and complex rules-engine logic, reducing fraudulent transaction rates by 22%.',
+              'Optimized legacy Oracle database queries and materialized views, improving batch processing job performance by over 60%.',
+              'Introduced Test-Driven Development (TDD) and continuous integration practices to a team of 20+ developers, significantly reducing production defect rates.',
+              'Collaborated closely with product managers and trading desk stakeholders to translate complex financial and regulatory rules into actionable software requirements.',
+            ],
+          },
+          {
+            title: 'Software Engineer',
+            subtitle: 'Nexus Networking — Seattle, WA',
+            startDate: ISOYearMonth.parse('2006-06'),
+            endDate: ISOYearMonth.parse('2010-01'),
+            bullets: [
+              'Built foundational components for a proprietary network load balancing appliance using C++ and Linux kernel network stack features.',
+              'Developed an automated test suite framework for hardware-in-the-loop (HIL) testing, reducing manual QA time by 80%.',
+              'Contributed to the development of a web-based administrative console using early JavaScript frameworks and RESTful APIs.',
+              'Diagnosed and resolved complex memory leaks and concurrency issues in high-performance, multi-threaded C++ applications.',
+            ],
+          },
+          {
+            title: 'Junior Software Engineer',
+            subtitle: 'StartUp Alpha — Austin, TX',
+            startDate: ISOYearMonth.parse('2004-05'),
+            endDate: ISOYearMonth.parse('2006-05'),
+            bullets: [
+              'Maintained and extended legacy PHP and Ruby on Rails applications, fixing bugs and implementing new user-facing features.',
+              'Assisted in the migration of bare-metal servers to early virtualized environments (Xen/VMware).',
+              'Wrote comprehensive technical documentation and system architecture diagrams for previously undocumented legacy systems.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'multi-edu-1',
+        type: 'detailed',
+        title: 'Education',
+        content: [
+          {
+            title: 'M.S. in Computer Science',
+            subtitle: 'Massachusetts Institute of Technology (MIT) — Cambridge, MA',
+            startDate: ISOYearMonth.parse('2002-09'),
+            endDate: ISOYearMonth.parse('2004-06'),
+            bullets: [
+              'Specialization in Distributed Systems and Advanced Cryptography.',
+              'Thesis: "Optimizing Consensus Protocols in High-Latency Networks".',
+            ],
+          },
+          {
+            title: 'B.S. in Computer Engineering',
+            subtitle: 'University of Texas — Austin, TX',
+            startDate: ISOYearMonth.parse('1998-09'),
+            endDate: ISOYearMonth.parse('2002-05'),
+            bullets: ['Graduated Magna Cum Laude.', 'Minor in Mathematics.'],
+          },
+        ],
+      },
+      {
+        id: 'multi-projects-1',
+        type: 'detailed',
+        title: 'Open Source & Projects',
+        content: [
+          {
+            title: 'DistributedTracer (Open Source)',
+            subtitle: 'Creator and Maintainer',
+            startDate: ISOYearMonth.parse('2019-01'),
+            endDate: 'present',
+            bullets: [
+              'Created an open-source lightweight distributed tracing library in Go designed for edge computing environments.',
+              'Achieved 10,000+ GitHub stars and widespread adoption within the CNCF community.',
+            ],
+          },
+          {
+            title: 'KubeDeploy Automation',
+            subtitle: 'Personal Project',
+            startDate: ISOYearMonth.parse('2017-06'),
+            endDate: ISOYearMonth.parse('2018-12'),
+            bullets: [
+              'Developed a CLI tool to automate complex Kubernetes cluster provisioning and workload deployment across multiple cloud providers.',
+              'Integrated custom operators and CRDs for advanced stateful workload management.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'multi-publications-1',
+        type: 'simple',
+        title: 'Publications & Talks',
+        content: [
+          'Keynote Speaker: QCon 2022 - "Scaling Microservices Beyond the Breaking Point"',
+          'Author: "The Pragmatic Architect", published by O\'Reilly Media (2020)',
+          'Speaker: AWS re:Invent 2019 - "Active-Active Multi-Region Deployments made Easy"',
+          'Guest Lecturer: Advanced Distributed Systems, MIT (2018-2021)',
+        ],
+      },
+    ],
+  },
 };

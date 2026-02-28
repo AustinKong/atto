@@ -63,6 +63,7 @@ async def render_template(
   profile: Annotated[Profile, Body()],
   format: str,
 ):
+  # TODO: Deprecate html rendering
   if format == 'html':
     html = template_service.render_html(template.content, profile, sections)
     return {'html': html}

@@ -29,6 +29,7 @@ Atto — _**A**nother **T**ool for **T**racking & **O**ptimizing (Applications)_
 Atto is in early development. Here is what we're working on next:
 
 - **AI Match Scoring**: Automatically analyze how well a role fits your specific profile to help you prioritize your time.
+- **ATS Compatibility Reviewer**: Simulate how Applicant Tracking Systems parse your resume and receive an actionable score to improve your formatting and keyword matching before applying.
 - **Discovery Agent**: Give Atto a keyword, and it will autonomously find new listings across Greenhouse, Lever, and LinkedIn.
 - **Automated Follow-ups**: AI-generated email drafts for following up on applications where you haven't heard back.
 - **Enhanced Status Management**: A revamped system for more detailed tracking and automated funnel movements.

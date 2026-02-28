@@ -1,113 +1,92 @@
 <!DOCTYPE html>
 <!--template-id: 00000000-0000-0000-0000-000000000000-->
 <!--template-title: System-->
-<!--template-description: System template-->
+<!--template-description: Default unstyled system template-->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ profile.full_name }} - Resume</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       font-size: 12pt;
+      margin: 0;
+      padding: 0;
     }
 
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 40px;
+    @page {
+      margin: 10mm;
     }
 
-    h1 {
-      font-size: 24pt;
-    }
-
-    h2 {
-      font-size: 16pt;
-    }
-
-    .item-title {
-      font-size: 14pt;
-    }
-
-    .item-date {
-      font-size: 11pt;
-    }
-
-    .date-title-row {
-      display: flex;
-      justify-content: space-between;
+    h1, h2 {
+      line-height: 1;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>{{ profile.full_name }}</h1>
-      <div>
-        {% if profile.email %}
-          <a href="mailto:{{ profile.email }}">{{ profile.email }}</a>
-        {% endif %}
-        {% if profile.phone %}
-          | {{ profile.phone }}
-        {% endif %}
-        {% if profile.location %}
-          | {{ profile.location }}
-        {% endif %}
-        {% if profile.website %}
-          | <a href="{{ profile.website }}" target="_blank">{{ profile.website }}</a>
-        {% endif %}
-      </div>
-    </header>
+  <header>
+    <h1>{{ profile.full_name }}</h1>
+    <div>
+      {% if profile.email %}
+        <a href="mailto:{{ profile.email }}">{{ profile.email }}</a>
+      {% endif %}
+      {% if profile.phone %}
+        | {{ profile.phone }}
+      {% endif %}
+      {% if profile.location %}
+        | {{ profile.location }}
+      {% endif %}
+      {% if profile.website %}
+        | <a href="{{ profile.website }}" target="_blank">{{ profile.website }}</a>
+      {% endif %}
+    </div>
+  </header>
 
-    <main>
-      {% for section in sections %}
-        <section>
-          <h2>{{ section.title }}</h2>
+  <main>
+    {% for section in sections %}
+      <section>
+        <h2>{{ section.title }}</h2>
 
-          {% if section.type == 'detailed' %}
-            {% for item in section.content %}
-              <div>
-                <div class="date-title-row">
-                  <span class="item-title">{{ item.title }}</span>
-                  {% if item.start_date or item.end_date %}
-                    <span class="item-date">
-                      {% set start = item.start_date or '' %}
-                      {% set end = 'Present' if item.end_date == 'present' else (item.end_date or '') %}
-                      {{ start }}{% if start and end %} – {% endif %}{{ end }}
-                    </span>
-                  {% endif %}
-                </div>
-                {% if item.subtitle %}
-                  <div>{{ item.subtitle }}</div>
-                {% endif %}
-                {% if item.bullets %}
-                  <ul>
-                    {% for bullet in item.bullets %}
-                      <li>{{ bullet }}</li>
-                    {% endfor %}
-                  </ul>
+        {% if section.type == 'detailed' %}
+          {% for item in section.content %}
+            <div style="break-inside: avoid;">
+              <div style="display: flex; justify-content: space-between;">
+                <span style="font-weight: bold;">{{ item.title }}</span>
+                {% if item.start_date or item.end_date %}
+                  <span>
+                    {% set start = item.start_date or '' %}
+                    {% set end = 'Present' if item.end_date == 'present' else (item.end_date or '') %}
+                    {{ start }}{% if start and end %} - {% endif %}{{ end }}
+                  </span>
                 {% endif %}
               </div>
-            {% endfor %}
+              {% if item.subtitle %}
+                <div style="font-style: italic;">{{ item.subtitle }}</div>
+              {% endif %}
+              {% if item.bullets %}
+                <ul>
+                  {% for bullet in item.bullets %}
+                    <li>{{ bullet }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          {% endfor %}
 
-          {% elif section.type == 'simple' %}
-            {% if section.content %}
-              <ul>
-                {% for bullet in section.content %}
-                  <li>{{ bullet }}</li>
-                {% endfor %}
-              </ul>
-            {% endif %}
-
-          {% elif section.type == 'paragraph' %}
-            <p>{{ section.content }}</p>
-
+        {% elif section.type == 'simple' %}
+          {% if section.content %}
+            <ul>
+              {% for bullet in section.content %}
+                <li>{{ bullet }}</li>
+              {% endfor %}
+            </ul>
           {% endif %}
-        </section>
-      {% endfor %}
-    </main>
-  </div>
+
+        {% elif section.type == 'paragraph' %}
+          <p>{{ section.content }}</p>
+        {% endif %}
+      </section>
+    {% endfor %}
+  </main>
 </body>
 </html>

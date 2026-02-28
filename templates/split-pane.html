@@ -4,9 +4,13 @@
 <!--template-description: A two-column split-pane layout with distinct left and right sections-->
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <title>{{ profile.full_name }} - Split-Pane Resume</title>
   <style>
+    @page {
+      margin: 1in;
+    }
+
     :root {
       --sidebar-bg: #f8f9fa;
       --sidebar-width: 240px;
@@ -26,7 +30,7 @@
 
     .container {
       display: flex;
-      min-height: 100vh;
+      min-height: 100%;
     }
 
     /* Sidebar Styling */
@@ -142,9 +146,9 @@
 
     /* Print Controls */
     @media print {
-      aside { background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; }
-      .main-section { break-inside: avoid; }
+      aside { background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       h2 { break-after: avoid; }
+      .item, .sidebar-section, .contact-item { break-inside: avoid; }
     }
   </style>
 </head>
@@ -211,7 +215,7 @@
                     <span class="item-dates">
                       {% set start = item.start_date or '' %}
                       {% set end = 'Present' if item.end_date == 'present' else (item.end_date or '') %}
-                      {{ start }}{% if start and end %} – {% endif %}{{ end }}
+                      {{ start }}{% if start and end %} - {% endif %}{{ end }}
                     </span>
                   {% endif %}
                 </div>

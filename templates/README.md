@@ -162,38 +162,21 @@ Here are the canonical patterns you'll want to use when authoring templates.
 - Avoid injecting untrusted HTML in templates. By default, the renderer will escape special characters.
 
 ## CSS and Print Considerations
-- PDF rendering uses WeasyPrint. WeasyPrint supports modern CSS but has limitations compared to browser engines. CSS styles are defined inline using the `<style>` tag.
-- Add print-friendly rules via `@media print` to control page breaks and margins.
-- No asset support is available right now. When adding images or external assets, prefer absolute URLs or inline them (data URIs) if you need them in PDF output.
+- High-quality PDF rendering uses Headless Chromium to print exact representations of the HTML.
+- **Margins**: Always use `@page` CSS block to configure document margins. Do not use margins on the `body` tag to simulate print margins since they do not correctly handle repeated headers or footers across multiple pages. Note: Do not configure `size` (page size) in the template layer, as the PDF generation code handles the page size explicitly.
+  ```css
+  @page {
+    margin: 1in;
+  }
+  body {
+    margin: 0;
+  }
+  ```
+- **Page Breaking**: Prevent awkwardly broken content by using `break-inside: avoid;` strategically. Useful for sections, job items, or project containers to ensure they aren't split unpleasantly across two pages.
+- **Units**: Since templates are generally intended for physical or PDF formats, prefer print units. Use `mm` or `in` for layout dimensions to match paper scaling. For fonts, always use `pt` instead of `px`. A default of `12pt` is recommended for high readability.
+- **Character Encoding**: Always set `<meta charset="utf-8" />` in your template header to ensure correct rendering of special characters, icons, and bullets.
+- Remember to use relative or accessible remote URLs for any assets (such as images).
 
-## Example Minimal Template Skeleton with Frontmatter
-```html
-<!doctype html>
-<!--template-id: 550e8400-e29b-41d4-a716-446655440000-->
-<!--template-title: Minimalist Resume-->
-<!--template-description: A clean, simple resume template-->
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>{{ profile.full_name }} - Resume</title>
-    <style>
-      /* Your CSS here */
-      @media print { /* PDF tweaks */ }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>{{ profile.full_name }}</h1>
-      {% if profile.email %}<div>{{ profile.email }}</div>{% endif %}
-    </header>
-
-    {% for section in sections %}
-      <section>
-        <h2>{{ section.title }}</h2>
-        {# ...render based on section.type as shown above... #}
-      </section>
-    {% endfor %}
-  </body>
-</html>
-```
+## Example Template
+You can check out the built-in system template for an example of how to put this all together: [System Template](../backend/app/assets/system.html).
 
