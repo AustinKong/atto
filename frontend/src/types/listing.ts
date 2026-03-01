@@ -27,5 +27,5 @@ export type ListingSummary = {
   location: string | null;
   postedDate: ISODate | null;
   currentStatus: StatusEnum | null;
-  lastUpdated: string | null;
+  lastStatusAt: string | null;
 };

@@ -7,6 +7,7 @@ import type { TemplateSummary } from '@/types/template';
 
 import { TemplateCard } from './template-card';
 
+// TODO: Clean up
 export function TemplatesPage() {
   const [templateSource, setTemplateSource] = useState<'local' | 'remote'>('remote');
   const [page, setPage] = useState(1);

@@ -20,10 +20,10 @@ export function Toolbar({
         />
       </InputGroup>
       <Spacer />
-      <Button variant="subtle">
+      {/* <Button variant="subtle">
         <PiDownload />
         Export
-      </Button>
+      </Button> */}
       <Button asChild>
         <Link to="/listings/new">
           <PiPlus />

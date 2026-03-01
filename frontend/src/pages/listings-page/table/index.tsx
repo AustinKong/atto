@@ -107,7 +107,7 @@ const columns = [
     size: 15,
     sortDescFirst: false,
   }),
-  columnHelper.accessor('lastUpdated', {
+  columnHelper.accessor('lastStatusAt', {
     id: 'last_status_at',
     header: 'Last Updated',
     cell: (info) => <DisplayDate date={info.getValue()} />,
@@ -197,7 +197,7 @@ const Table = React.memo(function Table({ debouncedSearch }: { debouncedSearch: 
 
   return (
     <ChakraTable.ScrollArea h="full" overflowY="scroll">
-      <ChakraTable.Root size="sm" stickyHeader tableLayout="fixed" interactive>
+      <ChakraTable.Root size="sm" stickyHeader tableLayout="fixed" interactive showColumnBorder>
         <ChakraTable.ColumnGroup>
           {table.getLeafHeaders().map((header) => (
             <ChakraTable.Column key={header.id} htmlWidth={`${header.getSize()}%`} />
