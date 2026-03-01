@@ -34,7 +34,7 @@ export function useSaveResume() {
   const queryClient = useQueryClient();
 
   return useDebouncedMutation<Resume, Error, { resumeId: string; sections: Section[] }>({
-    delay: 750,
+    delay: 500,
     mutationFn: ({ resumeId, sections }) => {
       const currentResume = queryClient.getQueryData<Resume>(['resume', resumeId]);
       if (!currentResume) {

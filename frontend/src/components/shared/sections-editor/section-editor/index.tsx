@@ -1,4 +1,4 @@
-import { HStack, IconButton, Input, Text, VStack } from '@chakra-ui/react';
+import { Box, HStack, IconButton, Input, Text, VStack } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { memo } from 'react';
@@ -41,7 +41,6 @@ export const SectionEditor = memo(function SectionEditor({
       borderWidth="1px"
       borderRadius="md"
       bg="bg.panel"
-      position="relative"
       zIndex={transform ? 1 : 0}
       overflowX="visible"
     >
@@ -77,9 +76,9 @@ export const SectionEditor = memo(function SectionEditor({
         </IconButton>
       </HStack>
 
-      <VStack pr="4" pb="4" w="full" align="stretch" overflow="visible" pl="8">
+      <Box pr="4" pb="4" pl="8">
         <SectionContent sectionIndex={index} control={control} />
-      </VStack>
+      </Box>
     </VStack>
   );
 });

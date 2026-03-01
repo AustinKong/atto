@@ -32,7 +32,7 @@ export function ResumePreview({
   }, []);
 
   return (
-    <Box w="full" h="full" position="relative">
+    <Box w="full" h="full" position="relative" overflow="hidden">
       <Box
         w="full"
         h="full"

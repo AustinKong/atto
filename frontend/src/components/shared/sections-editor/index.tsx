@@ -1,4 +1,4 @@
-import { Button, HStack, VStack } from '@chakra-ui/react';
+import { VStack } from '@chakra-ui/react';
 import {
   closestCorners,
   DndContext,
@@ -11,13 +11,13 @@ import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifi
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { forwardRef, useImperativeHandle } from 'react';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
-import { PiPlus } from 'react-icons/pi';
 
 import { sectionTypes } from '@/constants/sectionTypes';
 import { useWatchForm } from '@/hooks/useWatchForm';
 import type { SectionType } from '@/types/resume';
 import type { Section } from '@/types/resume';
 
+import { AddSectionButton } from './AddSectionButton';
 import { SectionEditor } from './section-editor';
 import type { SectionsEditorData } from './types';
 
@@ -28,7 +28,6 @@ export type SectionsEditorHandle = {
   reset: (newSections?: Section[]) => void;
 };
 
-// TODO: See if I can clean up things to use <Card> instead
 export const SectionsEditor = forwardRef<
   SectionsEditorHandle,
   {
@@ -89,15 +88,15 @@ export const SectionsEditor = forwardRef<
 
   return (
     <FormProvider {...methods}>
-      <form autoComplete="off" spellCheck="false">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCorners}
-          onDragEnd={handleDragEnd}
-          modifiers={[restrictToParentElement, restrictToVerticalAxis]}
-        >
-          <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
-            <VStack gap="3" align="stretch">
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragEnd={handleDragEnd}
+        modifiers={[restrictToParentElement, restrictToVerticalAxis]}
+      >
+        <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+          <VStack gap="3" align="stretch" asChild>
+            <form autoComplete="off" spellCheck="false">
               {fields.map((field, index) => (
                 <SectionEditor
                   key={field.id}
@@ -106,23 +105,11 @@ export const SectionsEditor = forwardRef<
                   onDelete={() => remove(index)}
                 />
               ))}
-
-              <HStack justify="center" py="2" gap="2">
-                {sectionTypes.map((config) => (
-                  <Button
-                    key={config.type}
-                    onClick={() => addSection(config.type)}
-                    variant="ghost"
-                    size="sm"
-                  >
-                    <PiPlus /> Add {config.label}
-                  </Button>
-                ))}
-              </HStack>
-            </VStack>
-          </SortableContext>
-        </DndContext>
-      </form>
+              <AddSectionButton onAddSection={addSection} />
+            </form>
+          </VStack>
+        </SortableContext>
+      </DndContext>
     </FormProvider>
   );
 });

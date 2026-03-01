@@ -33,19 +33,21 @@ export const Editor = memo(function Editor({ profile }: { profile: Profile }) {
 
   return (
     <FormProvider {...form}>
-      <VStack h="full" align="stretch" overflowY="auto" overflowX="hidden" gap={6} p={4}>
-        <PersonalInformation />
+      <VStack h="full" align="stretch" overflowY="auto" gap={6} p={4} asChild>
+        <form autoComplete="off" spellCheck="false">
+          <PersonalInformation />
 
-        <VStack gap={2} align="stretch">
-          <Field.Root>
-            <Field.Label>Base Sections</Field.Label>
-            <Field.HelperText>
-              Manage the sections that will always appear in your resume, regardless of the job
-              description. For example, you could include your education history or skills here.
-            </Field.HelperText>
-          </Field.Root>
-          <SectionsEditor defaultValues={profile.baseSections} onChange={handleSectionsChange} />
-        </VStack>
+          <VStack gap={2} align="stretch">
+            <Field.Root>
+              <Field.Label>Base Sections</Field.Label>
+              <Field.HelperText>
+                Manage the sections that will always appear in your resume, regardless of the job
+                description. For example, you could include your education history or skills here.
+              </Field.HelperText>
+            </Field.Root>
+            <SectionsEditor defaultValues={profile.baseSections} onChange={handleSectionsChange} />
+          </VStack>
+        </form>
       </VStack>
     </FormProvider>
   );

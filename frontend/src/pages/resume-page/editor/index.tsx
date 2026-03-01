@@ -1,15 +1,21 @@
 import { Tabs } from '@chakra-ui/react';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { useCallback, useRef, useState } from 'react';
+import { useParams } from 'react-router';
 
 import type { SectionsEditorHandle } from '@/components/shared/sections-editor';
 import { SectionsEditor } from '@/components/shared/sections-editor';
 import { useSaveResume } from '@/mutations/resume';
-import type { Resume, Section } from '@/types/resume';
+import { resumeQueries } from '@/queries/resume';
+import type { Section } from '@/types/resume';
 
 import { Generate } from './Generate';
 import { JsonEditor } from './JsonEditor';
 
-export function Editor({ resume }: { resume: Resume }) {
+export function Editor() {
+  const { resumeId } = useParams<{ resumeId: string }>();
+  const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
+
   const defaultTab = resume.sections.length === 0 ? 'generate' : 'visual';
   const [activeTab, setActiveTab] = useState(defaultTab);
   const { mutate: saveResume } = useSaveResume();
@@ -34,7 +40,7 @@ export function Editor({ resume }: { resume: Resume }) {
       display="flex"
       flexDirection="column"
     >
-      <Tabs.List>
+      <Tabs.List h="10" alignItems="end">
         <Tabs.Trigger value="visual">Visual Editor</Tabs.Trigger>
         <Tabs.Trigger value="json">JSON Editor</Tabs.Trigger>
         <Tabs.Trigger value="generate">Generate</Tabs.Trigger>

@@ -17,7 +17,7 @@ import { ExternalNavItem, InternalNavItem } from './NavItem';
 
 const INTERNAL_NAV_ITEMS = [
   {
-    label: 'Saved',
+    label: 'Listings',
     path: '/listings',
     icon: <LuBookmark />,
     isActive: (path: string) =>

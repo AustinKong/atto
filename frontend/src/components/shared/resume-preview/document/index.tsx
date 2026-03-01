@@ -38,15 +38,16 @@ export function Document({
   const { aBlob, bBlob, activeInstance } = state;
 
   useEffect(() => {
+    dispatch({ type: 'RESET' });
+  }, [template.id]);
+
+  useEffect(() => {
     if (!blob) return;
     dispatch({ type: 'NEW_BLOB', blob });
   }, [blob]);
 
   const handleInstanceReady = (instance: 'A' | 'B') => {
-    // Must use state.activeInstance here instead of activeInstance to avoid stale closure issues
-    if (state.activeInstance !== instance) {
-      dispatch({ type: 'TOGGLE_ACTIVE' });
-    }
+    dispatch({ type: 'TOGGLE_ACTIVE', instance });
   };
 
   if (isFetching && !aBlob && !bBlob) {

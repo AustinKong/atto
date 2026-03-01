@@ -19,7 +19,7 @@ export const sectionTypes: SectionTypeConfig[] = [
     createContent: () => [
       {
         title: '',
-        subtitle: null,
+        subtitle: '',
         startDate: null,
         endDate: null,
         bullets: [],

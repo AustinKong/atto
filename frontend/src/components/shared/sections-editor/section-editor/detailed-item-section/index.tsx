@@ -70,7 +70,13 @@ export const DetailedItemSection = memo(
           </VStack>
         </SortableContext>
 
-        <Button onClick={addItem} aria-label="Add experience item" variant="outline">
+        <Button
+          onClick={addItem}
+          aria-label="Add experience item"
+          variant="outline"
+          w="full"
+          mt="2"
+        >
           <PiPlus /> Add Entry
         </Button>
       </DndContext>

@@ -10,7 +10,7 @@ export type SectionType = (typeof SECTION_TYPES)[keyof typeof SECTION_TYPES];
 
 export interface DetailedItem {
   title: string;
-  subtitle: string | null;
+  subtitle: string;
   startDate: ISOYearMonth | null;
   endDate: ISOYearMonth | 'present' | null;
   bullets: string[];

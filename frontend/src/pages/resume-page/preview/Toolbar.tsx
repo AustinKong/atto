@@ -10,19 +10,23 @@ import {
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { PiDownload } from 'react-icons/pi';
-import { useParams } from 'react-router';
 
 import { useUpdateResumeTemplate } from '@/mutations/resume';
 import { useRenderTemplatePdf } from '@/mutations/templates';
-import { profileQueries } from '@/queries/profile';
-import { resumeQueries } from '@/queries/resume';
 import { templateQueries } from '@/queries/template';
+import type { Profile } from '@/types/profile';
+import type { Resume } from '@/types/resume';
+import type { Template } from '@/types/template';
 
-export function ResumeToolbar() {
-  const { resumeId } = useParams<{ resumeId: string }>();
-  const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
-  const { data: profile } = useSuspenseQuery(profileQueries.item());
-  const { data: template } = useSuspenseQuery(templateQueries.localItem(resume.templateId));
+export function Toolbar({
+  resume,
+  profile,
+  template,
+}: {
+  resume: Resume;
+  profile: Profile;
+  template: Template;
+}) {
   const { data: templateList } = useSuspenseQuery(templateQueries.list(1, 100));
   const { mutateAsync: renderPdf } = useRenderTemplatePdf();
   const { mutate: updateTemplate } = useUpdateResumeTemplate();
@@ -46,17 +50,17 @@ export function ResumeToolbar() {
   };
 
   const handleTemplateChange = (templateId: string) => {
-    updateTemplate({ resumeId: resumeId!, templateId });
+    updateTemplate({ resumeId: resume.id!, templateId });
   };
 
   return (
-    <HStack p="1.5" borderBottom="1px solid" borderColor="border">
+    <HStack h="10" borderBottom="1px solid" borderColor="border" w="full" p="1">
       <Select.Root
         collection={templateCollection}
         value={[resume.templateId]}
         onValueChange={({ value }) => handleTemplateChange(value[0])}
         w="48"
-        size="sm"
+        size="xs"
       >
         <Select.HiddenSelect />
         <Select.Control>
@@ -83,11 +87,11 @@ export function ResumeToolbar() {
       <Spacer />
       <DownloadTrigger
         data={handleExport}
-        fileName={`resume_${resumeId}.pdf`}
+        fileName={`resume_${resume.id}.pdf`}
         mimeType="application/pdf"
         asChild
       >
-        <Button variant="subtle">
+        <Button variant="subtle" size="xs">
           <PiDownload />
           Export
         </Button>

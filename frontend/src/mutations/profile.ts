@@ -8,7 +8,7 @@ export function useUpdateProfile() {
   const queryClient = useQueryClient();
 
   return useDebouncedMutation<Profile, Error, Profile>({
-    delay: 750,
+    delay: 500,
     mutationFn: (profile: Profile) => updateProfile(profile),
     onSuccess: (data) => {
       queryClient.setQueryData(['profile'], data);
