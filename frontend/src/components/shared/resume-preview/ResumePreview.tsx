@@ -41,7 +41,7 @@ export function ResumePreview({
         _dark={{ bgColor: 'gray.700' }}
         position="relative"
       >
-        <Center minW="fit-content" minH="fit-content" p="8">
+        <Center minW="full" minH="full" p="8">
           <Document
             template={template}
             sections={sections}

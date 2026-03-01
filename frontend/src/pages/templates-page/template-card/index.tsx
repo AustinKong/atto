@@ -94,7 +94,7 @@ export const TemplateCard = memo(function TemplateCard({
         overflow="hidden"
       > */}
       {isLoading ? (
-        <Center h="full" w="full">
+        <Center h="sm" w="full">
           <Spinner size="sm" />
         </Center>
       ) : templateContent ? (

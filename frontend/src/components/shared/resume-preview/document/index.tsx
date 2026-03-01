@@ -1,6 +1,6 @@
 import { Box, Center, Spinner } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 
 import { templateQueries } from '@/queries/template';
 import type { Profile } from '@/types/profile';
@@ -8,6 +8,7 @@ import type { Section } from '@/types/resume';
 import type { Template } from '@/types/template';
 
 import { DocumentInstance } from './DocumentInstance';
+import { documentReducer, initialState } from './documentReducer';
 
 /**
  * Uses swap buffering to render new PDFs in the background and only swap them in once they're fully rendered, preventing flickering.
@@ -33,28 +34,22 @@ export function Document({
     templateQueries.renderPdf(template, sections, profile, !interactable)
   );
 
-  const [activeInstance, setActiveInstance] = useState<'A' | 'B'>('A');
-  const activeInstanceRef = useRef(activeInstance);
-  activeInstanceRef.current = activeInstance;
-
-  const [instanceA, setInstanceA] = useState<Blob | undefined>(undefined);
-  const [instanceB, setInstanceB] = useState<Blob | undefined>(undefined);
+  const [state, dispatch] = useReducer(documentReducer, initialState);
+  const { aBlob, bBlob, activeInstance } = state;
 
   useEffect(() => {
     if (!blob) return;
-
-    if (activeInstanceRef.current === 'A') {
-      setInstanceB(blob);
-    } else {
-      setInstanceA(blob);
-    }
+    dispatch({ type: 'NEW_BLOB', blob });
   }, [blob]);
 
   const handleInstanceReady = (instance: 'A' | 'B') => {
-    setActiveInstance(instance);
+    // Must use state.activeInstance here instead of activeInstance to avoid stale closure issues
+    if (state.activeInstance !== instance) {
+      dispatch({ type: 'TOGGLE_ACTIVE' });
+    }
   };
 
-  if (isFetching && !instanceA && !instanceB) {
+  if (isFetching && !aBlob && !bBlob) {
     return (
       <Center h="full">
         <Spinner />
@@ -65,8 +60,8 @@ export function Document({
   return (
     <Box position="relative">
       {[
-        { id: 'A' as const, blob: instanceA },
-        { id: 'B' as const, blob: instanceB },
+        { id: 'A' as const, blob: aBlob },
+        { id: 'B' as const, blob: bBlob },
       ].map(
         ({ id, blob }) =>
           blob && (
