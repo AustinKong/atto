@@ -14,19 +14,10 @@ import { PiDownload } from 'react-icons/pi';
 import { useUpdateResumeTemplate } from '@/mutations/resume';
 import { useRenderTemplatePdf } from '@/mutations/templates';
 import { templateQueries } from '@/queries/template';
-import type { Profile } from '@/types/profile';
 import type { Resume } from '@/types/resume';
 import type { Template } from '@/types/template';
 
-export function Toolbar({
-  resume,
-  profile,
-  template,
-}: {
-  resume: Resume;
-  profile: Profile;
-  template: Template;
-}) {
+export function Toolbar({ resume, template }: { resume: Resume; template: Template }) {
   const { data: templateList } = useSuspenseQuery(templateQueries.list(1, 100));
   const { mutateAsync: renderPdf } = useRenderTemplatePdf();
   const { mutate: updateTemplate } = useUpdateResumeTemplate();
@@ -43,7 +34,7 @@ export function Toolbar({
     const blob = await renderPdf({
       template,
       sections: resume.sections,
-      profile,
+      profile: resume.profile,
     });
 
     return blob;

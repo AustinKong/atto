@@ -1,7 +1,6 @@
 import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 
 import {
-  getDefaultTemplate,
   getLocalTemplate,
   getLocalTemplates,
   getRemoteTemplate,
@@ -9,17 +8,10 @@ import {
   renderTemplateHtml,
   renderTemplatePdf,
 } from '@/services/templates';
-import type { Profile } from '@/types/profile';
-import type { Section } from '@/types/resume';
+import type { Profile, Section } from '@/types/resume';
 import type { Template } from '@/types/template';
 
 export const templateQueries = {
-  default: () =>
-    queryOptions({
-      queryKey: ['templates', 'default'] as const,
-      queryFn: () => getDefaultTemplate(),
-      staleTime: 1000 * 60 * 5, // 5 minutes
-    }),
   list: (page: number = 1, size: number = 10) =>
     queryOptions({
       queryKey: ['templates', 'list', 'local', page, size] as const,

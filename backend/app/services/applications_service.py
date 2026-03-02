@@ -1,15 +1,13 @@
 import json
 from sqlite3 import Row
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from pydantic import TypeAdapter
 
-from app.config import settings
 from app.repositories import DatabaseRepository
 from app.schemas import (
   Application,
-  Resume,
   StatusEnum,
   StatusEvent,
   StatusEventSaved,
@@ -23,6 +21,7 @@ APPLICATION_WITH_EVENTS_QUERY = """
     a.id as application_id,
     a.resume_id,
     a.listing_id,
+    a.name,
     a.current_status,
     a.last_status_at,
     COALESCE(
@@ -76,33 +75,20 @@ class ApplicationsService(DatabaseRepository):
 
     return [self._parse_application_row(row) for row in rows]
 
-  def create(self, application: Application) -> Application:
+  # TODO: Change so Application create takes a resume_id instead so no need for the fetch here
+  # Its upt to consumer to create a Resume properly before calling this fn now
+  def create(self, application: Application, resume_id: UUID) -> Application:
     with self.transaction():
-      template_id = settings.resume.default_template
-
-      resume = Resume(
-        id=uuid4(),
-        template_id=template_id,
-        sections=[],
-      )
-      self.execute(
-        'INSERT INTO resumes (id, template_id, sections) VALUES (?, ?, ?)',
-        (
-          str(resume.id),
-          resume.template_id,
-          json.dumps([]),
-        ),
-      )
-
-      application.resume_id = resume.id
+      application.resume_id = resume_id
 
       self.execute(
-        'INSERT INTO applications (id, listing_id, resume_id, current_status, last_status_at) '
-        'VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO applications (id, listing_id, resume_id, name, current_status, '
+        'last_status_at) VALUES (?, ?, ?, ?, ?, ?)',
         (
           str(application.id),
           str(application.listing_id),
           str(application.resume_id),
+          application.name,
           application.current_status.value,
           application.last_status_at,
         ),

@@ -1,5 +1,6 @@
 import re
 from pathlib import Path
+from uuid import UUID
 
 import httpx
 from jinja2 import Template as JinjaTemplate
@@ -7,29 +8,27 @@ from playwright.async_api import async_playwright
 
 from app.config import settings
 from app.repositories.file_repository import FileRepository
-from app.schemas import Profile, Section, Template, TemplateSummary
+from app.schemas import DEFAULT_TEMPLATE_ID, Profile, Section, Template, TemplateSummary
 from app.utils.errors import DuplicateError
 
 
 class TemplateService(FileRepository):
-  SYSTEM_DEFAULT_TEMPLATE_ID = '00000000-0000-0000-0000-000000000000'
-
   def __init__(self):
     super().__init__()
 
-  def _extract_frontmatter(self, content: str) -> tuple[str, str, str]:
+  def _extract_frontmatter(self, content: str) -> tuple[UUID, str, str]:
     """
     Extract frontmatter metadata from HTML content string.
 
     Returns:
-      Tuple of (id, title, description) as strings.
+      Tuple of (id, title, description).
     """
     header = content[:1024]
 
     id_match = re.search(r'<!--\s*template-id:\s*([a-f0-9\-]+)\s*-->', header, re.IGNORECASE)
     if not id_match:
       raise ValueError('Malformed frontmatter: missing template-id')
-    template_id = id_match.group(1)
+    id = UUID(id_match.group(1))
 
     title_match = re.search(r'<!--\s*template-title:\s*(.+?)\s*-->', header, re.IGNORECASE)
     if not title_match:
@@ -41,11 +40,10 @@ class TemplateService(FileRepository):
       raise ValueError('Malformed frontmatter: missing template-description')
     description = desc_match.group(1)
 
-    return (template_id, title, description)
+    return (id, title, description)
 
   def render_html(self, template_content: str, profile: Profile, sections: list[Section]) -> str:
     profile_dict = profile.model_dump(mode='json')
-    profile_dict.pop('base_sections', None)
 
     context = {
       'profile': profile_dict,
@@ -72,7 +70,7 @@ class TemplateService(FileRepository):
   def list_local_templates(self) -> list[TemplateSummary]:
     summaries = []
 
-    template = self.get_local_template(self.SYSTEM_DEFAULT_TEMPLATE_ID)
+    template = self.get_local_template(DEFAULT_TEMPLATE_ID)
     summaries.append(
       TemplateSummary(
         id=template.id,
@@ -102,13 +100,13 @@ class TemplateService(FileRepository):
 
     return summaries
 
-  def get_local_template(self, template_id: str) -> Template:
-    if template_id == self.SYSTEM_DEFAULT_TEMPLATE_ID:
+  def get_local_template(self, id: UUID) -> Template:
+    if id == DEFAULT_TEMPLATE_ID:
       system_template_path = Path(__file__).parent.parent / 'assets' / 'system.html'
       content = self.read_text(system_template_path)
-      id, title, description = self._extract_frontmatter(content)
+      _, title, description = self._extract_frontmatter(content)
       return Template(
-        id=template_id,
+        id=id,
         title=title,
         description=description,
         content=content,
@@ -121,9 +119,10 @@ class TemplateService(FileRepository):
       try:
         content = self.read_text(filepath)
         id, title, description = self._extract_frontmatter(content)
-        if id == template_id:
+
+        if id == id:
           return Template(
-            id=template_id,
+            id=id,
             title=title,
             description=description,
             content=content,
@@ -132,9 +131,9 @@ class TemplateService(FileRepository):
       except Exception:
         pass
 
-    raise FileNotFoundError(f'Template {template_id} not found')
+    raise FileNotFoundError(f'Template {id} not found')
 
-  def _get_local_ids(self) -> set[str]:
+  def _get_local_ids(self) -> set[UUID]:
     local_summaries = self.list_local_templates()
     return {summary.id for summary in local_summaries}
 
@@ -154,18 +153,24 @@ class TemplateService(FileRepository):
     summaries = []
 
     for item in manifest:
+      try:
+        item_id = UUID(item['id'])
+      except Exception:
+        # skip malformed ids in remote manifest
+        continue
+
       summaries.append(
         TemplateSummary(
-          id=item['id'],
+          id=item_id,
           title=item['title'],
           description=item['description'],
-          source='both' if item['id'] in local_ids else 'remote',
+          source='both' if item_id in local_ids else 'remote',
         )
       )
 
     return summaries
 
-  async def get_remote_template(self, template_id: str) -> Template:
+  async def get_remote_template(self, id: UUID) -> Template:
     try:
       async with httpx.AsyncClient() as client:
         manifest_response = await client.get(
@@ -179,12 +184,12 @@ class TemplateService(FileRepository):
 
     download_url = None
     for item in manifest:
-      if item['id'] == template_id:
+      if item.get('id') == str(id):
         download_url = item.get('download_url')
         break
 
     if not download_url:
-      raise RuntimeError(f'Template {template_id} not found in remote manifest')
+      raise RuntimeError(f'Template {id} not found in remote manifest')
 
     try:
       async with httpx.AsyncClient() as client:
@@ -192,24 +197,24 @@ class TemplateService(FileRepository):
         response.raise_for_status()
         content = response.text
     except Exception as e:
-      raise RuntimeError(f'Failed to fetch remote template {template_id}: {str(e)}') from e
+      raise RuntimeError(f'Failed to fetch remote template {id}: {str(e)}') from e
 
     _, title, description = self._extract_frontmatter(content)
     return Template(
-      id=template_id,
+      id=id,
       title=title,
       description=description,
       content=content,
       source='remote',
     )
 
-  async def download_remote_template(self, template_id: str) -> None:
+  async def download_remote_template(self, id: UUID) -> None:
     local_ids = self._get_local_ids()
-    if template_id in local_ids:
-      raise DuplicateError(f'Template with ID {template_id} already exists locally')
+    if id in local_ids:
+      raise DuplicateError(f'Template with ID {id} already exists locally')
 
-    template = await self.get_remote_template(template_id)
+    template = await self.get_remote_template(id)
     content = template.content
 
-    filepath = Path(settings.paths.templates_dir) / f'{template_id}.html'
+    filepath = Path(settings.paths.templates_dir) / f'{id}.html'
     self.write_text(filepath, content, dedup=True)

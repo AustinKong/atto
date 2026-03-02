@@ -7,6 +7,9 @@ from pydantic import Field
 from app.schemas.dates import ISOYearMonth
 from app.schemas.types import CamelModel
 
+# Reserved UUID for the default resume
+DEFAULT_RESUME_ID = UUID('00000000-0000-0000-0000-000000000000')
+
 
 class SectionTypeEnum(StrEnum):
   SIMPLE = 'simple'
@@ -48,7 +51,16 @@ Section = Annotated[
 ]
 
 
+class Profile(CamelModel):
+  full_name: str = ''
+  email: str = ''
+  phone: str = ''
+  location: str = ''
+  website: str = ''
+
+
 class Resume(CamelModel):
   id: UUID = Field(default_factory=uuid4)
-  template_id: str
+  template_id: UUID
   sections: list[Section]
+  profile: Profile = Field(default_factory=Profile)

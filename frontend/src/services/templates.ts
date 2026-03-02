@@ -1,33 +1,6 @@
 import type { Page } from '@/types/common';
-import type { Profile } from '@/types/profile';
-import type { Section } from '@/types/resume';
+import type { Profile, Section } from '@/types/resume';
 import type { Template, TemplateSummary } from '@/types/template';
-
-export async function getDefaultTemplate(): Promise<{ template_id: string }> {
-  const response = await fetch(`/api/templates/default`);
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch default template');
-  }
-
-  return response.json();
-}
-
-export async function setDefaultTemplate(templateId: string): Promise<{ template_id: string }> {
-  const response = await fetch(`/api/templates/default`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ template_id: templateId }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to set default template');
-  }
-
-  return response.json();
-}
 
 export async function getLocalTemplates(
   page: number = 1,

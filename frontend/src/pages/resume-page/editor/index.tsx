@@ -5,12 +5,13 @@ import { useParams } from 'react-router';
 
 import type { SectionsEditorHandle } from '@/components/shared/sections-editor';
 import { SectionsEditor } from '@/components/shared/sections-editor';
-import { useSaveResume } from '@/mutations/resume';
+import { useSaveResumeSections } from '@/mutations/resume';
 import { resumeQueries } from '@/queries/resume';
 import type { Section } from '@/types/resume';
 
 import { Generate } from './Generate';
 import { JsonEditor } from './JsonEditor';
+import { ProfileEditor } from './ProfileInfoEditor';
 
 export function Editor() {
   const { resumeId } = useParams<{ resumeId: string }>();
@@ -18,7 +19,7 @@ export function Editor() {
 
   const defaultTab = resume.sections.length === 0 ? 'generate' : 'visual';
   const [activeTab, setActiveTab] = useState(defaultTab);
-  const { mutate: saveResume } = useSaveResume();
+  const { mutate: saveResume } = useSaveResumeSections();
   const sectionsEditorRef = useRef<SectionsEditorHandle | null>(null);
 
   const handleSectionsChange = (sections: Section[]) => {
@@ -41,10 +42,15 @@ export function Editor() {
       flexDirection="column"
     >
       <Tabs.List h="10" alignItems="end">
+        <Tabs.Trigger value="profile">Profile Info</Tabs.Trigger>
         <Tabs.Trigger value="visual">Visual Editor</Tabs.Trigger>
         <Tabs.Trigger value="json">JSON Editor</Tabs.Trigger>
         <Tabs.Trigger value="generate">Generate</Tabs.Trigger>
       </Tabs.List>
+
+      <Tabs.Content value="profile" overflowY="scroll" p="0" flex="1" overflowX="hidden">
+        <ProfileEditor />
+      </Tabs.Content>
 
       <Tabs.Content value="visual" overflowY="scroll" p="4" flex="1" overflowX="hidden">
         <SectionsEditor

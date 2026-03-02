@@ -6,9 +6,12 @@ import { PiStar, PiStarFill } from 'react-icons/pi';
 
 import { ReadonlyResumePreview } from '@/components/shared/resume-preview';
 import { toaster } from '@/components/ui/toaster';
+import { DEFAULT_RESUME_ID } from '@/constants/resume';
 import { DEFAULT_TEMPLATE_PROFILE, DEFAULT_TEMPLATE_SECTIONS } from '@/constants/templates';
+import { resumeQueries } from '@/queries/resume';
 import { templateQueries } from '@/queries/template';
-import { downloadRemoteTemplate, setDefaultTemplate } from '@/services/templates';
+import { updateResume } from '@/services/resume';
+import { downloadRemoteTemplate } from '@/services/templates';
 import type { Template, TemplateSummary } from '@/types/template';
 
 type TemplateCardProps = {
@@ -51,10 +54,14 @@ export const TemplateCard = memo(function TemplateCard({
   });
 
   const setDefaultMutation = useMutation({
-    mutationFn: () => setDefaultTemplate(template.id),
-    onSuccess: () => {
-      // Invalidate the default template query and both template lists to refresh UI
-      queryClient.invalidateQueries({ queryKey: ['templates', 'default'] });
+    mutationFn: async () => {
+      const defaultResume = await queryClient.ensureQueryData(
+        resumeQueries.item(DEFAULT_RESUME_ID)
+      );
+      return updateResume({ ...defaultResume, templateId: template.id });
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(resumeQueries.item(DEFAULT_RESUME_ID).queryKey, data);
       queryClient.invalidateQueries({ queryKey: ['templates', 'list', 'local'] });
       queryClient.invalidateQueries({ queryKey: ['templates', 'remote', 'list'] });
     },

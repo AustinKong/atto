@@ -1,8 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 
 import { renderTemplatePdf } from '@/services/templates';
-import type { Profile } from '@/types/profile';
-import type { Section } from '@/types/resume';
+import type { Profile, Section } from '@/types/resume';
 import type { Template } from '@/types/template';
 
 export function useRenderTemplatePdf() {

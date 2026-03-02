@@ -13,10 +13,10 @@ from app.routers import (
   config_router,
   experiences_router,
   listings_router,
-  profile_router,
   resumes_router,
   templates_router,
 )
+from app.services import resume_service
 from app.utils.errors import (
   ApplicationError,
   DuplicateError,
@@ -28,11 +28,15 @@ from app.utils.errors import (
 def create_app() -> FastAPI:
   app = FastAPI()
 
+  # Ensure default global resume exists on startup
+  @app.on_event('startup')
+  async def startup_event():
+    resume_service.ensure_default_global_resume_exists()
+
   app.include_router(applications_router, prefix='/api')
   app.include_router(config_router, prefix='/api')
   app.include_router(experiences_router, prefix='/api')
   app.include_router(listings_router, prefix='/api')
-  app.include_router(profile_router, prefix='/api')
   app.include_router(resumes_router, prefix='/api')
   app.include_router(templates_router, prefix='/api')
 

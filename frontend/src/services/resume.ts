@@ -1,5 +1,17 @@
 import type { Resume } from '@/types/resume';
 
+export async function createResume(): Promise<Resume> {
+  const response = await fetch('/api/resumes/', {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    throw response;
+  }
+
+  return response.json();
+}
+
 export async function getResume(resumeId: string): Promise<Resume> {
   const response = await fetch(`/api/resumes/${resumeId}`);
 

@@ -7,11 +7,12 @@ from .experience import (
 )
 from .insights import LinkSelectionResponse
 from .listing import Listing, ListingBase, ListingSummary
-from .profile import Profile
 from .resume import (
+  DEFAULT_RESUME_ID,
   DetailedItem,
   DetailedSection,
   ParagraphSection,
+  Profile,
   Resume,
   Section,
   SectionTypeEnum,
@@ -27,7 +28,7 @@ from .scraping import (
   ListingDraftUnique,
   ListingExtraction,
 )
-from .template import Template, TemplateSummary
+from .template import DEFAULT_TEMPLATE_ID, Template, TemplateSummary
 from .types import CamelModel, Page
 
 __all__ = [
@@ -55,12 +56,12 @@ __all__ = [
   'ListingDraftError',
   'ListingDraftUnique',
   'ListingExtraction',
-  # Profile
-  'Profile',
   # Resume
+  'DEFAULT_RESUME_ID',
   'DetailedItem',
   'DetailedSection',
   'ParagraphSection',
+  'Profile',
   'Resume',
   'Section',
   'SectionTypeEnum',
@@ -72,6 +73,7 @@ __all__ = [
   'StatusEvent',
   'StatusEventSaved',
   # Templates
+  'DEFAULT_TEMPLATE_ID',
   'Template',
   'TemplateSummary',
   # Pagination

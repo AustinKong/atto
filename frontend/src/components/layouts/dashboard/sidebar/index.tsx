@@ -9,6 +9,7 @@ import {
   LuUser,
 } from 'react-icons/lu';
 
+import { DEFAULT_RESUME_ID } from '@/constants/resume';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 import { AppLogo } from './AppLogo';
@@ -25,7 +26,11 @@ const INTERNAL_NAV_ITEMS = [
       (!!path.match(/^\/listings\/[^/]+/) && !path.startsWith('/listings/new')),
   },
   { label: 'New Listing', path: '/listings/new', icon: <LuPlus /> },
-  { label: 'Profile', path: '/profile', icon: <LuUser /> },
+  {
+    label: 'Resume Editor',
+    path: `/resumes/${DEFAULT_RESUME_ID}`,
+    icon: <LuUser />,
+  },
   { label: 'Templates', path: '/templates', icon: <LuLayoutTemplate /> },
   { label: 'Settings', path: '/settings', icon: <LuSettings /> },
 ];

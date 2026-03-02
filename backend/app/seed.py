@@ -50,7 +50,8 @@ def create_tables():
       CREATE TABLE IF NOT EXISTS resumes (
         id TEXT PRIMARY KEY,
         template_id TEXT NOT NULL,
-        sections JSON NOT NULL
+        sections JSON NOT NULL,
+        profile JSON NOT NULL
       )
     """)
 
@@ -59,6 +60,7 @@ def create_tables():
         id TEXT PRIMARY KEY,
         listing_id TEXT NOT NULL,
         resume_id TEXT NOT NULL,
+        name TEXT NOT NULL DEFAULT '',
         current_status TEXT NOT NULL,
         last_status_at TEXT NOT NULL,
         FOREIGN KEY (listing_id) REFERENCES listings (id) ON DELETE CASCADE,

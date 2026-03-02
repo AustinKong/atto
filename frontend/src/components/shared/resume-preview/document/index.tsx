@@ -3,8 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useReducer } from 'react';
 
 import { templateQueries } from '@/queries/template';
-import type { Profile } from '@/types/profile';
-import type { Section } from '@/types/resume';
+import type { Profile, Section } from '@/types/resume';
 import type { Template } from '@/types/template';
 
 import { DocumentInstance } from './DocumentInstance';

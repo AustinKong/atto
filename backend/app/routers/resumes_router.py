@@ -5,6 +5,8 @@ from fastapi import APIRouter
 
 from app.resources.prompts import OPTIMIZATION_PROMPT
 from app.schemas import (
+  DEFAULT_RESUME_ID,
+  DEFAULT_TEMPLATE_ID,
   DetailedItem,
   DetailedSection,
   Experience,
@@ -16,7 +18,6 @@ from app.services import (
   experience_service,
   listings_service,
   llm_service,
-  profile_service,
   resume_service,
   template_service,
 )
@@ -25,6 +26,20 @@ router = APIRouter(
   prefix='/resumes',
   tags=['Resumes'],
 )
+
+# TODO: Change to POST with options to create from default global resume or generate or empty
+
+
+@router.post('/')
+async def create_resume() -> Resume:
+  default_resume = resume_service.ensure_default_global_resume_exists()
+  return resume_service.create(
+    Resume(
+      template_id=default_resume.template_id,
+      sections=[],
+      profile=default_resume.profile,
+    )
+  )
 
 
 @router.get('/{resume_id}')
@@ -35,18 +50,21 @@ async def get_resume(resume_id: UUID) -> Resume:
   try:
     template_service.get_local_template(resume.template_id)
   except FileNotFoundError:
-    resume.template_id = template_service.SYSTEM_DEFAULT_TEMPLATE_ID
+    resume.template_id = DEFAULT_TEMPLATE_ID
     resume = resume_service.update(resume)
 
   return resume
 
 
+# TODO: Remove
 @router.post('/{resume_id}/populate')
 async def populate_resume_base_sections(resume_id: UUID):
   resume = resume_service.get(resume_id)
 
-  profile = profile_service.get()
-  resume.sections = profile.base_sections
+  # Get sections and profile from the default global resume
+  default_resume = resume_service.get(DEFAULT_RESUME_ID)
+  resume.sections = default_resume.sections
+  resume.profile = default_resume.profile
   updated_resume = resume_service.update(resume)
   return updated_resume
 
@@ -105,11 +123,7 @@ async def generate_resume_content(resume_id: UUID):
     for exp in sorted_experiences
   ]
 
-  # Populate base sections from profile
-  profile = profile_service.get()
-  resume.sections = profile.base_sections
-
-  # Append work experience section
+  # Append work experience section to existing sections
   resume.sections.append(
     DetailedSection(
       id=str(uuid4()),

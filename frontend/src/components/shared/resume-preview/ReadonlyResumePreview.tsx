@@ -1,8 +1,7 @@
 import { Box, type BoxProps } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 
-import type { Profile } from '@/types/profile';
-import type { Section } from '@/types/resume';
+import type { Profile, Section } from '@/types/resume';
 import type { Template } from '@/types/template';
 
 import { Document } from './document';

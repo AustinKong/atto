@@ -1,5 +1,5 @@
 from datetime import date
-from enum import Enum
+from enum import StrEnum
 from typing import Annotated, Literal
 from uuid import UUID, uuid4
 
@@ -9,7 +9,7 @@ from app.schemas.dates import ISODate, ISODatetime
 from app.schemas.types import CamelModel
 
 
-class StatusEnum(str, Enum):
+class StatusEnum(StrEnum):
   SAVED = 'saved'
   APPLIED = 'applied'
   SCREENING = 'screening'
@@ -115,6 +115,7 @@ class Application(CamelModel):
   listing_id: UUID
   # resumeId is optional during creation but it's non-nullable in the database and frontend type
   resume_id: UUID | None = None
+  name: str = ''
   status_events: list[StatusEvent] = Field(default_factory=list)
   # Denormalized to significantly simplify listings_service.list_all query
   current_status: StatusEnum = Field(default=StatusEnum.SAVED)

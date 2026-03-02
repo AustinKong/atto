@@ -2,8 +2,7 @@ import { Box, Center, HStack, IconButton, Text } from '@chakra-ui/react';
 import { useCallback, useState } from 'react';
 import { LuMinus, LuPlus } from 'react-icons/lu';
 
-import type { Profile } from '@/types/profile';
-import type { Section } from '@/types/resume';
+import type { Profile, Section } from '@/types/resume';
 import type { Template } from '@/types/template';
 
 import { Document } from './document';

@@ -38,8 +38,17 @@ export interface ParagraphSection extends BaseSection {
 
 export type Section = SimpleSection | DetailedSection | ParagraphSection;
 
+export type Profile = {
+  fullName: string;
+  email: string;
+  phone: string;
+  location: string;
+  website: string;
+};
+
 export interface Resume {
   id: string;
   templateId: string;
   sections: Section[];
+  profile: Profile;
 }

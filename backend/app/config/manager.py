@@ -11,7 +11,6 @@ from app.config.schemas import (
   ListingsPrefs,
   ModelPrefs,
   PathsPrefs,
-  ResumePrefs,
   get_data_dir,
 )
 from app.utils.structure import assign_path, deep_merge, flatten_structure
@@ -69,10 +68,6 @@ class ConfigManager:
   @property
   def model(self) -> ModelPrefs:
     return self.config.model
-
-  @property
-  def resume(self) -> ResumePrefs:
-    return self.config.resume
 
   @property
   def listings(self) -> ListingsPrefs:

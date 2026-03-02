@@ -52,6 +52,7 @@ class PathsPrefs(BaseModel):
     description='Directory where AI embeddings for semantic search are stored. Larger datasets require more disk space here.',
     exposure='advanced',
   )
+  # TODO: Remove if not used
   profile_path: str = ConfigField(
     default_factory=lambda: str(get_data_dir() / 'profile.json'),
     title='Profile Data Path',
@@ -94,15 +95,6 @@ class ModelPrefs(BaseModel):
     title='OpenAI API Key',
     description='Your OpenAI API key for accessing AI models. Required for the application to function. Get one from https://platform.openai.com/api-keys',
     exposure='secret',
-  )
-
-
-class ResumePrefs(BaseModel):
-  default_template: str = ConfigField(
-    default='00000000-0000-0000-0000-000000000000',
-    title='Default Resume Template',
-    description='The HTML template used when generating new resumes. Templates are stored in the templates directory and determine the visual layout and styling.',
-    exposure='hidden',
   )
 
 
@@ -199,11 +191,6 @@ class AppConfig(BaseModel):
     default_factory=ModelPrefs,
     title='AI Models',
     description='LLM and embedding model settings',
-  )
-  resume: ResumePrefs = Field(
-    default_factory=ResumePrefs,
-    title='Resume',
-    description='Resume configuration',
   )
   listings: ListingsPrefs = Field(
     default_factory=ListingsPrefs,

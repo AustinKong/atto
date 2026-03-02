@@ -2,6 +2,8 @@ import { Box, Button, Center, SimpleGrid, Stack, Tabs, Text, VStack } from '@cha
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
+import { DEFAULT_RESUME_ID } from '@/constants/resume';
+import { resumeQueries } from '@/queries/resume';
 import { templateQueries } from '@/queries/template';
 import type { TemplateSummary } from '@/types/template';
 
@@ -15,12 +17,12 @@ export function TemplatesPage() {
 
   const { data: localData } = useSuspenseQuery(templateQueries.list(page, PAGE_SIZE));
   const { data: remoteData } = useSuspenseQuery(templateQueries.remoteList(page, PAGE_SIZE));
-  const { data: defaultTemplateData } = useSuspenseQuery(templateQueries.default());
+  const { data: defaultResume } = useSuspenseQuery(resumeQueries.item(DEFAULT_RESUME_ID));
 
   const currentData = templateSource === 'local' ? localData : remoteData;
   const templates = currentData?.items || [];
   const totalPages = currentData?.pages || 1;
-  const defaultTemplateId = defaultTemplateData?.template_id;
+  const defaultTemplateId = defaultResume.templateId;
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
