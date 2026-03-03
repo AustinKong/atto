@@ -11,6 +11,8 @@ import { documentReducer, initialState } from './documentReducer';
 
 /**
  * Uses swap buffering to render new PDFs in the background and only swap them in once they're fully rendered, preventing flickering.
+ * Blob URLs are created once per blob in this parent component so each DocumentInstance receives a plain string,
+ * avoiding ArrayBuffer transfer/detach issues when two instances share the same Blob object.
  */
 export function Document({
   template,
@@ -34,7 +36,7 @@ export function Document({
   );
 
   const [state, dispatch] = useReducer(documentReducer, initialState);
-  const { aBlob, bBlob, activeInstance } = state;
+  const { aUrl, bUrl, activeInstance } = state;
 
   useEffect(() => {
     dispatch({ type: 'RESET' });
@@ -42,14 +44,15 @@ export function Document({
 
   useEffect(() => {
     if (!blob) return;
-    dispatch({ type: 'NEW_BLOB', blob });
+    const url = URL.createObjectURL(blob);
+    dispatch({ type: 'NEW_URL', url });
   }, [blob]);
 
   const handleInstanceReady = (instance: 'A' | 'B') => {
     dispatch({ type: 'TOGGLE_ACTIVE', instance });
   };
 
-  if (isFetching && !aBlob && !bBlob) {
+  if (isFetching && !aUrl && !bUrl) {
     return (
       <Center h="full">
         <Spinner />
@@ -60,11 +63,11 @@ export function Document({
   return (
     <Box position="relative">
       {[
-        { id: 'A' as const, blob: aBlob },
-        { id: 'B' as const, blob: bBlob },
+        { id: 'A' as const, url: aUrl },
+        { id: 'B' as const, url: bUrl },
       ].map(
-        ({ id, blob }) =>
-          blob && (
+        ({ id, url }) =>
+          url && (
             <Box
               key={id}
               visibility={activeInstance === id ? 'visible' : 'hidden'}
@@ -73,7 +76,7 @@ export function Document({
               left={0}
             >
               <DocumentInstance
-                blob={blob}
+                url={url}
                 scale={scale}
                 pageWidth={pageWidth}
                 limitPages={limitPages}

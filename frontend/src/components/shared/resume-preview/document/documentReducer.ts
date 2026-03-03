@@ -1,29 +1,31 @@
 export type DocumentState = {
   activeInstance: 'A' | 'B';
-  aBlob?: Blob;
-  bBlob?: Blob;
+  aUrl?: string;
+  bUrl?: string;
   pendingSwap: boolean;
 };
 
 export type DocumentAction =
-  | { type: 'NEW_BLOB'; blob: Blob }
+  | { type: 'NEW_URL'; url: string }
   | { type: 'TOGGLE_ACTIVE'; instance: 'A' | 'B' }
   | { type: 'RESET' };
 
 export const initialState: DocumentState = {
   activeInstance: 'A',
-  aBlob: undefined,
-  bBlob: undefined,
+  aUrl: undefined,
+  bUrl: undefined,
   pendingSwap: false,
 };
 
 export function documentReducer(state: DocumentState, action: DocumentAction): DocumentState {
   switch (action.type) {
-    case 'NEW_BLOB': {
+    case 'NEW_URL': {
       if (state.activeInstance === 'A') {
-        return { ...state, bBlob: action.blob, pendingSwap: true };
+        if (state.bUrl) URL.revokeObjectURL(state.bUrl);
+        return { ...state, bUrl: action.url, pendingSwap: true };
       } else {
-        return { ...state, aBlob: action.blob, pendingSwap: true };
+        if (state.aUrl) URL.revokeObjectURL(state.aUrl);
+        return { ...state, aUrl: action.url, pendingSwap: true };
       }
     }
     case 'TOGGLE_ACTIVE': {

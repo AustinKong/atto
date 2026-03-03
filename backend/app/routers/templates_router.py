@@ -46,12 +46,12 @@ async def list_remote_templates(page: int = 1, size: int = 10):
   )
 
 
-@router.get('/local/{template_id}', response_model=Template)
+@router.get('/local/{id}', response_model=Template)
 async def get_local_template(id: UUID):
   return template_service.get_local_template(id)
 
 
-@router.get('/remote/{template_id}', response_model=Template)
+@router.get('/remote/{id}', response_model=Template)
 async def get_remote_template(id: UUID):
   return await template_service.get_remote_template(id)
 
@@ -81,7 +81,7 @@ async def render_template(
   raise NotFoundError(f'Unsupported format: {format}')
 
 
-@router.post('/remote/{template_id}/download')
+@router.post('/remote/{id}/download')
 async def download_remote_template(id: UUID):
   await template_service.download_remote_template(id)
   return {'message': f"Template '{id}' downloaded successfully"}

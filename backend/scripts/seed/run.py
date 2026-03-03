@@ -8,9 +8,7 @@ import uuid
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from app.config import settings
-from app.schemas.application import StatusEnum
-from app.schemas.profile import Profile
-from app.services import profile_service
+from app.schemas import DEFAULT_RESUME_ID, DEFAULT_TEMPLATE_ID, Profile
 
 
 def run(json_path: str, profile_path: str):
@@ -27,8 +25,17 @@ def run(json_path: str, profile_path: str):
     with open(profile_path, encoding='utf-8') as f:
       profile_data = json.load(f)
       profile = Profile.model_validate(profile_data)
-      profile_service.update(profile)
-      print('Successfully seeded dummy profile.')
+
+      # Update the default resume with the profile data
+      with sqlite3.connect(settings.paths.db_path) as db:
+        cursor = db.cursor()
+        cursor.execute(
+          'UPDATE resumes SET profile = ? WHERE id = ?',
+          (json.dumps(profile.model_dump()), str(DEFAULT_RESUME_ID)),
+        )
+        db.commit()
+
+      print('Successfully seeded dummy profile into default resume.')
   else:
     print(f'Profile JSON file not found at {profile_path}. Skipping profile seeding.')
 
@@ -37,11 +44,11 @@ def run(json_path: str, profile_path: str):
   with sqlite3.connect(settings.paths.db_path) as db:
     cursor = db.cursor()
 
-    dummy_resume_id = str(uuid.UUID(int=0))
-    print('Creating dummy resume for relationships...')
+    # Ensure default resume exists with empty profile
+    print('Ensuring default resume exists...')
     cursor.execute(
-      'INSERT INTO resumes (id, template_id, sections) VALUES (?, ?, ?)',
-      (dummy_resume_id, str(uuid.UUID(int=0)), '[]'),
+      'INSERT OR IGNORE INTO resumes (id, template_id, sections, profile) VALUES (?, ?, ?, ?)',
+      (str(DEFAULT_RESUME_ID), str(DEFAULT_TEMPLATE_ID), '[]', json.dumps({})),
     )
 
     # Read JSON and insert data
@@ -56,6 +63,7 @@ def run(json_path: str, profile_path: str):
 
         listing_id = str(uuid.uuid4())
         application_id = str(uuid.uuid4())
+        resume_id = str(uuid.uuid4())
 
         url = listing_data.get('url')
         if not url:
@@ -90,6 +98,15 @@ def run(json_path: str, profile_path: str):
             ),
           )
 
+          # --- RESUMES ---
+          # Create a new empty resume for this application
+          cursor.execute(
+            'INSERT INTO resumes (id, template_id, sections, profile) VALUES (?, ?, ?, ?)',
+            (resume_id, str(DEFAULT_TEMPLATE_ID), '[]', json.dumps({})),
+          )
+
+          # --- APPLICATIONS ---
+          # Create application with the new resume
           if events:
             # Sort events by date just in case
             events.sort(key=lambda e: e.get('date', ''))
@@ -97,7 +114,7 @@ def run(json_path: str, profile_path: str):
             current_status = latest_event.get('status')
             last_status_at = latest_event.get('date')
           else:
-            current_status = StatusEnum.SAVED.value
+            current_status = 'saved'
             last_status_at = None
 
           cursor.execute(
@@ -106,7 +123,7 @@ def run(json_path: str, profile_path: str):
             (id, listing_id, resume_id, current_status, last_status_at)
             VALUES (?, ?, ?, ?, ?)
             """,
-            (application_id, listing_id, dummy_resume_id, current_status, last_status_at),
+            (application_id, listing_id, resume_id, current_status, last_status_at),
           )
 
           # --- STATUS EVENTS ---
