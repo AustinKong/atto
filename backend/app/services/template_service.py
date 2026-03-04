@@ -118,11 +118,11 @@ class TemplateService(FileRepository):
     for filepath in templates_dir:
       try:
         content = self.read_text(filepath)
-        id, title, description = self._extract_frontmatter(content)
+        template_id, title, description = self._extract_frontmatter(content)
 
-        if id == id:
+        if template_id == id:
           return Template(
-            id=id,
+            id=template_id,
             title=title,
             description=description,
             content=content,

@@ -60,7 +60,6 @@ def create_tables():
         id TEXT PRIMARY KEY,
         listing_id TEXT NOT NULL,
         resume_id TEXT NOT NULL,
-        name TEXT NOT NULL DEFAULT '',
         current_status TEXT NOT NULL,
         last_status_at TEXT NOT NULL,
         FOREIGN KEY (listing_id) REFERENCES listings (id) ON DELETE CASCADE,

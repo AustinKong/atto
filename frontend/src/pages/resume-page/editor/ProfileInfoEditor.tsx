@@ -1,6 +1,6 @@
 import { Field, HStack, Input, VStack } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { memo, useEffect } from 'react';
+import { memo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useParams } from 'react-router';
 
@@ -19,12 +19,7 @@ export const ProfileEditor = memo(function ProfileEditor() {
   });
 
   const { mutate: saveProfile } = useSaveResumeProfile();
-  const { watch, reset } = form;
-
-  // Reset form when resume data changes
-  useEffect(() => {
-    reset(resume.profile);
-  }, [resume.profile, reset]);
+  const { watch } = form;
 
   useWatchForm<Profile>((value) => {
     saveProfile({ resumeId: resume.id, profile: value });
@@ -32,7 +27,7 @@ export const ProfileEditor = memo(function ProfileEditor() {
 
   return (
     <FormProvider {...form}>
-      <VStack h="full" align="stretch" overflowY="auto" gap={6} p={4} asChild>
+      <VStack h="full" align="stretch" overflowY="auto" gap={6} p={2} asChild>
         <form autoComplete="off" spellCheck="false">
           <VStack gap={4} align="stretch">
             <HStack>

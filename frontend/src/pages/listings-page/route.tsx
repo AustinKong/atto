@@ -17,6 +17,7 @@ export function listingsRoute(queryClient: QueryClient) {
     path: 'listings',
     element: <ListingsPage />,
     loader: listingsLoader(queryClient),
+    handle: { breadcrumb: 'Listings' },
     errorElement: <ErrorElement />,
     children: [listingDrawerRoute(queryClient)],
   };

@@ -2,6 +2,8 @@ import type { Application, StatusEvent } from '@/types/application';
 
 import { createResume } from './resume';
 
+export type ResumeSetupOption = 'default' | 'blank' | 'tailored';
+
 export async function getApplication(applicationId: string): Promise<Application> {
   const response = await fetch(`/api/applications/${applicationId}`);
 
@@ -13,7 +15,10 @@ export async function getApplication(applicationId: string): Promise<Application
   return json as Application;
 }
 
-export async function createApplication(listingId: string): Promise<Application> {
+export async function createApplication(
+  listingId: string,
+  resumeSetup: ResumeSetupOption = 'default'
+): Promise<Application> {
   const resume = await createResume();
 
   const response = await fetch('/api/applications/', {
@@ -24,6 +29,7 @@ export async function createApplication(listingId: string): Promise<Application>
     body: JSON.stringify({
       listingId,
       resumeId: resume.id,
+      resumeSetup,
       statusEvents: [],
     }),
   });

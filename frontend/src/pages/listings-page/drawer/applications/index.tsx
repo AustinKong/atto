@@ -1,4 +1,4 @@
-import { Heading, IconButton, Text, VStack } from '@chakra-ui/react';
+import { Heading, IconButton, Text, useDisclosure, VStack } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { PiPlus } from 'react-icons/pi';
 import { useParams } from 'react-router';
@@ -7,50 +7,45 @@ import { useCreateApplication } from '@/mutations/applications';
 import { applicationQueries } from '@/queries/applications';
 import { listingsQueries } from '@/queries/listings';
 
+import { CreateApplicationModal } from './CreateApplicationModal';
 import { Details } from './Details';
 import { StatusEventModal, StatusEventProvider } from './status-event-modal';
 import { Timeline } from './Timeline';
 
 export function ApplicationsEmpty() {
   const { listingId } = useParams<{ listingId: string }>();
-  const { data: listing } = useSuspenseQuery(listingsQueries.item(listingId!));
-
+  const { open, onOpen, setOpen } = useDisclosure();
+  useSuspenseQuery(listingsQueries.item(listingId!));
   const createApplicationMutation = useCreateApplication();
 
-  const handleCreateApplication = async () => {
-    await createApplicationMutation.mutateAsync(listing.id);
-  };
-
   return (
-    <VStack align="stretch" gap="4" px="4" mb="4">
-      <VStack align="stretch">
-        <Heading size="md">Applications</Heading>
-        <Text color="fg.muted">
-          No applications yet. Create your first application to track your progress.
-        </Text>
+    <>
+      <VStack align="stretch" gap="4" px="4" mb="4">
+        <VStack align="stretch">
+          <Heading size="md">Applications</Heading>
+          <Text color="fg.muted">
+            No applications yet. Create your first application to track your progress.
+          </Text>
+        </VStack>
+        <IconButton
+          aria-label="Create application"
+          variant="solid"
+          size="md"
+          onClick={onOpen}
+          disabled={createApplicationMutation.isPending}
+        >
+          <PiPlus />
+          {createApplicationMutation.isPending ? 'Creating...' : 'New Application'}
+        </IconButton>
       </VStack>
-      <IconButton
-        aria-label="Create application"
-        variant="solid"
-        size="md"
-        onClick={handleCreateApplication}
-        disabled={createApplicationMutation.isPending}
-      >
-        <PiPlus />
-        {createApplicationMutation.isPending ? 'Creating...' : 'New Application'}
-      </IconButton>
-    </VStack>
+      <CreateApplicationModal open={open} onOpenChange={setOpen} />
+    </>
   );
 }
 
 export function Applications() {
   const { listingId, applicationId } = useParams<{ listingId: string; applicationId: string }>();
   const { data: listing } = useSuspenseQuery(listingsQueries.item(listingId!));
-  const createApplicationMutation = useCreateApplication();
-
-  const handleCreateApplication = async () => {
-    await createApplicationMutation.mutateAsync(listing.id);
-  };
 
   const { data: application } = useSuspenseQuery(applicationQueries.item(applicationId!));
 
@@ -61,11 +56,7 @@ export function Applications() {
   return (
     <StatusEventProvider>
       <VStack align="stretch" gap="4" px="4" mb="4">
-        <Details
-          application={application}
-          listing={listing}
-          handleCreateApplication={handleCreateApplication}
-        />
+        <Details application={application} listing={listing} />
         <Timeline application={application} />
       </VStack>
       <StatusEventModal />

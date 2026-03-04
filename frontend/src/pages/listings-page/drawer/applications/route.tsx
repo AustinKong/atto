@@ -3,9 +3,25 @@ import type { LoaderFunctionArgs } from 'react-router';
 import { Outlet, redirect } from 'react-router';
 
 import { ErrorElement } from '@/components/ui/ErrorBoundary';
+import { getStatusText } from '@/constants/statuses';
+import { applicationQueries } from '@/queries/applications';
 import { listingsQueries } from '@/queries/listings';
+import { DateFormatPresets, ISODate } from '@/utils/date';
 
 import { Applications, ApplicationsEmpty } from './index';
+
+function applicationLoader(queryClient: QueryClient) {
+  return async ({ params }: LoaderFunctionArgs) => {
+    const applicationId = params.applicationId;
+    const application = await queryClient.ensureQueryData(applicationQueries.item(applicationId!));
+
+    const lastStatusEvent = application.statusEvents[application.statusEvents.length - 1];
+    const statusText = getStatusText(lastStatusEvent);
+    const date = ISODate.format(lastStatusEvent.date, DateFormatPresets.monthDay);
+
+    return { breadcrumb: `${date} (${statusText})` };
+  };
+}
 
 function applicationsLoader(queryClient: QueryClient) {
   return async ({ params }: LoaderFunctionArgs) => {
@@ -23,6 +39,7 @@ function applicationsLoader(queryClient: QueryClient) {
 export function applicationsRoute(queryClient: QueryClient) {
   return {
     path: 'applications',
+    handle: { breadcrumb: 'Applications' },
     element: <Outlet />,
     errorElement: <ErrorElement />,
     children: [
@@ -34,6 +51,7 @@ export function applicationsRoute(queryClient: QueryClient) {
       {
         path: ':applicationId',
         element: <Applications />,
+        loader: applicationLoader(queryClient),
         errorElement: <ErrorElement />,
       },
     ],

@@ -39,10 +39,6 @@ export function Document({
   const { aUrl, bUrl, activeInstance } = state;
 
   useEffect(() => {
-    dispatch({ type: 'RESET' });
-  }, [template.id]);
-
-  useEffect(() => {
     if (!blob) return;
     const url = URL.createObjectURL(blob);
     dispatch({ type: 'NEW_URL', url });

@@ -2,11 +2,11 @@ import { Box, chakra, HStack, Icon, Spacer, Text, VStack } from '@chakra-ui/reac
 import {
   LuBookmark,
   LuClipboard,
+  LuFileText,
   LuGithub,
   LuLayoutTemplate,
   LuPlus,
   LuSettings,
-  LuUser,
 } from 'react-icons/lu';
 
 import { DEFAULT_RESUME_ID } from '@/constants/resume';
@@ -29,7 +29,7 @@ const INTERNAL_NAV_ITEMS = [
   {
     label: 'Resume Editor',
     path: `/resumes/${DEFAULT_RESUME_ID}`,
-    icon: <LuUser />,
+    icon: <LuFileText />,
   },
   { label: 'Templates', path: '/templates', icon: <LuLayoutTemplate /> },
   { label: 'Settings', path: '/settings', icon: <LuSettings /> },

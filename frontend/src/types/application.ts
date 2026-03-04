@@ -87,7 +87,6 @@ export type Application = {
   id: string;
   listingId: string;
   resumeId: string | null;
-  name: string;
   statusEvents: StatusEvent[];
   currentStatus: StatusEnum;
 };

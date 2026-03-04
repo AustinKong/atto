@@ -7,8 +7,7 @@ export type DocumentState = {
 
 export type DocumentAction =
   | { type: 'NEW_URL'; url: string }
-  | { type: 'TOGGLE_ACTIVE'; instance: 'A' | 'B' }
-  | { type: 'RESET' };
+  | { type: 'TOGGLE_ACTIVE'; instance: 'A' | 'B' };
 
 export const initialState: DocumentState = {
   activeInstance: 'A',
@@ -39,8 +38,6 @@ export function documentReducer(state: DocumentState, action: DocumentAction): D
       }
       return state;
     }
-    case 'RESET':
-      return initialState;
     default:
       return state;
   }

@@ -9,15 +9,23 @@ import {
 } from '@/services/applications';
 import type { StatusEvent } from '@/types/application';
 
+export type ResumeSetupOption = 'default' | 'blank' | 'tailored';
+
 export function useCreateApplication() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   return useMutation({
-    mutationFn: async (listingId: string) => {
-      return await createApplicationSvc(listingId);
+    mutationFn: async ({
+      listingId,
+      resumeSetup,
+    }: {
+      listingId: string;
+      resumeSetup: ResumeSetupOption;
+    }) => {
+      return await createApplicationSvc(listingId, resumeSetup);
     },
-    onSuccess: (data, listingId) => {
+    onSuccess: (data, { listingId }) => {
       queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
       queryClient.setQueryData(['application', data.id], data);
       // Navigate to the new application

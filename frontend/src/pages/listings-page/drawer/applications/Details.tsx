@@ -7,6 +7,7 @@ import {
   Link,
   Menu,
   Portal,
+  useDisclosure,
   VStack,
 } from '@chakra-ui/react';
 import { LuMenu } from 'react-icons/lu';
@@ -20,21 +21,17 @@ import type { Application } from '@/types/application';
 import type { Listing } from '@/types/listing';
 import { DateFormatPresets, ISODate } from '@/utils/date';
 
-export function Details({
-  application,
-  listing,
-  handleCreateApplication,
-}: {
-  application: Application;
-  listing: Listing;
-  handleCreateApplication: () => void;
-}) {
+import { CreateApplicationModal } from './CreateApplicationModal';
+
+export function Details({ application, listing }: { application: Application; listing: Listing }) {
   const navigate = useNavigate();
   const { applicationId } = useParams<{ applicationId: string }>();
+  const { open, setOpen } = useDisclosure();
   const createApplicationMutation = useCreateApplication();
 
   const applicationCollection = createListCollection({
     items: listing.applications.map((app) => {
+      // TODO: Put this in a fn so its reusable
       const lastStatusEvent = app.statusEvents[app.statusEvents.length - 1];
       const statusText = getStatusText(lastStatusEvent);
       const date = ISODate.format(lastStatusEvent.date, DateFormatPresets.monthDay);
@@ -79,7 +76,7 @@ export function Details({
                 </>
                 <Menu.Item
                   value="new-application"
-                  onClick={handleCreateApplication}
+                  onClick={() => setOpen(true)}
                   disabled={createApplicationMutation.isPending}
                 >
                   <PiPlus />
@@ -90,6 +87,7 @@ export function Details({
           </Portal>
         </Menu.Root>
       </HStack>
+      <CreateApplicationModal open={open} onOpenChange={setOpen} />
       <DataList.Root orientation="horizontal" gap="2" size="lg">
         <DataList.Item>
           <DataList.ItemLabel>Stage</DataList.ItemLabel>
@@ -102,7 +100,9 @@ export function Details({
           <DataList.ItemValue>
             {application.resumeId ? (
               <Link asChild>
-                <RouterLink to={`/resumes/${application.resumeId}`}>
+                <RouterLink
+                  to={`/resumes/${application.resumeId}?applicationId=${application.id}&listingId=${listing.id}`}
+                >
                   {application.resumeId}
                 </RouterLink>
               </Link>
