@@ -1,18 +1,18 @@
 import {
+  Button,
   createListCollection,
   DataList,
   Heading,
   HStack,
   IconButton,
-  Link,
   Menu,
   Portal,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { LuMenu } from 'react-icons/lu';
+import { LuArrowUpRight, LuMenu } from 'react-icons/lu';
 import { PiPlus } from 'react-icons/pi';
-import { Link as RouterLink, useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 
 import { DisplayDate } from '@/components/custom/DisplayDate';
 import { getStatusText } from '@/constants/statuses';
@@ -87,28 +87,11 @@ export function Details({ application, listing }: { application: Application; li
           </Portal>
         </Menu.Root>
       </HStack>
-      <CreateApplicationModal open={open} onOpenChange={setOpen} />
       <DataList.Root orientation="horizontal" gap="2" size="lg">
         <DataList.Item>
           <DataList.ItemLabel>Stage</DataList.ItemLabel>
           <DataList.ItemValue>
             {getStatusText(application.statusEvents[application.statusEvents.length - 1])}
-          </DataList.ItemValue>
-        </DataList.Item>
-        <DataList.Item>
-          <DataList.ItemLabel>Resume</DataList.ItemLabel>
-          <DataList.ItemValue>
-            {application.resumeId ? (
-              <Link asChild>
-                <RouterLink
-                  to={`/resumes/${application.resumeId}?applicationId=${application.id}&listingId=${listing.id}`}
-                >
-                  {application.resumeId}
-                </RouterLink>
-              </Link>
-            ) : (
-              '-'
-            )}
           </DataList.ItemValue>
         </DataList.Item>
         <DataList.Item>
@@ -130,6 +113,15 @@ export function Details({ application, listing }: { application: Application; li
           </DataList.ItemValue>
         </DataList.Item>
       </DataList.Root>
+      <Button mt="2" variant="outline" asChild>
+        <Link
+          to={`/listings/${listing.id}/applications/${application.id}/resumes/${application.resumeId}`}
+        >
+          View Resume <LuArrowUpRight />
+        </Link>
+      </Button>
+
+      <CreateApplicationModal open={open} onOpenChange={setOpen} />
     </VStack>
   );
 }

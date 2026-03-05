@@ -1,9 +1,10 @@
-import { Box, HStack, IconButton, Input, Text, VStack } from '@chakra-ui/react';
+import { Box, Collapsible, HStack, IconButton, Input, Text } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { memo } from 'react';
 import type { Control } from 'react-hook-form';
 import { useFormContext, useWatch } from 'react-hook-form';
+import { LuChevronLeft } from 'react-icons/lu';
 import { PiDotsSixVertical, PiTrash } from 'react-icons/pi';
 
 import type { SectionsEditorData } from '../types';
@@ -33,20 +34,18 @@ export const SectionEditor = memo(function SectionEditor({
   };
 
   return (
-    <VStack
+    <Collapsible.Root
       ref={setNodeRef}
       style={style}
-      w="full"
-      align="stretch"
       borderWidth="1px"
       borderRadius="md"
       bg="bg.panel"
       zIndex={transform ? 1 : 0}
-      overflowX="visible"
+      defaultOpen
     >
       <HStack justify="space-between" w="full" p="3" bg="bg.subtle">
         <HStack gap="2" flex="1">
-          <HStack
+          <Box
             {...attributes}
             {...listeners}
             cursor="grab"
@@ -54,7 +53,7 @@ export const SectionEditor = memo(function SectionEditor({
             _active={{ cursor: 'grabbing' }}
           >
             <PiDotsSixVertical />
-          </HStack>
+          </Box>
 
           <Input
             {...register(`sections.${index}.title`)}
@@ -65,21 +64,40 @@ export const SectionEditor = memo(function SectionEditor({
           />
         </HStack>
 
-        <IconButton
-          variant="ghost"
-          size="xs"
-          color="fg.error"
-          onClick={onDelete}
-          aria-label="Delete section"
-        >
-          <PiTrash />
-        </IconButton>
+        <HStack gap="0">
+          <Collapsible.Trigger asChild>
+            <IconButton
+              variant="ghost"
+              size="xs"
+              aria-label="Toggle section"
+              _open={{ bg: 'transparent' }}
+            >
+              <Collapsible.Indicator
+                transition="transform 0.2s"
+                _open={{ transform: 'rotate(-90deg)' }}
+              >
+                <LuChevronLeft />
+              </Collapsible.Indicator>
+            </IconButton>
+          </Collapsible.Trigger>
+          <IconButton
+            variant="ghost"
+            size="xs"
+            color="fg.error"
+            onClick={onDelete}
+            aria-label="Delete section"
+          >
+            <PiTrash />
+          </IconButton>
+        </HStack>
       </HStack>
 
-      <Box pr="4" pb="4" pl="8">
-        <SectionContent sectionIndex={index} control={control} />
-      </Box>
-    </VStack>
+      <Collapsible.Content>
+        <Box pr="4" pb="4" pl="8">
+          <SectionContent sectionIndex={index} control={control} />
+        </Box>
+      </Collapsible.Content>
+    </Collapsible.Root>
   );
 });
 

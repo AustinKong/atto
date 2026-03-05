@@ -4,70 +4,65 @@ import { Link, useMatches } from 'react-router';
 
 import { toTitleCase } from '@/utils/text';
 
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 type BreadcrumbItem = { label: string; to: string };
 
-// TODO: Clean this vibe coded slop up
-export function Breadcrumb({ separator = '/ ', ...rest }) {
+// Loader data may either supply a full override list or a single label for that segment.
+type BreadcrumbLoaderData = { breadcrumb?: string | [string, string][] };
+
+const HOME_ITEM: BreadcrumbItem = { label: 'Home', to: '/' };
+
+function resolveLabel(
+  loaderData: BreadcrumbLoaderData | undefined,
+  handle: { breadcrumb?: string } | undefined
+): string | undefined {
+  if (typeof loaderData?.breadcrumb === 'string') return loaderData.breadcrumb;
+  return handle?.breadcrumb;
+}
+
+// TODO: Still abit AI-sloppy. To clean up
+export function Breadcrumb({
+  separator = '/ ',
+  ...rest
+}: { separator?: string } & ChakraBreadcrumb.RootProps) {
   const matches = useMatches();
 
-  const pathLinks = useMemo(() => {
-    // Check if any match has a breadcrumb array (takes precedence)
+  const pathLinks = useMemo((): BreadcrumbItem[] => {
+    // If any loader returns a full breadcrumb list, use it as the complete trail.
     for (const m of matches) {
-      const loaderData = m.loaderData as { breadcrumb?: string | [string, string][] } | undefined;
+      const loaderData = m.loaderData as BreadcrumbLoaderData | undefined;
       if (Array.isArray(loaderData?.breadcrumb)) {
-        return [
-          { label: 'Home', to: '/' },
-          ...loaderData.breadcrumb.map(([label, to]) => ({ label, to })),
-        ];
+        return [HOME_ITEM, ...loaderData.breadcrumb.map(([label, to]) => ({ label, to }))];
       }
     }
 
-    // Fall back to normal breadcrumb logic
-    const seen = new Set<string>();
-    const links: Array<BreadcrumbItem> = [];
+    // Otherwise, build the trail from each matched route segment.
+    const links = matches.reduce<BreadcrumbItem[]>((acc, m) => {
+      const to = m.pathname;
 
-    console.log(matches);
+      // Skip the root — Home is always prepended at the end.
+      if (to === '/') return acc;
 
-    for (const m of matches) {
-      const to = m.pathname || '/';
-
-      // Skip if we've already added this pathname
-      if (seen.has(to)) continue;
-      seen.add(to);
-
-      // Skip root '/' - we'll add Home manually at the start
-      if (to === '/') continue;
-
-      // Prefer loader-provided breadcrumb label, then route handle
-      const loaderData = m.loaderData as { breadcrumb?: string | [string, string][] } | undefined;
+      const loaderData = m.loaderData as BreadcrumbLoaderData | undefined;
       const handle = m.handle as { breadcrumb?: string } | undefined;
-      const labelFromLoader =
-        typeof loaderData?.breadcrumb === 'string' ? loaderData.breadcrumb : handle?.breadcrumb;
-      if (labelFromLoader) {
-        links.push({ label: labelFromLoader, to });
-        continue;
+      const label = resolveLabel(loaderData, handle);
+
+      if (label) {
+        acc.push({ label, to });
+        return acc;
       }
 
-      // If the route has a param (e.g. :listingId), skip unless it has a meaningful label
-      const paramKeys = Object.keys(m.params || {});
-      if (paramKeys.length) {
-        // Skip param routes that don't have a loader-provided label
-        // (we want to avoid showing UUID segments)
-        continue;
-      }
+      // Param routes (e.g. :listingId) without a label are skipped to avoid
+      // showing raw IDs in the breadcrumb trail.
+      if (Object.keys(m.params ?? {}).length > 0) return acc;
 
-      // For non-param routes, use the last pathname segment title-cased
-      const parts = to.split('/').filter(Boolean);
-      const last = parts[parts.length - 1];
-      if (last && !UUID_REGEX.test(last)) {
-        links.push({ label: toTitleCase(last), to });
-      }
-    }
+      // For static segments, derive the label from the last path part.
+      const lastSegment = to.split('/').filter(Boolean).at(-1);
+      if (lastSegment) acc.push({ label: toTitleCase(lastSegment), to });
 
-    // Always start with Home
-    return [{ label: 'Home', to: '/' }, ...links];
+      return acc;
+    }, []);
+
+    return [HOME_ITEM, ...links];
   }, [matches]);
 
   return (

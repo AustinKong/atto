@@ -18,6 +18,7 @@ import { type ISOYearMonth } from '@/utils/date';
 
 import type { SectionsEditorData } from './types';
 
+// TODO: Use ChakraUI's new Date selectors
 export function DateRangeSelector({
   startName,
   endName,

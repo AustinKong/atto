@@ -31,7 +31,7 @@ export function Editor() {
       </Tabs.List>
 
       <Tabs.Content value="visual" overflowY="scroll" p="4" flex="1" overflowX="hidden">
-        <VStack align="stretch" gap={8}>
+        <VStack align="stretch" gap="4">
           <ProfileEditor />
           <SectionsEditor
             ref={sectionsEditorRef}

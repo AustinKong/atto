@@ -7,7 +7,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { listingsRoute } from '@/pages/listings-page/route';
 import { newListingsRoute } from '@/pages/new-listings-page/route';
 import { releaseNotesRoute } from '@/pages/release-notes-page/route';
-import { resumeRoute } from '@/pages/resume-page/route';
+import { applicationResumeRoute } from '@/pages/resume-page/application-resume-route';
+import { resumeRoute } from '@/pages/resume-page/resumeRoute';
 import { settingsRoute } from '@/pages/settings-page/route';
 import { templateBuilderRoute } from '@/pages/template-builder-page/route';
 import { templatesRoute } from '@/pages/templates-page/route';
@@ -40,6 +41,7 @@ const router = createBrowserRouter([
           },
           releaseNotesRoute(queryClient),
           listingsRoute(queryClient),
+          applicationResumeRoute(queryClient),
           newListingsRoute(),
           resumeRoute(queryClient),
           settingsRoute(queryClient),

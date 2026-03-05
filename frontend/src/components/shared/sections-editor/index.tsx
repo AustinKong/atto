@@ -1,4 +1,4 @@
-import { VStack } from '@chakra-ui/react';
+import { Text, VStack } from '@chakra-ui/react';
 import {
   closestCorners,
   DndContext,
@@ -20,6 +20,8 @@ import type { Section } from '@/types/resume';
 import { AddSectionButton } from './AddSectionButton';
 import { SectionEditor } from './section-editor';
 import type { SectionsEditorData } from './types';
+
+// TODO: If only used by resume editor, move to resume editor folder.
 
 // Escape-hatch to export reset function for when we want to hard reset the form to defaultValues (e.g., after populating base sections)
 // I've already tried using an effect that watches defaultValues, but that will cause input to lose focus when defaultValues change, affecting UX
@@ -88,6 +90,7 @@ export const SectionsEditor = forwardRef<
 
   return (
     <FormProvider {...methods}>
+      <Text color="fg.muted">Content</Text>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
