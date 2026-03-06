@@ -5,7 +5,12 @@ import { NewListingsPage } from './index';
 function newListingsLoader() {
   return async () => {
     // Listing drafts are client-side only, no server data to preload
-    return null;
+    return {
+      breadcrumb: [
+        ['Listings', '/listings'],
+        ['New', '/listings/new'],
+      ] as [string, string][],
+    };
   };
 }
 

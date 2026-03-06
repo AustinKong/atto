@@ -44,6 +44,14 @@ export function Breadcrumb({
 
       const loaderData = m.loaderData as BreadcrumbLoaderData | undefined;
       const handle = m.handle as { breadcrumb?: string } | undefined;
+
+      // If both handle and loader data exist, add both as separate breadcrumb items
+      if (handle?.breadcrumb && typeof loaderData?.breadcrumb === 'string') {
+        acc.push({ label: handle.breadcrumb, to });
+        acc.push({ label: loaderData.breadcrumb, to });
+        return acc;
+      }
+
       const label = resolveLabel(loaderData, handle);
 
       if (label) {

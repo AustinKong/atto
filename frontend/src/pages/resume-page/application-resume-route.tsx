@@ -3,6 +3,7 @@ import type { LoaderFunctionArgs } from 'react-router';
 
 import { ErrorElement } from '@/components/ui/ErrorBoundary';
 import { getStatusText } from '@/constants/statuses';
+import { templatesRoute } from '@/pages/templates-page/route';
 import { applicationQueries } from '@/queries/applications';
 import { listingsQueries } from '@/queries/listings';
 import { resumeQueries } from '@/queries/resume';
@@ -45,7 +46,7 @@ export function applicationResumeRoute(queryClient: QueryClient) {
   return {
     path: 'listings/:listingId',
     loader: listingLoaderForBreadcrumb(queryClient),
-    handle: { breadcrumb: undefined }, // label comes from loader
+    handle: { breadcrumb: 'Listings' },
     errorElement: <ErrorElement />,
     children: [
       {
@@ -59,10 +60,16 @@ export function applicationResumeRoute(queryClient: QueryClient) {
             children: [
               {
                 path: 'resumes/:resumeId',
-                element: <ResumePage />,
                 loader: resumeLoader(queryClient),
                 handle: { breadcrumb: 'Resume' },
                 errorElement: <ErrorElement />,
+                children: [
+                  {
+                    index: true,
+                    element: <ResumePage />,
+                  },
+                  templatesRoute,
+                ],
               },
             ],
           },

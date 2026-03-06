@@ -45,8 +45,9 @@ const router = createBrowserRouter([
           newListingsRoute(),
           resumeRoute(queryClient),
           settingsRoute(queryClient),
+          // TODO: Wtf is this?
           templateBuilderRoute,
-          templatesRoute,
+          { path: '/templates', ...templatesRoute },
         ],
       },
     ],

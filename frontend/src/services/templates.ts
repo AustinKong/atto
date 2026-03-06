@@ -2,6 +2,19 @@ import type { Page } from '@/types/common';
 import type { Profile, Section } from '@/types/resume';
 import type { Template, TemplateSummary } from '@/types/template';
 
+export async function getTemplates(
+  page: number = 1,
+  size: number = 10
+): Promise<Page<TemplateSummary>> {
+  const response = await fetch(`/api/templates?page=${page}&size=${size}`);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch templates');
+  }
+
+  return response.json();
+}
+
 export async function getLocalTemplates(
   page: number = 1,
   size: number = 10
@@ -15,14 +28,11 @@ export async function getLocalTemplates(
   return response.json();
 }
 
-export async function getRemoteTemplates(
-  page: number = 1,
-  size: number = 10
-): Promise<Page<TemplateSummary>> {
-  const response = await fetch(`/api/templates/remote?page=${page}&size=${size}`);
+export async function getTemplate(templateId: string): Promise<Template> {
+  const response = await fetch(`/api/templates/${templateId}`);
 
   if (!response.ok) {
-    throw new Error('Failed to fetch remote templates');
+    throw new Error(`Failed to fetch template: ${templateId}`);
   }
 
   return response.json();
@@ -33,16 +43,6 @@ export async function getLocalTemplate(templateId: string): Promise<Template> {
 
   if (!response.ok) {
     throw new Error(`Failed to fetch local template: ${templateId}`);
-  }
-
-  return response.json();
-}
-
-export async function getRemoteTemplate(templateId: string): Promise<Template> {
-  const response = await fetch(`/api/templates/remote/${templateId}`);
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch remote template: ${templateId}`);
   }
 
   return response.json();

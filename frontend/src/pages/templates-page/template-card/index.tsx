@@ -1,12 +1,9 @@
-import { Card, Center, Float, IconButton, Spinner, Text } from '@chakra-ui/react';
+import { Badge, Card, Center, HStack, Spinner, Text } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { memo } from 'react';
-import { LuDownload } from 'react-icons/lu';
-import { PiStar, PiStarFill } from 'react-icons/pi';
 
 import { ReadonlyResumePreview } from '@/components/shared/resume-preview';
 import { toaster } from '@/components/ui/toaster';
-import { DEFAULT_RESUME_ID } from '@/constants/resume';
 import { DEFAULT_TEMPLATE_PROFILE, DEFAULT_TEMPLATE_SECTIONS } from '@/constants/templates';
 import { resumeQueries } from '@/queries/resume';
 import { templateQueries } from '@/queries/template';
@@ -14,25 +11,18 @@ import { updateResume } from '@/services/resume';
 import { downloadRemoteTemplate } from '@/services/templates';
 import type { Template, TemplateSummary } from '@/types/template';
 
-type TemplateCardProps = {
-  template: TemplateSummary;
-  isSelected?: boolean;
-};
-
 export const TemplateCard = memo(function TemplateCard({
   template,
+  resumeId,
   isSelected,
-}: TemplateCardProps) {
+}: {
+  template: TemplateSummary;
+  resumeId?: string;
+  isSelected?: boolean;
+}) {
   const queryClient = useQueryClient();
 
-  // Fetch the actual template HTML content
-  const queryOption =
-    template.source === 'local'
-      ? templateQueries.localItem(template.id)
-      : templateQueries.remoteItem(template.id);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: templateContent, isLoading } = useQuery(queryOption as any);
+  const { data: templateContent, isLoading } = useQuery(templateQueries.item(template.id));
 
   const downloadMutation = useMutation({
     mutationFn: () => downloadRemoteTemplate(template.id),
@@ -41,9 +31,7 @@ export const TemplateCard = memo(function TemplateCard({
         title: 'Template downloaded',
         description: `${template.title || template.id} has been downloaded successfully.`,
       });
-      // Invalidate both local and remote template lists to refresh source badges
-      queryClient.invalidateQueries({ queryKey: ['templates', 'list', 'local'] });
-      queryClient.invalidateQueries({ queryKey: ['templates', 'remote', 'list'] });
+      queryClient.invalidateQueries({ queryKey: ['templates'] });
     },
     onError: (error: Error) => {
       toaster.error({
@@ -53,53 +41,41 @@ export const TemplateCard = memo(function TemplateCard({
     },
   });
 
-  const setDefaultMutation = useMutation({
+  const selectMutation = useMutation({
     mutationFn: async () => {
-      const defaultResume = await queryClient.ensureQueryData(
-        resumeQueries.item(DEFAULT_RESUME_ID)
-      );
-      return updateResume({ ...defaultResume, templateId: template.id });
+      const resume = await queryClient.ensureQueryData(resumeQueries.item(resumeId!));
+      return updateResume({ ...resume, templateId: template.id });
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(resumeQueries.item(DEFAULT_RESUME_ID).queryKey, data);
-      queryClient.invalidateQueries({ queryKey: ['templates', 'list', 'local'] });
-      queryClient.invalidateQueries({ queryKey: ['templates', 'remote', 'list'] });
+      queryClient.setQueryData(resumeQueries.item(resumeId!).queryKey, data);
     },
     onError: (error: Error) => {
       toaster.error({
-        title: 'Failed to set default template',
+        title: 'Failed to select template',
         description: error.message,
       });
     },
   });
 
-  const handleSelect = () => {
-    // Set as default template
-    setDefaultMutation.mutate();
-    // Navigate to template builder with selected template
-    // navigate(`/template-builder?template=${template.id}&source=${template.source}`);
-  };
+  const isRemoteOnly = template.source === 'remote';
+  const isActionable = isRemoteOnly || (!!resumeId && !isSelected);
 
-  const handleDownload = () => {
-    downloadMutation.mutate();
-  };
+  function handleClick() {
+    if (isRemoteOnly) {
+      downloadMutation.mutate();
+    } else if (resumeId && !isSelected) {
+      selectMutation.mutate();
+    }
+  }
 
   return (
     <Card.Root
+      cursor={isActionable ? 'pointer' : 'default'}
       outline="2px solid"
       outlineColor={isSelected ? 'blue.500' : 'transparent'}
       overflow="hidden"
+      onClick={handleClick}
     >
-      {/* <VStack
-        h="sm"
-        bg="gray.100"
-        _dark={{ bg: 'gray.800' }}
-        w="full"
-        align="stretch"
-        p="0"
-        position="relative"
-        overflow="hidden"
-      > */}
       {isLoading ? (
         <Center h="sm" w="full">
           <Spinner size="sm" />
@@ -112,46 +88,23 @@ export const TemplateCard = memo(function TemplateCard({
           h="sm"
         />
       ) : (
-        <Center h="full" w="full">
+        <Center h="sm" w="full">
           <Text color="fg.muted">Template not found</Text>
         </Center>
       )}
-      <Float placement="top-end" offset="8">
-        {template.source === 'remote' ? (
-          <IconButton
-            aria-label="Download template"
-            onClick={handleDownload}
-            loading={downloadMutation.isPending}
-            variant="ghost"
-            size="lg"
-          >
-            <LuDownload />
-          </IconButton>
-        ) : isSelected ? (
-          <IconButton
-            aria-label="Default template"
-            variant="ghost"
-            size="lg"
-            disabled
-            _disabled={{ opacity: 1 }}
-          >
-            <PiStarFill />
-          </IconButton>
-        ) : (
-          <IconButton
-            aria-label="Set as default"
-            onClick={handleSelect}
-            loading={setDefaultMutation.isPending}
-            variant="ghost"
-            size="lg"
-          >
-            <PiStar />
-          </IconButton>
-        )}
-      </Float>
-      {/* </VStack> */}
       <Card.Body gap="2">
-        <Card.Title>{template.title || template.id}</Card.Title>
+        <HStack justify="space-between" align="flex-start">
+          <Card.Title>{template.title || template.id}</Card.Title>
+          {isRemoteOnly ? (
+            <Badge colorPalette="blue" size="sm" flexShrink={0}>
+              Remote
+            </Badge>
+          ) : (
+            <Badge colorPalette="green" size="sm" flexShrink={0}>
+              Downloaded
+            </Badge>
+          )}
+        </HStack>
         {template.description && <Card.Description>{template.description}</Card.Description>}
       </Card.Body>
     </Card.Root>

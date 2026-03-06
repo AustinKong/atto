@@ -3,6 +3,7 @@ import type { RouteObject } from 'react-router';
 import { TemplatesPage } from './index';
 
 export const templatesRoute: RouteObject = {
-  path: '/templates',
+  path: 'templates',
   element: <TemplatesPage />,
+  handle: { breadcrumb: 'Templates' },
 };

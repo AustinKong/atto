@@ -1,51 +1,47 @@
-import { Box, Button, Center, SimpleGrid, Stack, Tabs, Text, VStack } from '@chakra-ui/react';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { Box, Button, Center, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
 
-import { DEFAULT_RESUME_ID } from '@/constants/resume';
 import { resumeQueries } from '@/queries/resume';
 import { templateQueries } from '@/queries/template';
 import type { TemplateSummary } from '@/types/template';
 
 import { TemplateCard } from './template-card';
 
-// TODO: Clean up
 export function TemplatesPage() {
-  const [templateSource, setTemplateSource] = useState<'local' | 'remote'>('remote');
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 10;
+  const navigate = useNavigate();
 
-  const { data: localData } = useSuspenseQuery(templateQueries.list(page, PAGE_SIZE));
-  const { data: remoteData } = useSuspenseQuery(templateQueries.remoteList(page, PAGE_SIZE));
-  const { data: defaultResume } = useSuspenseQuery(resumeQueries.item(DEFAULT_RESUME_ID));
+  const { resumeId } = useParams<{ resumeId: string }>();
+  const isPickerMode = !!resumeId;
 
-  const currentData = templateSource === 'local' ? localData : remoteData;
-  const templates = currentData?.items || [];
-  const totalPages = currentData?.pages || 1;
-  const defaultTemplateId = defaultResume.templateId;
+  const { data } = useSuspenseQuery(templateQueries.mergedList(page, PAGE_SIZE));
+  const { data: resume } = useQuery({
+    ...resumeQueries.item(resumeId!),
+    enabled: isPickerMode,
+  });
 
-  const handlePageChange = (newPage: number) => {
+  const templates = data?.items || [];
+  const totalPages = data?.pages || 1;
+  const selectedTemplateId = isPickerMode ? resume?.templateId : undefined;
+
+  function handlePageChange(newPage: number) {
     if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
     }
-  };
+  }
 
   return (
     <VStack h="full" alignItems="stretch" gap="0" p="0">
-      <Tabs.Root
-        value={templateSource}
-        onValueChange={(details) => {
-          setTemplateSource(details.value as 'local' | 'remote');
-          setPage(1);
-        }}
-        variant="outline"
-      >
-        <Tabs.List>
-          <Tabs.Trigger value="remote">Remote Templates</Tabs.Trigger>
-          <Tabs.Trigger value="local">Local Templates</Tabs.Trigger>
-        </Tabs.List>
-      </Tabs.Root>
-
+      {isPickerMode && (
+        <Box borderBottom="1px solid" borderColor="border" px="6" py="3">
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+            ← Back to Resume
+          </Button>
+        </Box>
+      )}
       <Box flex="1" overflowY="auto" p="6">
         {templates.length === 0 ? (
           <Center h="200px">
@@ -57,7 +53,8 @@ export function TemplatesPage() {
               <TemplateCard
                 key={template.id}
                 template={template}
-                isSelected={defaultTemplateId === template.id}
+                resumeId={isPickerMode ? resumeId : undefined}
+                isSelected={selectedTemplateId === template.id}
               />
             ))}
           </SimpleGrid>

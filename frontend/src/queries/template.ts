@@ -3,8 +3,8 @@ import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 import {
   getLocalTemplate,
   getLocalTemplates,
-  getRemoteTemplate,
-  getRemoteTemplates,
+  getTemplate,
+  getTemplates,
   renderTemplateHtml,
   renderTemplatePdf,
 } from '@/services/templates';
@@ -12,17 +12,26 @@ import type { Profile, Section } from '@/types/resume';
 import type { Template } from '@/types/template';
 
 export const templateQueries = {
+  /** Merged local + remote list, deduplicated by ID. Use this for the templates browser page. */
+  mergedList: (page: number = 1, size: number = 10) =>
+    queryOptions({
+      queryKey: ['templates', 'merged', 'list', page, size] as const,
+      queryFn: () => getTemplates(page, size),
+      staleTime: 1000 * 60 * 5,
+    }),
+  /** Local-only list. Used by the resume editor toolbar and template builder. */
   list: (page: number = 1, size: number = 10) =>
     queryOptions({
       queryKey: ['templates', 'list', 'local', page, size] as const,
       queryFn: () => getLocalTemplates(page, size),
     }),
-  remoteList: (page: number = 1, size: number = 10) =>
+  /** Fetches a template by ID, preferring the local copy if available. */
+  item: (templateId: string) =>
     queryOptions({
-      queryKey: ['templates', 'remote', 'list', page, size] as const,
-      queryFn: () => getRemoteTemplates(page, size),
-      staleTime: 1000 * 60 * 60 * 24,
-      gcTime: 1000 * 60 * 60 * 24 * 7,
+      queryKey: ['templates', 'item', templateId] as const,
+      queryFn: () => getTemplate(templateId),
+      enabled: !!templateId,
+      staleTime: Infinity,
     }),
   localItem: (templateId: string) =>
     queryOptions({
@@ -30,13 +39,6 @@ export const templateQueries = {
       queryFn: () => getLocalTemplate(templateId),
       enabled: !!templateId,
       staleTime: Infinity,
-    }),
-  remoteItem: (templateId: string) =>
-    queryOptions({
-      queryKey: ['templates', 'remote', templateId] as const,
-      queryFn: () => getRemoteTemplate(templateId),
-      enabled: !!templateId,
-      staleTime: 1000 * 60 * 60,
     }),
   // TODO: Deprecate html rendering
   renderHtml: (template: Template, sections: Section[], profile: Profile) =>

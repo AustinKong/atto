@@ -52,23 +52,6 @@ export function useSaveResumeSections() {
   });
 }
 
-export function useUpdateResumeTemplate() {
-  const queryClient = useQueryClient();
-
-  return useMutation<Resume, Error, { resumeId: string; templateId: string }>({
-    mutationFn: ({ resumeId, templateId }) => {
-      const currentResume = queryClient.getQueryData<Resume>(['resume', resumeId]);
-      if (!currentResume) {
-        throw new Error('Resume not found in cache');
-      }
-      return updateResume({ ...currentResume, templateId });
-    },
-    onSuccess: (data, { resumeId }) => {
-      queryClient.setQueryData(['resume', resumeId], data);
-    },
-  });
-}
-
 export function useSaveResumeProfile() {
   const queryClient = useQueryClient();
 
