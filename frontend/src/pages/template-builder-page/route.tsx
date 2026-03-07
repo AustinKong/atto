@@ -1,8 +1,9 @@
-import type { RouteObject } from 'react-router';
-
 import { TemplateBuilderPage } from './index';
 
-export const templateBuilderRoute: RouteObject = {
-  path: '/template-builder',
-  element: <TemplateBuilderPage />,
-};
+export function templateBuilderRoute() {
+  return {
+    path: '/template-builder',
+    element: <TemplateBuilderPage />,
+    handle: { breadcrumb: 'Template Builder' },
+  };
+}

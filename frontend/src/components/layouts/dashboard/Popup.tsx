@@ -3,7 +3,6 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { Link } from 'react-router';
 
-import releaseNotesBannerImage from '@/assets/images/release-notes-banner.png';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { releaseNotesQueries } from '@/queries/releaseNotes';
 import { getCurrentVersion } from '@/services/releaseNotes';
@@ -44,7 +43,6 @@ export function Popup() {
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content overflow="hidden" borderRadius="2xl">
-            <Image src={releaseNotesBannerImage} aspectRatio={3 / 1} />
             <Dialog.Header>
               <Dialog.Title textStyle="2xl">
                 {hasUpdates ? `Update available: ${latestVersion}` : `You're up to date`}

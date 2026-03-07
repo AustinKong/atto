@@ -1,74 +1,31 @@
 import { Breadcrumb as ChakraBreadcrumb } from '@chakra-ui/react';
 import { Fragment, useMemo } from 'react';
-import { Link, useMatches } from 'react-router';
-
-import { toTitleCase } from '@/utils/text';
+import { Link, type UIMatch, useMatches } from 'react-router';
 
 type BreadcrumbItem = { label: string; to: string };
 
-// Loader data may either supply a full override list or a single label for that segment.
-type BreadcrumbLoaderData = { breadcrumb?: string | [string, string][] };
-
 const HOME_ITEM: BreadcrumbItem = { label: 'Home', to: '/' };
 
-function resolveLabel(
-  loaderData: BreadcrumbLoaderData | undefined,
-  handle: { breadcrumb?: string } | undefined
-): string | undefined {
-  if (typeof loaderData?.breadcrumb === 'string') return loaderData.breadcrumb;
-  return handle?.breadcrumb;
-}
-
-// TODO: Still abit AI-sloppy. To clean up
 export function Breadcrumb({
   separator = '/ ',
   ...rest
 }: { separator?: string } & ChakraBreadcrumb.RootProps) {
-  const matches = useMatches();
+  const matches = useMatches() as UIMatch<
+    unknown,
+    { breadcrumb?: string | ((data: unknown) => string) }
+  >[];
 
   const pathLinks = useMemo((): BreadcrumbItem[] => {
-    // If any loader returns a full breadcrumb list, use it as the complete trail.
-    for (const m of matches) {
-      const loaderData = m.loaderData as BreadcrumbLoaderData | undefined;
-      if (Array.isArray(loaderData?.breadcrumb)) {
-        return [HOME_ITEM, ...loaderData.breadcrumb.map(([label, to]) => ({ label, to }))];
-      }
-    }
+    const links = matches
+      .map((match) => {
+        const handle = match.handle?.breadcrumb;
+        if (!handle) return null;
 
-    // Otherwise, build the trail from each matched route segment.
-    const links = matches.reduce<BreadcrumbItem[]>((acc, m) => {
-      const to = m.pathname;
+        const label = typeof handle === 'function' ? handle(match.loaderData) : handle;
 
-      // Skip the root — Home is always prepended at the end.
-      if (to === '/') return acc;
-
-      const loaderData = m.loaderData as BreadcrumbLoaderData | undefined;
-      const handle = m.handle as { breadcrumb?: string } | undefined;
-
-      // If both handle and loader data exist, add both as separate breadcrumb items
-      if (handle?.breadcrumb && typeof loaderData?.breadcrumb === 'string') {
-        acc.push({ label: handle.breadcrumb, to });
-        acc.push({ label: loaderData.breadcrumb, to });
-        return acc;
-      }
-
-      const label = resolveLabel(loaderData, handle);
-
-      if (label) {
-        acc.push({ label, to });
-        return acc;
-      }
-
-      // Param routes (e.g. :listingId) without a label are skipped to avoid
-      // showing raw IDs in the breadcrumb trail.
-      if (Object.keys(m.params ?? {}).length > 0) return acc;
-
-      // For static segments, derive the label from the last path part.
-      const lastSegment = to.split('/').filter(Boolean).at(-1);
-      if (lastSegment) acc.push({ label: toTitleCase(lastSegment), to });
-
-      return acc;
-    }, []);
+        return { label, to: match.pathname };
+      })
+      .filter((item): item is BreadcrumbItem => item !== null);
 
     return [HOME_ITEM, ...links];
   }, [matches]);

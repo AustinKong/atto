@@ -1,40 +1,13 @@
 import type { QueryClient } from '@tanstack/react-query';
-import type { LoaderFunctionArgs } from 'react-router';
-import { Outlet, redirect } from 'react-router';
+import { Outlet } from 'react-router';
 
 import { ErrorElement } from '@/components/ui/ErrorBoundary';
-import { getStatusText } from '@/constants/statuses';
-import { applicationQueries } from '@/queries/applications';
-import { listingsQueries } from '@/queries/listings';
-import { DateFormatPresets, ISODate } from '@/utils/date';
+import { applicationLoader } from '@/loaders/applications';
+import { applicationsListRedirectLoader } from '@/loaders/listings';
+import type { Application } from '@/types/application';
+import { formatApplicationStatusDisplay } from '@/utils/formatters/applications';
 
 import { Applications, ApplicationsEmpty } from './index';
-
-function applicationLoader(queryClient: QueryClient) {
-  return async ({ params }: LoaderFunctionArgs) => {
-    const applicationId = params.applicationId;
-    const application = await queryClient.ensureQueryData(applicationQueries.item(applicationId!));
-
-    const lastStatusEvent = application.statusEvents[application.statusEvents.length - 1];
-    const statusText = getStatusText(lastStatusEvent);
-    const date = ISODate.format(lastStatusEvent.date, DateFormatPresets.monthDay);
-
-    return { breadcrumb: `${date} (${statusText})` };
-  };
-}
-
-function applicationsLoader(queryClient: QueryClient) {
-  return async ({ params }: LoaderFunctionArgs) => {
-    const listingId = params.listingId;
-    const listing = await queryClient.ensureQueryData(listingsQueries.item(listingId!));
-
-    if (listing.applications && listing.applications.length > 0 && listing.applications[0].id) {
-      return redirect(`/listings/${listingId}/applications/${listing.applications[0].id}`);
-    }
-
-    return null;
-  };
-}
 
 export function applicationsRoute(queryClient: QueryClient) {
   return {
@@ -46,12 +19,16 @@ export function applicationsRoute(queryClient: QueryClient) {
       {
         index: true,
         element: <ApplicationsEmpty />,
-        loader: applicationsLoader(queryClient),
+        loader: applicationsListRedirectLoader(queryClient),
       },
       {
         path: ':applicationId',
         element: <Applications />,
         loader: applicationLoader(queryClient),
+        handle: {
+          breadcrumb: (data: { application: Application }) =>
+            formatApplicationStatusDisplay(data.application),
+        },
         errorElement: <ErrorElement />,
       },
     ],
