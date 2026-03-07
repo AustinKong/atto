@@ -1,11 +1,11 @@
 import asyncio
+from typing import Literal
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter
 
 from app.resources.prompts import OPTIMIZATION_PROMPT
 from app.schemas import (
-  DEFAULT_RESUME_ID,
   DEFAULT_TEMPLATE_ID,
   DetailedItem,
   DetailedSection,
@@ -15,11 +15,11 @@ from app.schemas import (
 )
 from app.services import (
   applications_service,
-  experience_service,
+  experiences_service,
   listings_service,
   llm_service,
-  resume_service,
-  template_service,
+  resumes_service,
+  templates_service,
 )
 
 router = APIRouter(
@@ -27,54 +27,70 @@ router = APIRouter(
   tags=['Resumes'],
 )
 
-# TODO: Change to POST with options to create from default global resume or generate or empty
-
 
 @router.post('/')
-async def create_resume() -> Resume:
-  default_resume = resume_service.ensure_default_global_resume_exists()
-  return resume_service.create(
-    Resume(
-      template_id=default_resume.template_id,
-      sections=[],
-      profile=default_resume.profile,
+async def create_resume(
+  mode: Literal['default', 'blank', 'tailored'] = 'blank',
+  listing_id: UUID | None = None,
+) -> Resume:
+  # TODO: Maybe make this a decorator
+  default_resume = resumes_service.ensure_default_global_resume_exists()
+
+  if mode == 'default':
+    return resumes_service.create(
+      Resume(
+        template_id=default_resume.template_id,
+        sections=default_resume.sections,
+        profile=default_resume.profile,
+      )
     )
-  )
+  elif mode == 'blank':
+    # Create empty resume with default profile
+    return resumes_service.create(
+      Resume(
+        template_id=default_resume.template_id,
+        sections=[],
+        profile=default_resume.profile,
+      )
+    )
+  elif mode == 'tailored':
+    # Create resume and generate tailored content (placeholder for now)
+    # TODO: Implement tailored resume generation based on listing
+    if listing_id is None:
+      raise ValueError('listing_id is required when mode is "tailored"')
+
+    return resumes_service.create(
+      Resume(
+        template_id=default_resume.template_id,
+        sections=[],
+        profile=default_resume.profile,
+      )
+    )
+  else:
+    raise ValueError(f'Invalid mode: {mode}')
 
 
 @router.get('/{resume_id}')
 async def get_resume(resume_id: UUID) -> Resume:
-  resume = resume_service.get(resume_id)
+  resume = resumes_service.get(resume_id)
 
   # Self-healing
   try:
-    template_service.get_local_template(resume.template_id)
+    templates_service.get_local_template(resume.template_id)
   except FileNotFoundError:
     resume.template_id = DEFAULT_TEMPLATE_ID
-    resume = resume_service.update(resume)
+    resume = resumes_service.update(resume)
 
   return resume
 
 
-# TODO: Remove
-@router.post('/{resume_id}/populate')
-async def populate_resume_base_sections(resume_id: UUID):
-  resume = resume_service.get(resume_id)
-
-  # Get sections and profile from the default global resume
-  default_resume = resume_service.get(DEFAULT_RESUME_ID)
-  resume.sections = default_resume.sections
-  resume.profile = default_resume.profile
-  updated_resume = resume_service.update(resume)
-  return updated_resume
-
-
+# TODO: Deprecate, merge into create_resume with ?mode="tailored" query param
 @router.post('/{resume_id}/generate')
 async def generate_resume_content(resume_id: UUID):
-  resume = resume_service.get(resume_id)
+  resume = resumes_service.get(resume_id)
   application = applications_service.get_by_resume_id(resume_id)
   listing = listings_service.get(application.listing_id)
-  relevant_experiences: list[Experience] = experience_service.find_relevant(listing)
+  relevant_experiences: list[Experience] = experiences_service.find_relevant(listing)
   responses = await asyncio.gather(
     *[
       llm_service.call_structured(
@@ -132,17 +148,17 @@ async def generate_resume_content(resume_id: UUID):
     )
   )
 
-  updated_resume = resume_service.update(resume)
+  updated_resume = resumes_service.update(resume)
   return updated_resume
 
 
 @router.put('/{resume_id}')
 async def update_resume(resume_id: UUID, resume: Resume) -> Resume:
   resume.id = resume_id
-  return resume_service.update(resume)
+  return resumes_service.update(resume)
 
 
 @router.delete('/{resume_id}')
 async def delete_resume(resume_id: UUID):
-  resume_service.delete(resume_id)
+  resumes_service.delete(resume_id)
   return {'message': 'Resume deleted successfully'}

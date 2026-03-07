@@ -7,19 +7,19 @@ from .scraping_service import ScrapingService
 from .template_service import TemplateService
 
 applications_service = ApplicationsService()
-experience_service = ExperiencesService()  # TODO: Make plural
+experiences_service = ExperiencesService()
 listings_service = ListingsService()
 llm_service = LLMService()
-resume_service = ResumesService()  # TODO: Make plural
+resumes_service = ResumesService()
 scraping_service = ScrapingService()
-template_service = TemplateService()
+templates_service = TemplateService()
 
 __all__ = [
   'applications_service',
-  'experience_service',
+  'experiences_service',
   'listings_service',
   'llm_service',
-  'resume_service',
+  'resumes_service',
   'scraping_service',
-  'template_service',
+  'templates_service',
 ]

@@ -13,7 +13,8 @@ import { useState } from 'react';
 import { LuCopy, LuFileText, LuSearch } from 'react-icons/lu';
 import { useParams } from 'react-router';
 
-import { type ResumeSetupOption, useCreateApplication } from '@/mutations/applications';
+import { useCreateApplication } from '@/mutations/applications';
+import type { ResumeCreationMode } from '@/services/resume';
 
 const RESUME_OPTIONS = [
   {
@@ -45,7 +46,7 @@ export function CreateApplicationModal({
   onOpenChange: (open: boolean) => void;
 }) {
   const { listingId } = useParams<{ listingId: string }>();
-  const [resumeSetup, setResumeSetup] = useState<ResumeSetupOption>('default');
+  const [resumeMode, setResumeMode] = useState<ResumeCreationMode>('default');
 
   const createApplicationMutation = useCreateApplication();
 
@@ -53,9 +54,9 @@ export function CreateApplicationModal({
     if (listingId) {
       createApplicationMutation.mutateAsync({
         listingId,
-        resumeSetup,
+        resumeMode,
       });
-      setResumeSetup('default');
+      setResumeMode('default');
     }
   };
 
@@ -79,8 +80,8 @@ export function CreateApplicationModal({
                     Resume Setup
                   </Text>
                   <RadioCard.Root
-                    value={resumeSetup}
-                    onValueChange={(e) => setResumeSetup(e.value as ResumeSetupOption)}
+                    value={resumeMode}
+                    onValueChange={(e) => setResumeMode(e.value as ResumeCreationMode)}
                     orientation="horizontal"
                     gap="3"
                     disabled={createApplicationMutation.isPending}

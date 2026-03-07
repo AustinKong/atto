@@ -8,9 +8,10 @@ from app.config.schemas import AppConfig
 router = APIRouter(prefix='/config', tags=['Config'])
 
 
+# TODO: Remove this logic if not used anymore
 # (category_key, field_key) -> provider function
 DYNAMIC_ENUM_PROVIDERS = {
-  # ('resume', 'default_template'): template_service.list_local_templates,
+  # ('resume', 'default_template'): templates_service.list_local_templates,
 }
 
 

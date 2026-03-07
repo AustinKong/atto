@@ -26,6 +26,7 @@ from app.schemas import (
   StatusEnum,
 )
 from app.services import applications_service, listings_service, llm_service, scraping_service
+from app.utils.text import ground_quote
 from app.utils.url import normalize_url
 
 router = APIRouter(
@@ -34,9 +35,6 @@ router = APIRouter(
 )
 
 
-# TODO: Refine the AI's extraction grounded values. (AI might format text slightly differently than
-# in the HTML), need to use more robust fuzzy matching technique to ensure grounded values match
-# HTML.
 @router.post('/draft', response_model=ListingDraft)
 async def ingest_listing(
   url: Annotated[HttpUrl, Body()],
@@ -118,6 +116,14 @@ async def ingest_listing(
         error=f'LLM success indicated but data was incomplete: {str(e)}',
         html=html,
       )
+
+    for skill in listing.skills:
+      if skill.quote:
+        skill.quote = ground_quote(skill.quote, content)
+
+    for req in listing.requirements:
+      if req.quote:
+        req.quote = ground_quote(req.quote, content)
 
   similar_match = listings_service.find_similar(
     Listing(

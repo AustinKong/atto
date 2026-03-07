@@ -16,7 +16,7 @@ from app.routers import (
   resumes_router,
   templates_router,
 )
-from app.services import resume_service
+from app.services import resumes_service
 from app.utils.errors import (
   ApplicationError,
   DuplicateError,
@@ -31,7 +31,9 @@ def create_app() -> FastAPI:
   # Ensure default global resume exists on startup
   @app.on_event('startup')
   async def startup_event():
-    resume_service.ensure_default_global_resume_exists()
+    # TODO: Why does database seeding run in a different place?
+    # Should standardize all startup initialization in one place
+    resumes_service.ensure_default_global_resume_exists()
 
   app.include_router(applications_router, prefix='/api')
   app.include_router(config_router, prefix='/api')

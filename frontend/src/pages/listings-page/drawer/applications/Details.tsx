@@ -15,11 +15,11 @@ import { PiPlus } from 'react-icons/pi';
 import { Link, useNavigate, useParams } from 'react-router';
 
 import { DisplayDate } from '@/components/custom/DisplayDate';
-import { getStatusText } from '@/constants/statuses';
 import { useCreateApplication } from '@/mutations/applications';
 import type { Application } from '@/types/application';
 import type { Listing } from '@/types/listing';
 import { DateFormatPresets, ISODate } from '@/utils/date';
+import { formatStatus } from '@/utils/formatters/statuses';
 
 import { CreateApplicationModal } from './CreateApplicationModal';
 
@@ -33,7 +33,7 @@ export function Details({ application, listing }: { application: Application; li
     items: listing.applications.map((app) => {
       // TODO: Put this in a fn so its reusable
       const lastStatusEvent = app.statusEvents[app.statusEvents.length - 1];
-      const statusText = getStatusText(lastStatusEvent);
+      const statusText = formatStatus(lastStatusEvent);
       const date = ISODate.format(lastStatusEvent.date, DateFormatPresets.monthDay);
 
       return {
@@ -91,7 +91,7 @@ export function Details({ application, listing }: { application: Application; li
         <DataList.Item>
           <DataList.ItemLabel>Stage</DataList.ItemLabel>
           <DataList.ItemValue>
-            {getStatusText(application.statusEvents[application.statusEvents.length - 1])}
+            {formatStatus(application.statusEvents[application.statusEvents.length - 1])}
           </DataList.ItemValue>
         </DataList.Item>
         <DataList.Item>

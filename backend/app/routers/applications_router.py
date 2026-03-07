@@ -2,8 +2,8 @@ from uuid import UUID
 
 from fastapi import APIRouter
 
-from app.schemas import Application, Profile, Resume, StatusEvent
-from app.services import applications_service, resume_service
+from app.schemas import Application, StatusEvent
+from app.services import applications_service
 
 router = APIRouter(
   prefix='/applications',
@@ -19,15 +19,7 @@ async def get_application(id: UUID):
 
 @router.post('/', response_model=Application)
 async def create_application(application: Application):
-  default_resume = resume_service.ensure_default_global_resume_exists()
-  new_resume = resume_service.create(
-    Resume(
-      template_id=default_resume.template_id,
-      sections=[],
-      profile=Profile(),
-    )
-  )
-  created_application = applications_service.create(application, new_resume.id)
+  created_application = applications_service.create(application)
   return created_application
 
 

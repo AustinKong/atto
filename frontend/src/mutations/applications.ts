@@ -7,9 +7,8 @@ import {
   deleteStatusEvent as deleteStatusEventSvc,
   updateStatusEvent as updateStatusEventSvc,
 } from '@/services/applications';
+import { createResume, type ResumeCreationMode } from '@/services/resume';
 import type { StatusEvent } from '@/types/application';
-
-export type ResumeSetupOption = 'default' | 'blank' | 'tailored';
 
 export function useCreateApplication() {
   const queryClient = useQueryClient();
@@ -18,12 +17,16 @@ export function useCreateApplication() {
   return useMutation({
     mutationFn: async ({
       listingId,
-      resumeSetup,
+      resumeMode,
     }: {
       listingId: string;
-      resumeSetup: ResumeSetupOption;
+      resumeMode: ResumeCreationMode;
     }) => {
-      return await createApplicationSvc(listingId, resumeSetup);
+      const resume = await createResume(
+        resumeMode,
+        resumeMode === 'tailored' ? listingId : undefined
+      );
+      return await createApplicationSvc(listingId, resume.id);
     },
     onSuccess: (data, { listingId }) => {
       queryClient.invalidateQueries({ queryKey: ['listing', listingId] });

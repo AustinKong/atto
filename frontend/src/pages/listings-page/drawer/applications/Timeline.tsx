@@ -14,7 +14,7 @@ import { PiPerson, PiPlus } from 'react-icons/pi';
 
 import { DisplayDate } from '@/components/custom/DisplayDate';
 import { Tooltip } from '@/components/ui/tooltip';
-import { getStatusText, STATUS_DEFINITIONS } from '@/constants/statuses';
+import { STATUS_DEFINITIONS } from '@/constants/statuses';
 import type {
   Application,
   StatusEvent,
@@ -22,6 +22,7 @@ import type {
   StatusEventInterview,
 } from '@/types/application';
 import { DateFormatPresets } from '@/utils/date';
+import { formatStatus } from '@/utils/formatters/statuses';
 
 import { useStatusEvent } from './status-event-modal';
 
@@ -139,7 +140,7 @@ function TimelineItem({ event, application }: { event: StatusEvent; application:
       <ChakraTimeline.Content>
         <HStack w="full" justify="space-between">
           <ChakraTimeline.Title mt="0" textStyle="md">
-            {getStatusText(event)}
+            {formatStatus(event)}
           </ChakraTimeline.Title>
           <DisplayDate date={event.date} textStyle="sm" color="fg.muted" />
         </HStack>

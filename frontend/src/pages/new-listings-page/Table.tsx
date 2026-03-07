@@ -37,7 +37,7 @@ const columns = [
         aria-label="Select all rows"
       >
         <Checkbox.HiddenInput />
-        <Checkbox.Control />
+        <Checkbox.Control cursor="pointer" />
       </Checkbox.Root>
     ),
     cell: ({ row }) => (
@@ -45,10 +45,11 @@ const columns = [
         checked={row.getIsSelected()}
         onCheckedChange={(changes) => row.toggleSelected(!!changes.checked)}
         onClick={(e) => e.stopPropagation()}
+        disabled={row.original.status === 'pending'}
         aria-label="Select row"
       >
         <Checkbox.HiddenInput />
-        <Checkbox.Control />
+        <Checkbox.Control cursor="pointer" />
       </Checkbox.Root>
     ),
   }),

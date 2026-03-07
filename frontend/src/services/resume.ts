@@ -1,7 +1,17 @@
 import type { Resume } from '@/types/resume';
 
-export async function createResume(): Promise<Resume> {
-  const response = await fetch('/api/resumes/', {
+export type ResumeCreationMode = 'default' | 'blank' | 'tailored';
+
+export async function createResume(
+  mode: ResumeCreationMode = 'blank',
+  listingId?: string
+): Promise<Resume> {
+  const params = new URLSearchParams({ mode });
+  if (mode === 'tailored' && listingId) {
+    params.append('listing-id', listingId);
+  }
+
+  const response = await fetch(`/api/resumes/?${params.toString()}`, {
     method: 'POST',
   });
 
@@ -14,32 +24,6 @@ export async function createResume(): Promise<Resume> {
 
 export async function getResume(resumeId: string): Promise<Resume> {
   const response = await fetch(`/api/resumes/${resumeId}`);
-
-  if (!response.ok) {
-    throw response;
-  }
-
-  const json = await response.json();
-  return json as Resume;
-}
-
-export async function generateResumeContent(resumeId: string): Promise<Resume> {
-  const response = await fetch(`/api/resumes/${resumeId}/generate`, {
-    method: 'POST',
-  });
-
-  if (!response.ok) {
-    throw response;
-  }
-
-  const json = await response.json();
-  return json as Resume;
-}
-
-export async function populateResumeBaseSections(resumeId: string): Promise<Resume> {
-  const response = await fetch(`/api/resumes/${resumeId}/populate`, {
-    method: 'POST',
-  });
 
   if (!response.ok) {
     throw response;

@@ -47,6 +47,23 @@ AGGRESSIVE_TAGS = [
   'option',
 ]
 
+BLOCK_TAGS = [
+  'p',
+  'div',
+  'li',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'section',
+  'article',
+  'blockquote',
+  'ul',
+  'ol',
+]
+
 BOILERPLATE_KEYWORDS = [
   'terms of service',
   'privacy policy',
@@ -87,7 +104,21 @@ class ScrapingService:
         if text and any(keyword.lower() in text.lower() for keyword in BOILERPLATE_KEYWORDS):
           tag.decompose()
 
-    text = ' '.join(soup.stripped_strings)
+    # TODO: If doing this already, why not just make _clean_html return a list of strings (preserving newlines) instead of re-joining and re-splitting text (when doing grounding)?
+    # Extract text while preserving newlines
+    text_parts = []
+    for element in soup.descendants:
+      tag_name = getattr(element, 'name', None)
+      if isinstance(element, str):
+        content = element.strip()
+        if content:
+          text_parts.append(content)
+      elif tag_name and tag_name in BLOCK_TAGS:
+        # Add newline after block elements to preserve structure for quote grounding
+        if text_parts and not text_parts[-1].endswith('\n'):
+          text_parts.append('\n')
+
+    text = ' '.join(text_parts)
     text = re.sub(r'\s+', ' ', text)
 
     # Remove duplicate sentences
@@ -195,7 +226,7 @@ class ScrapingService:
     return str(soup)
 
   async def fetch_and_clean(self, url: HttpUrl) -> ScrapingResult:
-    if not self._check_robots(url):
+    if settings.ingestion.respect_robots_txt and not self._check_robots(url):
       raise ServiceError(f'Scraping disallowed by robots.txt: {url}')
 
     try:

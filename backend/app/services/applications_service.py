@@ -74,10 +74,8 @@ class ApplicationsService(DatabaseRepository):
 
     return [self._parse_application_row(row) for row in rows]
 
-  def create(self, application: Application, resume_id: UUID) -> Application:
+  def create(self, application: Application) -> Application:
     with self.transaction():
-      application.resume_id = resume_id
-
       self.execute(
         'INSERT INTO applications (id, listing_id, resume_id, current_status, '
         'last_status_at) VALUES (?, ?, ?, ?, ?)',
