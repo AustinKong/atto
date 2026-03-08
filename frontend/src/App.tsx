@@ -3,15 +3,15 @@ import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-rou
 
 import { DashboardLayout } from '@/components/layouts/dashboard';
 import { ErrorElement } from '@/components/ui/ErrorBoundary';
-import { Toaster } from '@/components/ui/toaster';
-import { listingsRoute } from '@/pages/listings-page/route';
-import { newListingsRoute } from '@/pages/new-listings-page/route';
-import { releaseNotesRoute } from '@/pages/release-notes-page/route';
-import { applicationResumeRoute, resumeRoute } from '@/pages/resume-page/route';
-import { settingsRoute } from '@/pages/settings-page/route';
-import { templateBuilderRoute } from '@/pages/template-builder-page/route';
-import { templatesRoute } from '@/pages/templates-page/route';
-import { queryClient } from '@/utils/queryClient';
+import { Toaster } from '@/components/ui/Toaster';
+import { listingsRoute } from '@/pages/listings/route';
+import { newListingsRoute } from '@/pages/new-listings/route';
+import { releaseNotesRoute } from '@/pages/release-notes/route';
+import { applicationResumeRoute, resumeRoute } from '@/pages/resume/route';
+import { settingsRoute } from '@/pages/settings/route';
+import { templateBuilderRoute } from '@/pages/template-builder/route';
+import { templatesRoute } from '@/pages/templates/route';
+import { queryClient } from '@/utils/query-client.utils';
 
 function RootLayout() {
   return (

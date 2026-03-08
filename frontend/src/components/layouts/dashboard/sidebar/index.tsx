@@ -9,8 +9,8 @@ import {
   LuSettings,
 } from 'react-icons/lu';
 
-import { DEFAULT_RESUME_ID } from '@/constants/resume';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { DEFAULT_RESUME_ID } from '@/constants/resume.constants';
+import { useLocalStorage } from '@/hooks/use-local-storage.hooks';
 
 import { AppLogo } from './AppLogo';
 import { CollapseButton } from './CollapseButton';

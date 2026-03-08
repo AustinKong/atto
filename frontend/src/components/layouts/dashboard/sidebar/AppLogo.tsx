@@ -1,8 +1,8 @@
 import { Center, Heading, HStack, Image, Text } from '@chakra-ui/react';
 import { NavLink } from 'react-router';
 
-import { useColorModeValue } from '@/components/ui/color-mode';
-import { getCurrentVersion } from '@/services/releaseNotes';
+import { useColorModeValue } from '@/components/ui/ColorMode';
+import { getCurrentVersion } from '@/services/release-notes.service';
 
 import { SidebarItem, SidebarLabel } from './index';
 

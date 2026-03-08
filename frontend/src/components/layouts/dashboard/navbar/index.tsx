@@ -1,6 +1,6 @@
 import { HStack, Spacer } from '@chakra-ui/react';
 
-import { ColorModeButton } from '@/components/ui/color-mode';
+import { ColorModeButton } from '@/components/ui/ColorMode';
 
 import { Breadcrumb } from './Breadcrumb';
 import { Profile } from './Profile';

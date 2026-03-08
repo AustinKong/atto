@@ -1,12 +1,12 @@
-import { Button, CloseButton, Dialog, Image, Portal, Text, useDisclosure } from '@chakra-ui/react';
+import { Button, CloseButton, Dialog, Portal, Text, useDisclosure } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { Link } from 'react-router';
 
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { releaseNotesQueries } from '@/queries/releaseNotes';
-import { getCurrentVersion } from '@/services/releaseNotes';
-import { compareSemVer } from '@/utils/text';
+import { useLocalStorage } from '@/hooks/use-local-storage.hooks';
+import { releaseNotesQueries } from '@/queries/release-notes.queries';
+import { getCurrentVersion } from '@/services/release-notes.service';
+import { compareSemVer } from '@/utils/text.utils';
 
 export function Popup() {
   const [hideReleaseNotesVersion, setHideReleaseNotesVersion] = useLocalStorage(

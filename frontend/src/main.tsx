@@ -10,9 +10,9 @@ import { del, get, set } from 'idb-keyval';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { Provider as ChakraProvider } from '@/components/ui/provider';
-import { toaster } from '@/components/ui/toaster.tsx';
-import { queryClient } from '@/utils/queryClient';
+import { Provider as ChakraProvider } from '@/components/ui/Provider';
+import { toaster } from '@/components/ui/Toaster';
+import { queryClient } from '@/utils/query-client.utils';
 
 import { App } from './App.tsx';
 
