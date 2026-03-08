@@ -1,4 +1,4 @@
-import { Box, Separator, VStack } from '@chakra-ui/react';
+import { Box, Button, Separator, Text, VStack } from '@chakra-ui/react';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useState } from 'react';
@@ -70,6 +70,56 @@ export function SettingsPage() {
     values: defaultValues,
   });
 
+  const seedMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/dev/seed', {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to seed database');
+      }
+    },
+    onSuccess: () => {
+      toaster.create({
+        title: 'Database seeded successfully',
+        description: 'Demo data has been added to the database',
+        type: 'success',
+      });
+    },
+    onError: (error) => {
+      toaster.create({
+        title: 'Seed failed',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        type: 'error',
+      });
+    },
+  });
+
+  const nukeMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/dev/nuke', {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to nuke database');
+      }
+    },
+    onSuccess: () => {
+      toaster.create({
+        title: 'Database cleared',
+        description: 'Shutting down application...',
+        type: 'success',
+      });
+    },
+    onError: (error) => {
+      toaster.create({
+        title: 'Nuke failed',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        type: 'error',
+      });
+    },
+  });
+
   const onSubmit = handleSubmit(async (data) => {
     const dirtyData: Record<string, unknown> = {};
     Object.keys(dirtyFields).forEach((key) => {
@@ -111,6 +161,37 @@ export function SettingsPage() {
               {index < visibleSections.length - 1 && <Separator w="full" />}
             </React.Fragment>
           ))}
+
+          {showAdvanced && (
+            <>
+              <Separator w="full" />
+              <VStack align="stretch" gap="4">
+                <Text textStyle="lg" color="fg.error">
+                  ⚠️ Developer Tools
+                </Text>
+                <Text color="fg.error">
+                  Dangerous operations that will permanently delete data. Use with extreme caution.
+                </Text>
+                <VStack align="stretch" gap="2">
+                  <Button
+                    onClick={() => seedMutation.mutate()}
+                    loading={seedMutation.isPending}
+                    size="sm"
+                  >
+                    Seed Database with Demo Data
+                  </Button>
+                  <Button
+                    colorPalette="red"
+                    onClick={() => nukeMutation.mutate()}
+                    loading={nukeMutation.isPending}
+                    size="sm"
+                  >
+                    Nuke Database
+                  </Button>
+                </VStack>
+              </VStack>
+            </>
+          )}
         </VStack>
       </Box>
     </VStack>

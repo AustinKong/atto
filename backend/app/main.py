@@ -11,6 +11,7 @@ from app.middleware import exception_logging_middleware
 from app.routers import (
   applications_router,
   config_router,
+  developer_router,
   experiences_router,
   listings_router,
   profile_router,
@@ -38,6 +39,7 @@ def create_app() -> FastAPI:
 
   app.include_router(applications_router, prefix='/api')
   app.include_router(config_router, prefix='/api')
+  app.include_router(developer_router, prefix='/api')
   app.include_router(experiences_router, prefix='/api')
   app.include_router(listings_router, prefix='/api')
   app.include_router(profile_router, prefix='/api')
