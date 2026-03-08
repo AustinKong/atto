@@ -46,16 +46,13 @@ async def create_resume(
       Resume(
         template_id=default_resume.template_id,
         sections=default_resume.sections,
-        profile=default_resume.profile,
       )
     )
   elif mode == 'blank':
-    # Create empty resume with default profile
     return resumes_service.create(
       Resume(
         template_id=default_resume.template_id,
         sections=[],
-        profile=default_resume.profile,
       )
     )
   elif mode == 'optimized':
@@ -143,7 +140,6 @@ async def create_resume(
       Resume(
         template_id=default_resume.template_id,
         sections=optimized_sections,
-        profile=default_resume.profile,
       )
     )
   else:

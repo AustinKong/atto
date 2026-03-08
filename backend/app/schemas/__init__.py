@@ -7,12 +7,12 @@ from .experience import (
 )
 from .insights import LinkSelectionResponse
 from .listing import Listing, ListingBase, ListingSummary
+from .profile import Profile
 from .resume import (
   DEFAULT_RESUME_ID,
   DetailedItem,
   DetailedSection,
   ParagraphSection,
-  Profile,
   Resume,
   Section,
   SectionTypeEnum,

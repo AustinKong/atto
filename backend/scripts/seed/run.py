@@ -21,24 +21,29 @@ def run(json_path: str, default_resume_path: str):
     return
 
   if os.path.exists(default_resume_path):
-    print(f'Seeding default resume from {default_resume_path}...')
+    print(f'Seeding from {default_resume_path}...')
     with open(default_resume_path, encoding='utf-8') as f:
       resume_data = json.load(f)
 
-      # Extract profile and sections
+      # Write profile to profile.json (profile is now a first-class entity)
       profile_dict = resume_data.get('profile', {})
-      sections = resume_data.get('sections', [])
+      profile_path = settings.paths.profile_path
+      os.makedirs(os.path.dirname(profile_path), exist_ok=True)
+      with open(profile_path, 'w', encoding='utf-8') as pf:
+        json.dump(profile_dict, pf, indent=2)
+      print(f'Successfully seeded profile to {profile_path}.')
 
-      # Update the default resume with profile and sections
+      # Update the default resume with sections only (no profile)
+      sections = resume_data.get('sections', [])
       with sqlite3.connect(settings.paths.db_path) as db:
         cursor = db.cursor()
         cursor.execute(
-          'UPDATE resumes SET profile = ?, sections = ? WHERE id = ?',
-          (json.dumps(profile_dict), json.dumps(sections), str(DEFAULT_RESUME_ID)),
+          'UPDATE resumes SET sections = ? WHERE id = ?',
+          (json.dumps(sections), str(DEFAULT_RESUME_ID)),
         )
         db.commit()
 
-      print('Successfully seeded default resume with profile and sections.')
+      print('Successfully seeded default resume with sections.')
   else:
     print(
       f'Default resume file not found at {default_resume_path}. Skipping default resume seeding.'
@@ -49,11 +54,11 @@ def run(json_path: str, default_resume_path: str):
   with sqlite3.connect(settings.paths.db_path) as db:
     cursor = db.cursor()
 
-    # Ensure default resume exists with empty profile
+    # Ensure default resume exists
     print('Ensuring default resume exists...')
     cursor.execute(
-      'INSERT OR IGNORE INTO resumes (id, template_id, sections, profile) VALUES (?, ?, ?, ?)',
-      (str(DEFAULT_RESUME_ID), str(DEFAULT_TEMPLATE_ID), '[]', json.dumps({})),
+      'INSERT OR IGNORE INTO resumes (id, template_id, sections) VALUES (?, ?, ?)',
+      (str(DEFAULT_RESUME_ID), str(DEFAULT_TEMPLATE_ID), '[]'),
     )
 
     # Read JSON and insert data
@@ -106,8 +111,8 @@ def run(json_path: str, default_resume_path: str):
           # --- RESUMES ---
           # Create a new empty resume for this application
           cursor.execute(
-            'INSERT INTO resumes (id, template_id, sections, profile) VALUES (?, ?, ?, ?)',
-            (resume_id, str(DEFAULT_TEMPLATE_ID), '[]', json.dumps({})),
+            'INSERT INTO resumes (id, template_id, sections) VALUES (?, ?, ?)',
+            (resume_id, str(DEFAULT_TEMPLATE_ID), '[]'),
           )
 
           # --- APPLICATIONS ---

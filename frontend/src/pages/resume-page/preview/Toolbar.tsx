@@ -3,14 +3,23 @@ import { useMemo } from 'react';
 import { PiDownload, PiLayout } from 'react-icons/pi';
 import { useNavigate, useParams } from 'react-router';
 
-import { useRenderTemplatePdf } from '@/mutations/templates';
+import { useRenderTemplate } from '@/mutations/templates';
+import type { Profile } from '@/types/profile';
 import type { Resume } from '@/types/resume';
 import type { Template } from '@/types/template';
 
-export function Toolbar({ resume, template }: { resume: Resume; template: Template }) {
+export function Toolbar({
+  resume,
+  template,
+  profile,
+}: {
+  resume: Resume;
+  template: Template;
+  profile: Profile;
+}) {
   const navigate = useNavigate();
   const params = useParams();
-  const { mutateAsync: renderPdf } = useRenderTemplatePdf();
+  const { mutateAsync: render } = useRenderTemplate();
 
   const templatesPath = useMemo(() => {
     const { listingId, applicationId, resumeId } = params;
@@ -21,10 +30,10 @@ export function Toolbar({ resume, template }: { resume: Resume; template: Templa
   }, [params]);
 
   async function handleExport(): Promise<Blob> {
-    return renderPdf({
+    return render({
       template,
       sections: resume.sections,
-      profile: resume.profile,
+      profile,
     });
   }
 

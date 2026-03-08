@@ -5,8 +5,7 @@ import {
   getLocalTemplates,
   getTemplate,
   getTemplates,
-  renderTemplateHtml,
-  renderTemplatePdf,
+  renderTemplate,
 } from '@/services/templates';
 import type { Profile, Section } from '@/types/resume';
 import type { Template } from '@/types/template';
@@ -40,42 +39,18 @@ export const templateQueries = {
       enabled: !!templateId,
       staleTime: Infinity,
     }),
-  // TODO: Deprecate html rendering
-  renderHtml: (template: Template, sections: Section[], profile: Profile) =>
+  render: (template: Template, sections: Section[], profile: Profile, readonly: boolean = false) =>
     queryOptions({
       queryKey: [
         'templates',
         'render',
-        'html',
-        template.content,
-        JSON.stringify(sections),
-        JSON.stringify(profile),
-      ] as const,
-      queryFn: async () => {
-        return renderTemplateHtml(template, sections, profile);
-      },
-      enabled: !!template && !!sections && !!profile,
-      staleTime: 0,
-      placeholderData: keepPreviousData,
-    }),
-  renderPdf: (
-    template: Template,
-    sections: Section[],
-    profile: Profile,
-    readonly: boolean = false
-  ) =>
-    queryOptions({
-      queryKey: [
-        'templates',
-        'render',
-        'pdf',
         readonly ? 'readonly' : 'editable',
         template.content,
         JSON.stringify(sections),
         JSON.stringify(profile),
       ] as const,
       queryFn: async () => {
-        return renderTemplatePdf(template, sections, profile);
+        return renderTemplate(template, sections, profile);
       },
       enabled: !!template && !!sections && !!profile,
       staleTime: readonly ? 1000 * 60 * 60 * 24 : 0, // 24 hours for readonly, immediate for editable

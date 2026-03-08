@@ -2,28 +2,33 @@ import { Collapsible, Field, HStack, Input, Text, VStack } from '@chakra-ui/reac
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { memo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { LuChevronLeft, LuChevronRight } from 'react-icons/lu';
+import { LuChevronLeft } from 'react-icons/lu';
 import { useParams } from 'react-router';
 
+import { DEFAULT_RESUME_ID } from '@/constants/resume';
 import { useWatchForm } from '@/hooks/useWatchForm';
-import { useSaveResumeProfile } from '@/mutations/resume';
-import { resumeQueries } from '@/queries/resume';
-import type { Profile } from '@/types/resume';
+import { useSaveProfile } from '@/mutations/profile';
+import { profileQueries } from '@/queries/profile';
+import type { Profile } from '@/types/profile';
 
 export const ProfileEditor = memo(function ProfileEditor() {
   const { resumeId } = useParams<{ resumeId: string }>();
-  const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
+  const { data: profile } = useSuspenseQuery(profileQueries.item());
+
+  const isDefault = resumeId === DEFAULT_RESUME_ID;
 
   const form = useForm<Profile>({
-    defaultValues: resume.profile,
+    defaultValues: profile,
     mode: 'onChange',
   });
 
-  const { mutate: saveProfile } = useSaveResumeProfile();
+  const { mutate: saveProfile } = useSaveProfile();
   const { watch } = form;
 
   useWatchForm<Profile>((value) => {
-    saveProfile({ resumeId: resume.id, profile: value });
+    if (isDefault) {
+      saveProfile(value);
+    }
   }, watch);
 
   return (
@@ -57,6 +62,7 @@ export const ProfileEditor = memo(function ProfileEditor() {
                   <Input
                     {...form.register('fullName', { required: true })}
                     placeholder="Your full name"
+                    disabled={!isDefault}
                   />
                   <Field.HelperText>Your full legal name.</Field.HelperText>
                 </Field.Root>
@@ -70,6 +76,7 @@ export const ProfileEditor = memo(function ProfileEditor() {
                     {...form.register('email', { required: true })}
                     type="email"
                     placeholder="your.email@example.com"
+                    disabled={!isDefault}
                   />
                   <Field.HelperText>Your primary email address.</Field.HelperText>
                 </Field.Root>
@@ -78,21 +85,41 @@ export const ProfileEditor = memo(function ProfileEditor() {
               <HStack>
                 <Field.Root>
                   <Field.Label>Phone Number</Field.Label>
-                  <Input {...form.register('phone')} type="tel" placeholder="(123) 456-7890" />
+                  <Input
+                    {...form.register('phone')}
+                    type="tel"
+                    placeholder="(123) 456-7890"
+                    disabled={!isDefault}
+                  />
                   <Field.HelperText>Your primary phone number.</Field.HelperText>
                 </Field.Root>
 
                 <Field.Root>
                   <Field.Label>Location</Field.Label>
-                  <Input {...form.register('location')} placeholder="City, Country" />
+                  <Input
+                    {...form.register('location')}
+                    placeholder="City, Country"
+                    disabled={!isDefault}
+                  />
                   <Field.HelperText>Your location.</Field.HelperText>
                 </Field.Root>
               </HStack>
 
               <Field.Root>
                 <Field.Label>Website</Field.Label>
-                <Input {...form.register('website')} type="url" placeholder="https://example.com" />
-                <Field.HelperText>Your personal or professional website.</Field.HelperText>
+                <Input
+                  {...form.register('website')}
+                  type="url"
+                  placeholder="https://example.com"
+                  disabled={!isDefault}
+                />
+                {isDefault ? (
+                  <Field.HelperText>Your personal or professional website.</Field.HelperText>
+                ) : (
+                  <Field.HelperText color="fg.muted">
+                    Profile can only be edited from the default resume.
+                  </Field.HelperText>
+                )}
               </Field.Root>
             </VStack>
           </form>

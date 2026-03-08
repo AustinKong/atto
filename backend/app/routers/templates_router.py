@@ -6,7 +6,6 @@ from fastapi.responses import Response
 
 from app.schemas import Page, Profile, Section, Template, TemplateSummary
 from app.services import templates_service
-from app.utils.errors import NotFoundError
 
 router = APIRouter(
   prefix='/templates',
@@ -73,24 +72,15 @@ async def render_template(
   template: Annotated[Template, Body()],
   sections: Annotated[list[Section], Body()],
   profile: Annotated[Profile, Body()],
-  format: str,
 ):
-  # TODO: Deprecate html rendering
-  if format == 'html':
-    html = templates_service.render_html(template.content, profile, sections)
-    return {'html': html}
-
-  if format == 'pdf':
-    pdf_bytes = await templates_service.render_pdf(template.content, profile, sections)
-    return Response(
-      content=pdf_bytes,
-      media_type='application/pdf',
-      headers={
-        'Content-Disposition': 'attachment; filename="resume.pdf"',
-      },
-    )
-
-  raise NotFoundError(f'Unsupported format: {format}')
+  pdf_bytes = await templates_service.render_pdf(template.content, profile, sections)
+  return Response(
+    content=pdf_bytes,
+    media_type='application/pdf',
+    headers={
+      'Content-Disposition': 'attachment; filename="resume.pdf"',
+    },
+  )
 
 
 @router.post('/remote/{id}/download')

@@ -32,7 +32,7 @@ export function Document({
   pageWidth?: number;
 }) {
   const { data: blob, isFetching } = useQuery(
-    templateQueries.renderPdf(template, sections, profile, !interactable)
+    templateQueries.render(template, sections, profile, !interactable)
   );
 
   const [state, dispatch] = useReducer(documentReducer, initialState);

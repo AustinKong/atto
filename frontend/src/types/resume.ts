@@ -1,5 +1,7 @@
 import type { ISOYearMonth } from '@/utils/date';
 
+export type { Profile } from '@/types/profile';
+
 export const SECTION_TYPES = {
   SIMPLE: 'simple',
   DETAILED: 'detailed',
@@ -38,17 +40,8 @@ export interface ParagraphSection extends BaseSection {
 
 export type Section = SimpleSection | DetailedSection | ParagraphSection;
 
-export type Profile = {
-  fullName: string;
-  email: string;
-  phone: string;
-  location: string;
-  website: string;
-};
-
 export interface Resume {
   id: string;
   templateId: string;
   sections: Section[];
-  profile: Profile;
 }

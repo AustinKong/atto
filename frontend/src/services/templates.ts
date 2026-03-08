@@ -48,33 +48,12 @@ export async function getLocalTemplate(templateId: string): Promise<Template> {
   return response.json();
 }
 
-export async function renderTemplateHtml(
-  template: Template,
-  sections: Section[],
-  profile: Profile
-): Promise<string> {
-  const response = await fetch(`/api/templates/render?format=html`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ template, sections, profile }),
-  });
-
-  if (!response.ok) {
-    throw response;
-  }
-
-  const json = await response.json();
-  return json.html;
-}
-
-export async function renderTemplatePdf(
+export async function renderTemplate(
   template: Template,
   sections: Section[],
   profile: Profile
 ): Promise<Blob> {
-  const response = await fetch(`/api/templates/render?format=pdf`, {
+  const response = await fetch(`/api/templates/render`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

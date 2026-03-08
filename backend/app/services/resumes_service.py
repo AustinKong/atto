@@ -2,7 +2,7 @@ import json
 from uuid import UUID
 
 from app.repositories import DatabaseRepository
-from app.schemas import DEFAULT_RESUME_ID, DEFAULT_TEMPLATE_ID, Profile, Resume
+from app.schemas import DEFAULT_RESUME_ID, DEFAULT_TEMPLATE_ID, Resume
 from app.utils.errors import NotFoundError
 
 
@@ -16,23 +16,20 @@ class ResumesService(DatabaseRepository):
       raise NotFoundError(f'Resume {resume_id} not found')
 
     sections_data = json.loads(row['sections'])
-    profile_data = json.loads(row['profile'])
 
     return Resume(
       id=row['id'],
       template_id=UUID(row['template_id']),
       sections=sections_data,
-      profile=Profile(**profile_data),
     )
 
   def create(self, resume: Resume) -> Resume:
     self.execute(
-      'INSERT INTO resumes (id, template_id, sections, profile) VALUES (?, ?, ?, ?)',
+      'INSERT INTO resumes (id, template_id, sections) VALUES (?, ?, ?)',
       (
         str(resume.id),
         str(resume.template_id),
         json.dumps([section.model_dump() for section in resume.sections]),
-        json.dumps(resume.profile.model_dump()),
       ),
     )
 
@@ -44,11 +41,10 @@ class ResumesService(DatabaseRepository):
       raise NotFoundError(f'Resume {resume.id} not found')
 
     self.execute(
-      'UPDATE resumes SET template_id = ?, sections = ?, profile = ? WHERE id = ?',
+      'UPDATE resumes SET template_id = ?, sections = ? WHERE id = ?',
       (
         str(resume.template_id),
         json.dumps([section.model_dump() for section in resume.sections]),
-        json.dumps(resume.profile.model_dump()),
         str(resume.id),
       ),
     )
@@ -72,11 +68,9 @@ class ResumesService(DatabaseRepository):
     try:
       return self.get(DEFAULT_RESUME_ID)
     except NotFoundError:
-      # Create the default global resume with empty profile and sections
       default_resume = Resume(
         id=DEFAULT_RESUME_ID,
         template_id=DEFAULT_TEMPLATE_ID,
         sections=[],
-        profile=Profile(),
       )
       return self.create(default_resume)

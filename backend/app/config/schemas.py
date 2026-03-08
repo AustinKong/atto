@@ -52,7 +52,6 @@ class PathsPrefs(BaseModel):
     description='Directory where AI embeddings for semantic search are stored. Larger datasets require more disk space here.',
     exposure='advanced',
   )
-  # TODO: Remove if not used
   profile_path: str = ConfigField(
     default_factory=lambda: str(get_data_dir() / 'profile.json'),
     title='Profile Data Path',
