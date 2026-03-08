@@ -153,8 +153,11 @@ async def get_listings(
   size: int = 10,
   search: str | None = None,
   status: Annotated[list[StatusEnum] | None, Query()] = None,
-  sort_by: Literal['title', 'company', 'posted_at', 'last_status_at'] | None = None,
-  sort_dir: Literal['asc', 'desc'] | None = None,
+  sort_by: Annotated[
+    Literal['title', 'company', 'posted_at', 'last_status_at'] | None,
+    Query(alias='sort-by'),
+  ] = None,
+  sort_dir: Annotated[Literal['asc', 'desc'] | None, Query(alias='sort-dir')] = None,
 ):
   return listings_service.list_all(page, size, search, status, sort_by, sort_dir)
 

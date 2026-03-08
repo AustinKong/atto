@@ -10,7 +10,7 @@ import {
 import { createResume, type ResumeCreationMode } from '@/services/resume';
 import type { StatusEvent } from '@/types/application';
 
-export function useCreateApplication() {
+export function useCreateApplication(onSuccess?: () => void) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -24,13 +24,14 @@ export function useCreateApplication() {
     }) => {
       const resume = await createResume(
         resumeMode,
-        resumeMode === 'tailored' ? listingId : undefined
+        resumeMode === 'optimized' ? listingId : undefined
       );
       return await createApplicationSvc(listingId, resume.id);
     },
     onSuccess: (data, { listingId }) => {
       queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
       queryClient.setQueryData(['application', data.id], data);
+      onSuccess?.();
       // Navigate to the new application
       navigate(`/listings/${listingId}/applications/${data.id}`, { replace: true });
     },

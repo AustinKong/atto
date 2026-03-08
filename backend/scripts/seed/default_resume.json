@@ -1,10 +1,12 @@
 {
-  "fullName": "Jane Doe",
-  "email": "jane.doe@example.com",
-  "phone": "555-019-2045",
-  "location": "San Francisco, CA",
-  "website": "https://janedoe.me",
-  "baseSections": [
+  "profile": {
+    "fullName": "Jane Doe",
+    "email": "jane.doe@example.com",
+    "phone": "555-019-2045",
+    "location": "San Francisco, CA",
+    "website": "https://janedoe.me"
+  },
+  "sections": [
     {
       "type": "paragraph",
       "id": "introduction",
@@ -16,11 +18,9 @@
       "id": "skills",
       "title": "Skills",
       "content": [
-        "Programming: Python, TypeScript, Java, Go, Rust",
         "Frontend: React, Vue, HTML/CSS, TailwindCSS",
         "Backend: Django, FastAPI, Node.js, Express, Spring Boot",
-        "Data: PostgreSQL, Redis, MongoDB, Elasticsearch",
-        "Infrastructure: AWS, Docker, Kubernetes, Terraform, CI/CD"
+        "Data: PostgreSQL, Redis, MongoDB, Elasticsearch"
       ]
     },
     {
@@ -45,9 +45,9 @@
           "startDate": "2018-08",
           "endDate": "2021-05",
           "bullets": [
-            "Developed responsive and accessible frontend components using React and TypeScript, improving user engagement by 25%.",
+            "Developed responsive frontend components using React and TypeScript, improving user engagement by 25%.",
             "Migrated a legacy monolith application to a serverless architecture using AWS Lambda and API Gateway, cutting infrastructure costs by 30%.",
-            "Implemented comprehensive unit and integration test suites using Jest and Pytest, raising code coverage from 55% to 85%."
+            "Implemented comprehensive test suites using Jest and Pytest, raising code coverage from 55% to 85%."
           ]
         },
         {
@@ -58,7 +58,7 @@
           "bullets": [
             "Actively collaborated with UX/UI designers to translate wireframes into interactive prototypes.",
             "Integrated third-party RESTful APIs to deliver secure payment processing and content management capabilities.",
-            "Built dynamic client-side web applications using JavaScript, HTML5, and CSS3, serving over 50 regional business clients."
+            "Built dynamic client-side web applications using JavaScript, HTML5, and CSS3, serving regional business clients."
           ]
         }
       ]

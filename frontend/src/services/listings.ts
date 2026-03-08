@@ -79,8 +79,8 @@ export async function getListings(
     size: size.toString(),
   });
 
-  if (sortBy) params.append('sort_by', sortBy);
-  if (sortDir) params.append('sort_dir', sortDir);
+  if (sortBy) params.append('sort-by', sortBy);
+  if (sortDir) params.append('sort-dir', sortDir);
   if (search) params.append('search', search);
   if (status && status.length > 0) {
     status.forEach((s) => params.append('status', s));

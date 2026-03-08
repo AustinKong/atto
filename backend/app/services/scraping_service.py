@@ -104,7 +104,6 @@ class ScrapingService:
         if text and any(keyword.lower() in text.lower() for keyword in BOILERPLATE_KEYWORDS):
           tag.decompose()
 
-    # TODO: If doing this already, why not just make _clean_html return a list of strings (preserving newlines) instead of re-joining and re-splitting text (when doing grounding)?
     # Extract text while preserving newlines
     text_parts = []
     for element in soup.descendants:

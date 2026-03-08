@@ -8,10 +8,10 @@ import uuid
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from app.config import settings
-from app.schemas import DEFAULT_RESUME_ID, DEFAULT_TEMPLATE_ID, Profile
+from app.schemas import DEFAULT_RESUME_ID, DEFAULT_TEMPLATE_ID
 
 
-def run(json_path: str, profile_path: str):
+def run(json_path: str, default_resume_path: str):
   if not os.path.exists(settings.paths.db_path):
     print(f'Database not found at {settings.paths.db_path}. Please run init_db.py first.')
     return
@@ -20,24 +20,29 @@ def run(json_path: str, profile_path: str):
     print(f'JSON file not found at {json_path}.')
     return
 
-  if os.path.exists(profile_path):
-    print(f'Seeding dummy profile from {profile_path}...')
-    with open(profile_path, encoding='utf-8') as f:
-      profile_data = json.load(f)
-      profile = Profile.model_validate(profile_data)
+  if os.path.exists(default_resume_path):
+    print(f'Seeding default resume from {default_resume_path}...')
+    with open(default_resume_path, encoding='utf-8') as f:
+      resume_data = json.load(f)
 
-      # Update the default resume with the profile data
+      # Extract profile and sections
+      profile_dict = resume_data.get('profile', {})
+      sections = resume_data.get('sections', [])
+
+      # Update the default resume with profile and sections
       with sqlite3.connect(settings.paths.db_path) as db:
         cursor = db.cursor()
         cursor.execute(
-          'UPDATE resumes SET profile = ? WHERE id = ?',
-          (json.dumps(profile.model_dump()), str(DEFAULT_RESUME_ID)),
+          'UPDATE resumes SET profile = ?, sections = ? WHERE id = ?',
+          (json.dumps(profile_dict), json.dumps(sections), str(DEFAULT_RESUME_ID)),
         )
         db.commit()
 
-      print('Successfully seeded dummy profile into default resume.')
+      print('Successfully seeded default resume with profile and sections.')
   else:
-    print(f'Profile JSON file not found at {profile_path}. Skipping profile seeding.')
+    print(
+      f'Default resume file not found at {default_resume_path}. Skipping default resume seeding.'
+    )
 
   print(f'Seeding demo data into {settings.paths.db_path} from {json_path}...')
 
@@ -166,5 +171,5 @@ def run(json_path: str, profile_path: str):
 
 if __name__ == '__main__':
   json_file = os.path.join(os.path.dirname(__file__), 'data.json')
-  profile_file = os.path.join(os.path.dirname(__file__), 'profile.json')
-  run(json_file, profile_file)
+  default_resume_file = os.path.join(os.path.dirname(__file__), 'default_resume.json')
+  run(json_file, default_resume_file)

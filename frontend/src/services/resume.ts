@@ -1,13 +1,13 @@
 import type { Resume } from '@/types/resume';
 
-export type ResumeCreationMode = 'default' | 'blank' | 'tailored';
+export type ResumeCreationMode = 'default' | 'blank' | 'optimized';
 
 export async function createResume(
   mode: ResumeCreationMode = 'blank',
   listingId?: string
 ): Promise<Resume> {
   const params = new URLSearchParams({ mode });
-  if (mode === 'tailored' && listingId) {
+  if (mode === 'optimized' && listingId) {
     params.append('listing-id', listingId);
   }
 

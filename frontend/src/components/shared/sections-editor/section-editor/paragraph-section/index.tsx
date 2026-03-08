@@ -18,6 +18,7 @@ export const ParagraphSection = memo(function ParagraphSection({
       rows={3}
       variant="flushed"
       resize="none"
+      autoresize
     />
   );
 });

@@ -1,21 +1,26 @@
 import asyncio
-from typing import Literal
-from uuid import UUID, uuid4
+from typing import Annotated, Literal
+from uuid import UUID
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
-from app.resources.prompts import OPTIMIZATION_PROMPT
+from app.resources.prompts import (
+  LISTING_CONTEXT,
+  OPTIMIZE_DETAILED_ITEM_PROMPT,
+  OPTIMIZE_PARAGRAPH_SECTION_PROMPT,
+  OPTIMIZE_SIMPLE_SECTION_PROMPT,
+)
 from app.schemas import (
   DEFAULT_TEMPLATE_ID,
   DetailedItem,
   DetailedSection,
-  Experience,
-  LLMResponseExperience,
+  ParagraphSection,
   Resume,
+  Section,
+  SectionTypeEnum,
+  SimpleSection,
 )
 from app.services import (
-  applications_service,
-  experiences_service,
   listings_service,
   llm_service,
   resumes_service,
@@ -30,8 +35,8 @@ router = APIRouter(
 
 @router.post('/')
 async def create_resume(
-  mode: Literal['default', 'blank', 'tailored'] = 'blank',
-  listing_id: UUID | None = None,
+  mode: Literal['default', 'blank', 'optimized'] = 'blank',
+  listing_id: Annotated[UUID | None, Query(alias='listing-id')] = None,
 ) -> Resume:
   # TODO: Maybe make this a decorator
   default_resume = resumes_service.ensure_default_global_resume_exists()
@@ -53,16 +58,91 @@ async def create_resume(
         profile=default_resume.profile,
       )
     )
-  elif mode == 'tailored':
-    # Create resume and generate tailored content (placeholder for now)
-    # TODO: Implement tailored resume generation based on listing
+  elif mode == 'optimized':
     if listing_id is None:
-      raise ValueError('listing_id is required when mode is "tailored"')
+      raise ValueError('listing_id is required when mode is "optimized"')
+
+    listing = listings_service.get(listing_id)
+
+    listing_context_kwargs = dict(
+      listing_context=LISTING_CONTEXT.format(
+        listing_title=listing.title,
+        listing_requirements='\n'.join(f'- {r}' for r in listing.requirements),
+        listing_skills=', '.join(listing.skills),
+      ),
+    )
+
+    async def optimize_section(section: Section) -> Section:
+      if section.type == SectionTypeEnum.DETAILED:
+
+        async def optimize_item(item: DetailedItem) -> DetailedItem:
+          item_text = f'  title: {item.title}\n  subtitle: {item.subtitle}\n' + '\n'.join(
+            f'    - {b}' for b in item.bullets
+          )
+          response = await llm_service.call_structured(
+            input=OPTIMIZE_DETAILED_ITEM_PROMPT.format(
+              **listing_context_kwargs,
+              item_title=item.title,
+              item_subtitle=item.subtitle,
+              item_bullets=item_text,
+            ),
+            response_model=DetailedItem,
+          )
+          return DetailedItem(
+            title=response.title,
+            subtitle=response.subtitle,
+            start_date=item.start_date,
+            end_date=item.end_date,
+            bullets=response.bullets,
+          )
+
+        optimized_items = await asyncio.gather(*[optimize_item(item) for item in section.content])
+        return DetailedSection(
+          id=section.id,
+          title=section.title,
+          content=optimized_items,
+        )
+      elif section.type == SectionTypeEnum.PARAGRAPH:
+        response = await llm_service.call_structured(
+          input=OPTIMIZE_PARAGRAPH_SECTION_PROMPT.format(
+            **listing_context_kwargs,
+            section_id=section.id,
+            section_title=section.title,
+            content=section.content,
+          ),
+          response_model=ParagraphSection,
+        )
+        return ParagraphSection(
+          id=section.id,
+          title=section.title,
+          content=response.content,
+        )
+      elif section.type == SectionTypeEnum.SIMPLE:
+        response = await llm_service.call_structured(
+          input=OPTIMIZE_SIMPLE_SECTION_PROMPT.format(
+            **listing_context_kwargs,
+            section_id=section.id,
+            section_title=section.title,
+            items='\n'.join(f'- {item}' for item in section.content),
+          ),
+          response_model=SimpleSection,
+        )
+        return SimpleSection(
+          id=section.id,
+          title=section.title,
+          content=response.content,
+        )
+      else:
+        return section
+
+    optimized_sections = await asyncio.gather(
+      *[optimize_section(s) for s in default_resume.sections]
+    )
 
     return resumes_service.create(
       Resume(
         template_id=default_resume.template_id,
-        sections=[],
+        sections=optimized_sections,
         profile=default_resume.profile,
       )
     )
@@ -82,74 +162,6 @@ async def get_resume(resume_id: UUID) -> Resume:
     resume = resumes_service.update(resume)
 
   return resume
-
-
-# TODO: Deprecate, merge into create_resume with ?mode="tailored" query param
-@router.post('/{resume_id}/generate')
-async def generate_resume_content(resume_id: UUID):
-  resume = resumes_service.get(resume_id)
-  application = applications_service.get_by_resume_id(resume_id)
-  listing = listings_service.get(application.listing_id)
-  relevant_experiences: list[Experience] = experiences_service.find_relevant(listing)
-  responses = await asyncio.gather(
-    *[
-      llm_service.call_structured(
-        input=OPTIMIZATION_PROMPT.format(
-          listing_title=listing.title,
-          listing_requirements=listing.requirements,
-          listing_skills=listing.skills,
-          exp_title=exp.title,
-          exp_organization=exp.organization,
-          exp_bullets='\n'.join(exp.bullets),
-        ),
-        response_model=LLMResponseExperience,
-      )
-      for exp in relevant_experiences
-    ]
-  )
-
-  customised_experiences: list[Experience] = []
-  for exp, resp in zip(relevant_experiences, responses, strict=False):
-    exp.bullets = resp.bullets
-    customised_experiences.append(exp)
-
-  # Map pruned experiences to DetailedItem objects
-  # Sort by end_date (desc), then start_date (desc)
-  def sort_key(exp: Experience):
-    # If end_date is 'present', treat as ongoing (sort first).
-    # If end_date is None, the user hasn't filled it yet; don't treat as ongoing.
-    if exp.end_date == 'present':
-      end = '9999-12'
-    elif exp.end_date is None:
-      end = '0000-00'
-    else:
-      end = exp.end_date
-    start = exp.start_date or '0000-00'
-    return (end, start)
-
-  sorted_experiences = sorted(customised_experiences, key=sort_key, reverse=True)
-  detailed_items = [
-    DetailedItem(
-      title=exp.title,
-      subtitle=exp.organization,
-      start_date=exp.start_date,
-      end_date=exp.end_date,
-      bullets=exp.bullets,
-    )
-    for exp in sorted_experiences
-  ]
-
-  # Append work experience section to existing sections
-  resume.sections.append(
-    DetailedSection(
-      id=str(uuid4()),
-      title='Work Experience',
-      content=detailed_items,
-    )
-  )
-
-  updated_resume = resumes_service.update(resume)
-  return updated_resume
 
 
 @router.put('/{resume_id}')

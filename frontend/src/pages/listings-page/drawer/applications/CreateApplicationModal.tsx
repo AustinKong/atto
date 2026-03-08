@@ -10,7 +10,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { LuCopy, LuFileText, LuSearch } from 'react-icons/lu';
+import { LuCopy, LuFileText, LuSparkles, LuTriangleAlert } from 'react-icons/lu';
 import { useParams } from 'react-router';
 
 import { useCreateApplication } from '@/mutations/applications';
@@ -22,19 +22,22 @@ const RESUME_OPTIONS = [
     title: 'Copy Default Resume',
     description: 'Start with your default resume template',
     icon: <LuCopy />,
+    warning: null,
   },
   {
     value: 'blank' as const,
     title: 'Blank Resume',
     description: 'Create an empty resume from scratch',
     icon: <LuFileText />,
+    warning: null,
   },
   {
-    value: 'tailored' as const,
-    title: 'Tailor to Job Listing',
-    description: 'Automatically tailor resume content to this job (not available yet)',
-    icon: <LuSearch />,
-    disabled: true,
+    value: 'optimized' as const,
+    title: 'Optimize for Job',
+    description:
+      'Automatically populate and optimize resume content for this listing, using your default resume as a base.',
+    icon: <LuSparkles />,
+    warning: 'This is an experimental feature that may produce poor results. Use with caution.',
   },
 ];
 
@@ -48,7 +51,7 @@ export function CreateApplicationModal({
   const { listingId } = useParams<{ listingId: string }>();
   const [resumeMode, setResumeMode] = useState<ResumeCreationMode>('default');
 
-  const createApplicationMutation = useCreateApplication();
+  const createApplicationMutation = useCreateApplication(() => onOpenChange(false));
 
   const handleConfirm = () => {
     if (listingId) {
@@ -88,11 +91,7 @@ export function CreateApplicationModal({
                   >
                     <HStack align="stretch">
                       {RESUME_OPTIONS.map((option) => (
-                        <RadioCard.Item
-                          key={option.value}
-                          value={option.value}
-                          disabled={option.disabled}
-                        >
+                        <RadioCard.Item key={option.value} value={option.value}>
                           <RadioCard.ItemHiddenInput />
                           <RadioCard.ItemControl>
                             <RadioCard.ItemContent>
@@ -103,7 +102,15 @@ export function CreateApplicationModal({
                                 {option.title}
                               </RadioCard.ItemText>
                               <RadioCard.ItemDescription fontSize="xs">
-                                {option.description}
+                                <Text>{option.description}</Text>
+                                {option.warning && (
+                                  <Text color="fg.error" mt="2">
+                                    {option.warning}
+                                    <Icon size="xs">
+                                      <LuTriangleAlert />
+                                    </Icon>
+                                  </Text>
+                                )}
                               </RadioCard.ItemDescription>
                             </RadioCard.ItemContent>
                           </RadioCard.ItemControl>
