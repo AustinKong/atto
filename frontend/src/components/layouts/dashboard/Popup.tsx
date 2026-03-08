@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { Link } from 'react-router';
 
 import { useLocalStorage } from '@/hooks/use-local-storage.hooks';
-import { releaseNotesQueries } from '@/queries/release-notes.queries';
+import { releaseNotesQueries } from '@/queries/release-note.queries';
 import { getCurrentVersion } from '@/services/release-notes.service';
 import { compareSemVer } from '@/utils/text.utils';
 

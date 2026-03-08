@@ -16,7 +16,7 @@ export const listingsQueries = {
     const { search, sortBy, sortOrder, statuses, pageSize = 50 } = params;
 
     const queryKey = [
-      'listings',
+      'listing',
       search ?? '',
       sortBy ?? '',
       sortOrder ?? '',
@@ -42,14 +42,6 @@ export const listingsQueries = {
       },
     });
   },
-
-  // Convenience factory for callers that only want to prefetch the first page
-  // during a route transition (e.g. loader).
-  all: () =>
-    queryOptions({
-      queryKey: ['listings', '', '', '', []] as const,
-      queryFn: () => getListings(1, 50),
-    }),
 
   // Single listing query factory
   item: (id: string) =>

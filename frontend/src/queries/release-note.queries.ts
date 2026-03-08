@@ -5,13 +5,13 @@ import { getLatestVersion, getReleaseNotes } from '@/services/release-notes.serv
 export const releaseNotesQueries = {
   latestVersion: () =>
     queryOptions({
-      queryKey: ['release-notes-version', 'latest'],
+      queryKey: ['release-notes-version', 'latest'] as const,
       queryFn: getLatestVersion,
       staleTime: 12 * 60 * 60 * 1000,
     }),
   item: (version: string) =>
     queryOptions({
-      queryKey: ['release-notes', version],
+      queryKey: ['release-notes', version] as const,
       queryFn: () => getReleaseNotes(version),
       staleTime: 48 * 60 * 60 * 1000,
     }),

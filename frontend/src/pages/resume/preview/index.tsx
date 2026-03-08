@@ -13,7 +13,7 @@ export function Preview() {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
   const { data: template } = useSuspenseQuery(templateQueries.localItem(resume.templateId));
-  const { data: profile } = useSuspenseQuery(profileQueries.item());
+  const { data: profile } = useSuspenseQuery(profileQueries.list());
 
   return (
     <VStack gap="0" h="full">

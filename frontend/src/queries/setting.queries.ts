@@ -3,9 +3,9 @@ import { queryOptions } from '@tanstack/react-query';
 import { getSettings } from '@/services/setting.service';
 
 export const settingsQueries = {
-  all: () =>
+  list: () =>
     queryOptions({
-      queryKey: ['settings'] as const,
+      queryKey: ['setting'] as const,
       queryFn: getSettings,
       staleTime: 5 * 60 * 1000, // 5 minutes
     }),

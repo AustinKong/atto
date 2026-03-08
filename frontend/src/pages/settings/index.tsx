@@ -14,7 +14,7 @@ import { Toolbar } from './Toolbar';
 export function SettingsPage() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const queryClient = useQueryClient();
-  const { data: settings } = useSuspenseQuery(settingsQueries.all());
+  const { data: settings } = useSuspenseQuery(settingsQueries.list());
 
   const updateSettingsMutation = useMutation({
     mutationFn: updateSettings,

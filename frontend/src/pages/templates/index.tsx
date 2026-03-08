@@ -9,6 +9,7 @@ import type { TemplateSummary } from '@/types/template.types';
 
 import { TemplateCard } from './template-card';
 
+// TODO: Add paginated infinite scroll
 export function TemplatesPage() {
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 10;
@@ -17,7 +18,7 @@ export function TemplatesPage() {
   const { resumeId } = useParams<{ resumeId: string }>();
   const isPickerMode = !!resumeId;
 
-  const { data } = useSuspenseQuery(templateQueries.mergedList(page, PAGE_SIZE));
+  const { data } = useSuspenseQuery(templateQueries.list(page, PAGE_SIZE));
   const { data: resume } = useQuery({
     ...resumeQueries.item(resumeId!),
     enabled: isPickerMode,

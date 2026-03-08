@@ -12,7 +12,7 @@ const ListingParams = z.object({
 
 export function listingsLoader(queryClient: QueryClient) {
   return async () => {
-    return queryClient.ensureQueryData(listingsQueries.all());
+    return queryClient.prefetchInfiniteQuery(listingsQueries.list());
   };
 }
 

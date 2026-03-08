@@ -15,7 +15,7 @@ export function resumeLoader(queryClient: QueryClient) {
     const { resumeId } = validateParams(ResumeParams, params);
     const [resume] = await Promise.all([
       queryClient.ensureQueryData(resumeQueries.item(resumeId)),
-      queryClient.ensureQueryData(profileQueries.item()),
+      queryClient.ensureQueryData(profileQueries.list()),
     ]);
     return { resume };
   };

@@ -3,7 +3,7 @@ import { queryOptions } from '@tanstack/react-query';
 import { getProfile } from '@/services/profile.service';
 
 export const profileQueries = {
-  item: () =>
+  list: () =>
     queryOptions({
       queryKey: ['profile'] as const,
       queryFn: getProfile,

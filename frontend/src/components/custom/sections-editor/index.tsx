@@ -21,7 +21,6 @@ import { AddSectionButton } from './AddSectionButton';
 import { SectionEditor } from './section-editor';
 import type { SectionsEditorData } from './types';
 
-// TODO: If only used by resume editor, move to resume editor folder.
 // TODO: Make sections have a "lock" icon to stop them from being customizeable by AI
 
 // Escape-hatch to export reset function for when we want to hard reset the form to defaultValues (e.g., after populating base sections)

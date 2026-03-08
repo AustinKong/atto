@@ -23,7 +23,7 @@ export function TemplateBuilderPage() {
     isLoading: namesLoading,
     refetch: refetchNames,
   } = useQuery({
-    ...templateQueries.list(),
+    ...templateQueries.localList(),
     refetchInterval: 1000,
   });
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');

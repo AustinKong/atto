@@ -15,7 +15,7 @@ import { Table } from './Table';
 import { Toolbar } from './Toolbar';
 
 export function NewListingsPage() {
-  const { data: listingDrafts } = useSuspenseQuery(listingDraftQueries.all());
+  const { data: listingDrafts } = useSuspenseQuery(listingDraftQueries.list());
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [splitterSizes, setSplitterSizes] = useLocalStorage(

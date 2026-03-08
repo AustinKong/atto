@@ -18,7 +18,11 @@ import { DisplayDate } from '@/components/ui/DisplayDate';
 import { useCreateApplication } from '@/mutations/application.mutations';
 import type { Application } from '@/types/application.types';
 import type { Listing } from '@/types/listing.types';
-import { DateFormatPresets, ISODate } from '@/utils/date.utils';
+import { DateFormatPresets } from '@/utils/date.utils';
+import {
+  formatApplicationStatusDisplay,
+  getLastStatusEvent,
+} from '@/utils/formatters/application.formatters';
 import { formatStatus } from '@/utils/formatters/status.formatters';
 
 import { CreateApplicationModal } from './CreateApplicationModal';
@@ -31,13 +35,8 @@ export function Details({ application, listing }: { application: Application; li
 
   const applicationCollection = createListCollection({
     items: listing.applications.map((app) => {
-      // TODO: Put this in a fn so its reusable
-      const lastStatusEvent = app.statusEvents[app.statusEvents.length - 1];
-      const statusText = formatStatus(lastStatusEvent);
-      const date = ISODate.format(lastStatusEvent.date, DateFormatPresets.monthDay);
-
       return {
-        label: `${date} (${statusText})`,
+        label: formatApplicationStatusDisplay(app),
         value: app.id,
       };
     }),
@@ -90,9 +89,7 @@ export function Details({ application, listing }: { application: Application; li
       <DataList.Root orientation="horizontal" gap="2" size="lg">
         <DataList.Item>
           <DataList.ItemLabel>Stage</DataList.ItemLabel>
-          <DataList.ItemValue>
-            {formatStatus(application.statusEvents[application.statusEvents.length - 1])}
-          </DataList.ItemValue>
+          <DataList.ItemValue>{formatStatus(getLastStatusEvent(application))}</DataList.ItemValue>
         </DataList.Item>
         <DataList.Item>
           <DataList.ItemLabel>Applied</DataList.ItemLabel>
@@ -107,7 +104,7 @@ export function Details({ application, listing }: { application: Application; li
           <DataList.ItemLabel>Last Update</DataList.ItemLabel>
           <DataList.ItemValue>
             <DisplayDate
-              date={application.statusEvents[application.statusEvents.length - 1].date}
+              date={getLastStatusEvent(application).date}
               options={DateFormatPresets.short}
             />
           </DataList.ItemValue>

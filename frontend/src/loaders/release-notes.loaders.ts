@@ -2,7 +2,7 @@ import type { QueryClient } from '@tanstack/react-query';
 import type { LoaderFunctionArgs } from 'react-router';
 import { z } from 'zod';
 
-import { releaseNotesQueries } from '@/queries/release-notes.queries';
+import { releaseNotesQueries } from '@/queries/release-note.queries';
 import { validateParams } from '@/utils/params.utils';
 
 const ReleaseNotesParams = z.object({

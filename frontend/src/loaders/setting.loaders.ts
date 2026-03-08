@@ -4,6 +4,6 @@ import { settingsQueries } from '@/queries/setting.queries';
 
 export function settingsLoader(queryClient: QueryClient) {
   return async () => {
-    return queryClient.ensureQueryData(settingsQueries.all());
+    return queryClient.ensureQueryData(settingsQueries.list());
   };
 }

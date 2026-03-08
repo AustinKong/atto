@@ -4,7 +4,6 @@ import { useDebouncedMutation } from '@/hooks/use-debounced-mutation.hooks';
 import { updateResume } from '@/services/resume.service';
 import type { Resume, Section } from '@/types/resume.types';
 
-// TODO: Should merge into one?
 export function useSaveResumeSections() {
   const queryClient = useQueryClient();
 

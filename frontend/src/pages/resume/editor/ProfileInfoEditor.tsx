@@ -13,7 +13,7 @@ import type { Profile } from '@/types/profile.types';
 
 export const ProfileEditor = memo(function ProfileEditor() {
   const { resumeId } = useParams<{ resumeId: string }>();
-  const { data: profile } = useSuspenseQuery(profileQueries.item());
+  const { data: profile } = useSuspenseQuery(profileQueries.list());
 
   const isDefault = resumeId === DEFAULT_RESUME_ID;
 

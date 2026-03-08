@@ -6,7 +6,7 @@ import { useParams } from 'react-router';
 import remarkGfm from 'remark-gfm';
 
 import { Prose } from '@/components/ui/Prose';
-import { releaseNotesQueries } from '@/queries/release-notes.queries';
+import { releaseNotesQueries } from '@/queries/release-note.queries';
 import { getCurrentVersion } from '@/services/release-notes.service';
 
 export function ReleaseNotesPage() {
