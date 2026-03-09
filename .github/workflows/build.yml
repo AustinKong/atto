@@ -62,11 +62,12 @@ jobs:
 
       - name: Rename
         run: |
+          shopt -s nocaseglob
           for f in dist/atto*; do
             if [ -f "$f" ]; then
               ext="${f##*.}"
               filename="${f%.*}"
-              if [ "$ext" = "$filename" ]; then
+              if [ "$ext" = "$filename" ] || [ "$f" = "$filename" ]; then
                 mv "$f" "${f}-${{ matrix.os }}"
               else
                 mv "$f" "${filename}-${{ matrix.os }}.${ext}"
@@ -116,7 +117,8 @@ jobs:
           tag_name: v${{ github.event.inputs.version }}
           name: Release v${{ github.event.inputs.version }}
           files: artifacts/**
-          overwrite: true
+          draft: true
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
