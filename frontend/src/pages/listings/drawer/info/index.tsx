@@ -1,10 +1,23 @@
-import { DataList, Heading, HStack, Link, List, Tag, Text, VStack, Wrap } from '@chakra-ui/react';
+import {
+  Box,
+  DataList,
+  Heading,
+  HStack,
+  Link,
+  List,
+  Tag,
+  Text,
+  VStack,
+  Wrap,
+} from '@chakra-ui/react';
+import { ResponsiveTreeMap } from '@nivo/treemap';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { PiCheck } from 'react-icons/pi';
 import { useParams } from 'react-router';
 
 import { CompanyLogo } from '@/components/custom/CompanyLogo';
 import { DisplayDate } from '@/components/ui/DisplayDate';
+import { nivoTheme } from '@/constants/nivo-theme.constants';
 import { listingsQueries } from '@/queries/listing.queries';
 import type { Listing } from '@/types/listing.types';
 
@@ -36,6 +49,20 @@ function Header({ listing }: { listing: Listing }) {
 export function Info() {
   const { listingId } = useParams<{ listingId: string }>();
   const { data: listing } = useSuspenseQuery(listingsQueries.item(listingId!));
+
+  // Mock keyword data - in a real app, this would come from analysis
+  const mockKeywords = {
+    React: 12,
+    TypeScript: 10,
+    'Node.js': 8,
+    JavaScript: 7,
+    'REST API': 6,
+    CSS: 5,
+    Git: 4,
+    Docker: 3,
+    AWS: 3,
+    Database: 2,
+  };
 
   return (
     <>
@@ -90,6 +117,37 @@ export function Info() {
               </List.Item>
             ))}
           </List.Root>
+        </VStack>
+
+        <VStack align="stretch">
+          <Heading size="md">Keyword Analysis</Heading>
+          <Box w="full" h="400px" bg="bg.panel" borderRadius="md" overflow="visible">
+            <ResponsiveTreeMap
+              data={{
+                id: 'root',
+                children: Object.entries(mockKeywords)
+                  .sort((a, b) => b[1] - a[1])
+                  .slice(0, 20)
+                  .map(([key, value]) => ({
+                    id: key,
+                    value,
+                  })),
+              }}
+              enableParentLabel={false}
+              identity="id"
+              label="id"
+              value="value"
+              valueFormat=">-.0f"
+              margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
+              theme={nivoTheme}
+              colors={{ scheme: 'spectral' }}
+              colorBy="value"
+              nodeOpacity={0.85}
+              borderColor={{ from: 'color', modifiers: [['darker', 0.1]] }}
+              animate={false}
+              motionConfig="gentle"
+            />
+          </Box>
         </VStack>
       </VStack>
     </>

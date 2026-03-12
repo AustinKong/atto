@@ -1,6 +1,5 @@
 import { Badge, HStack, Table as ChakraTable, Text } from '@chakra-ui/react';
-import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useSuspenseInfiniteQuery } from '@tanstack/react-query';
 import {
   createColumnHelper,
   getCoreRowModel,
@@ -12,6 +11,7 @@ import React, { type Dispatch, type SetStateAction, useCallback, useMemo } from 
 import { useNavigate } from 'react-router';
 
 import { CompanyLogo } from '@/components/custom/CompanyLogo';
+import { SegmentedGauge } from '@/components/custom/segmented-gauge';
 import { DisplayDate } from '@/components/ui/DisplayDate';
 import { STATUS_DEFINITIONS } from '@/constants/status.constants';
 import { useDebouncedUrlSyncedState } from '@/hooks/use-debounced-url-synced-state.hooks';
@@ -90,6 +90,19 @@ const columns = [
           </HStack>
         </Badge>
       );
+    },
+    size: 15,
+    enableSorting: false,
+  }),
+  columnHelper.accessor('id', {
+    id: 'match-score',
+    header: 'Match Score',
+    cell: (info) => {
+      const id = info.getValue();
+      // Generate a stable random percentage based on the ID
+      const seed = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const percent = ((seed % 100) + 1) / 100;
+      return <SegmentedGauge percent={percent} />;
     },
     size: 15,
     enableSorting: false,

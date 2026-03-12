@@ -1,0 +1,175 @@
+import type { Theme } from '@nivo/theming';
+
+// Maps Chakra UI v3 tokens to CSS variable references so Nivo themes
+// automatically respond to light/dark mode and system font configuration.
+const colorVar = (token: string) => `var(--chakra-colors-${token.replace(/\./g, '-')})`;
+const fontSizeVar = (size: 'xs' | 'sm' | 'md' | 'lg') => `var(--chakra-font-sizes-${size})`;
+
+// TODO: Add ibm plex mono for graphs?
+
+// Shared outline defaults required by Nivo's TextStyle type.
+const textOutline = {
+  outlineWidth: 0,
+  outlineColor: 'transparent',
+  outlineOpacity: 1,
+};
+
+export const nivoTheme: Theme = {
+  background: 'transparent',
+  text: {
+    fontFamily: 'inherit',
+    fontSize: fontSizeVar('sm'),
+    fill: colorVar('fg.muted'),
+    ...textOutline,
+  },
+  axis: {
+    domain: {
+      line: {
+        stroke: colorVar('border.muted'),
+        strokeWidth: 1,
+      },
+    },
+    legend: {
+      text: {
+        fontFamily: 'inherit',
+        fontSize: fontSizeVar('xs'),
+        fill: colorVar('fg.muted'),
+        ...textOutline,
+      },
+    },
+    ticks: {
+      line: {
+        stroke: colorVar('border.subtle'),
+        strokeWidth: 1,
+      },
+      text: {
+        fontFamily: 'inherit',
+        fontSize: fontSizeVar('xs'),
+        fill: colorVar('fg.subtle'),
+        ...textOutline,
+      },
+    },
+  },
+  grid: {
+    line: {
+      stroke: colorVar('border.subtle'),
+      strokeWidth: 1,
+    },
+  },
+  legends: {
+    hidden: {
+      symbol: { opacity: 0.4 },
+      text: {
+        fontFamily: 'inherit',
+        fontSize: fontSizeVar('xs'),
+        fill: colorVar('fg.subtle'),
+        ...textOutline,
+      },
+    },
+    text: {
+      fontFamily: 'inherit',
+      fontSize: fontSizeVar('sm'),
+      fill: colorVar('fg.muted'),
+      ...textOutline,
+    },
+    title: {
+      text: {
+        fontFamily: 'inherit',
+        fontSize: fontSizeVar('sm'),
+        fontWeight: 'bold',
+        fill: colorVar('fg'),
+        ...textOutline,
+      },
+    },
+    ticks: {
+      line: {},
+      text: {
+        fontFamily: 'inherit',
+        fontSize: fontSizeVar('xs'),
+        fill: colorVar('fg.subtle'),
+        ...textOutline,
+      },
+    },
+  },
+  labels: {
+    text: {
+      fontFamily: 'inherit',
+      fontSize: fontSizeVar('sm'),
+      fontWeight: 'bold',
+      fill: colorVar('fg'),
+      ...textOutline,
+    },
+  },
+  markers: {
+    lineColor: colorVar('border'),
+    lineStrokeWidth: 1,
+    text: {
+      fontFamily: 'inherit',
+      fontSize: fontSizeVar('xs'),
+      fill: colorVar('fg.muted'),
+      ...textOutline,
+    },
+  },
+  tooltip: {
+    container: {
+      background: colorVar('bg.panel'),
+      color: colorVar('fg'),
+      fontSize: fontSizeVar('sm'),
+      borderRadius: '6px',
+      border: `1px solid ${colorVar('border.muted')}`,
+      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+      padding: '8px 12px',
+    },
+    basic: {},
+    chip: {},
+    table: {},
+    tableCell: {},
+    tableCellValue: {},
+  },
+  crosshair: {
+    line: {
+      stroke: colorVar('border'),
+      strokeWidth: 1,
+      strokeOpacity: 0.75,
+      strokeDasharray: '6 4',
+    },
+  },
+  dots: {
+    text: {
+      fontFamily: 'inherit',
+      fontSize: fontSizeVar('xs'),
+      fill: colorVar('fg.muted'),
+      ...textOutline,
+    },
+  },
+  annotations: {
+    text: {
+      fontFamily: 'inherit',
+      fontSize: fontSizeVar('sm'),
+      fill: colorVar('fg.muted'),
+      outlineWidth: 2,
+      outlineColor: colorVar('bg'),
+      outlineOpacity: 1,
+    },
+    link: {
+      stroke: colorVar('border'),
+      strokeWidth: 1,
+      outlineWidth: 2,
+      outlineColor: colorVar('bg'),
+      outlineOpacity: 1,
+    },
+    outline: {
+      stroke: colorVar('border'),
+      strokeWidth: 2,
+      outlineWidth: 2,
+      outlineColor: colorVar('bg'),
+      outlineOpacity: 1,
+    },
+    symbol: {
+      fill: colorVar('fg.muted'),
+      outlineWidth: 2,
+      outlineColor: colorVar('bg'),
+      outlineOpacity: 1,
+    },
+  },
+};
