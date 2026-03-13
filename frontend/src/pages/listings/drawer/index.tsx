@@ -1,26 +1,20 @@
-import { Box, CloseButton, Tabs } from '@chakra-ui/react';
-import { Link, Outlet, useMatch, useNavigate, useParams } from 'react-router';
+import { CloseButton, Tabs } from '@chakra-ui/react';
+import { Link, useNavigate, useParams } from 'react-router';
+
+import { Info as DetailsTab } from './info';
+import { Intelligence as IntelligenceTab } from './intelligence';
 
 export function ListingDrawer() {
   const navigate = useNavigate();
-  const { listingId } = useParams<{ listingId: string; applicationId?: string }>();
-
-  const isResearch = useMatch('/listings/:listingId/research');
-  const isApplications = useMatch('/listings/:listingId/applications/*');
-
-  const activeTab = isResearch ? 'research' : isApplications ? 'applications' : 'info';
+  const { listingId } = useParams<{ listingId: string }>();
 
   return (
-    <Tabs.Root h="full" display="flex" flexDirection="column" value={activeTab} navigate={() => {}}>
-      <Tabs.List borderBottom="none">
-        <Tabs.Trigger value="info" asChild>
-          <Link to={`/listings/${listingId}`}>Details</Link>
-        </Tabs.Trigger>
+    <Tabs.Root defaultValue="details">
+      <Tabs.List>
+        <Tabs.Trigger value="details">Details</Tabs.Trigger>
+        <Tabs.Trigger value="intelligence">Intelligence</Tabs.Trigger>
         <Tabs.Trigger value="applications" asChild>
           <Link to={`/listings/${listingId}/applications`}>Applications</Link>
-        </Tabs.Trigger>
-        <Tabs.Trigger value="research" asChild>
-          <Link to={`/listings/${listingId}/research`}>Research</Link>
         </Tabs.Trigger>
         <CloseButton
           position="absolute"
@@ -29,9 +23,12 @@ export function ListingDrawer() {
           variant="plain"
         />
       </Tabs.List>
-      <Box flex="1" overflowY="auto" py="2">
-        <Outlet />
-      </Box>
+      <Tabs.Content value="details">
+        <DetailsTab />
+      </Tabs.Content>
+      <Tabs.Content value="intelligence">
+        <IntelligenceTab />
+      </Tabs.Content>
     </Tabs.Root>
   );
 }

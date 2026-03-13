@@ -4,6 +4,7 @@ import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-rou
 import { DashboardLayout } from '@/components/layouts/dashboard';
 import { ErrorElement } from '@/components/ui/ErrorBoundary';
 import { Toaster } from '@/components/ui/Toaster';
+import { applicationsRoute } from '@/pages/applications/route';
 import { listingsRoute } from '@/pages/listings/route';
 import { newListingsRoute } from '@/pages/new-listings/route';
 import { releaseNotesRoute } from '@/pages/release-notes/route';
@@ -40,6 +41,7 @@ const router = createBrowserRouter([
           },
           releaseNotesRoute(queryClient),
           listingsRoute(queryClient),
+          applicationsRoute(queryClient),
           applicationResumeRoute(queryClient),
           newListingsRoute(),
           resumeRoute(queryClient),

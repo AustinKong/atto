@@ -7,10 +7,7 @@ import { listingLoader } from '@/loaders/listing.loaders';
 import type { Listing } from '@/types/listing.types';
 import { formatListingBreadcrumb } from '@/utils/formatters/listing.formatters';
 
-import { applicationsRoute } from './applications/route.tsx';
 import { ListingDrawer } from './index';
-import { infoRoute } from './info/route';
-import { researchRoute } from './research/route';
 
 export const listingDrawerRoute = (queryClient: QueryClient) => ({
   path: ':listingId',
@@ -30,5 +27,4 @@ export const listingDrawerRoute = (queryClient: QueryClient) => ({
     breadcrumb: (data: { listing: Listing }) => formatListingBreadcrumb(data.listing),
   },
   errorElement: <ErrorElement />,
-  children: [infoRoute(), researchRoute(), applicationsRoute(queryClient)],
 });

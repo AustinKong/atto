@@ -9,7 +9,11 @@ import {
   useDeleteStatusEvent,
   useUpdateStatusEvent,
 } from '@/mutations/application.mutations';
-import type { StatusEvent, StatusEventApplied, StatusEventInterview } from '@/types/application.types';
+import type {
+  StatusEvent,
+  StatusEventApplied,
+  StatusEventInterview,
+} from '@/types/application.types';
 import { ISODate, ISODatetime } from '@/utils/date.utils';
 
 import { FormFields } from './FormFields';

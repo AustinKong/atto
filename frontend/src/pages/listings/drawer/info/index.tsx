@@ -21,6 +21,26 @@ import { nivoTheme } from '@/constants/nivo-theme.constants';
 import { listingsQueries } from '@/queries/listing.queries';
 import type { Listing } from '@/types/listing.types';
 
+// TODO: "Latest News" ticker.?
+/*
+Tab 1: Information
+
+...what we have now.
+
+Tab 2: Intelligence
+
+Latest News Ticker: A marquee-style or auto-scrolling line at the top showing the latest headlines about WS Audiology (e.g., "WSA announces new R&D center in Singapore...").
+
+Company Dossier (AI Research):
+
+Tech Stack: A list of inferred tools (e.g., Sentry, GitHub Actions, Jira).
+
+Culture Signal: AI-detected "vibe" (e.g., Engineering-led, Mission-driven, Low-friction).
+
+Self-Added Notes (Field Journal): A monospace, timestamped text area at the bottom.
+
+Style: Use a >  prefix for each note to keep the "Terminal" feel.
+*/
 function Header({ listing }: { listing: Listing }) {
   return (
     <HStack gap="2" align="start" px="3" mb="4">

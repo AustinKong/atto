@@ -24,13 +24,13 @@ export function Editor() {
   };
 
   return (
-    <Tabs.Root h="full" display="flex" flexDirection="column" defaultValue="visual">
+    <Tabs.Root defaultValue="visual">
       <Tabs.List h="10" alignItems="end">
         <Tabs.Trigger value="visual">Visual Editor</Tabs.Trigger>
         <Tabs.Trigger value="json">JSON Editor</Tabs.Trigger>
       </Tabs.List>
 
-      <Tabs.Content value="visual" overflowY="scroll" p="4" flex="1" overflowX="hidden">
+      <Tabs.Content value="visual" p="4" overflowX="hidden">
         <VStack align="stretch" gap="4">
           <ProfileEditor />
           <SectionsEditor
@@ -41,7 +41,7 @@ export function Editor() {
         </VStack>
       </Tabs.Content>
 
-      <Tabs.Content value="json" overflowY="scroll" p="0" flex="1">
+      <Tabs.Content value="json" p="0">
         <JsonEditor />
       </Tabs.Content>
     </Tabs.Root>

@@ -2,6 +2,7 @@
 
 import { ChakraProvider, createSystem, defaultConfig } from '@chakra-ui/react';
 
+import { tabsRecipe } from '../theme/tabs.recipe';
 import { ColorModeProvider, type ColorModeProviderProps } from './ColorMode';
 
 const customSystem = createSystem(defaultConfig, {
@@ -10,6 +11,7 @@ const customSystem = createSystem(defaultConfig, {
       fonts: {
         body: { value: '"IBM Plex Sans", sans-serif' },
         heading: { value: '"IBM Plex Sans Condensed", sans-serif' },
+        mono: { value: '"IBM Plex Mono", monospace' },
       },
     },
     recipes: {
@@ -31,6 +33,9 @@ const customSystem = createSystem(defaultConfig, {
           py: '1',
         },
       },
+    },
+    slotRecipes: {
+      tabs: tabsRecipe,
     },
   },
   globalCss: {
