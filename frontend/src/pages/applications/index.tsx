@@ -9,6 +9,7 @@ import { listingsQueries } from '@/queries/listing.queries';
 
 import { CreateApplicationModal } from './CreateApplicationModal';
 import { Details } from './Details';
+import { SkillsComparison } from './SkillsComparison';
 import { StatusEventModal, StatusEventProvider } from './status-event-modal';
 import { Timeline } from './Timeline';
 
@@ -57,6 +58,7 @@ export function Applications() {
     <StatusEventProvider>
       <VStack align="stretch" gap="4" px="4" mb="4">
         <Details application={application} listing={listing} />
+        <SkillsComparison applicationId={applicationId} listingId={listingId!} />
         <Timeline application={application} />
       </VStack>
       <StatusEventModal />

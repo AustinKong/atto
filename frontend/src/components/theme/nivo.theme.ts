@@ -5,8 +5,6 @@ import type { Theme } from '@nivo/theming';
 const colorVar = (token: string) => `var(--chakra-colors-${token.replace(/\./g, '-')})`;
 const fontSizeVar = (size: 'xs' | 'sm' | 'md' | 'lg') => `var(--chakra-font-sizes-${size})`;
 
-// TODO: Add ibm plex mono for graphs?
-
 // Shared outline defaults required by Nivo's TextStyle type.
 const textOutline = {
   outlineWidth: 0,
@@ -17,7 +15,7 @@ const textOutline = {
 export const nivoTheme: Theme = {
   background: 'transparent',
   text: {
-    fontFamily: 'inherit',
+    fontFamily: '"IBM Plex Mono", monospace',
     fontSize: fontSizeVar('sm'),
     fill: colorVar('fg.muted'),
     ...textOutline,
@@ -31,7 +29,7 @@ export const nivoTheme: Theme = {
     },
     legend: {
       text: {
-        fontFamily: 'inherit',
+        fontFamily: '"IBM Plex Mono", monospace',
         fontSize: fontSizeVar('xs'),
         fill: colorVar('fg.muted'),
         ...textOutline,
@@ -43,7 +41,7 @@ export const nivoTheme: Theme = {
         strokeWidth: 1,
       },
       text: {
-        fontFamily: 'inherit',
+        fontFamily: '"IBM Plex Mono", monospace',
         fontSize: fontSizeVar('xs'),
         fill: colorVar('fg.subtle'),
         ...textOutline,
@@ -60,21 +58,21 @@ export const nivoTheme: Theme = {
     hidden: {
       symbol: { opacity: 0.4 },
       text: {
-        fontFamily: 'inherit',
+        fontFamily: '"IBM Plex Mono", monospace',
         fontSize: fontSizeVar('xs'),
         fill: colorVar('fg.subtle'),
         ...textOutline,
       },
     },
     text: {
-      fontFamily: 'inherit',
+      fontFamily: '"IBM Plex Mono", monospace',
       fontSize: fontSizeVar('sm'),
       fill: colorVar('fg.muted'),
       ...textOutline,
     },
     title: {
       text: {
-        fontFamily: 'inherit',
+        fontFamily: '"IBM Plex Mono", monospace',
         fontSize: fontSizeVar('sm'),
         fontWeight: 'bold',
         fill: colorVar('fg'),
@@ -84,7 +82,7 @@ export const nivoTheme: Theme = {
     ticks: {
       line: {},
       text: {
-        fontFamily: 'inherit',
+        fontFamily: '"IBM Plex Mono", monospace',
         fontSize: fontSizeVar('xs'),
         fill: colorVar('fg.subtle'),
         ...textOutline,
@@ -93,7 +91,7 @@ export const nivoTheme: Theme = {
   },
   labels: {
     text: {
-      fontFamily: 'inherit',
+      fontFamily: '"IBM Plex Mono", monospace',
       fontSize: fontSizeVar('sm'),
       fontWeight: 'bold',
       fill: colorVar('fg'),
@@ -104,7 +102,7 @@ export const nivoTheme: Theme = {
     lineColor: colorVar('border'),
     lineStrokeWidth: 1,
     text: {
-      fontFamily: 'inherit',
+      fontFamily: '"IBM Plex Mono", monospace',
       fontSize: fontSizeVar('xs'),
       fill: colorVar('fg.muted'),
       ...textOutline,
@@ -136,7 +134,7 @@ export const nivoTheme: Theme = {
   },
   dots: {
     text: {
-      fontFamily: 'inherit',
+      fontFamily: '"IBM Plex Mono", monospace',
       fontSize: fontSizeVar('xs'),
       fill: colorVar('fg.muted'),
       ...textOutline,
@@ -144,7 +142,7 @@ export const nivoTheme: Theme = {
   },
   annotations: {
     text: {
-      fontFamily: 'inherit',
+      fontFamily: '"IBM Plex Mono", monospace',
       fontSize: fontSizeVar('sm'),
       fill: colorVar('fg.muted'),
       outlineWidth: 2,

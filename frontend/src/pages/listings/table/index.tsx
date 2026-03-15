@@ -102,7 +102,7 @@ const columns = [
       // Generate a stable random percentage based on the ID
       const seed = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
       const percent = ((seed % 100) + 1) / 100;
-      return <SegmentedGauge percent={percent} />;
+      return <SegmentedGauge percent={percent} showPercentage />;
     },
     size: 15,
     enableSorting: false,

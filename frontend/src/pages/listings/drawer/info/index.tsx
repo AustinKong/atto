@@ -16,10 +16,11 @@ import { PiCheck } from 'react-icons/pi';
 import { useParams } from 'react-router';
 
 import { CompanyLogo } from '@/components/custom/CompanyLogo';
+import { nivoTheme } from '@/components/theme/nivo.theme';
 import { DisplayDate } from '@/components/ui/DisplayDate';
-import { nivoTheme } from '@/constants/nivo-theme.constants';
 import { listingsQueries } from '@/queries/listing.queries';
 import type { Listing } from '@/types/listing.types';
+import { formatListingBreadcrumb } from '@/utils/formatters/listing.formatters';
 
 // TODO: "Latest News" ticker.?
 /*
@@ -47,7 +48,7 @@ function Header({ listing }: { listing: Listing }) {
       <CompanyLogo domain={listing.domain} companyName={listing.company} size="xl" />
       <VStack alignItems="start" gap="0" flex="1" minW="0">
         <Text fontSize="xl" fontWeight="bold" lineHeight="shorter">
-          {listing.company}
+          {formatListingBreadcrumb(listing)}
         </Text>
         <Link
           href={listing.url}
@@ -70,18 +71,10 @@ export function Info() {
   const { listingId } = useParams<{ listingId: string }>();
   const { data: listing } = useSuspenseQuery(listingsQueries.item(listingId!));
 
-  // Mock keyword data - in a real app, this would come from analysis
-  const mockKeywords = {
-    React: 12,
-    TypeScript: 10,
-    'Node.js': 8,
-    JavaScript: 7,
-    'REST API': 6,
-    CSS: 5,
-    Git: 4,
-    Docker: 3,
-    AWS: 3,
-    Database: 2,
+  // Mock salary data
+  const mockSalary = {
+    min: 80000,
+    max: 150000,
   };
 
   return (
@@ -92,10 +85,6 @@ export function Info() {
           <Heading size="md">About the Role</Heading>
           <DataList.Root orientation="horizontal" w="full" gap="2" size="lg">
             <DataList.Item>
-              <DataList.ItemLabel>Role</DataList.ItemLabel>
-              <DataList.ItemValue>{listing.title}</DataList.ItemValue>
-            </DataList.Item>
-            <DataList.Item>
               <DataList.ItemLabel>Location</DataList.ItemLabel>
               <DataList.ItemValue>{listing.location}</DataList.ItemValue>
             </DataList.Item>
@@ -103,6 +92,12 @@ export function Info() {
               <DataList.ItemLabel>Posted</DataList.ItemLabel>
               <DataList.ItemValue>
                 <DisplayDate date={listing.postedDate} />
+              </DataList.ItemValue>
+            </DataList.Item>
+            <DataList.Item>
+              <DataList.ItemLabel>Salary</DataList.ItemLabel>
+              <DataList.ItemValue>
+                ${mockSalary.min.toLocaleString()} - ${mockSalary.max.toLocaleString()}
               </DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
@@ -145,7 +140,18 @@ export function Info() {
             <ResponsiveTreeMap
               data={{
                 id: 'root',
-                children: Object.entries(mockKeywords)
+                children: Object.entries({
+                  React: 12,
+                  TypeScript: 10,
+                  'Node.js': 8,
+                  JavaScript: 7,
+                  'REST API': 6,
+                  CSS: 5,
+                  Git: 4,
+                  Docker: 3,
+                  AWS: 3,
+                  Database: 2,
+                })
                   .sort((a, b) => b[1] - a[1])
                   .slice(0, 20)
                   .map(([key, value]) => ({

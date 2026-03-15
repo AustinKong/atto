@@ -9,7 +9,8 @@ import type { Listing } from '@/types/listing.types';
 import { formatApplicationStatusDisplay } from '@/utils/formatters/application.formatters';
 import { formatListingBreadcrumb } from '@/utils/formatters/listing.formatters';
 
-import { Applications, ApplicationsEmpty } from './index';
+import { ApplicationsEmpty } from './index';
+import { ApplicationsPage as Applications } from './index-new';
 
 export function applicationsRoute(queryClient: QueryClient) {
   return {

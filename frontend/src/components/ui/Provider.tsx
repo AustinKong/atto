@@ -2,6 +2,9 @@
 
 import { ChakraProvider, createSystem, defaultConfig } from '@chakra-ui/react';
 
+import { buttonRecipe } from '../theme/button.recipe';
+import { closeButtonRecipe } from '../theme/close-button.recipe';
+import { iconButtonRecipe } from '../theme/icon-button.recipe';
 import { tabsRecipe } from '../theme/tabs.recipe';
 import { ColorModeProvider, type ColorModeProviderProps } from './ColorMode';
 
@@ -15,24 +18,9 @@ const customSystem = createSystem(defaultConfig, {
       },
     },
     recipes: {
-      button: {
-        base: {
-          px: '2',
-          py: '1',
-        },
-      },
-      iconButton: {
-        base: {
-          px: '2',
-          py: '1',
-        },
-      },
-      closeButton: {
-        base: {
-          px: '1',
-          py: '1',
-        },
-      },
+      button: buttonRecipe,
+      iconButton: iconButtonRecipe,
+      closeButton: closeButtonRecipe,
     },
     slotRecipes: {
       tabs: tabsRecipe,
