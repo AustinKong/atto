@@ -6,7 +6,7 @@ import type { ListingDraft } from '@/types/listing-draft.types';
 export const listingDraftQueries = {
   list: () =>
     queryOptions({
-      queryKey: ['listing-draft'] as const,
+      queryKey: ['listing-drafts'] as const,
       staleTime: Infinity,
       gcTime: Infinity,
       enabled: false,

@@ -5,13 +5,12 @@ import { PiBrowser, PiInfo } from 'react-icons/pi';
 import type { ListingDraft } from '@/types/listing-draft.types';
 
 import { Info } from './Info';
-import { Source, useHighlightValue } from './source';
+import { Source } from './source';
 
 export function Reference({ listing }: { listing: ListingDraft | null }) {
-  const highlight = useHighlightValue();
-  const hasHtml = !!listing && 'html' in listing && !!listing.html;
+  const hasScreenshot = !!listing && 'screenshot' in listing && !!listing.screenshot;
 
-  const showSource = hasHtml;
+  const showSource = hasScreenshot;
   const showInfo = listing && listing.status !== 'pending';
 
   const [activeTab, setActiveTab] = useState<string>('source');
@@ -54,7 +53,7 @@ export function Reference({ listing }: { listing: ListingDraft | null }) {
             <Info listing={listing} />
           </Tabs.Content>
           <Tabs.Content value="source">
-            <Source listing={listing} highlight={highlight} />
+            <Source listing={listing} />
           </Tabs.Content>
         </>
       )}

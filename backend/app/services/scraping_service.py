@@ -1,320 +1,298 @@
-import base64
-import re
-import urllib.parse
-from urllib.robotparser import RobotFileParser
+from typing import Any, cast
 
-from bs4 import BeautifulSoup
-from playwright.async_api import Page, async_playwright
+from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlResult
+from crawl4ai.async_configs import CrawlerRunConfig
+from crawl4ai.content_filter_strategy import PruningContentFilter
+from crawl4ai.deep_crawling import BestFirstCrawlingStrategy
+from crawl4ai.deep_crawling.filters import ContentRelevanceFilter, FilterChain
+from crawl4ai.deep_crawling.scorers import KeywordRelevanceScorer
+from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
+from ddgs import DDGS
 from pydantic import BaseModel, HttpUrl
 
 from app.config import settings
-from app.resources.scripts import (
-  JS_INJECT_BASE,
-  JS_MATERIALIZE_STYLES,
-)
 from app.utils.errors import ServiceError
-from app.utils.url import normalize_url
 
-SNAPSHOT_TAGS = [
+
+class ScrapingResult(BaseModel):
+  content: str
+  screenshot: str | None = None
+
+
+# Excluded tags for HTML content cleaning
+BASIC_EXCLUDED_TAGS = [
   'script',
   'noscript',
   'iframe',
   'object',
   'embed',
-]
-BASIC_TAGS = [
   'style',
   'link',
   'meta',
   'svg',
   'canvas',
+  'img',
+  'image',
+]
+
+AGGRESSIVE_EXCLUDED_TAGS = BASIC_EXCLUDED_TAGS + [
   'map',
   'area',
   'video',
   'audio',
   'picture',
   'source',
-]
-AGGRESSIVE_TAGS = [
   'nav',
-  'header',
   'footer',
   'aside',
-  'form',
-  'button',
-  'input',
-  'select',
-  'option',
-]
-
-BLOCK_TAGS = [
-  'p',
-  'div',
-  'li',
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'section',
-  'article',
-  'blockquote',
-  'ul',
-  'ol',
-]
-
-BOILERPLATE_KEYWORDS = [
-  'terms of service',
-  'privacy policy',
-  'cookie',
-  'apply now',
-  'language',
-  'legal',
-  'candidate privacy policy',
-  'accept cookies',
-  'download',
-  'newsletter',
-  'subscribe',
-  'login',
-  'sign in',
 ]
 
 
-class ScrapingResult(BaseModel):
-  content: str
-  html: str
+def _extract_crawl_results(result_data: Any) -> list[Any]:
+  """
+  Extract CrawlResult objects from the crawler response.
+
+  The response can be either:
+  - A list of CrawlResultContainer objects (from deep_crawl)
+  - A CrawlResultContainer object (from single crawl)
+
+  Each container is iterable and yields CrawlResult objects.
+  """
+  if isinstance(result_data, list):
+    # Deep crawl returns a list of containers
+    crawl_results = []
+    for container in result_data:
+      for item in container:
+        crawl_results.append(item)
+    return crawl_results
+  else:
+    # Single crawl returns a container directly
+    return list(container for container in result_data)
+
+
+def _cast_to_crawl_result(result: Any) -> CrawlResult:
+  """
+  Cast crawl4ai response to CrawlResult type.
+
+  TODO: Remove this function once crawl4ai fixes type hints.
+  See: https://github.com/unclecode/crawl4ai/issues/1543
+  And: https://github.com/unclecode/crawl4ai/pull/1716
+  crawl4ai.arun() returns RunManyReturn but should be properly typed as CrawlResult.
+  Current workaround casts the response to CrawlResult for proper type hints.
+  """
+  return cast(CrawlResult, result)
 
 
 class ScrapingService:
-  def _clean_html(self, html: str) -> str:
-    soup = BeautifulSoup(html, 'html.parser')
-
-    # Remove boilerplate tags
-    tags_to_remove = SNAPSHOT_TAGS + BASIC_TAGS
-    if settings.ingestion.aggressive:
-      tags_to_remove += AGGRESSIVE_TAGS
-    for tag in soup(tags_to_remove):
-      tag.decompose()
-
-    # Remove elements containing boilerplate keywords
-    if settings.ingestion.aggressive:
-      for tag in reversed(soup.find_all(True)):
-        text = tag.get_text(strip=True)
-        if text and any(keyword.lower() in text.lower() for keyword in BOILERPLATE_KEYWORDS):
-          tag.decompose()
-
-    # Extract text while preserving newlines
-    text_parts = []
-    for element in soup.descendants:
-      tag_name = getattr(element, 'name', None)
-      if isinstance(element, str):
-        content = element.strip()
-        if content:
-          text_parts.append(content)
-      elif tag_name and tag_name in BLOCK_TAGS:
-        # Add newline after block elements to preserve structure for quote grounding
-        if text_parts and not text_parts[-1].endswith('\n'):
-          text_parts.append('\n')
-
-    text = ' '.join(text_parts)
-    text = re.sub(r'\s+', ' ', text)
-
-    # Remove duplicate sentences
-    if settings.ingestion.aggressive:
-      sentences = re.split(r'(?<=[.!?]) +', text)
-      seen = set()
-      filtered_sentences = []
-      for sentence in sentences:
-        normalized = sentence.strip().lower()
-        if normalized not in seen:
-          seen.add(normalized)
-          filtered_sentences.append(sentence.strip())
-      text = ' '.join(filtered_sentences)
-
-    return text[: settings.ingestion.max_length]
-
-  def _check_robots(self, url: HttpUrl, user_agent: str = '*') -> bool:
-    try:
-      rp = RobotFileParser()
-      parsed_url = urllib.parse.urlparse(str(url))
-      robots_url = f'{parsed_url.scheme}://{parsed_url.netloc}/robots.txt'
-
-      rp.set_url(robots_url)
-      rp.read()
-
-      return rp.can_fetch(user_agent, str(url))
-    except Exception:
-      return True
-
-  async def _inline_assets(self, page: Page, base_url: str):
-    # Ensures links are resolved correctly
-    await page.evaluate(JS_INJECT_BASE, base_url)
-    # Converts CSS-in-JS to static <style> tags
-    await page.evaluate(JS_MATERIALIZE_STYLES)
-
-    # Make all external CSS files inline <style> tags
-    style_handles = await page.query_selector_all('link[rel="stylesheet"]')
-    for handle in style_handles:
-      try:
-        href = await handle.get_attribute('href')
-        if href:
-          response = await page.request.get(href)
-          if response.status == 200:
-            css_text = await response.text()
-
-            def replacer(match):
-              url = match.group(1).strip('"\'')
-              if not url.startswith(('http', 'https', 'data:')):
-                resolved = urllib.parse.urljoin(base_url, url)
-                return f'url("{resolved}")'
-              return match.group(0)
-
-            css_text = re.sub(r'url\(([^)]+)\)', replacer, css_text)
-            await handle.evaluate(
-              (
-                '(el, css) => { const style = document.createElement("style"); '
-                'style.textContent = css; el.replaceWith(style); }'
-              ),
-              css_text,
-            )
-      except Exception:
-        continue
-
-    # Make all external images inline data URIs (base64-encoded)
-    img_handles = await page.query_selector_all('img')
-    for handle in img_handles:
-      try:
-        src = await handle.get_attribute('src')
-
-        if src and not src.startswith('data:'):
-          response = await page.request.get(src)
-
-          if response.status == 200:
-            img_bytes = await response.body()
-            img_base64 = base64.b64encode(img_bytes).decode('utf-8')
-            mime_type = response.headers.get('content-type', 'image/png')
-            data_uri = f'data:{mime_type};base64,{img_base64}'
-            await handle.evaluate('(el, dataUri) => { el.src = dataUri; }', data_uri)
-            await handle.evaluate('el => el.removeAttribute("srcset")')
-      except Exception:
-        continue
-
-  def _strip_scripts(self, html: str) -> str:
-    soup = BeautifulSoup(html, 'html.parser')
-
-    # Strip scripts and other problematic tags to prevent re-hydration errors
-    for tag in soup(SNAPSHOT_TAGS):
-      tag.decompose()
-
-    # Remove preload links to prevent CORS errors
-    for link in soup.find_all('link', rel='preload'):
-      link.decompose()
-
-    # Most meta tags are useless or destructive, except charset
-    if soup.head:
-      new_meta = soup.new_tag('meta', charset='utf-8')
-      soup.head.insert(0, new_meta)
-
-    # Remove event handlers
-    for tag in soup.find_all(True):
-      for attr in list(tag.attrs):
-        if attr.startswith('on'):
-          del tag[attr]
-
-    return str(soup)
-
   async def fetch_and_clean(self, url: HttpUrl) -> ScrapingResult:
-    if settings.ingestion.respect_robots_txt and not self._check_robots(url):
-      raise ServiceError(f'Scraping disallowed by robots.txt: {url}')
-
     try:
-      async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=settings.ingestion.headless)
-        context = await browser.new_context(
-          user_agent=(
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-            '(KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-          )
-        )
-        page = await context.new_page()
-        await page.goto(str(url), wait_until='networkidle')
+      # Map respect level to check_robots_txt boolean
+      # STRICT & OPTIONAL: check robots.txt, PERMISSIVE: don't check + use stealth
+      respect_level = settings.ingestion.web_respect_level
+      check_robots = respect_level != 'permissive'
 
-        # Extract text content for LLM processing
-        html = await page.content()
-        content = self._clean_html(html)
+      # Configure markdown generation with pruning filter for clean, structured content
+      # Higher threshold (0.7+) is better for noisy sites with repetitive boilerplate
+      md_generator = DefaultMarkdownGenerator(
+        content_filter=PruningContentFilter(
+          threshold=0.7,  # Increased from 0.5 to be more aggressive
+          threshold_type='fixed',  # Use fixed for more predictable filtering
+          min_word_threshold=50,  # Increased from 10 to reject short snippets
+        ),
+        options={
+          'ignore_links': True,
+          'escape_html': False,
+        },
+      )
 
-        # Convert page into self-contained HTML file
-        await self._inline_assets(page, str(url))
-        html = await page.content()
-        html = self._strip_scripts(html)
+      # Configure crawl4ai with screenshot capture and markdown generation
+      excluded_tags = (
+        AGGRESSIVE_EXCLUDED_TAGS if settings.ingestion.aggressive else BASIC_EXCLUDED_TAGS
+      )
+      config = CrawlerRunConfig(
+        screenshot=True,
+        remove_forms=True,
+        markdown_generator=md_generator,
+        excluded_tags=excluded_tags,
+        check_robots_txt=check_robots,
+      )
 
-        await browser.close()
+      # Use stealth mode for permissive level
+      if respect_level == 'permissive':
+        browser_config = BrowserConfig(enable_stealth=True)
+        async with AsyncWebCrawler(config=browser_config) as crawler:
+          result_raw = await crawler.arun(str(url), config=config)
+          result = _cast_to_crawl_result(result_raw)
+      else:
+        async with AsyncWebCrawler() as crawler:
+          result_raw = await crawler.arun(str(url), config=config)
+          result = _cast_to_crawl_result(result_raw)
 
-        return ScrapingResult(content=content, html=html)
+      if not result.success or not result.html:
+        raise ServiceError(f'Failed to fetch URL: {result.error_message or "Unknown error"}')
+
+      # Use fit_markdown (pruned, structured content) for better LLM processing
+      markdown_content = result.markdown.fit_markdown if result.markdown else ''
+
+      # Debug: Log if markdown is empty
+      if not markdown_content:
+        print(f'[DEBUG] Empty markdown for {url}')
+        print(f'[DEBUG] result.markdown: {result.markdown}')
+        print(f'[DEBUG] result.html length: {len(result.html) if result.html else 0}')
+        if result.markdown:
+          print(f'[DEBUG] fit_markdown: {result.markdown.fit_markdown[:200]}...')
+          print(f'[DEBUG] raw_markdown: {result.markdown.raw_markdown[:200]}...')
+
+      # Get screenshot (base64-encoded PNG)
+      screenshot = result.screenshot
+
+      return ScrapingResult(content=markdown_content, screenshot=screenshot)
+    except ServiceError:
+      raise
     except Exception as e:
       raise ServiceError(f'Failed to fetch and clean page {url}: {str(e)}') from e
 
-  async def extract_anchor_tags(self, url: HttpUrl) -> list[dict[str, str]]:
+  async def deep_crawl(
+    self,
+    url: HttpUrl,
+    max_depth: int = 2,
+    max_pages: int = 50,
+    include_external: bool = False,
+  ) -> str:
     """
-    Extract all anchor tags (links) from a given URL.
-    Returns normalized URLs for consistent deduplication.
+    Perform a deep crawl of a website using BFS strategy.
+
+    Args:
+      url: The starting URL to crawl
+      max_depth: Maximum crawl depth (default: 2)
+      max_pages: Maximum number of pages to crawl (default: 50)
+      include_external: Whether to follow external links (default: False)
 
     Returns:
-      List of dictionaries with 'href' and 'text' keys for each anchor tag.
+      Combined markdown content from all successfully crawled pages
     """
     try:
-      async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=settings.ingestion.headless)
-        context = await browser.new_context(
-          user_agent=(
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-            '(KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-          )
-        )
-        page = await context.new_page()
-        await page.goto(str(url), wait_until='networkidle')
+      # Map respect level to check_robots_txt boolean
+      # STRICT & OPTIONAL: check robots.txt, PERMISSIVE: don't check
+      respect_level = settings.ingestion.web_respect_level
+      check_robots = respect_level != 'permissive'
 
-        # Get the HTML content
-        html = await page.content()
-        await browser.close()
+      # Configure markdown generation with pruning filter for clean, structured content
+      # Higher threshold (0.7+) is better for noisy sites with repetitive boilerplate
+      md_generator = DefaultMarkdownGenerator(
+        content_filter=PruningContentFilter(
+          threshold=0.7,  # Increased from 0.5 to be more aggressive
+          threshold_type='fixed',  # Use fixed for more predictable filtering
+          min_word_threshold=50,  # Increased from 10 to reject short snippets
+        ),
+        options={
+          'ignore_links': True,
+          'escape_html': False,
+        },
+      )
 
-        # Parse with BeautifulSoup
-        soup = BeautifulSoup(html, 'html.parser')
+      # Configure deep crawl strategy with keyword-based relevance scoring
+      # BestFirstCrawlingStrategy prioritizes more relevant pages first
+      excluded_tags = (
+        AGGRESSIVE_EXCLUDED_TAGS if settings.ingestion.aggressive else BASIC_EXCLUDED_TAGS
+      )
 
-        # Extract all anchor tags
-        anchors = []
-        for link in soup.find_all('a', href=True):
-          href = link.get('href', '')
-          text = link.get_text(strip=True)
+      # Create a keyword scorer to focus on relevant content
+      # Keywords help the crawler prioritize pages about the company
+      # The scorer uses keyword matching on page content, which is better than URL patterns
+      scorer = KeywordRelevanceScorer(
+        keywords=[
+          'company',
+          'about',
+          'careers',
+          'team',
+          'mission',
+          'culture',
+          'services',
+          'products',
+        ],
+        weight=0.7,
+      )
 
-          # Skip empty text or empty hrefs
-          if not href or not text:
-            continue
+      # Create a sophisticated filter chain to improve page ranking
+      # ContentRelevanceFilter measures semantic similarity to company research query
+      filter_chain = FilterChain(
+        [
+          ContentRelevanceFilter(
+            query='company information careers team culture products services engineering',
+            threshold=0.3,  # Lower threshold to include diverse relevant content
+          ),
+        ]
+      )
 
-          # Ensure href is a string (BeautifulSoup may return AttributeValueList)
-          if isinstance(href, list):
-            href = ' '.join(str(item) for item in href)
-          else:
-            href = str(href)
+      deep_crawl_config = CrawlerRunConfig(
+        deep_crawl_strategy=BestFirstCrawlingStrategy(
+          max_depth=min(max_depth, 5),  # Limit to 5 page depth maximum
+          max_pages=max_pages,
+          include_external=include_external,
+          url_scorer=scorer,
+          filter_chain=filter_chain,
+        ),
+        screenshot=False,
+        remove_forms=True,
+        markdown_generator=md_generator,
+        excluded_tags=excluded_tags,
+        check_robots_txt=check_robots,
+      )
 
-          # Resolve relative URLs to absolute URLs
-          if not href.startswith(('http://', 'https://', 'mailto:', 'tel:', '#')):
-            href = urllib.parse.urljoin(str(url), href)
+      markdown_contents: list[str] = []
 
-          # Skip mailto, tel, and hash links
-          if href.startswith(('mailto:', 'tel:', '#')):
-            continue
+      # Use stealth mode for permissive level
+      if respect_level == 'permissive':
+        browser_config = BrowserConfig(enable_stealth=True)
+        async with AsyncWebCrawler(config=browser_config) as crawler:
+          result_raw = await crawler.arun(str(url), config=deep_crawl_config)
+          result = _cast_to_crawl_result(result_raw)
+      else:
+        async with AsyncWebCrawler() as crawler:
+          result_raw = await crawler.arun(str(url), config=deep_crawl_config)
+          result = _cast_to_crawl_result(result_raw)
 
-          # Normalize URL for consistent deduplication
-          try:
-            normalized_href = str(normalize_url(HttpUrl(href)))
-          except Exception:
-            # Skip URLs that can't be normalized
-            continue
+      # Extract all CrawlResult objects from response
+      crawl_results = _extract_crawl_results(result)
 
-          anchors.append({'href': normalized_href, 'text': text})
+      # Process each crawled page (filtering is now done by ContentRelevanceFilter in chain)
+      for crawl_result in crawl_results:
+        if crawl_result.success:
+          # Use fit_markdown (pruned, structured content) for better LLM processing
+          markdown_content = crawl_result.markdown.fit_markdown if crawl_result.markdown else ''
+          if markdown_content:
+            markdown_contents.append(markdown_content)
 
-        return anchors
+      # Join all markdown content with clear separators
+      return '\n\n---\n\n'.join(markdown_contents)
+    except ServiceError:
+      raise
     except Exception as e:
-      raise ServiceError(f'Failed to extract anchor tags from {url}: {str(e)}') from e
+      raise ServiceError(f'Failed to deep crawl {url}: {str(e)}') from e
+
+  def search(self, query: str, max_results: int = 10) -> list[dict[str, str]]:
+    """
+    Search the web using DuckDuckGo Search (ddgs).
+
+    Args:
+      query: The search query string
+      max_results: Maximum number of results to return (default: 10)
+
+    Returns:
+      List of dictionaries with 'title', 'href', and 'body' keys for each result.
+    """
+    try:
+      results = []
+      with DDGS() as ddgs:
+        for result in ddgs.text(query, max_results=max_results):
+          results.append(
+            {
+              'title': result.get('title', ''),
+              'href': result.get('href', ''),
+              'body': result.get('body', ''),
+            }
+          )
+      return results
+    except Exception as e:
+      raise ServiceError(f'Failed to search for "{query}": {str(e)}') from e

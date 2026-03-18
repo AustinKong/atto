@@ -6,6 +6,7 @@ import {
   HighlightValueContext,
 } from './highlightContext';
 
+// TODO: Remove deadcode
 export function HighlightProvider({ children }: { children: ReactNode }) {
   const [highlight, setHighlightState] = useState<string | null>(null);
 

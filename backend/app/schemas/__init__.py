@@ -19,6 +19,7 @@ from .resume import (
   SimpleSection,
 )
 from .scraping import (
+  DeepCrawlResult,
   ExtractionResponse,
   GroundedItem,
   ListingDraft,
@@ -45,6 +46,7 @@ __all__ = [
   # Insights
   'LinkSelectionResponse',
   # Listing
+  'DeepCrawlResult',
   'ExtractionResponse',
   'GroundedItem',
   'Listing',

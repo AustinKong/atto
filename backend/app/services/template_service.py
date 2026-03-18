@@ -12,6 +12,7 @@ from app.schemas import DEFAULT_TEMPLATE_ID, Profile, Section, Template, Templat
 from app.utils.errors import DuplicateError
 
 
+# TODO: Rename to plural
 class TemplateService(FileRepository):
   def __init__(self):
     super().__init__()

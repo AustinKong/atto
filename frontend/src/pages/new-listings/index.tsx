@@ -10,7 +10,6 @@ import { Details } from './details';
 import { Footer } from './Footer';
 import { IngestionModal, IngestionProvider } from './ingestion-modal';
 import { Reference } from './reference';
-import { HighlightProvider } from './reference/source';
 import { Table } from './Table';
 import { Toolbar } from './Toolbar';
 
@@ -45,52 +44,50 @@ export function NewListingsPage() {
 
   return (
     <IngestionProvider>
-      <HighlightProvider>
-        <VStack h="full" gap="0" alignItems="stretch">
-          <Toolbar rowSelection={rowSelection} listingDrafts={listingDrafts} />
-          <Splitter.Root
-            panels={[
-              { id: 'table', minSize: 15, maxSize: 40 },
-              { id: 'details', minSize: 25, maxSize: 60 },
-              { id: 'preview', minSize: 25, maxSize: 70 },
-            ]}
-            size={splitterSizes}
-            onResize={(details) => setSplitterSizes(details.size)}
-            h="full"
-          >
-            <Splitter.Panel id="table">
-              <Suspense
-                fallback={
-                  <Center h="full">
-                    <Spinner />
-                  </Center>
-                }
-              >
-                <Table
-                  rowSelection={rowSelection}
-                  setRowSelection={setRowSelection}
-                  setSelectedListingId={setSelectedListingId}
-                  listingDrafts={listingDrafts}
-                />
-              </Suspense>
-            </Splitter.Panel>
-            <Splitter.ResizeTrigger id="table:details" />
-            <Splitter.Panel id="details">
-              <Details listingDraft={selectedListing} key={selectedListingId} />
-            </Splitter.Panel>
-            <Splitter.ResizeTrigger id="details:preview" />
-            <Splitter.Panel id="preview">
-              <Reference listing={selectedListing} key={selectedListingId} />
-            </Splitter.Panel>
-          </Splitter.Root>
-          <Footer
-            selectedCount={selectedCount}
-            totalCount={listingDrafts.length}
-            pendingCount={listingDrafts.filter((l) => l.status === 'pending').length}
-          />
-        </VStack>
-        <IngestionModal />
-      </HighlightProvider>
+      <VStack h="full" gap="0" alignItems="stretch">
+        <Toolbar rowSelection={rowSelection} listingDrafts={listingDrafts} />
+        <Splitter.Root
+          panels={[
+            { id: 'table', minSize: 15, maxSize: 40 },
+            { id: 'details', minSize: 25, maxSize: 60 },
+            { id: 'preview', minSize: 25, maxSize: 70 },
+          ]}
+          size={splitterSizes}
+          onResize={(details) => setSplitterSizes(details.size)}
+          h="full"
+        >
+          <Splitter.Panel id="table">
+            <Suspense
+              fallback={
+                <Center h="full">
+                  <Spinner />
+                </Center>
+              }
+            >
+              <Table
+                rowSelection={rowSelection}
+                setRowSelection={setRowSelection}
+                setSelectedListingId={setSelectedListingId}
+                listingDrafts={listingDrafts}
+              />
+            </Suspense>
+          </Splitter.Panel>
+          <Splitter.ResizeTrigger id="table:details" />
+          <Splitter.Panel id="details">
+            <Details listingDraft={selectedListing} key={selectedListingId} />
+          </Splitter.Panel>
+          <Splitter.ResizeTrigger id="details:preview" />
+          <Splitter.Panel id="preview">
+            <Reference listing={selectedListing} key={selectedListingId} />
+          </Splitter.Panel>
+        </Splitter.Root>
+        <Footer
+          selectedCount={selectedCount}
+          totalCount={listingDrafts.length}
+          pendingCount={listingDrafts.filter((l) => l.status === 'pending').length}
+        />
+      </VStack>
+      <IngestionModal />
     </IngestionProvider>
   );
 }

@@ -64,4 +64,7 @@ class LLMService:
       input=input,
       temperature=settings.model.temperature,
     )
+    print(
+      f'Cost: ${response.usage.input_tokens * (0.15 / 1000000) + response.usage.output_tokens * (0.60 / 1000000)}'
+    )
     return response.output_text

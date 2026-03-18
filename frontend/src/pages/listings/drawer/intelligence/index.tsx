@@ -18,7 +18,7 @@ import { useParams } from 'react-router';
 import { SegmentedGauge } from '@/components/custom/segmented-gauge';
 import { SourceTooltip } from '@/components/custom/SourceTooltip';
 import { nivoTheme } from '@/components/theme/nivo.theme';
-import { useUpdateListingNotes } from '@/mutations/listing.mutations';
+import { useGenerateListingInsights, useUpdateListingNotes } from '@/mutations/listing.mutations';
 import { listingsQueries } from '@/queries/listing.queries';
 
 const mockCompanyNews = `WS Audiology recently acquired AI Startup "SoundTech Labs" to enhance their hearing aid technology with machine learning capabilities. The company also announced a $50M investment in R&D for next-generation hearing solutions and expanded operations to Southeast Asia with new offices in Singapore and Bangkok.`;
@@ -76,6 +76,7 @@ export function Intelligence() {
   const { listingId } = useParams<{ listingId: string }>();
   const { data: listing } = useSuspenseQuery(listingsQueries.item(listingId!));
   const updateNotes = useUpdateListingNotes();
+  const { generateInsights, isGeneratingInsights } = useGenerateListingInsights();
   const [notes, setNotes] = useState(listing.notes ?? '');
 
   // Mock salary data
@@ -88,6 +89,10 @@ export function Intelligence() {
     const newNotes = e.target.value;
     setNotes(newNotes);
     updateNotes({ listingId: listing.id, notes: newNotes || null });
+  };
+
+  const handleRefreshInsights = () => {
+    generateInsights(listing.id);
   };
 
   return (
@@ -203,7 +208,13 @@ export function Intelligence() {
             </IconButton>
           </Clipboard.Trigger>
         </Clipboard.Root>
-        <IconButton aria-label="Refresh" variant="ghost" size="xs">
+        <IconButton
+          aria-label="Refresh"
+          variant="ghost"
+          size="xs"
+          onClick={handleRefreshInsights}
+          disabled={isGeneratingInsights}
+        >
           <LuRefreshCw />
         </IconButton>
       </HStack>

@@ -59,7 +59,7 @@ class BaseListingDraft(CamelModel):
 class ListingDraftUnique(BaseListingDraft):
   status: Literal[DraftStatusEnum.UNIQUE] = DraftStatusEnum.UNIQUE
   listing: ListingExtraction
-  html: str | None
+  screenshot: str | None = None
 
 
 class ListingDraftDuplicateUrl(BaseListingDraft):
@@ -71,16 +71,28 @@ class ListingDraftDuplicateContent(BaseListingDraft):
   status: Literal[DraftStatusEnum.DUPLICATE_CONTENT] = DraftStatusEnum.DUPLICATE_CONTENT
   listing: ListingExtraction
   duplicate_of: Listing
-  html: str | None
+  screenshot: str | None = None
 
 
 class ListingDraftError(BaseListingDraft):
   status: Literal[DraftStatusEnum.ERROR] = DraftStatusEnum.ERROR
   error: str
-  html: str | None
+  screenshot: str | None = None
 
 
 ListingDraft = Annotated[
   ListingDraftUnique | ListingDraftDuplicateUrl | ListingDraftDuplicateContent | ListingDraftError,
   Field(discriminator='status'),
 ]
+
+
+# ===== Deep Crawling =====
+
+
+class DeepCrawlResult(CamelModel):
+  url: str
+  content: str
+  screenshot: str | None = None
+  depth: int
+  success: bool
+  error_message: str | None = None

@@ -161,21 +161,33 @@ class IngestionPrefs(BaseModel):
   headless: bool = ConfigField(
     default=True,
     title='Headless Browser',
-    description='Run the web browser without a visible interface. Faster and uses less resources, but disable for debugging scraping issues.',
+    description=(
+      'Run the web browser without a visible interface. '
+      'Faster and uses less resources, but disable for debugging scraping issues.'
+    ),
     exposure='advanced',
   )
-  respect_robots_txt: bool = ConfigField(
-    default=True,
-    title='Respect robots.txt',
-    description="Whether to follow the rules set in a website's robots.txt file. Enabling this ensures ethical scraping practices.",
-    exposure='normal',
+  web_respect_level: Literal['strict', 'optional', 'permissive'] = ConfigField(
+    default='strict',
+    title='Web Scraping Respect Level',
+    description=(
+      'How to handle robots.txt and anti-bot measures. '
+      'STRICT (default): Always respect robots.txt. '
+      'OPTIONAL: Respect if available, bypass if missing. '
+      'PERMISSIVE: Ignore robots.txt, use anti-bot features. '
+      'We encourage respectful web scraping practices.'
+    ),
+    exposure='advanced',
   )
   max_length: int = ConfigField(
     default=10000,
     title='Maximum Text Length',
     ge=100,
     le=50000,
-    description='Maximum amount of text to extract from each webpage. Larger values capture more content but increase processing time and API costs.',
+    description=(
+      'Maximum amount of text to extract from each webpage. '
+      'Larger values capture more content but increase processing time and API costs.'
+    ),
     exposure='advanced',
   )
 

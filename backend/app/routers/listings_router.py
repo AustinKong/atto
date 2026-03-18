@@ -8,12 +8,10 @@ from pydantic import HttpUrl
 from app.config import settings
 from app.resources.prompts import (
   COMPANY_INSIGHTS_PROMPT,
-  LINK_SELECTION_PROMPT,
   LISTING_EXTRACTION_PROMPT,
 )
 from app.schemas import (
   ExtractionResponse,
-  LinkSelectionResponse,
   Listing,
   ListingDraft,
   ListingDraftDuplicateContent,
@@ -35,6 +33,58 @@ router = APIRouter(
 )
 
 
+def _is_junk_content(content: str) -> bool:
+  """
+  Detect if scraped content is junk (bot checks, cookie notices, etc).
+  Returns True if content appears to be junk, False if it's real content.
+  """
+  if not content:
+    return True
+
+  junk_patterns = [
+    'please verify that you',
+    "verify that you're a real person",
+    'bot verification',
+    'by verifying that you',
+    'accept all cookies',
+    'we use cookies',
+    'cookie consent',
+    'cloudflare',
+    'security check',
+    'proving you are human',
+    'robot check',
+    'please solve',
+    'captcha',
+    'recaptcha',
+    'temporary block',
+    '403 forbidden',
+    'overenie že nie ste',
+    'webová lokalita používa',
+  ]
+
+  content_lower = content.lower()
+  return sum(1 for pattern in junk_patterns if pattern in content_lower) > 2
+
+
+def _filter_search_content(content: str, max_length: int = 800) -> str:
+  """
+  Filter scraped search result content to extract meaningful text.
+  Removes noise and truncates to reasonable length.
+  """
+  if _is_junk_content(content):
+    return ''
+
+  # Clean up whitespace and multiple newlines
+  lines = [line.strip() for line in content.split('\n') if line.strip()]
+  content = '\n'.join(lines)
+
+  # Truncate to max length
+  if len(content) > max_length:
+    content = content[:max_length] + '...'
+
+  return content
+
+
 @router.post('/draft', response_model=ListingDraft)
 async def ingest_listing(
   url: Annotated[HttpUrl, Body()],
@@ -42,7 +92,7 @@ async def ingest_listing(
   content: Annotated[str | None, Body()] = None,
 ) -> ListingDraft:
   url = normalize_url(url)
-  html = None
+  screenshot = None
 
   existing_listing = listings_service.get_by_url(url)
 
@@ -64,7 +114,7 @@ async def ingest_listing(
         domain=url.host or '',
         description='',
       ),
-      html=None,
+      screenshot=None,
     )
 
   if content is None:
@@ -75,11 +125,11 @@ async def ingest_listing(
         id=id,
         url=url,
         error=str(e),
-        html=None,
+        screenshot=None,
       )
 
     content = page.content
-    html = page.html
+    screenshot = page.screenshot
 
   try:
     extraction = await llm_service.call_structured(
@@ -94,7 +144,7 @@ async def ingest_listing(
       id=id,
       url=url,
       error=str(e),
-      html=html,
+      screenshot=screenshot,
     )
 
   # Expected error (Not a listing etc.)
@@ -103,7 +153,7 @@ async def ingest_listing(
       id=id,
       url=url,
       error=extraction.error or 'Unknown extraction error',
-      html=html,
+      screenshot=screenshot,
     )
   else:
     # Successful extraction but missing data
@@ -114,7 +164,7 @@ async def ingest_listing(
         id=id,
         url=url,
         error=f'LLM success indicated but data was incomplete: {str(e)}',
-        html=html,
+        screenshot=screenshot,
       )
 
     for skill in listing.skills:
@@ -141,10 +191,10 @@ async def ingest_listing(
       url=url,
       listing=listing,
       duplicate_of=similar_match,
-      html=html,
+      screenshot=screenshot,
     )
 
-  return ListingDraftUnique(id=id, url=url, listing=listing, html=html)
+  return ListingDraftUnique(id=id, url=url, listing=listing, screenshot=screenshot)
 
 
 @router.get('', response_model=Page[ListingSummary])
@@ -185,47 +235,105 @@ async def update_listing_notes(id: UUID, notes: Annotated[str | None, Body()]):
 async def generate_insights(id: UUID):
   listing = listings_service.get(id)
 
-  urls_to_scrape = [
-    f'https://{listing.domain}',
-    listing.url,
-  ]
+  # Parallel research tasks
+  company_info = ''
+  news_and_trends = ''
+  sentiment_and_reviews = ''
 
-  seen_urls = set()
-  all_anchors = []
-  for url in urls_to_scrape:
+  # Task 1: Get company background from official website
+  start_url = HttpUrl(f'https://{listing.domain}')
+  try:
+    company_info = await scraping_service.deep_crawl(
+      url=start_url,
+      max_depth=2,
+      max_pages=15,
+      include_external=False,
+    )
+  except Exception:
+    # Fallback: try the listing URL directly
     try:
-      anchors = await scraping_service.extract_anchor_tags(url)
-      for anchor in anchors:
-        if anchor['href'] not in seen_urls:
-          seen_urls.add(anchor['href'])
-          all_anchors.append(anchor)
+      company_info = await scraping_service.deep_crawl(
+        url=listing.url,
+        max_depth=1,
+        max_pages=5,
+        include_external=False,
+      )
     except Exception:
-      # If extraction fails for this URL, continue with next URL (domain is not guaranteed to work)
-      continue
+      company_info = ''
 
-  links_text = '\n'.join([f'- {anchor["text"]}: {anchor["href"]}' for anchor in all_anchors[:100]])
+  # Task 2: Search for recent news and market trends
+  try:
+    news_results = scraping_service.search(
+      query=f'{listing.company} news market trends 2025 2026',
+      max_results=5,
+    )
+    news_and_trends = ''
+    if news_results:
+      news_contents = []
+      for result in news_results:
+        try:
+          # Scrape the actual content from each search result URL
+          page = await scraping_service.fetch_and_clean(HttpUrl(result['href']))
+          if page.content:
+            filtered = _filter_search_content(page.content)
+            if filtered:  # Only add if not junk
+              news_contents.append(f'Source: {result["title"]}\n{filtered}')
+        except Exception:
+          # Fallback to snippet if scraping fails
+          if result['body'] and not _is_junk_content(result['body']):
+            news_contents.append(f'- {result["title"]}: {result["body"][:300]}')
+      news_and_trends = '\n\n'.join(news_contents)
+  except Exception:
+    news_and_trends = ''
 
-  link_selection = await llm_service.call_structured(
-    input=LINK_SELECTION_PROMPT.format(company=listing.company, links=links_text),
-    response_model=LinkSelectionResponse,
+  # Task 3: Search for public sentiment and employee reviews
+  try:
+    sentiment_results = scraping_service.search(
+      query=f'{listing.company} employee reviews company culture sentiment outlook',
+      max_results=5,
+    )
+    sentiment_and_reviews = ''
+    if sentiment_results:
+      sentiment_contents = []
+      for result in sentiment_results:
+        try:
+          # Scrape the actual content from each search result URL
+          page = await scraping_service.fetch_and_clean(HttpUrl(result['href']))
+          if page.content:
+            filtered = _filter_search_content(page.content)
+            if filtered:  # Only add if not junk
+              sentiment_contents.append(f'Source: {result["title"]}\n{filtered}')
+        except Exception:
+          # Fallback to snippet if scraping fails
+          if result['body'] and not _is_junk_content(result['body']):
+            sentiment_contents.append(f'- {result["title"]}: {result["body"][:300]}')
+      sentiment_and_reviews = '\n\n'.join(sentiment_contents)
+  except Exception:
+    sentiment_and_reviews = ''
+
+  # If we have no information at all, return listing without insights
+  if not company_info and not news_and_trends and not sentiment_and_reviews:
+    return listing
+
+  print(
+    f'[DEBUG] Research results for {listing.company}:\n'
+    f'Company Info: {company_info}...\n'
+    f'News & Trends: {news_and_trends}...\n'
+    f'Sentiment & Reviews: {sentiment_and_reviews}...\n'
   )
 
-  page_contents = []
-  for url in link_selection.links:
-    try:
-      page = await scraping_service.fetch_and_clean(HttpUrl(url))
-      content = f'URL: {url}\n\n{page.content}'
-      page_contents.append(content)
-    except Exception:
-      continue
-
-  combined_content = '\n\n---\n\n'.join(page_contents)
-
   insights = await llm_service.call_unstructured(
-    input=COMPANY_INSIGHTS_PROMPT.format(company=listing.company, page_contents=combined_content),
+    input=COMPANY_INSIGHTS_PROMPT.format(
+      company=listing.company,
+      company_info=company_info or '(No official company information found)',
+      news_and_trends=news_and_trends or '(No recent news found)',
+      sentiment_and_reviews=sentiment_and_reviews or '(No public sentiment data found)',
+    ),
   )
 
   updated_listing = listings_service.update_insights(id, insights)
   updated_listing.applications = applications_service.get_by_listing_id(id)
+
+  print(insights)
 
   return updated_listing

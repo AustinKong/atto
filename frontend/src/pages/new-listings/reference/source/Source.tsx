@@ -1,44 +1,29 @@
-import { Box } from '@chakra-ui/react';
-import { useEffect, useMemo, useRef } from 'react';
+import { Box, Image, Text, VStack } from '@chakra-ui/react';
 
-import { HIGHLIGHT_SCRIPT } from '@/constants/highlight-script.constants';
 import type { ListingDraft } from '@/types/listing-draft.types';
 
-export function Source({
-  listing,
-  highlight,
-}: {
-  listing: ListingDraft;
-  highlight: string | null;
-}) {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+export function Source({ listing }: { listing: ListingDraft }) {
+  // Get screenshot from listing (base64-encoded PNG)
+  const screenshot = (listing as { screenshot?: string }).screenshot;
 
-  const htmlContent = useMemo(() => {
-    // Already checked in parent
-    const html = (listing as { html: string }).html;
-    return html + HIGHLIGHT_SCRIPT;
-  }, [listing]);
-
-  useEffect(() => {
-    const target = iframeRef.current?.contentWindow;
-    if (!target) return;
-
-    if (highlight) {
-      target.postMessage({ type: 'HIGHLIGHT', text: highlight }, '*');
-    } else {
-      target.postMessage({ type: 'CLEAR' }, '*');
-    }
-  }, [highlight]);
+  if (!screenshot) {
+    return (
+      <Box w="full" h="full" display="flex" alignItems="center" justifyContent="center">
+        <VStack>
+          <Text>No screenshot available</Text>
+        </VStack>
+      </Box>
+    );
+  }
 
   return (
-    <Box w="full" h="full">
-      <iframe
-        ref={iframeRef}
-        srcDoc={htmlContent}
-        width="100%"
-        height="100%"
-        style={{ border: 'none' }}
-        sandbox="allow-scripts allow-same-origin"
+    <Box w="full" h="full" overflowY="auto" p={4}>
+      <Image
+        src={`data:image/png;base64,${screenshot}`}
+        alt="Listing page screenshot"
+        w="full"
+        borderRadius="md"
+        boxShadow="md"
       />
     </Box>
   );

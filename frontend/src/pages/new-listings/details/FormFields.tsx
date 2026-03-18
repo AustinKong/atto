@@ -1,12 +1,10 @@
 import { Field, HStack, Input, TagsInput, Textarea } from '@chakra-ui/react';
-import { useCallback } from 'react';
 import { type Control, Controller, type UseFormRegister } from 'react-hook-form';
 import { PiCheck } from 'react-icons/pi';
 
 import { SortableListInput } from '@/components/custom/sortable-list-input';
 import type { GroundedItem } from '@/types/listing-draft.types';
 
-import { useHighlightSetter } from '../reference/source';
 import type { FormValues } from '.';
 
 export function FormFields({
@@ -18,19 +16,6 @@ export function FormFields({
   register: UseFormRegister<FormValues>;
   isReadOnly: boolean;
 }) {
-  const { setHighlight, clearHighlight } = useHighlightSetter();
-
-  const handleReferenceHover = useCallback(
-    (item: GroundedItem) => {
-      if (item.quote) setHighlight(item.quote);
-    },
-    [setHighlight]
-  );
-
-  const handleReferenceLeave = useCallback(() => {
-    clearHighlight();
-  }, [clearHighlight]);
-
   return (
     <>
       <Field.Root readOnly={isReadOnly}>
@@ -75,10 +60,7 @@ export function FormFields({
             <TagsInput.Control>
               {field.value.map((skill: GroundedItem, index: number) => (
                 <TagsInput.Item key={skill.value} index={index} value={skill.value}>
-                  <TagsInput.ItemPreview
-                    onMouseEnter={() => handleReferenceHover(skill)}
-                    onMouseLeave={handleReferenceLeave}
-                  >
+                  <TagsInput.ItemPreview>
                     <TagsInput.ItemText>{skill.value}</TagsInput.ItemText>
                     <TagsInput.ItemDeleteTrigger />
                   </TagsInput.ItemPreview>
@@ -109,10 +91,7 @@ export function FormFields({
         </HStack>
 
         <SortableListInput.List>
-          <SortableListInput.Item<FormValues>
-            onMouseEnter={handleReferenceHover}
-            onMouseLeave={handleReferenceLeave}
-          >
+          <SortableListInput.Item<FormValues>>
             {({ index, name, register, readOnly }) => (
               <>
                 <SortableListInput.Marker color="green">

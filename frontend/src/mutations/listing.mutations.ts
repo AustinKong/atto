@@ -81,6 +81,10 @@ export function useSaveListings() {
 
       return { previousListings };
     },
+    onSuccess: () => {
+      // Invalidate the listings list so it refetches with the newly saved listing
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
+    },
     onError: (_err, _listing, context) => {
       if (context?.previousListings) {
         queryClient.setQueryData(['listing-drafts'], context.previousListings);
