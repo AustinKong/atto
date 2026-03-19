@@ -2,8 +2,10 @@ import asyncio
 from typing import Annotated, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 
+from app.clients.llm_client import LLMClient
+from app.repositories import ListingRepository, ResumeRepository, TemplateRepository
 from app.resources.prompts import (
   LISTING_CONTEXT,
   OPTIMIZE_DETAILED_ITEM_PROMPT,
@@ -20,12 +22,6 @@ from app.schemas import (
   SectionTypeEnum,
   SimpleSection,
 )
-from app.services import (
-  listings_service,
-  llm_service,
-  resumes_service,
-  templates_service,
-)
 
 router = APIRouter(
   prefix='/resumes',
@@ -35,21 +31,25 @@ router = APIRouter(
 
 @router.post('/')
 async def create_resume(
+  resume_repository: Annotated[ResumeRepository, Depends()],
+  listing_repository: Annotated[ListingRepository, Depends()],
+  llm_client: Annotated[LLMClient, Depends()],
+  template_repository: Annotated[TemplateRepository, Depends()],
   mode: Literal['default', 'blank', 'optimized'] = 'blank',
   listing_id: Annotated[UUID | None, Query(alias='listing-id')] = None,
 ) -> Resume:
   # TODO: Maybe make this a decorator
-  default_resume = resumes_service.ensure_default_global_resume_exists()
+  default_resume = resume_repository.ensure_default_global_resume_exists()
 
   if mode == 'default':
-    return resumes_service.create(
+    return resume_repository.create(
       Resume(
         template_id=default_resume.template_id,
         sections=default_resume.sections,
       )
     )
   elif mode == 'blank':
-    return resumes_service.create(
+    return resume_repository.create(
       Resume(
         template_id=default_resume.template_id,
         sections=[],
@@ -59,7 +59,7 @@ async def create_resume(
     if listing_id is None:
       raise ValueError('listing_id is required when mode is "optimized"')
 
-    listing = listings_service.get(listing_id)
+    listing = listing_repository.get(listing_id)
 
     listing_context_kwargs = dict(
       listing_context=LISTING_CONTEXT.format(
@@ -76,7 +76,7 @@ async def create_resume(
           item_text = f'  title: {item.title}\n  subtitle: {item.subtitle}\n' + '\n'.join(
             f'    - {b}' for b in item.bullets
           )
-          response = await llm_service.call_structured(
+          response = await llm_client.call_structured(
             input=OPTIMIZE_DETAILED_ITEM_PROMPT.format(
               **listing_context_kwargs,
               item_title=item.title,
@@ -100,7 +100,7 @@ async def create_resume(
           content=optimized_items,
         )
       elif section.type == SectionTypeEnum.PARAGRAPH:
-        response = await llm_service.call_structured(
+        response = await llm_client.call_structured(
           input=OPTIMIZE_PARAGRAPH_SECTION_PROMPT.format(
             **listing_context_kwargs,
             section_id=section.id,
@@ -115,7 +115,7 @@ async def create_resume(
           content=response.content,
         )
       elif section.type == SectionTypeEnum.SIMPLE:
-        response = await llm_service.call_structured(
+        response = await llm_client.call_structured(
           input=OPTIMIZE_SIMPLE_SECTION_PROMPT.format(
             **listing_context_kwargs,
             section_id=section.id,
@@ -136,7 +136,7 @@ async def create_resume(
       *[optimize_section(s) for s in default_resume.sections]
     )
 
-    return resumes_service.create(
+    return resume_repository.create(
       Resume(
         template_id=default_resume.template_id,
         sections=optimized_sections,
@@ -147,26 +147,37 @@ async def create_resume(
 
 
 @router.get('/{resume_id}')
-async def get_resume(resume_id: UUID) -> Resume:
-  resume = resumes_service.get(resume_id)
+async def get_resume(
+  resume_id: UUID,
+  resume_repository: Annotated[ResumeRepository, Depends()],
+  template_repository: Annotated[TemplateRepository, Depends()],
+) -> Resume:
+  resume = resume_repository.get(resume_id)
 
   # Self-healing
   try:
-    templates_service.get_local_template(resume.template_id)
+    template_repository.get_local_template(resume.template_id)
   except FileNotFoundError:
     resume.template_id = DEFAULT_TEMPLATE_ID
-    resume = resumes_service.update(resume)
+    resume = resume_repository.update(resume)
 
   return resume
 
 
 @router.put('/{resume_id}')
-async def update_resume(resume_id: UUID, resume: Resume) -> Resume:
+async def update_resume(
+  resume_id: UUID,
+  resume: Resume,
+  resume_repository: Annotated[ResumeRepository, Depends()],
+) -> Resume:
   resume.id = resume_id
-  return resumes_service.update(resume)
+  return resume_repository.update(resume)
 
 
 @router.delete('/{resume_id}')
-async def delete_resume(resume_id: UUID):
-  resumes_service.delete(resume_id)
+async def delete_resume(
+  resume_id: UUID,
+  resume_repository: Annotated[ResumeRepository, Depends()],
+):
+  resume_repository.delete(resume_id)
   return {'message': 'Resume deleted successfully'}

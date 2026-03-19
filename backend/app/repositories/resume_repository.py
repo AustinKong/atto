@@ -1,14 +1,14 @@
 import json
 from uuid import UUID
 
-from app.repositories import DatabaseRepository
+from app.repositories.base import DatabaseRepository
 from app.schemas import DEFAULT_RESUME_ID, DEFAULT_TEMPLATE_ID, Resume
 from app.utils.errors import NotFoundError
 
 
-class ResumesService(DatabaseRepository):
-  def __init__(self, **kwargs):
-    super().__init__(**kwargs)
+class ResumeRepository(DatabaseRepository):
+  def __init__(self):
+    super().__init__()
 
   def get(self, resume_id: UUID) -> Resume:
     row = self.fetch_one('SELECT * FROM resumes WHERE id = ?', (str(resume_id),))

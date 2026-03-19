@@ -5,7 +5,7 @@ from uuid import UUID
 
 from pydantic import TypeAdapter
 
-from app.repositories import DatabaseRepository
+from app.repositories.base import DatabaseRepository
 from app.schemas import (
   Application,
   StatusEnum,
@@ -40,9 +40,9 @@ APPLICATION_WITH_EVENTS_QUERY = """
 """
 
 
-class ApplicationsService(DatabaseRepository):
-  def __init__(self, **kwargs):
-    super().__init__(**kwargs)
+class ApplicationRepository(DatabaseRepository):
+  def __init__(self):
+    super().__init__()
 
   def get(self, application_id: UUID) -> Application:
     row = self.fetch_one(

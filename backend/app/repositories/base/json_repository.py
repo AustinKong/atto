@@ -4,15 +4,16 @@ from typing import TypeVar, cast
 
 from pydantic import BaseModel
 
-from app.repositories.file_repository import FileRepository
 from app.utils.errors import ServiceError
+
+from .file_repository import FileRepository
 
 T = TypeVar('T', bound=BaseModel)
 
 
 class JSONRepository(FileRepository):
-  def __init__(self, **kwargs):
-    super().__init__(**kwargs)
+  def __init__(self):
+    pass
 
   def read_json(self, filepath: Path, model: type[T], create_if_missing: bool = False) -> T:
     """

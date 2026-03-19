@@ -2,12 +2,12 @@ from collections import defaultdict
 from uuid import UUID
 
 from app.config import settings
-from app.repositories import DatabaseRepository, VectorRepository
+from app.repositories.base import DatabaseRepository, VectorRepository
 from app.schemas import Experience, Listing
 from app.utils.errors import NotFoundError, ServiceError
 
 
-class ExperiencesService(DatabaseRepository, VectorRepository):
+class ExperienceRepository(DatabaseRepository, VectorRepository):
   def __init__(self):
     super().__init__()
 

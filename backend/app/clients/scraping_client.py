@@ -83,7 +83,7 @@ def _cast_to_crawl_result(result: Any) -> CrawlResult:
   return cast(CrawlResult, result)
 
 
-class ScrapingService:
+class ScrapingClient:
   async def fetch_and_clean(self, url: HttpUrl) -> ScrapingResult:
     try:
       # Map respect level to check_robots_txt boolean

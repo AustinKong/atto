@@ -2,10 +2,13 @@ from datetime import date
 from typing import Annotated, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Query
+from fastapi import APIRouter, Body, Depends, Query
 from pydantic import HttpUrl
 
+from app.clients.llm_client import LLMClient
+from app.clients.scraping_client import ScrapingClient
 from app.config import settings
+from app.repositories import ApplicationRepository, ListingRepository
 from app.resources.prompts import (
   COMPANY_INSIGHTS_PROMPT,
   LISTING_EXTRACTION_PROMPT,
@@ -23,7 +26,6 @@ from app.schemas import (
   Page,
   StatusEnum,
 )
-from app.services import applications_service, listings_service, llm_service, scraping_service
 from app.utils.text import ground_quote
 from app.utils.url import normalize_url
 
@@ -87,6 +89,9 @@ def _filter_search_content(content: str, max_length: int = 800) -> str:
 
 @router.post('/draft', response_model=ListingDraft)
 async def ingest_listing(
+  listing_repository: Annotated[ListingRepository, Depends()],
+  llm_client: Annotated[LLMClient, Depends()],
+  scraping_client: Annotated[ScrapingClient, Depends()],
   url: Annotated[HttpUrl, Body()],
   id: Annotated[UUID, Body()],
   content: Annotated[str | None, Body()] = None,
@@ -94,7 +99,7 @@ async def ingest_listing(
   url = normalize_url(url)
   screenshot = None
 
-  existing_listing = listings_service.get_by_url(url)
+  existing_listing = listing_repository.get_by_url(url)
 
   if existing_listing:
     return ListingDraftDuplicateUrl(
@@ -119,7 +124,7 @@ async def ingest_listing(
 
   if content is None:
     try:
-      page = await scraping_service.fetch_and_clean(url)
+      page = await scraping_client.fetch_and_clean(url)
     except Exception as e:
       return ListingDraftError(
         id=id,
@@ -132,7 +137,7 @@ async def ingest_listing(
     screenshot = page.screenshot
 
   try:
-    extraction = await llm_service.call_structured(
+    extraction = await llm_client.call_structured(
       input=LISTING_EXTRACTION_PROMPT.format(
         current_date=date.today().isoformat(), content=content
       ),
@@ -175,7 +180,7 @@ async def ingest_listing(
       if req.quote:
         req.quote = ground_quote(req.quote, content)
 
-  similar_match = listings_service.find_similar(
+  similar_match = listing_repository.find_similar(
     Listing(
       **listing.model_dump(exclude={'skills', 'requirements'}),
       skills=[skill.value for skill in listing.skills],
@@ -199,41 +204,57 @@ async def ingest_listing(
 
 @router.get('', response_model=Page[ListingSummary])
 async def get_listings(
-  page: int = 1,
-  size: int = 10,
+  listing_repository: Annotated[ListingRepository, Depends()],
+  page: int | None = 1,
+  size: int | None = 10,
   search: str | None = None,
-  status: Annotated[list[StatusEnum] | None, Query()] = None,
+  status: list[StatusEnum] | None = None,
   sort_by: Annotated[
     Literal['title', 'company', 'posted_at', 'last_status_at'] | None,
     Query(alias='sort-by'),
   ] = None,
   sort_dir: Annotated[Literal['asc', 'desc'] | None, Query(alias='sort-dir')] = None,
 ):
-  return listings_service.list_all(page, size, search, status, sort_by, sort_dir)
+  return listing_repository.list_all(page, size, search, status, sort_by, sort_dir)
 
 
 @router.get('/{id}', response_model=Listing)
-async def get_listing(id: UUID):
-  listing = listings_service.get(id)
-  listing.applications = applications_service.get_by_listing_id(id)
+async def get_listing(
+  listing_repository: Annotated[ListingRepository, Depends()],
+  application_repository: Annotated[ApplicationRepository, Depends()],
+  id: UUID,
+):
+  listing = listing_repository.get(id)
+  listing.applications = application_repository.get_by_listing_id(id)
   return listing
 
 
 @router.post('')
-async def save_listing(listing: Listing):
-  saved_listing = listings_service.create(listing)
-  return saved_listing
+async def save_listing(
+  listing: Listing,
+  listing_repository: Annotated[ListingRepository, Depends()],
+):
+  return listing_repository.create(listing)
 
 
 @router.put('/{id}/notes')
-async def update_listing_notes(id: UUID, notes: Annotated[str | None, Body()]):
-  updated_listing = listings_service.update_notes(id, notes)
-  return updated_listing
+async def update_listing_notes(
+  id: UUID,
+  listing_repository: Annotated[ListingRepository, Depends()],
+  notes: Annotated[str | None, Body()] = None,
+):
+  return listing_repository.update_notes(id, notes)
 
 
 @router.post('/{id}/insights', response_model=Listing)
-async def generate_insights(id: UUID):
-  listing = listings_service.get(id)
+async def generate_insights(
+  id: UUID,
+  listing_repository: Annotated[ListingRepository, Depends()],
+  application_repository: Annotated[ApplicationRepository, Depends()],
+  scraping_client: Annotated[ScrapingClient, Depends()],
+  llm_client: Annotated[LLMClient, Depends()],
+):
+  listing = listing_repository.get(id)
 
   # Parallel research tasks
   company_info = ''
@@ -243,7 +264,7 @@ async def generate_insights(id: UUID):
   # Task 1: Get company background from official website
   start_url = HttpUrl(f'https://{listing.domain}')
   try:
-    company_info = await scraping_service.deep_crawl(
+    company_info = await scraping_client.deep_crawl(
       url=start_url,
       max_depth=2,
       max_pages=15,
@@ -252,7 +273,7 @@ async def generate_insights(id: UUID):
   except Exception:
     # Fallback: try the listing URL directly
     try:
-      company_info = await scraping_service.deep_crawl(
+      company_info = await scraping_client.deep_crawl(
         url=listing.url,
         max_depth=1,
         max_pages=5,
@@ -263,7 +284,7 @@ async def generate_insights(id: UUID):
 
   # Task 2: Search for recent news and market trends
   try:
-    news_results = scraping_service.search(
+    news_results = scraping_client.search(
       query=f'{listing.company} news market trends 2025 2026',
       max_results=5,
     )
@@ -273,7 +294,7 @@ async def generate_insights(id: UUID):
       for result in news_results:
         try:
           # Scrape the actual content from each search result URL
-          page = await scraping_service.fetch_and_clean(HttpUrl(result['href']))
+          page = await scraping_client.fetch_and_clean(HttpUrl(result['href']))
           if page.content:
             filtered = _filter_search_content(page.content)
             if filtered:  # Only add if not junk
@@ -288,7 +309,7 @@ async def generate_insights(id: UUID):
 
   # Task 3: Search for public sentiment and employee reviews
   try:
-    sentiment_results = scraping_service.search(
+    sentiment_results = scraping_client.search(
       query=f'{listing.company} employee reviews company culture sentiment outlook',
       max_results=5,
     )
@@ -298,7 +319,7 @@ async def generate_insights(id: UUID):
       for result in sentiment_results:
         try:
           # Scrape the actual content from each search result URL
-          page = await scraping_service.fetch_and_clean(HttpUrl(result['href']))
+          page = await scraping_client.fetch_and_clean(HttpUrl(result['href']))
           if page.content:
             filtered = _filter_search_content(page.content)
             if filtered:  # Only add if not junk
@@ -322,7 +343,7 @@ async def generate_insights(id: UUID):
     f'Sentiment & Reviews: {sentiment_and_reviews}...\n'
   )
 
-  insights = await llm_service.call_unstructured(
+  insights = await llm_client.call_unstructured(
     input=COMPANY_INSIGHTS_PROMPT.format(
       company=listing.company,
       company_info=company_info or '(No official company information found)',
@@ -331,8 +352,8 @@ async def generate_insights(id: UUID):
     ),
   )
 
-  updated_listing = listings_service.update_insights(id, insights)
-  updated_listing.applications = applications_service.get_by_listing_id(id)
+  updated_listing = listing_repository.update_insights(id, insights)
+  updated_listing.applications = application_repository.get_by_listing_id(id)
 
   print(insights)
 

@@ -8,17 +8,17 @@ from app.exception_handlers import (
   service_error_exception_handler,
 )
 from app.middleware import exception_logging_middleware
+from app.repositories import ResumeRepository
 from app.routers import (
-  applications_router,
+  application_router,
   config_router,
   developer_router,
-  experiences_router,
-  listings_router,
+  experience_router,
+  listing_router,
   profile_router,
-  resumes_router,
-  templates_router,
+  resume_router,
+  template_router,
 )
-from app.services import resumes_service
 from app.utils.errors import (
   ApplicationError,
   DuplicateError,
@@ -35,16 +35,17 @@ def create_app() -> FastAPI:
   async def startup_event():
     # TODO: Why does database seeding run in a different place?
     # Should standardize all startup initialization in one place
-    resumes_service.ensure_default_global_resume_exists()
+    resume_repository = ResumeRepository()
+    resume_repository.ensure_default_global_resume_exists()
 
-  app.include_router(applications_router, prefix='/api')
+  app.include_router(application_router, prefix='/api')
   app.include_router(config_router, prefix='/api')
   app.include_router(developer_router, prefix='/api')
-  app.include_router(experiences_router, prefix='/api')
-  app.include_router(listings_router, prefix='/api')
+  app.include_router(experience_router, prefix='/api')
+  app.include_router(listing_router, prefix='/api')
   app.include_router(profile_router, prefix='/api')
-  app.include_router(resumes_router, prefix='/api')
-  app.include_router(templates_router, prefix='/api')
+  app.include_router(resume_router, prefix='/api')
+  app.include_router(template_router, prefix='/api')
 
   app.add_exception_handler(NotFoundError, not_found_exception_handler)
   app.add_exception_handler(DuplicateError, duplicate_error_exception_handler)

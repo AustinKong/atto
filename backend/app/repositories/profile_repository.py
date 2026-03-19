@@ -1,11 +1,11 @@
 from pathlib import Path
 
 from app.config import settings
-from app.repositories import JSONRepository
+from app.repositories.base import JSONRepository
 from app.schemas import Profile
 
 
-class ProfileService(JSONRepository):
+class ProfileRepository(JSONRepository):
   def __init__(self):
     super().__init__()
 

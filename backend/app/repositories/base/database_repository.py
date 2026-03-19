@@ -9,8 +9,8 @@ _db_ctx: ContextVar[sqlite3.Connection | None] = ContextVar('_db_ctx', default=N
 
 
 class DatabaseRepository:
-  def __init__(self, **kwargs):
-    super().__init__(**kwargs)
+  def __init__(self):
+    pass
 
   @contextmanager
   def transaction(self):

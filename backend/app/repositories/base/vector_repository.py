@@ -10,9 +10,7 @@ from app.utils.errors import ServiceError
 
 
 class VectorRepository:
-  def __init__(self, **kwargs):
-    super().__init__(**kwargs)
-
+  def __init__(self):
     self._chroma_client = None
     self._embedding_function = None
     self._collection_cache: dict[str, chromadb.Collection] = {}

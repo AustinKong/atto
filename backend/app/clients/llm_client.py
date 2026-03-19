@@ -8,7 +8,7 @@ from app.config import settings
 T = TypeVar('T', bound=BaseModel)
 
 
-class LLMService:
+class LLMClient:
   def __init__(self):
     self._client = None
 

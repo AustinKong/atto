@@ -5,16 +5,16 @@ from chromadb.api.types import Metadata
 from pydantic import HttpUrl
 
 from app.config import settings
-from app.repositories import DatabaseRepository, VectorRepository
+from app.repositories.base import DatabaseRepository, VectorRepository
 from app.schemas import Listing, ListingSummary, Page, StatusEnum
 from app.utils.deduplication import fuzzy_text_similarity
 from app.utils.errors import NotFoundError
 from app.utils.status_ordering import generate_latest_event_sql
 
 
-class ListingsService(DatabaseRepository, VectorRepository):
-  def __init__(self, **kwargs):
-    super().__init__(**kwargs)
+class ListingRepository(DatabaseRepository, VectorRepository):
+  def __init__(self):
+    super().__init__()
 
   def get(self, listing_id) -> Listing:
     query = """
