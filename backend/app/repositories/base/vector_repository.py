@@ -30,7 +30,7 @@ class VectorRepository:
     if self._embedding_function is None:
       try:
         self._embedding_function = OpenAIEmbeddingFunction(
-          api_key=settings.model.openai_api_key,
+          api_key=settings.model.api_key,
           model_name=settings.model.embedding,
         )
       except Exception as e:

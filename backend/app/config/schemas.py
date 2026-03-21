@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 from typing import Any, Literal
 
+from instructor.models import KnownModelName
 from pydantic import BaseModel, Field
 
 
@@ -67,10 +68,13 @@ class PathsPrefs(BaseModel):
 
 
 class ModelPrefs(BaseModel):
-  llm: Literal['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo'] = ConfigField(
-    default='gpt-4o-mini',
+  llm: KnownModelName = ConfigField(
+    default='openai/gpt-4o-mini',
     title='Language Model',
-    description='The AI model used for generating resume content, matching experiences to jobs, and answering questions. More powerful models give better results but cost more.',
+    description=(
+      'The AI model used for generating resume content, matching experiences to jobs, '
+      'and answering questions. More powerful models give better results but cost more.'
+    ),
     exposure='normal',
   )
   embedding: Literal[
@@ -89,10 +93,12 @@ class ModelPrefs(BaseModel):
     description='Controls randomness in AI responses. Lower values (0.1-0.3) give more focused, consistent results. Higher values (0.7-1.0) add more creativity but may be less reliable.',
     exposure='advanced',
   )
-  openai_api_key: str = ConfigField(
+  api_key: str = ConfigField(
     default='',
-    title='OpenAI API Key',
-    description='Your OpenAI API key for accessing AI models. Required for the application to function. Get one from https://platform.openai.com/api-keys',
+    title='API Key',
+    description=(
+      'Your provider API key for accessing AI models. Required for the application to function.'
+    ),
     exposure='secret',
   )
 

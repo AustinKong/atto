@@ -1,4 +1,10 @@
+from collections.abc import Callable, Iterable
+from typing import TypeVar
+
 from rapidfuzz import fuzz
+
+T = TypeVar('T')
+K = TypeVar('K')
 
 
 def _normalize_text(text: str) -> str:
@@ -38,3 +44,27 @@ def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
     return 0.0
 
   return dot_product / (magnitude1 * magnitude2)
+
+
+def deduplicate_by(items: Iterable[T], key_selector: Callable[[T], K]) -> list[T]:
+  """
+  Deduplicate items while preserving order based on a derived key.
+
+  Args:
+    items: Items to deduplicate.
+    key_selector: Function that selects a hashable key used for uniqueness.
+
+  Returns:
+    Deduplicated list in first-seen order.
+  """
+  seen: set[K] = set()
+  deduplicated: list[T] = []
+
+  for item in items:
+    key = key_selector(item)
+    if key in seen:
+      continue
+    seen.add(key)
+    deduplicated.append(item)
+
+  return deduplicated
