@@ -4,7 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
 
-from app.clients import LLMClient, get_llm_client
+from app.clients.model import ModelClient, get_model_client
 from app.repositories import ListingRepository, ResumeRepository, TemplateRepository
 from app.resources.prompts import (
   LISTING_CONTEXT,
@@ -33,7 +33,7 @@ router = APIRouter(
 async def create_resume(
   resume_repository: Annotated[ResumeRepository, Depends()],
   listing_repository: Annotated[ListingRepository, Depends()],
-  llm_client: Annotated[LLMClient, Depends(get_llm_client)],
+  llm_client: Annotated[ModelClient, Depends(get_model_client)],
   template_repository: Annotated[TemplateRepository, Depends()],
   mode: Literal['default', 'blank', 'optimized'] = 'blank',
   listing_id: Annotated[UUID | None, Query(alias='listing-id')] = None,

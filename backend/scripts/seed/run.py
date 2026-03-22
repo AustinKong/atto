@@ -81,13 +81,17 @@ def run(json_path: str, default_resume_path: str):
 
         print(f'Inserting listing: {listing_data.get("title")} at {listing_data.get("company")}')
 
+        notes = listing_data.get('notes')
+        research = listing_data.get('research')
+        research_json = json.dumps(research) if research is not None else None
+
         try:
           # --- LISTINGS ---
           cursor.execute(
             """
             INSERT INTO listings 
             (
-              id, url, title, company, domain, location, description, notes, insights, posted_date, 
+              id, url, title, company, domain, location, description, notes, research, posted_date,
               skills, requirements
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -100,8 +104,8 @@ def run(json_path: str, default_resume_path: str):
               listing_data.get('domain'),
               listing_data.get('location'),
               listing_data.get('description', ''),
-              listing_data.get('notes'),
-              listing_data.get('insights'),
+              notes,
+              research_json,
               listing_data.get('postedDate'),
               json.dumps(listing_data.get('skills', [])),
               json.dumps(listing_data.get('requirements', [])),

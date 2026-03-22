@@ -32,6 +32,8 @@ from .scraping import (
 from .template import DEFAULT_TEMPLATE_ID, Template, TemplateSummary
 from .types import CamelModel, Page
 
+# TODO: Remove this init, honestly more effort than it's worth to maintain it, and it's not providing much value. Just import the models directly from their modules.
+
 __all__ = [
   # Base types
   'CamelModel',

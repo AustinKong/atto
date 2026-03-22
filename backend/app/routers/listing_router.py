@@ -1,7 +1,7 @@
 from typing import Annotated, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, Query
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, Query, status
 from pydantic import HttpUrl
 
 from app.repositories import ApplicationRepository, ListingRepository
@@ -12,6 +12,7 @@ from app.schemas import (
   Page,
   StatusEnum,
 )
+from app.schemas.task_status import TaskStatus, TaskStatusEntry
 from app.services import ListingService
 
 router = APIRouter(
@@ -66,7 +67,7 @@ async def save_listing(
   listing: Listing,
   listing_repository: Annotated[ListingRepository, Depends()],
 ):
-  return listing_repository.create(listing)
+  return await listing_repository.create(listing)
 
 
 @router.put('/{id}/notes')
@@ -78,9 +79,23 @@ async def update_listing_notes(
   return listing_repository.update_notes(id, notes)
 
 
-@router.post('/{id}/insights', response_model=Listing)
-async def generate_insights(
+# TODO: Unlikely but potential race condition if get_research_status is hit before
+# generate_research_task sets the state to PENDING
+@router.post('/{id}/research', response_model=TaskStatusEntry, status_code=status.HTTP_202_ACCEPTED)
+async def generate_research(
   id: UUID,
+  background_tasks: BackgroundTasks,
   listing_service: Annotated[ListingService, Depends()],
+  listing_repository: Annotated[ListingRepository, Depends()],
 ):
-  return await listing_service.generate_insights(listing_id=id)
+  listing_repository.set_research_status(id, TaskStatus.PENDING)
+  background_tasks.add_task(listing_service.generate_research_task, id)
+  return listing_repository.get_research_status(id)
+
+
+@router.get('/{id}/research/status', response_model=TaskStatusEntry | None)
+async def get_research_status(
+  id: UUID,
+  listing_repository: Annotated[ListingRepository, Depends()],
+):
+  return listing_repository.get_research_status(id)

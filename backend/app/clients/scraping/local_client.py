@@ -64,6 +64,7 @@ class LocalScrapingClient(ScrapingClient):
       'process_iframes': True,
       'wait_for_images': False,
       'page_timeout': 30000,
+      'verbose': False,
       # Content Cleaning
       'remove_forms': True,
       'excluded_tags': AGGRESSIVE_EXCLUDED_TAGS
@@ -92,7 +93,7 @@ class LocalScrapingClient(ScrapingClient):
     config: CrawlerRunConfig,
   ) -> Crawl4aiResult | list[Crawl4aiResult]:
     browser_config = BrowserConfig(
-      enable_stealth=settings.ingestion.web_respect_level == 'permissive'
+      enable_stealth=settings.ingestion.web_respect_level == 'permissive', verbose=False
     )
 
     async with AsyncWebCrawler(config=browser_config) as crawler:

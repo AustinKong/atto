@@ -44,5 +44,5 @@ class DDGSNewsResult(BaseModel):
   title: str
   body: str
   url: str
-  image: str
+  image: str | None
   source: str

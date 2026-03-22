@@ -1,26 +1,35 @@
 import json
-from typing import Literal
+from typing import Annotated, Literal
+from uuid import UUID
 
 from chromadb.api.types import Metadata
+from fastapi import Depends
 from pydantic import HttpUrl
 
+from app.clients.model import ModelClient, get_model_client
 from app.config import settings
 from app.repositories.base import DatabaseRepository, VectorRepository
+from app.repositories.base.in_memory_kv_repository import InMemoryKVRepository
 from app.schemas import Listing, ListingSummary, Page, StatusEnum
+from app.schemas.task_status import TaskStatus, TaskStatusEntry
 from app.utils.deduplication import fuzzy_text_similarity
 from app.utils.errors import NotFoundError
 from app.utils.status_ordering import generate_latest_event_sql
 
 
-class ListingRepository(DatabaseRepository, VectorRepository):
-  def __init__(self):
-    super().__init__()
+class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVRepository):
+  RESEARCH_TASK_NAMESPACE = 'listing_research'
+
+  def __init__(self, model_client: Annotated[ModelClient, Depends(get_model_client)]):
+    DatabaseRepository.__init__(self)
+    VectorRepository.__init__(self, model_client=model_client)
+    InMemoryKVRepository.__init__(self)
 
   def get(self, listing_id) -> Listing:
     query = """
       SELECT 
         l.id, l.url, l.title, l.company, l.domain,
-        l.location, l.description, l.notes, l.insights, l.posted_date, l.skills, l.requirements
+        l.location, l.description, l.notes, l.research, l.posted_date, l.skills, l.requirements
       FROM listings l
       WHERE l.id = ?
     """
@@ -36,7 +45,7 @@ class ListingRepository(DatabaseRepository, VectorRepository):
       """
       SELECT 
         l.id, l.url, l.title, l.company, l.domain, l.location, l.description, l.notes,
-        l.insights, l.posted_date, l.skills, l.requirements
+        l.research, l.posted_date, l.skills, l.requirements
       FROM listings l
       WHERE l.url = ?
       """,
@@ -123,7 +132,7 @@ class ListingRepository(DatabaseRepository, VectorRepository):
       pages=(total_count + size - 1) // size,
     )
 
-  def find_similar(
+  async def find_similar(
     self,
     new_listing: Listing,
   ) -> Listing | None:
@@ -139,7 +148,7 @@ class ListingRepository(DatabaseRepository, VectorRepository):
     best_match = None
     best_score = 0.0
 
-    semantic_matches = self._find_semantic_duplicates(new_listing)
+    semantic_matches = await self._find_semantic_duplicates(new_listing)
     if semantic_matches:
       match, score = semantic_matches[0]
       if score > best_score:
@@ -158,11 +167,11 @@ class ListingRepository(DatabaseRepository, VectorRepository):
 
     return best_match
 
-  def create(self, listing: Listing) -> Listing:
+  async def create(self, listing: Listing) -> Listing:
     self.execute(
       """
       INSERT INTO listings (
-        id, url, title, company, domain, location, description, notes, insights, posted_date,
+        id, url, title, company, domain, location, description, notes, research, posted_date,
         skills, requirements
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -176,7 +185,7 @@ class ListingRepository(DatabaseRepository, VectorRepository):
         listing.location,
         listing.description,
         listing.notes,
-        listing.insights,
+        listing.research.model_dump_json(by_alias=True) if listing.research else None,
         listing.posted_date.isoformat() if listing.posted_date else None,
         json.dumps(listing.skills),
         json.dumps(listing.requirements),
@@ -186,7 +195,7 @@ class ListingRepository(DatabaseRepository, VectorRepository):
     documents = [self._create_listing_embedding_text(listing)]
     metadatas: list[Metadata] = [{'listing_id': str(listing.id)}]
 
-    self.add_documents(collection_name='listings', documents=documents, metadatas=metadatas)
+    await self.add_documents(collection_name='listings', documents=documents, metadatas=metadatas)
 
     return listing
 
@@ -202,17 +211,27 @@ class ListingRepository(DatabaseRepository, VectorRepository):
 
     return self.get(listing_id)
 
-  def update_insights(self, listing_id, insights: str | None) -> Listing:
+  def update_research(self, listing_id, research_json: str | None) -> Listing:
     self.execute(
       """
       UPDATE listings
-      SET insights = ?
+      SET research = ?
       WHERE id = ?
       """,
-      (insights, str(listing_id)),
+      (research_json, str(listing_id)),
     )
 
     return self.get(listing_id)
+
+  def set_research_status(
+    self, listing_id: UUID, status: TaskStatus, error: str | None = None
+  ) -> None:
+    self.set_value(
+      self.RESEARCH_TASK_NAMESPACE, str(listing_id), TaskStatusEntry(status=status, error=error)
+    )
+
+  def get_research_status(self, listing_id: UUID) -> TaskStatusEntry | None:
+    return self.get_value(self.RESEARCH_TASK_NAMESPACE, str(listing_id))
 
   def _create_listing_embedding_text(self, listing: Listing) -> str:
     parts = [
@@ -230,7 +249,7 @@ class ListingRepository(DatabaseRepository, VectorRepository):
 
     return '\n'.join(parts)
 
-  def _find_semantic_duplicates(
+  async def _find_semantic_duplicates(
     self,
     new_listing: Listing,
   ) -> list[tuple[Listing, float]]:
@@ -244,7 +263,7 @@ class ListingRepository(DatabaseRepository, VectorRepository):
       List of (similar_listing, similarity_score) tuples above threshold
     """
     query_text = self._create_listing_embedding_text(new_listing)
-    search_results = self.search_documents(
+    search_results = await self.search_documents(
       collection_name='listings',
       query=query_text,
       k=settings.listings.search_k,
@@ -267,7 +286,7 @@ class ListingRepository(DatabaseRepository, VectorRepository):
       f"""
       SELECT 
         l.id, l.url, l.title, l.company, l.domain, l.location, l.description, l.notes,
-        l.insights, l.posted_date, l.skills, l.requirements
+        l.research, l.posted_date, l.skills, l.requirements
       FROM listings l
       WHERE l.id IN ({placeholders})
       """,

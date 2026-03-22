@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useDebouncedMutation } from '@/hooks/use-debounced-mutation.hooks';
 import {
-  generateListingInsights as generateListingInsightsSvc,
+  generateListingResearch as generateListingResearchSvc,
   ingestListing as ingestListingSvc,
   saveListing as saveListingSvc,
   updateListingNotes as updateListingNotesSvc,
@@ -112,15 +112,13 @@ export function useUpdateListingNotes() {
   return updateNotes;
 }
 
-export function useGenerateListingInsights() {
+export function useGenerateListingResearch() {
   const queryClient = useQueryClient();
 
-  const { mutate: generateInsights, isPending: isGeneratingInsights } = useMutation({
-    mutationFn: (listingId: string) => generateListingInsightsSvc(listingId),
-    onSuccess: (updatedListing) => {
-      queryClient.setQueryData(['listing', updatedListing.id], updatedListing);
+  return useMutation({
+    mutationFn: (listingId: string) => generateListingResearchSvc(listingId),
+    onSuccess: (data, listingId) => {
+      queryClient.setQueryData(['listing', listingId, 'research-status'], data);
     },
   });
-
-  return { generateInsights, isGeneratingInsights };
 }

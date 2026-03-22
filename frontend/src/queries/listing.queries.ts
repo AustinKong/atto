@@ -1,6 +1,6 @@
 import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 
-import { getListing, getListings } from '@/services/listing.service';
+import { getListing, getListingResearchStatus, getListings } from '@/services/listing.service';
 import type { StatusEnum } from '@/types/application.types';
 
 export const listingsQueries = {
@@ -49,5 +49,11 @@ export const listingsQueries = {
       queryKey: ['listing', id] as const,
       queryFn: () => getListing(id),
       staleTime: 5 * 60 * 1000, // 5 minutes
+    }),
+
+  researchStatus: (id: string) =>
+    queryOptions({
+      queryKey: ['listing', id, 'research-status'] as const,
+      queryFn: () => getListingResearchStatus(id),
     }),
 };

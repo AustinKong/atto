@@ -2,9 +2,14 @@ import asyncio
 
 import httpx
 
-from app.clients.llm import LLMClient
+from app.clients.model import ModelClient
 from app.clients.scraping import ScrapingClient
-from app.schemas.listing import Listing
+from app.schemas.listing import (
+  Listing,
+  MarketContextResult,
+  SalaryRangeResult,
+  SentimentAnalysisResult,
+)
 from app.utils.text import to_json_string
 
 from .base_client import ListingResearchClient
@@ -16,13 +21,12 @@ from .constants import (
   SENTIMENT_PROMPT_TEMPLATE,
   SENTIMENT_SEARCH_QUERY,
 )
-from .schemas import MarketContextResult, SalaryRangeResult, SentimentAnalysisResult
 
 
 class CloudListingResearchClient(ListingResearchClient):
   def __init__(
     self,
-    llm_client: LLMClient,
+    llm_client: ModelClient,
     scraping_client: ScrapingClient,
   ):
     self.llm_client = llm_client

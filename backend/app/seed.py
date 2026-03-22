@@ -39,7 +39,7 @@ def create_tables():
         location TEXT,
         description TEXT NOT NULL,
         notes TEXT,
-        insights TEXT,
+        research JSON,
         posted_date TEXT,
         skills TEXT,
         requirements TEXT

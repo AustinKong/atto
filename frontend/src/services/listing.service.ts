@@ -2,6 +2,7 @@ import type { StatusEnum } from '@/types/application.types';
 import type { Page } from '@/types/common.types';
 import type { Listing, ListingSummary } from '@/types/listing.types';
 import type { ListingDraft } from '@/types/listing-draft.types';
+import type { TaskStatusEntry } from '@/types/task-status.types';
 
 export async function ingestListing(
   url: string,
@@ -44,7 +45,7 @@ export async function saveListing(listingDraft: ListingDraft) {
     id: listingDraft.id,
     url: listingDraft.url,
     notes: null,
-    insights: null,
+    research: null,
     skills: listingDraft.listing.skills.map((s) => s.value),
     requirements: listingDraft.listing.requirements.map((r) => r.value),
     applications: [],
@@ -127,8 +128,8 @@ export async function updateListingNotes(
   return json as Listing;
 }
 
-export async function generateListingInsights(listingId: string): Promise<Listing> {
-  const response = await fetch(`/api/listings/${listingId}/insights`, {
+export async function generateListingResearch(listingId: string): Promise<TaskStatusEntry> {
+  const response = await fetch(`/api/listings/${listingId}/research`, {
     method: 'POST',
   });
 
@@ -136,6 +137,16 @@ export async function generateListingInsights(listingId: string): Promise<Listin
     throw response;
   }
 
-  const json = await response.json();
-  return json as Listing;
+  return await response.json();
+}
+
+export async function getListingResearchStatus(listingId: string): Promise<TaskStatusEntry | null> {
+  const response = await fetch(`/api/listings/${listingId}/research/status`);
+
+  if (!response.ok) {
+    throw response;
+  }
+
+  if (!response.body) return null;
+  return response.json();
 }

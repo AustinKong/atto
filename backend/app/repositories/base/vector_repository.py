@@ -1,18 +1,22 @@
-from typing import Any, cast
+from typing import Annotated, Any, cast
 from uuid import uuid4
 
 import chromadb
-from chromadb.api.types import Metadata
-from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
+from chromadb.api.types import Embedding, Metadata
+from fastapi import Depends
 
+from app.clients.model import ModelClient, get_model_client
 from app.config import settings
 from app.utils.errors import ServiceError
 
 
 class VectorRepository:
-  def __init__(self):
+  def __init__(
+    self,
+    model_client: Annotated[ModelClient, Depends(get_model_client)],
+  ):
+    self.model_client = model_client
     self._chroma_client = None
-    self._embedding_function = None
     self._collection_cache: dict[str, chromadb.Collection] = {}
 
   @property
@@ -24,28 +28,9 @@ class VectorRepository:
         raise ServiceError(f'Failed to initialize ChromaDB client: {str(e)}') from e
     return self._chroma_client
 
-  # TODO: Must reset embedding_function if API key or model changes during runtime
-  @property
-  def embedding_function(self) -> chromadb.EmbeddingFunction:
-    if self._embedding_function is None:
-      try:
-        self._embedding_function = OpenAIEmbeddingFunction(
-          api_key=settings.model.api_key,
-          model_name=settings.model.embedding,
-        )
-      except Exception as e:
-        raise ServiceError(f'Failed to initialize OpenAI embedding function: {str(e)}') from e
-    return self._embedding_function
-
   def _get_collection(self, collection_name: str) -> chromadb.Collection:
     """
-    Get or create a collection with cosine similarity and embedding function.
-
-    Args:
-      collection_name: Name of the collection
-
-    Returns:
-      ChromaDB collection
+    Get or create a collection with cosine similarity.
 
     Note:
       Distance metric is hardcoded to 'cosine' because our similarity calculation
@@ -55,21 +40,20 @@ class VectorRepository:
       try:
         self._collection_cache[collection_name] = self.chroma_client.get_or_create_collection(
           name=collection_name,
-          embedding_function=self.embedding_function,
           metadata={'hnsw:space': 'cosine'},
         )
       except Exception as e:
         raise ServiceError(f'Failed to get or create collection {collection_name}: {str(e)}') from e
     return self._collection_cache[collection_name]
 
-  def add_documents(
+  async def add_documents(
     self,
     collection_name: str,
     documents: list[str],
     metadatas: list[Metadata] | None = None,
   ) -> None:
     """
-    Add documents to a collection. Embeddings are automatically generated.
+    Add documents to a collection. Embeddings are generated via the model client.
 
     Args:
       collection_name: Name of the collection.
@@ -83,9 +67,11 @@ class VectorRepository:
     try:
       collection = self._get_collection(collection_name)
       ids = [str(uuid4()) for _ in documents]
+      embeddings = cast(list[Embedding], await self.model_client.embed(documents))
 
       collection.add(
         documents=documents,
+        embeddings=embeddings,
         metadatas=metadatas,
         ids=ids,
       )
@@ -95,7 +81,7 @@ class VectorRepository:
       msg = f'Failed to add documents to {collection_name}: {str(e)}'
       raise ServiceError(msg) from e
 
-  def get_documents(
+  async def get_documents(
     self, collection_name: str, where: dict[str, Any] | None = None
   ) -> list[tuple[str, dict[str, Any]]]:
     """
@@ -128,7 +114,7 @@ class VectorRepository:
     except Exception as e:
       raise ServiceError(f'Failed to get documents from {collection_name}: {str(e)}') from e
 
-  def delete_documents(self, collection_name: str, where: dict[str, Any]) -> None:
+  async def delete_documents(self, collection_name: str, where: dict[str, Any]) -> None:
     """
     Delete documents from a collection matching metadata filter.
 
@@ -147,7 +133,7 @@ class VectorRepository:
     except Exception as e:
       raise ServiceError(f'Failed to delete documents from {collection_name}: {str(e)}') from e
 
-  def search_documents(
+  async def search_documents(
     self, collection_name: str, query: str, k: int = 10
   ) -> list[tuple[str, dict[str, Any], float]]:
     """
@@ -164,8 +150,9 @@ class VectorRepository:
     """
     try:
       collection = self._get_collection(collection_name)
+      query_embedding = cast(Embedding, (await self.model_client.embed([query]))[0])
 
-      results = collection.query(query_texts=[query], n_results=k)
+      results = collection.query(query_embeddings=[query_embedding], n_results=k)
 
       documents: list[tuple[str, dict[str, Any], float]] = []
 

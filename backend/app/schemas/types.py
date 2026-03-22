@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
 T = TypeVar('T')
+M = TypeVar('M', bound=BaseModel)
 
 
 class CamelModel(BaseModel):
@@ -55,5 +56,41 @@ def parse_json_list_as(converter: Callable[[str], T]) -> Callable[[Any], list[T]
         return []
 
     return []
+
+  return parser
+
+
+def parse_json_model_as(model: type[M]) -> Callable[[Any], M | None]:
+  """
+  Create a parser that converts JSON objects into a Pydantic model.
+
+  Usage:
+    BeforeValidator(parse_json_model_as(MyModel))
+  """
+
+  def parser(v: Any) -> M | None:
+    if v is None:
+      return None
+
+    if isinstance(v, model):
+      return v
+
+    if isinstance(v, str):
+      try:
+        parsed = json.loads(v)
+      except (json.JSONDecodeError, TypeError):
+        return None
+      try:
+        return model.model_validate(parsed)
+      except Exception:
+        return None
+
+    if isinstance(v, dict):
+      try:
+        return model.model_validate(v)
+      except Exception:
+        return None
+
+    return None
 
   return parser

@@ -6,8 +6,9 @@ from uuid import UUID
 from fastapi import Depends
 from pydantic import HttpUrl
 
-from app.clients import LLMClient, ScrapingClient, get_llm_client, get_scraping_client
 from app.clients.listing_research import ListingResearchClient, get_listing_research_client
+from app.clients.model import ModelClient, get_model_client
+from app.clients.scraping import ScrapingClient, get_scraping_client
 from app.repositories import ApplicationRepository, ListingRepository
 from app.resources.prompts import LISTING_EXTRACTION_PROMPT
 from app.schemas import (
@@ -20,7 +21,9 @@ from app.schemas import (
   ListingDraftUnique,
   ListingExtraction,
 )
-from app.utils.text import ground_quote, to_bullets
+from app.schemas.listing import ListingResearch
+from app.schemas.task_status import TaskStatus
+from app.utils.text import ground_quote
 from app.utils.url import normalize_url
 
 
@@ -30,7 +33,7 @@ class ListingService:
     listing_repository: Annotated[ListingRepository, Depends()],
     application_repository: Annotated[ApplicationRepository, Depends()],
     listing_research_client: Annotated[ListingResearchClient, Depends(get_listing_research_client)],
-    llm_client: Annotated[LLMClient, Depends(get_llm_client)],
+    llm_client: Annotated[ModelClient, Depends(get_model_client)],
     scraping_client: Annotated[ScrapingClient, Depends(get_scraping_client)],
   ) -> None:
     self.listing_repository = listing_repository
@@ -97,7 +100,7 @@ class ListingService:
       if req.quote:
         req.quote = ground_quote(req.quote, content)
 
-    if similar_match := self.listing_repository.find_similar(
+    similar_match = await self.listing_repository.find_similar(
       Listing(
         **listing.model_dump(exclude={'skills', 'requirements'}),
         skills=[skill.value for skill in listing.skills],
@@ -105,7 +108,8 @@ class ListingService:
         id=id,
         url=url,
       )
-    ):
+    )
+    if similar_match:
       return ListingDraftDuplicateContent(
         id=id,
         url=url,
@@ -121,35 +125,35 @@ class ListingService:
       screenshot=screenshot,
     )
 
-  async def generate_insights(
-    self,
-    listing_id: UUID,
-  ) -> Listing:
-    listing = self.listing_repository.get(listing_id)
+  async def generate_research_task(self, listing_id: UUID) -> None:
+    self.listing_repository.set_research_status(listing_id, TaskStatus.RUNNING)
 
-    sentiment, salary, market = await asyncio.gather(
-      self.listing_research_client.get_sentiment_analysis(listing),
-      self.listing_research_client.get_salary_range(listing),
-      self.listing_research_client.get_market_context(listing),
-    )
+    try:
+      listing = self.listing_repository.get(listing_id)
 
-    insights_result = await self.listing_research_client.get_applicant_insights(
-      listing=listing,
-      sentiment=sentiment,
-      salary=salary,
-      market=market,
-    )
-    # TODO: How to store? Maybe need to change db schema
-    insights_text = self._format_insights(insights_result.insights)
+      sentiment, salary, market = await asyncio.gather(
+        self.listing_research_client.get_sentiment_analysis(listing),
+        self.listing_research_client.get_salary_range(listing),
+        self.listing_research_client.get_market_context(listing),
+      )
 
-    updated_listing = self.listing_repository.update_insights(listing_id, insights_text)
-    updated_listing.applications = self.application_repository.get_by_listing_id(listing_id)
+      insights_result = await self.listing_research_client.get_applicant_insights(
+        listing=listing,
+        sentiment=sentiment,
+        salary=salary,
+        market=market,
+      )
+      research = ListingResearch(
+        sentiment=sentiment,
+        salary=salary,
+        market=market,
+        applicant_insights=insights_result,
+      )
 
-    return updated_listing
-
-  @staticmethod
-  def _format_insights(insights: list[str]) -> str | None:
-    if not insights:
-      return None
-    formatted = to_bullets(insights, empty_message='')
-    return formatted.strip() or None
+      self.listing_repository.update_research(
+        listing_id,
+        research.model_dump_json(by_alias=True),
+      )
+      self.listing_repository.set_research_status(listing_id, TaskStatus.SUCCEEDED)
+    except Exception as e:
+      self.listing_repository.set_research_status(listing_id, TaskStatus.FAILED, str(e))

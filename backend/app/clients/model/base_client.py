@@ -6,7 +6,20 @@ from pydantic import BaseModel
 T = TypeVar('T', bound=BaseModel)
 
 
-class LLMClient(ABC):
+class ModelClient(ABC):
+  @abstractmethod
+  async def embed(self, texts: list[str]) -> list[list[float]]:
+    """
+    Embed a list of texts into vectors.
+
+    Args:
+      texts: List of text strings to embed.
+
+    Returns:
+      List of embedding vectors (one per input text).
+    """
+    pass
+
   @abstractmethod
   async def call_structured(
     self,

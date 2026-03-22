@@ -1,6 +1,10 @@
 from collections import defaultdict
+from typing import Annotated
 from uuid import UUID
 
+from fastapi import Depends
+
+from app.clients.model import ModelClient, get_model_client
 from app.config import settings
 from app.repositories.base import DatabaseRepository, VectorRepository
 from app.schemas import Experience, Listing
@@ -8,8 +12,9 @@ from app.utils.errors import NotFoundError, ServiceError
 
 
 class ExperienceRepository(DatabaseRepository, VectorRepository):
-  def __init__(self):
-    super().__init__()
+  def __init__(self, model_client: Annotated[ModelClient, Depends(get_model_client)]):
+    DatabaseRepository.__init__(self)
+    VectorRepository.__init__(self, model_client=model_client)
 
   def get(self, experience_id: UUID) -> Experience:
     row = self.fetch_one(
@@ -70,7 +75,7 @@ class ExperienceRepository(DatabaseRepository, VectorRepository):
 
     return experiences
 
-  def find_relevant(
+  async def find_relevant(
     self,
     listing: Listing,
   ) -> list[Experience]:
@@ -78,19 +83,18 @@ class ExperienceRepository(DatabaseRepository, VectorRepository):
       return []
 
     # Query vectors by requirement
-    requirement_queries = []
+    requirement_queries: list[tuple[str, str]] = []
     for requirement in listing.requirements:
       query_text = f'Role: {listing.title}\nAchievement: {requirement}'
       requirement_queries.append((requirement, query_text))
 
     all_search_results = []
     for _requirement_text, query_text in requirement_queries:
-      results = self.search_documents('experience_bullets', query_text, k=5)
+      results = await self.search_documents('experience_bullets', query_text, k=5)
       all_search_results.extend(results)
 
     # Calculate aggregated scores per bullet
     experience_hits = defaultdict(lambda: defaultdict(lambda: {'score': 0.0, 'text': ''}))
-
     for _doc_text, metadata, similarity_score in all_search_results:
       experience_id = metadata.get('experience_id')
       bullet_index = metadata.get('bullet_index')
@@ -134,7 +138,7 @@ class ExperienceRepository(DatabaseRepository, VectorRepository):
 
     return result
 
-  def create(self, experience: Experience) -> Experience:
+  async def create(self, experience: Experience) -> Experience:
     self.execute(
       """
       INSERT INTO experiences (id, title, organization, type, location, start_date, end_date)
@@ -172,13 +176,13 @@ class ExperienceRepository(DatabaseRepository, VectorRepository):
 
     if documents:
       try:
-        self.add_documents('experience_bullets', documents, metadatas)
+        await self.add_documents('experience_bullets', documents, metadatas)
       except Exception as e:
         raise ServiceError(f'Failed to save experience embeddings: {str(e)}') from e
 
     return experience
 
-  def update(self, experience: Experience) -> Experience:
+  async def update(self, experience: Experience) -> Experience:
     self.execute(
       """
       UPDATE experiences
@@ -223,13 +227,13 @@ class ExperienceRepository(DatabaseRepository, VectorRepository):
         bullets,
       )
 
-    self.delete_documents('experience_bullets', {'experience_id': str(experience.id)})
+    await self.delete_documents('experience_bullets', {'experience_id': str(experience.id)})
     if documents:
-      self.add_documents('experience_bullets', documents, metadatas)
+      await self.add_documents('experience_bullets', documents, metadatas)
 
     return experience
 
-  def delete(self, id: UUID) -> None:
+  async def delete(self, id: UUID) -> None:
     self.execute(
       """
       DELETE FROM experiences
@@ -246,7 +250,7 @@ class ExperienceRepository(DatabaseRepository, VectorRepository):
       (str(id),),
     )
 
-    self.delete_documents('experience_bullets', {'experience_id': str(id)})
+    await self.delete_documents('experience_bullets', {'experience_id': str(id)})
 
   def _create_bullet_embedding_text(self, experience: Experience, bullet: str) -> str:
     return f'Role: {experience.title}\nAchievement: {bullet}\n'

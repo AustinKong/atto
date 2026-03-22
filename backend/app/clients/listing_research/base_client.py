@@ -1,36 +1,45 @@
 from abc import ABC, abstractmethod
 
-from app.clients.llm import LLMClient
+from app.clients.model import ModelClient
 from app.clients.scraping import ScrapingClient
 from app.clients.scraping.schemas import CrawlResult
-from app.schemas.listing import Listing
-from app.utils.text import to_bullets, to_json_string
-
-from .constants import APPLICANT_INSIGHTS_PROMPT_TEMPLATE
-from .schemas import (
+from app.schemas.listing import (
   ApplicantInsightsResult,
+  Listing,
   MarketContextResult,
   SalaryRangeResult,
   SentimentAnalysisResult,
 )
+from app.utils.text import to_bullets, to_json_string
+
+from .constants import APPLICANT_INSIGHTS_PROMPT_TEMPLATE
 
 
 class ListingResearchClient(ABC):
-  llm_client: LLMClient
+  llm_client: ModelClient
   scraping_client: ScrapingClient
 
   @abstractmethod
-  async def get_sentiment_analysis(self, listing: Listing) -> SentimentAnalysisResult:
+  async def get_sentiment_analysis(
+    self,
+    listing: Listing,
+  ) -> SentimentAnalysisResult:
     """Analyze the sentiment of the job listing and company."""
     pass
 
   @abstractmethod
-  async def get_salary_range(self, listing: Listing) -> SalaryRangeResult:
+  async def get_salary_range(
+    self,
+    listing: Listing,
+  ) -> SalaryRangeResult:
     """Research and estimate the salary range for the given listing."""
     pass
 
   @abstractmethod
-  async def get_market_context(self, listing: Listing) -> MarketContextResult:
+  async def get_market_context(
+    self,
+    listing: Listing,
+  ) -> MarketContextResult:
     """Gather market context, industry trends, and demand for the role."""
     pass
 

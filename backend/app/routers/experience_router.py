@@ -28,19 +28,18 @@ async def get_experience(
 async def create_experience(
   experience: Experience, experience_repository: Annotated[ExperienceRepository, Depends()]
 ):
-  experience_repository.create(experience)
-  return experience
+  return await experience_repository.create(experience)
 
 
 @router.put('', response_model=Experience)
 async def update_experience(
   experience: Experience, experience_repository: Annotated[ExperienceRepository, Depends()]
 ):
-  return experience_repository.update(experience)
+  return await experience_repository.update(experience)
 
 
 @router.delete('/{id}', response_model=None)
 async def delete_experience(
   id: UUID, experience_repository: Annotated[ExperienceRepository, Depends()]
 ):
-  experience_repository.delete(id)
+  await experience_repository.delete(id)

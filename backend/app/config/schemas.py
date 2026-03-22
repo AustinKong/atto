@@ -3,8 +3,42 @@ import sys
 from pathlib import Path
 from typing import Any, Literal
 
-from instructor.models import KnownModelName
 from pydantic import BaseModel, Field
+
+OpenAIModel = Literal[
+  'gpt-4o',
+  'gpt-4o-mini',
+  'gpt-4-turbo',
+  'o1',
+  'o1-mini',
+  'o3',
+  'o3-mini',
+]
+
+GeminiModel = Literal[
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-lite',
+  'gemini-2.0-pro-exp',
+  'gemini-1.5-pro',
+  'gemini-1.5-flash',
+  'gemini-1.5-flash-8b',
+]
+
+AvailableModel = Literal[
+  'gpt-4o',
+  'gpt-4o-mini',
+  'gpt-4-turbo',
+  'o1',
+  'o1-mini',
+  'o3',
+  'o3-mini',
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-lite',
+  'gemini-2.0-pro-exp',
+  'gemini-1.5-pro',
+  'gemini-1.5-flash',
+  'gemini-1.5-flash-8b',
+]
 
 
 def get_data_dir() -> Path:
@@ -68,17 +102,20 @@ class PathsPrefs(BaseModel):
 
 
 class ModelPrefs(BaseModel):
-  llm: KnownModelName = ConfigField(
-    default='openai/gpt-4o-mini',
+  llm: AvailableModel = ConfigField(
+    default='gpt-4o-mini',
     title='Language Model',
     description=(
       'The AI model used for generating resume content, matching experiences to jobs, '
-      'and answering questions. More powerful models give better results but cost more.'
+      'and answering questions. OpenAI models (gpt-*, o1, o3) and Gemini models (gemini-*) are supported.'
     ),
     exposure='normal',
   )
   embedding: Literal[
-    'text-embedding-3-small', 'text-embedding-3-large', 'text-embedding-ada-002'
+    'text-embedding-3-small',
+    'text-embedding-3-large',
+    'text-embedding-ada-002',
+    'text-embedding-004',
   ] = ConfigField(
     default='text-embedding-3-small',
     title='Embedding Model',
