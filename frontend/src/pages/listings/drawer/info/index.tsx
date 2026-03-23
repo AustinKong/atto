@@ -71,10 +71,9 @@ export function Info() {
   const { listingId } = useParams<{ listingId: string }>();
   const { data: listing } = useSuspenseQuery(listingsQueries.item(listingId!));
 
-  // Mock salary data
-  const mockSalary = {
-    min: 80000,
-    max: 150000,
+  const formatSalary = (salary: { value: number; currency: string }) => {
+    const symbol = salary.currency === 'USD' ? '$' : salary.currency + ' ';
+    return `${symbol}${salary.value.toLocaleString()}`;
   };
 
   return (
@@ -86,7 +85,7 @@ export function Info() {
           <DataList.Root orientation="horizontal" w="full" gap="2" size="lg">
             <DataList.Item>
               <DataList.ItemLabel>Location</DataList.ItemLabel>
-              <DataList.ItemValue>{listing.location}</DataList.ItemValue>
+              <DataList.ItemValue>{listing.location ?? 'Not specified'}</DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
               <DataList.ItemLabel>Posted</DataList.ItemLabel>
@@ -97,7 +96,7 @@ export function Info() {
             <DataList.Item>
               <DataList.ItemLabel>Salary</DataList.ItemLabel>
               <DataList.ItemValue>
-                ${mockSalary.min.toLocaleString()} - ${mockSalary.max.toLocaleString()}
+                {listing.salary ? formatSalary(listing.salary) : 'Not listed'}
               </DataList.ItemValue>
             </DataList.Item>
             <DataList.Item>
@@ -136,44 +135,35 @@ export function Info() {
 
         <VStack align="stretch">
           <Heading size="md">Keyword Analysis</Heading>
-          <Box w="full" h="400px" bg="bg.panel" borderRadius="md" overflow="visible">
-            <ResponsiveTreeMap
-              data={{
-                id: 'root',
-                children: Object.entries({
-                  React: 12,
-                  TypeScript: 10,
-                  'Node.js': 8,
-                  JavaScript: 7,
-                  'REST API': 6,
-                  CSS: 5,
-                  Git: 4,
-                  Docker: 3,
-                  AWS: 3,
-                  Database: 2,
-                })
-                  .sort((a, b) => b[1] - a[1])
-                  .slice(0, 20)
-                  .map(([key, value]) => ({
-                    id: key,
-                    value,
-                  })),
-              }}
-              enableParentLabel={false}
-              identity="id"
-              label="id"
-              value="value"
-              valueFormat=">-.0f"
-              margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
-              theme={nivoTheme}
-              colors={{ scheme: 'spectral' }}
-              colorBy="value"
-              nodeOpacity={0.85}
-              borderColor={{ from: 'color', modifiers: [['darker', 0.1]] }}
-              animate={false}
-              motionConfig="gentle"
-            />
-          </Box>
+          {listing.keywords.length > 0 ? (
+            <Box w="full" h="400px" bg="bg.panel" borderRadius="md" overflow="visible">
+              <ResponsiveTreeMap
+                data={{
+                  id: 'root',
+                  children: listing.keywords.map((kw) => ({ id: kw.word, value: kw.count })),
+                }}
+                enableParentLabel={false}
+                identity="id"
+                label={(node) => {
+                  const id = String(node.id);
+                  return id.length > 10 ? id.slice(0, 9) + '…' : id;
+                }}
+                value="value"
+                valueFormat=">-.0f"
+                margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
+                theme={nivoTheme}
+                colors={{ scheme: 'spectral' }}
+                nodeOpacity={0.85}
+                borderColor={{ from: 'color', modifiers: [['darker', 0.1]] }}
+                animate={false}
+                motionConfig="gentle"
+              />
+            </Box>
+          ) : (
+            <Text color="fg.muted" textStyle="sm">
+              No keyword analysis available for this listing.
+            </Text>
+          )}
         </VStack>
       </VStack>
     </>

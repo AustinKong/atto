@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 from pydantic import Field, HttpUrl
 
 from app.schemas.dates import ISODate
-from app.schemas.listing import Listing, ListingBase
+from app.schemas.listing import Listing, ListingBase, Money
 from app.schemas.types import CamelModel
 
 T = TypeVar('T')
@@ -42,8 +42,10 @@ class ExtractionResponse(CamelModel):
   location: str | None
   description: str | None
   posted_date: ISODate | None
+  salary: Money | None = None
   skills: list[GroundedItem[str]] = Field(default_factory=list)
   requirements: list[GroundedItem[str]] = Field(default_factory=list)
+  keywords: list[str] = Field(default_factory=list)
 
   error: str | None
 

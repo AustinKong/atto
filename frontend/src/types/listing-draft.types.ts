@@ -1,6 +1,6 @@
 import { ISODate } from '@/utils/date.utils';
 
-import type { Listing } from './listing.types';
+import type { Keyword, Listing, Money } from './listing.types';
 
 export const LISTING_DRAFT_STATUS_LIST = [
   'pending',
@@ -24,8 +24,10 @@ export type ListingExtraction = {
   location: string | null;
   description: string;
   postedDate: ISODate | null;
+  salary: Money | null;
   skills: GroundedItem<string>[];
   requirements: GroundedItem<string>[];
+  keywords: Keyword[];
 };
 
 type BaseListingDraft = {

@@ -1,7 +1,5 @@
 import { Box, HStack, Text } from '@chakra-ui/react';
 
-import { Tooltip } from '@/components/ui/Tooltip';
-
 const BAR_W_PX = 3;
 const GAP_W_PX = 2.5;
 const TOTAL_W_PX = BAR_W_PX + GAP_W_PX;
@@ -22,7 +20,6 @@ interface SegmentedGaugeProps {
 // TODO: Make display snap to blocks so there are no weird half blocks, is there a way to do this by rounding? But low importance really.
 export function SegmentedGauge({
   percent = 0,
-  tooltipLabel = 'Match',
   showPercentage = false,
   height = '4',
   layout = 'inline',
@@ -31,11 +28,10 @@ export function SegmentedGauge({
   const roundedPercent = Math.round(percentAsPercentage);
 
   const gauge = (
-    <Tooltip content={`${roundedPercent}% ${tooltipLabel}`}>
-      <Box
-        w="full"
-        h={height}
-        background={`
+    <Box
+      w="full"
+      h={height}
+      background={`
           linear-gradient(to right,
             ${RED} 0%, 
             ${RED} ${Math.min(percentAsPercentage, 33)}%, 
@@ -47,18 +43,17 @@ export function SegmentedGauge({
             ${EMPTY} 100%
           )
         `}
-        style={{
-          WebkitMaskImage: `repeating-linear-gradient(
+      style={{
+        WebkitMaskImage: `repeating-linear-gradient(
             to right,
             black 0px,
             black ${BAR_W_PX}px,
             transparent ${BAR_W_PX}px,
             transparent ${TOTAL_W_PX}px
           )`,
-          backgroundSize: 'calc(100% + 2px) 100%',
-        }}
-      />
-    </Tooltip>
+        backgroundSize: 'calc(100% + 2px) 100%',
+      }}
+    />
   );
 
   if (layout === 'inline' && showPercentage) {

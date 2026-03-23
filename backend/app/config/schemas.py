@@ -235,6 +235,15 @@ class IngestionPrefs(BaseModel):
   )
 
 
+class ExperimentalPrefs(BaseModel):
+  debug_mode: bool = ConfigField(
+    default=False,
+    title='Debug Mode',
+    description='Enable additional logging and error messages for troubleshooting. Not recommended for regular use.',
+    exposure='secret',
+  )
+
+
 class AppConfig(BaseModel):
   paths: PathsPrefs = Field(
     default_factory=PathsPrefs,
@@ -260,4 +269,9 @@ class AppConfig(BaseModel):
     default_factory=IngestionPrefs,
     title='Web Scraping',
     description='Web ingestion configuration',
+  )
+  experimental: ExperimentalPrefs = Field(
+    default_factory=ExperimentalPrefs,
+    title='Experimental Features',
+    description='Settings for experimental features',
   )

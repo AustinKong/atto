@@ -4,8 +4,18 @@ from uuid import UUID, uuid4
 from pydantic import BeforeValidator, Field, HttpUrl
 
 from app.schemas.application import Application, StatusEnum
-from app.schemas.dates import ISODate
+from app.schemas.dates import ISODate, ISODatetime
 from app.schemas.types import CamelModel, parse_json_list_as, parse_json_model_as
+
+
+class Keyword(CamelModel):
+  word: str
+  count: int
+
+
+class Money(CamelModel):
+  value: int
+  currency: str = Field(default='USD', pattern=r'^[A-Z]{3}$')
 
 
 # TODO: Might be useful as a general purpose schema for future calls that need to cite sources
@@ -27,11 +37,11 @@ class SentimentAnalysisResult(CamelModel):
 
 
 class SalaryRangeResult(CamelModel):
-  min: int
-  q1: int
-  median: int
-  q3: int
-  max: int
+  industry_min: int
+  industry_q1: int
+  industry_median: int
+  industry_q3: int
+  industry_max: int
   currency: str = Field(default='USD', pattern=r'^[A-Z]{3}$')
 
 
@@ -48,6 +58,7 @@ class ListingResearch(CamelModel):
   salary: SalaryRangeResult
   market: MarketContextResult
   applicant_insights: ApplicantInsightsResult
+  generated_at: ISODatetime
 
 
 class ListingBase(CamelModel):
@@ -56,6 +67,15 @@ class ListingBase(CamelModel):
   domain: str
   location: str | None = None
   posted_date: ISODate | None = None
+  salary: Annotated[
+    Money | None,
+    BeforeValidator(parse_json_model_as(Money)),
+  ] = None
+  keywords: Annotated[
+    list[Keyword],
+    BeforeValidator(parse_json_list_as(Keyword)),
+    Field(default_factory=list),
+  ]
 
 
 class Listing(ListingBase):

@@ -41,10 +41,18 @@ def create_tables():
         notes TEXT,
         research JSON,
         posted_date TEXT,
+        salary JSON,
         skills TEXT,
-        requirements TEXT
+        requirements TEXT,
+        keywords JSON
       )
     """)
+
+    # Migration: add salary column if missing (for existing DBs)
+    try:
+      db.execute('ALTER TABLE listings ADD COLUMN salary JSON')
+    except Exception:
+      pass
 
     db.execute("""
       CREATE TABLE IF NOT EXISTS resumes (

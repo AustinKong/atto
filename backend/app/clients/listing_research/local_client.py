@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import asyncio
 
 from app.clients.model import ModelClient
@@ -77,6 +75,7 @@ class LocalListingResearchClient(ListingResearchClient):
   async def get_market_context(self, listing: Listing) -> MarketContextResult:
     query_one = MARKET_SEARCH_QUERY_1.format(company=listing.company)
     query_two = MARKET_SEARCH_QUERY_2.format(title=listing.title)
+
     results_one, results_two = await asyncio.gather(
       self.scraping_client.search_and_crawl(
         search_fn=lambda: self.scraping_client.search_news(
@@ -95,6 +94,7 @@ class LocalListingResearchClient(ListingResearchClient):
         max_results=MARKET_MAX_RESULTS,
       ),
     )
+
     combined = (results_one + results_two)[:MARKET_MAX_RESULTS]
     prompt = MARKET_PROMPT_TEMPLATE.format(
       listing_json=to_json_string(listing),

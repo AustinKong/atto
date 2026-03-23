@@ -8,7 +8,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import React, { type Dispatch, type SetStateAction, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 
 import { CompanyLogo } from '@/components/custom/CompanyLogo';
 import { SegmentedGauge } from '@/components/custom/segmented-gauge';
@@ -109,7 +109,7 @@ const columns = [
   }),
   columnHelper.accessor('location', {
     header: 'Location',
-    cell: (info) => info.getValue(),
+    cell: (info) => info.getValue() ?? 'Not specified',
     size: 15,
     enableSorting: false,
   }),
@@ -131,6 +131,7 @@ const columns = [
 
 const Table = React.memo(function Table({ debouncedSearch }: { debouncedSearch: string }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
 
   const [sorting, setSorting] = useUrlSyncedState<SortingState>('sort', [], {
@@ -166,7 +167,7 @@ const Table = React.memo(function Table({ debouncedSearch }: { debouncedSearch: 
 
   const handleRowClick = useCallback(
     (listing: ListingSummary) => {
-      navigate(`/listings/${listing.id}`, { replace: true });
+      navigate({ pathname: `/listings/${listing.id}`, search: location.search }, { replace: true });
     },
     [navigate]
   );

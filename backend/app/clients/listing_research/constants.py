@@ -43,8 +43,10 @@ SALARY_PROMPT_TEMPLATE = dedent(
 
   Requirements:
   - Produce JSON that matches the SalaryRangeResult schema exactly.
-  - Provide integer values for min, q1, median, q3, and max in the same currency.
-  - Infer currency from context; default to USD if uncertain and explain why in the reasoning notes.
+  - industryMin, industryQ1, industryMedian, industryQ3, industryMax: industry-wide salary
+    distribution statistics for this role (percentile-based, similar to a box plot).
+  - All values must be integers in the same currency.
+  - Infer currency from context; default to USD if uncertain.
   - If few sources appear, document the assumptions but still produce a plausible numeric range.
   """
 ).strip()

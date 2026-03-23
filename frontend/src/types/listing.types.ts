@@ -2,6 +2,16 @@ import { ISODate } from '@/utils/date.utils';
 
 import type { Application, StatusEnum } from './application.types';
 
+export type Keyword = {
+  word: string;
+  count: number;
+};
+
+export type Money = {
+  value: number;
+  currency: string;
+};
+
 export type Listing = {
   id: string;
   url: string;
@@ -13,8 +23,10 @@ export type Listing = {
   notes: string | null;
   research: ListingResearch | null;
   postedDate: ISODate | null;
+  salary: Money | null;
   skills: string[];
   requirements: string[];
+  keywords: Keyword[];
   applications: Application[];
 };
 
@@ -28,11 +40,11 @@ export type ListingResearch = {
     }[];
   };
   salary: {
-    min: number;
-    q1: number;
-    median: number;
-    q3: number;
-    max: number;
+    industryMin: number;
+    industryQ1: number;
+    industryMedian: number;
+    industryQ3: number;
+    industryMax: number;
     currency: string;
   };
   market: {
@@ -41,6 +53,7 @@ export type ListingResearch = {
   applicantInsights: {
     insights: string[];
   };
+  generatedAt: string;
 };
 
 export type ListingSummary = {

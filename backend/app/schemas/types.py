@@ -1,6 +1,6 @@
 import json
 from collections.abc import Callable
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeVar, cast
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
@@ -28,7 +28,7 @@ class Page(BaseModel, Generic[T]):
   pages: int
 
 
-def parse_json_list_as(converter: Callable[[str], T]) -> Callable[[Any], list[T]]:
+def parse_json_list_as(converter: Callable[..., T]) -> Callable[[Any], list[T]]:
   """
   Create a parser that converts JSON array items to a specific type.
 
@@ -37,11 +37,20 @@ def parse_json_list_as(converter: Callable[[str], T]) -> Callable[[Any], list[T]
     BeforeValidator(parse_json_list_as(str))
   """
 
+  _model_validate = getattr(converter, 'model_validate', None)
+
+  def _convert(item: Any) -> T:
+    if isinstance(item, dict) and _model_validate:
+      return cast(T, _model_validate(item))
+    if isinstance(item, str):
+      return converter(item)
+    return cast(T, item)
+
   def parser(v: Any) -> list[T]:
     if isinstance(v, list):
       if v:
         try:
-          return [converter(item) if isinstance(item, str) else item for item in v]
+          return [_convert(item) for item in v]
         except (ValueError, TypeError):
           return []
       return []
@@ -51,7 +60,7 @@ def parse_json_list_as(converter: Callable[[str], T]) -> Callable[[Any], list[T]
         parsed = json.loads(v)
         if not parsed:
           return []
-        return [converter(item) for item in parsed]
+        return [_convert(item) for item in parsed]
       except (json.JSONDecodeError, ValueError, TypeError):
         return []
 

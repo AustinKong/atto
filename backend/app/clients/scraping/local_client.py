@@ -64,7 +64,7 @@ class LocalScrapingClient(ScrapingClient):
       'process_iframes': True,
       'wait_for_images': False,
       'page_timeout': 30000,
-      'verbose': False,
+      'verbose': settings.experimental.debug_mode,
       # Content Cleaning
       'remove_forms': True,
       'excluded_tags': AGGRESSIVE_EXCLUDED_TAGS
@@ -76,8 +76,7 @@ class LocalScrapingClient(ScrapingClient):
       # Content Quality
       'markdown_generator': DefaultMarkdownGenerator(
         content_filter=PruningContentFilter(
-          threshold=0.6,
-          min_word_threshold=50,
+          threshold=0.2, min_word_threshold=3, threshold_type='dynamic'
         ),
         options={
           'ignore_links': True,
@@ -93,7 +92,8 @@ class LocalScrapingClient(ScrapingClient):
     config: CrawlerRunConfig,
   ) -> Crawl4aiResult | list[Crawl4aiResult]:
     browser_config = BrowserConfig(
-      enable_stealth=settings.ingestion.web_respect_level == 'permissive', verbose=False
+      enable_stealth=settings.ingestion.web_respect_level == 'permissive',
+      verbose=settings.experimental.debug_mode,
     )
 
     async with AsyncWebCrawler(config=browser_config) as crawler:
@@ -234,7 +234,12 @@ class LocalScrapingClient(ScrapingClient):
     crawl_fn: CrawlFn,
     max_results: int = 10,
   ) -> list[CrawlResult]:
-    search_results = await search_fn()
+    try:
+      search_results = await search_fn()
+    except Exception:
+      # TODO: Add logger
+      return []
+
     search_results = deduplicate_by(search_results, key_selector=lambda result: result.url)
 
     crawl_results = await asyncio.gather(

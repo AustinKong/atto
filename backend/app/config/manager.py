@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from app.config.schemas import (
   AppConfig,
   ExperiencesPrefs,
+  ExperimentalPrefs,
   IngestionPrefs,
   ListingsPrefs,
   ModelPrefs,
@@ -80,6 +81,10 @@ class ConfigManager:
   @property
   def ingestion(self) -> IngestionPrefs:
     return self.config.ingestion
+
+  @property
+  def experimental(self) -> ExperimentalPrefs:
+    return self.config.experimental
 
   def save(self, updates: dict) -> None:
     yaml_updates: dict = {}

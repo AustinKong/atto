@@ -27,9 +27,10 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
 
   def get(self, listing_id) -> Listing:
     query = """
-      SELECT 
+      SELECT
         l.id, l.url, l.title, l.company, l.domain,
-        l.location, l.description, l.notes, l.research, l.posted_date, l.skills, l.requirements
+        l.location, l.description, l.notes, l.research, l.posted_date, l.salary,
+        l.skills, l.requirements, l.keywords
       FROM listings l
       WHERE l.id = ?
     """
@@ -43,9 +44,9 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
   def get_by_url(self, url: HttpUrl) -> Listing | None:
     row = self.fetch_one(
       """
-      SELECT 
+      SELECT
         l.id, l.url, l.title, l.company, l.domain, l.location, l.description, l.notes,
-        l.research, l.posted_date, l.skills, l.requirements
+        l.research, l.posted_date, l.salary, l.skills, l.requirements, l.keywords
       FROM listings l
       WHERE l.url = ?
       """,
@@ -132,6 +133,7 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
       pages=(total_count + size - 1) // size,
     )
 
+  # TODO: This has business logic, should lift to service layer.
   async def find_similar(
     self,
     new_listing: Listing,
@@ -172,9 +174,9 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
       """
       INSERT INTO listings (
         id, url, title, company, domain, location, description, notes, research, posted_date,
-        skills, requirements
+        salary, skills, requirements, keywords
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       """,
       (
         str(listing.id),
@@ -187,8 +189,10 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
         listing.notes,
         listing.research.model_dump_json(by_alias=True) if listing.research else None,
         listing.posted_date.isoformat() if listing.posted_date else None,
+        listing.salary.model_dump_json(by_alias=True) if listing.salary else None,
         json.dumps(listing.skills),
         json.dumps(listing.requirements),
+        json.dumps([kw.model_dump() for kw in listing.keywords]),
       ),
     )
 
@@ -284,9 +288,9 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
     placeholders = ','.join('?' * len(matching_ids))
     rows = self.fetch_all(
       f"""
-      SELECT 
+      SELECT
         l.id, l.url, l.title, l.company, l.domain, l.location, l.description, l.notes,
-        l.research, l.posted_date, l.skills, l.requirements
+        l.research, l.posted_date, l.salary, l.skills, l.requirements, l.keywords
       FROM listings l
       WHERE l.id IN ({placeholders})
       """,

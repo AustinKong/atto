@@ -1,5 +1,5 @@
-import asyncio
-from datetime import date
+import re
+from datetime import UTC, date, datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -21,7 +21,7 @@ from app.schemas import (
   ListingDraftUnique,
   ListingExtraction,
 )
-from app.schemas.listing import ListingResearch
+from app.schemas.listing import Keyword, ListingResearch
 from app.schemas.task_status import TaskStatus
 from app.utils.text import ground_quote
 from app.utils.url import normalize_url
@@ -90,7 +90,20 @@ class ListingService:
         screenshot=screenshot,
       )
 
-    listing = ListingExtraction.model_validate(extraction.model_dump())
+    # TODO: If salary is null after extraction, look it up via external sources.
+    # - Cloud mode: call a salary API (e.g. Levels.fyi, Glassdoor API) using company + title.
+    # - Local mode: use scraping_client.search() against sites like nodeflair.com, glassdoor.com.
+    listing = ListingExtraction.model_validate(extraction.model_dump(exclude={'keywords'}))
+    listing.keywords = [
+      Keyword(
+        word=kw,
+        count=len(re.findall(rf'\b{re.escape(kw)}\b', content, re.IGNORECASE)),
+      )
+      for kw in extraction.keywords
+    ]
+    listing.keywords = sorted(
+      [kw for kw in listing.keywords if kw.count > 0], key=lambda kw: kw.count, reverse=True
+    )[:10]
 
     for skill in listing.skills:
       if skill.quote:
@@ -131,11 +144,11 @@ class ListingService:
     try:
       listing = self.listing_repository.get(listing_id)
 
-      sentiment, salary, market = await asyncio.gather(
-        self.listing_research_client.get_sentiment_analysis(listing),
-        self.listing_research_client.get_salary_range(listing),
-        self.listing_research_client.get_market_context(listing),
-      )
+      # Perform sequentially since crawling is very resource intensive
+      # TODO: Allow user to crawl in parallel, adding a setting for users with powerful machines
+      sentiment = await self.listing_research_client.get_sentiment_analysis(listing)
+      salary = await self.listing_research_client.get_salary_range(listing)
+      market = await self.listing_research_client.get_market_context(listing)
 
       insights_result = await self.listing_research_client.get_applicant_insights(
         listing=listing,
@@ -148,6 +161,7 @@ class ListingService:
         salary=salary,
         market=market,
         applicant_insights=insights_result,
+        generated_at=datetime.now(UTC),
       )
 
       self.listing_repository.update_research(
@@ -157,3 +171,4 @@ class ListingService:
       self.listing_repository.set_research_status(listing_id, TaskStatus.SUCCEEDED)
     except Exception as e:
       self.listing_repository.set_research_status(listing_id, TaskStatus.FAILED, str(e))
+      raise

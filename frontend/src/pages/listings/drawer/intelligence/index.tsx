@@ -12,7 +12,7 @@ import {
 import { ResponsiveBoxPlot } from '@nivo/boxplot';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { LuCopy, LuLightbulb, LuRefreshCw, LuTrendingUp, LuUsers, LuZap } from 'react-icons/lu';
+import { LuCopy, LuRefreshCw } from 'react-icons/lu';
 import { useParams } from 'react-router';
 
 import { SegmentedGauge } from '@/components/custom/segmented-gauge';
@@ -20,8 +20,6 @@ import { SourceTooltip } from '@/components/custom/SourceTooltip';
 import { nivoTheme } from '@/components/theme/nivo.theme';
 import { useGenerateListingResearch, useUpdateListingNotes } from '@/mutations/listing.mutations';
 import { listingsQueries } from '@/queries/listing.queries';
-
-const insightIcons = [LuZap, LuTrendingUp, LuUsers, LuLightbulb];
 
 export function Intelligence() {
   const { listingId } = useParams<{ listingId: string }>();
@@ -55,7 +53,26 @@ export function Intelligence() {
   const research = listing.research;
   const sentiment = research?.sentiment;
   const salary = research?.salary;
+  const listingSalary = listing.salary;
   const marketSummary = research?.market.summary;
+
+  const formatSalary = (value: number, currency: string) => {
+    const symbol = currency === 'USD' ? '$' : currency + ' ';
+    return `${symbol}${Math.round(value / 1000)}k`;
+  };
+
+  const filterTickValues = (values: number[]) => {
+    const sorted = [...values].sort((a, b) => a - b);
+    const range = sorted[sorted.length - 1] - sorted[0];
+    const threshold = range * 0.08;
+    const kept: number[] = [];
+    for (const v of sorted) {
+      if (kept.every((k) => Math.abs(k - v) >= threshold)) {
+        kept.push(v);
+      }
+    }
+    return kept;
+  };
   const applicantInsights = research?.applicantInsights?.insights ?? [];
   const sentimentSources = sentiment?.sources ?? [];
 
@@ -75,12 +92,7 @@ export function Intelligence() {
       {/* Sentiment Analysis */}
       <VStack align="stretch" gap="3">
         <Heading size="sm">Sentiment Analysis</Heading>
-        <SegmentedGauge
-          percent={sentiment?.value ?? 0}
-          tooltipLabel="Sentiment"
-          showPercentage
-          height="6"
-        />
+        <SegmentedGauge percent={sentiment?.value ?? 0} showPercentage height="6" />
         <HStack gap="2">
           <Text color="fg.muted" textStyle="xs">
             {sentimentSources.length > 0
@@ -93,49 +105,81 @@ export function Intelligence() {
 
       {/* Salary Range */}
       {salary ? (
-        <VStack align="stretch" h="24">
+        <VStack align="stretch" gap="1">
           <Heading size="sm">Salary Range</Heading>
-          <ResponsiveBoxPlot
-            animate={false}
-            data={[
-              { group: 'Market Range', value: salary.min, subgroup: 'min' },
-              { group: 'Market Range', value: salary.q1, subgroup: 'q1' },
-              { group: 'Market Range', value: salary.median, subgroup: 'median' },
-              { group: 'Market Range', value: salary.q3, subgroup: 'q3' },
-              { group: 'Market Range', value: salary.max, subgroup: 'max' },
-            ]}
-            layout="horizontal"
-            margin={{ top: 20, right: 10, bottom: 40, left: 10 }}
-            axisBottom={{
-              tickSize: 5,
-              tickPadding: 5,
-              tickRotation: 0,
-              legend: 'Salary (USD)',
-              legendPosition: 'middle',
-              legendOffset: 50,
-            }}
-            axisLeft={{
-              tickSize: 5,
-              tickPadding: 5,
-              tickRotation: 0,
-            }}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            theme={nivoTheme as any}
-            defaultHeight={100}
-            markers={[
-              {
-                axis: 'x',
-                value: salary.median,
-                lineStyle: {
-                  stroke: 'var(--chakra-colors-fg)',
-                  strokeWidth: 2,
+          <VStack align="stretch" h="24">
+            <ResponsiveBoxPlot
+              animate={false}
+              isInteractive={false}
+              data={[
+                { group: 'Industry', value: salary.industryMin, subgroup: 'min' },
+                { group: 'Industry', value: salary.industryQ1, subgroup: 'q1' },
+                { group: 'Industry', value: salary.industryMedian, subgroup: 'median' },
+                { group: 'Industry', value: salary.industryQ3, subgroup: 'q3' },
+                { group: 'Industry', value: salary.industryMax, subgroup: 'max' },
+              ]}
+              layout="horizontal"
+              margin={{ top: 20, right: 10, bottom: 30, left: 10 }}
+              axisBottom={{
+                tickSize: 4,
+                tickPadding: 4,
+                tickRotation: 0,
+                tickValues: filterTickValues([
+                  salary.industryMin,
+                  salary.industryQ1,
+                  salary.industryMedian,
+                  salary.industryQ3,
+                  salary.industryMax,
+                  ...(listingSalary ? [listingSalary.value] : []),
+                ]),
+                format: (v) => formatSalary(v as number, salary.currency),
+              }}
+              axisLeft={null}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              theme={nivoTheme as any}
+              defaultHeight={100}
+              markers={[
+                {
+                  axis: 'x',
+                  value: salary.industryMedian,
+                  lineStyle: { stroke: 'var(--chakra-colors-fg)', strokeWidth: 1.5 },
+                  legend: 'Median',
+                  legendPosition: 'top',
+                  legendOrientation: 'horizontal',
                 },
-                legend: 'Market Median',
-                legendPosition: 'right',
-                legendOrientation: 'horizontal',
-              },
-            ]}
-          />
+                ...(listingSalary
+                  ? [
+                      {
+                        axis: 'x' as const,
+                        value: listingSalary.value,
+                        lineStyle: {
+                          stroke: 'var(--chakra-colors-blue-400)',
+                          strokeWidth: 2,
+                          strokeDasharray: '4 3',
+                        },
+                        legend: 'Listed',
+                        legendPosition: 'top' as const,
+                        legendOrientation: 'horizontal' as const,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          </VStack>
+          <Text color="fg.muted" textStyle="xs">
+            {listingSalary && (
+              <>
+                Listed salary:{' '}
+                <Text as="span" fontWeight="medium" color="fg">
+                  {formatSalary(listingSalary.value, listingSalary.currency)}
+                </Text>
+                {' · '}
+              </>
+            )}
+            Industry range: {formatSalary(salary.industryMin, salary.currency)}–
+            {formatSalary(salary.industryMax, salary.currency)} (median{' '}
+            {formatSalary(salary.industryMedian, salary.currency)})
+          </Text>
         </VStack>
       ) : null}
 
@@ -155,17 +199,11 @@ export function Intelligence() {
             No applicant insights yet. Generate research to populate this section.
           </Text>
         ) : (
-          <List.Root variant="plain" gap="2">
-            {applicantInsights.map((insight, i) => {
-              const IconComponent = insightIcons[i % insightIcons.length];
+          <List.Root as="ol" gap="2" color="fg.muted" textStyle="sm">
+            {applicantInsights.map((insight) => {
               return (
-                <List.Item key={insight}>
-                  <List.Indicator asChild color="blue">
-                    <IconComponent size={18} />
-                  </List.Indicator>
-                  <Text color="fg.muted" textStyle="sm">
-                    {insight}
-                  </Text>
+                <List.Item key={insight} ml="4">
+                  {insight}
                 </List.Item>
               );
             })}
@@ -175,11 +213,12 @@ export function Intelligence() {
 
       {/* Metadata Footer */}
       <HStack w="full" justify="space-between">
-        <Text textStyle="sm">
+        <Text textStyle="sm" color="fg.muted">
           {isResearching
             ? 'Generating...'
             : research
-              ? 'Research ready'
+              ? // TODO: Use proper localization supported date display
+                `Generated at ${new Date(research.generatedAt).toLocaleString()}`
               : 'Research not generated yet'}
         </Text>
         <Spacer />
