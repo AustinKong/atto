@@ -2,7 +2,7 @@ import { Box, Heading, VStack } from '@chakra-ui/react';
 import { ResponsiveRadar } from '@nivo/radar';
 import { memo } from 'react';
 
-import { nivoTheme } from '@/components/theme/nivo.theme';
+import { nivoChartColors, nivoTheme } from '@/components/theme/nivo.theme';
 
 interface SkillComparisonProps {
   applicationId: string;
@@ -41,6 +41,7 @@ export const SkillsComparison = memo(function SkillsComparison(_props: SkillComp
           motionConfig="wobbly"
           animate={false}
           theme={nivoTheme}
+          colors={nivoChartColors}
           legends={[
             {
               anchor: 'top-right',
@@ -62,7 +63,6 @@ export const SkillsComparison = memo(function SkillsComparison(_props: SkillComp
               ],
             },
           ]}
-          colors={['#60A5FA', '#FBBF24']}
           blendMode="normal"
           isInteractive
         />

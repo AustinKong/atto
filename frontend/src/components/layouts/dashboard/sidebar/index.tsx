@@ -73,7 +73,7 @@ export function Sidebar() {
         <AppLogo isOpen={isOpen} />
       </Box>
 
-      <VStack as="nav" alignItems="stretch" gap="0" p="2">
+      <VStack as="nav" alignItems="stretch" gap="1" p="2">
         {INTERNAL_NAV_ITEMS.map((item) => (
           <InternalNavItem
             key={item.path}
@@ -88,7 +88,7 @@ export function Sidebar() {
 
       <Spacer />
 
-      <VStack alignItems="stretch" gap="0" p="2">
+      <VStack alignItems="stretch" gap="1" p="2">
         {EXTERNAL_NAV_ITEMS.map((item) => (
           <ExternalNavItem
             key={item.path}
@@ -111,7 +111,7 @@ export const SidebarItem = chakra(HStack, {
     h: '9',
     justifyContent: 'flex-start',
     overflow: 'hidden',
-    borderRadius: 'sm',
+    borderRadius: '2xs',
     alignItems: 'center',
   },
 });

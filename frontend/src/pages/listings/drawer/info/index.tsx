@@ -16,7 +16,7 @@ import { PiCheck } from 'react-icons/pi';
 import { useParams } from 'react-router';
 
 import { CompanyLogo } from '@/components/custom/CompanyLogo';
-import { nivoTheme } from '@/components/theme/nivo.theme';
+import { nivoChartColors, nivoTheme } from '@/components/theme/nivo.theme';
 import { DisplayDate } from '@/components/ui/DisplayDate';
 import { listingsQueries } from '@/queries/listing.queries';
 import type { Listing } from '@/types/listing.types';
@@ -136,7 +136,7 @@ export function Info() {
         <VStack align="stretch">
           <Heading size="md">Keyword Analysis</Heading>
           {listing.keywords.length > 0 ? (
-            <Box w="full" h="400px" bg="bg.panel" borderRadius="md" overflow="visible">
+            <Box w="full" h="400px" bg="bg.panel" borderRadius="md" overflow="hidden">
               <ResponsiveTreeMap
                 data={{
                   id: 'root',
@@ -152,8 +152,9 @@ export function Info() {
                 valueFormat=">-.0f"
                 margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
                 theme={nivoTheme}
-                colors={{ scheme: 'spectral' }}
-                nodeOpacity={0.85}
+                colors={nivoChartColors}
+                colorBy="id"
+                nodeOpacity={1}
                 borderColor={{ from: 'color', modifiers: [['darker', 0.1]] }}
                 animate={false}
                 motionConfig="gentle"

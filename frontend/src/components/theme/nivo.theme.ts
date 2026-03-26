@@ -5,6 +5,19 @@ import type { Theme } from '@nivo/theming';
 const colorVar = (token: string) => `var(--chakra-colors-${token.replace(/\./g, '-')})`;
 const fontSizeVar = (size: 'xs' | 'sm' | 'md' | 'lg') => `var(--chakra-font-sizes-${size})`;
 
+// Color palette for Nivo charts using Chakra semantic tokens (.fg variant)
+export const nivoChartColors = [
+  colorVar('cyan.fg'),
+  colorVar('pink.fg'),
+  colorVar('red.fg'),
+  colorVar('orange.fg'),
+  colorVar('purple.fg'),
+  colorVar('blue.fg'),
+  colorVar('teal.fg'),
+  colorVar('green.fg'),
+  colorVar('yellow.fg'),
+];
+
 // Shared outline defaults required by Nivo's TextStyle type.
 const textOutline = {
   outlineWidth: 0,
@@ -113,7 +126,7 @@ export const nivoTheme: Theme = {
       background: colorVar('bg.panel'),
       color: colorVar('fg'),
       fontSize: fontSizeVar('sm'),
-      borderRadius: '6px',
+      borderRadius: 'var(--chakra-radii-2xs)',
       border: `1px solid ${colorVar('border.muted')}`,
       boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
       padding: '8px 12px',

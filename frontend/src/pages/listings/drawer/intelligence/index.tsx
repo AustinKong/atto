@@ -17,7 +17,7 @@ import { useParams } from 'react-router';
 
 import { SegmentedGauge } from '@/components/custom/segmented-gauge';
 import { SourceTooltip } from '@/components/custom/SourceTooltip';
-import { nivoTheme } from '@/components/theme/nivo.theme';
+import { nivoChartColors, nivoTheme } from '@/components/theme/nivo.theme';
 import { useGenerateListingResearch, useUpdateListingNotes } from '@/mutations/listing.mutations';
 import { listingsQueries } from '@/queries/listing.queries';
 
@@ -137,6 +137,7 @@ export function Intelligence() {
               axisLeft={null}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               theme={nivoTheme as any}
+              colors={nivoChartColors}
               defaultHeight={100}
               markers={[
                 {

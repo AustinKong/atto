@@ -1,7 +1,7 @@
 import { Box, Text, VStack } from '@chakra-ui/react';
 import { ResponsiveBar } from '@nivo/bar';
 
-import { nivoTheme } from '@/components/theme/nivo.theme';
+import { nivoChartColors, nivoTheme } from '@/components/theme/nivo.theme';
 
 type ContentQualityDatum = {
   section: string;
@@ -105,13 +105,7 @@ export const ContentQualityChart = ({ data = mockData }: ContentQualityChartProp
           enableGridX={true}
           enableGridY={false}
           animate={false}
-          colors={[
-            'var(--chakra-colors-red-400)',
-            'var(--chakra-colors-fg-error)',
-            'var(--chakra-colors-fg-muted)',
-            'var(--chakra-colors-green-400)',
-            'var(--chakra-colors-fg-success)',
-          ]}
+          colors={nivoChartColors}
           valueFormat={(value: number) => `${Math.abs(Math.round(value))}`}
           labelTextColor="inherit:darker(1.2)"
           labelSkipWidth={40}
