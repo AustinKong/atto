@@ -363,6 +363,18 @@ const customSystem = createSystem(defaultConfig, {
         heading: { value: '"IBM Plex Sans Condensed", sans-serif' },
         mono: { value: '"IBM Plex Mono", monospace' },
       },
+      radii: {
+        none: { value: '0' },
+        xs: { value: '0.0625rem' },
+        sm: { value: '0.0625rem' },
+        md: { value: '0.0625rem' },
+        lg: { value: '0.125rem' },
+        xl: { value: '0.25rem' },
+        '2xl': { value: '0.375rem' },
+        '3xl': { value: '0.5rem' },
+        '4xl': { value: '0.75rem' },
+        full: { value: '9999px' },
+      },
     },
     semanticTokens: {
       colors: {
@@ -382,14 +394,10 @@ const customSystem = createSystem(defaultConfig, {
       iconButton: iconButtonRecipe,
       closeButton: closeButtonRecipe,
       input: {
-        base: {
-          borderRadius: '2xs',
-        },
+        base: {},
       },
       textarea: {
-        base: {
-          borderRadius: '2xs',
-        },
+        base: {},
       },
     },
     slotRecipes: {
@@ -397,20 +405,14 @@ const customSystem = createSystem(defaultConfig, {
       select: {
         slots: ['trigger'],
         base: {
-          trigger: {
-            borderRadius: '2xs',
-          },
+          trigger: {},
         },
       },
       numberInput: {
         slots: ['root', 'input', 'control'],
         base: {
-          input: {
-            borderRadius: '2xs',
-          },
-          control: {
-            borderRadius: '2xs',
-          },
+          input: {},
+          control: {},
         },
       },
       // TODO: Apply xAnatomu payyern to all recipes, see explorer in chakra ui docs for this pattern
@@ -419,12 +421,9 @@ const customSystem = createSystem(defaultConfig, {
         base: {
           control: {
             // TODO: Why tf this doesnt work aaaaa, editing css borderRadius works.
-            borderRadius: '2xs !important',
             border: '1px solid red',
           },
-          thumb: {
-            borderRadius: '2xs',
-          },
+          thumb: {},
         },
       },
     },

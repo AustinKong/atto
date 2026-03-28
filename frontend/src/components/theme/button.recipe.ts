@@ -4,7 +4,6 @@ export const buttonRecipe = defineRecipe({
   base: {
     px: '2',
     py: '1',
-    borderRadius: '2xs',
   },
   variants: {
     variant: {

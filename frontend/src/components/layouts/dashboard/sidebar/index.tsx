@@ -111,7 +111,6 @@ export const SidebarItem = chakra(HStack, {
     h: '9',
     justifyContent: 'flex-start',
     overflow: 'hidden',
-    borderRadius: '2xs',
     alignItems: 'center',
   },
 });

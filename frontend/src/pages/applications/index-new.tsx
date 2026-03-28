@@ -1,10 +1,11 @@
 import {
-  Box,
-  createListCollection,
+  Button,
+  Card,
+  Grid,
+  GridItem,
   Heading,
   HStack,
-  IconButton,
-  Splitter,
+  Icon,
   Stat,
   Text,
   useDisclosure,
@@ -12,49 +13,37 @@ import {
 } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { memo } from 'react';
-import { PiPlus } from 'react-icons/pi';
+import { LuArrowUpRight, LuCalendar, LuMapPin, LuPlus, LuRefreshCw, LuTag } from 'react-icons/lu';
 import { useNavigate, useParams } from 'react-router';
 
-import { ContentQualityChart } from '@/components/custom/content-quality-chart';
-import { ReadonlyResumePreview } from '@/components/custom/resume-preview';
-import { SegmentedSemicircleGauge } from '@/components/custom/segmented-semicircle-gauge';
+import { ResumePreviewCard } from '@/components/custom/resume-preview';
+import { SegmentedGauge } from '@/components/custom/segmented-gauge';
 import { useCreateApplication } from '@/mutations/application.mutations';
 import { applicationQueries } from '@/queries/application.queries';
 import { listingsQueries } from '@/queries/listing.queries';
 import { profileQueries } from '@/queries/profile.queries';
 import { resumeQueries } from '@/queries/resume.queries';
 import { templateQueries } from '@/queries/template.queries';
-import { formatApplicationStatusDisplay } from '@/utils/formatters/application.formatters';
 
+import { ApplicationFunnel } from './ApplicationFunnel';
 import { CreateApplicationModal } from './CreateApplicationModal';
-import { Details } from './Details';
-import { SkillsComparison } from './SkillsComparison';
+import { ApplicationFlow } from './flow';
 import { StatusEventModal } from './status-event-modal';
 import { StatusEventProvider } from './status-event-modal/statusEventContext';
-import { Timeline } from './Timeline';
 
 const ApplicationsPageContent = memo(function ApplicationsPageContent() {
-  const { listingId, applicationId } = useParams<{ listingId: string; applicationId: string }>();
-  const navigate = useNavigate();
+  const { applicationId } = useParams<{ listingId: string; applicationId: string }>();
   const { open, onOpen, setOpen } = useDisclosure();
 
   // Fetch queries
-  const { data: listing } = useSuspenseQuery(listingsQueries.item(listingId!));
   const { data: application } = useSuspenseQuery(applicationQueries.item(applicationId!));
+  const { data: listing } = useSuspenseQuery(listingsQueries.item(application.listingId));
   const { data: resume } = useSuspenseQuery(resumeQueries.item(application.resumeId));
   const { data: template } = useSuspenseQuery(templateQueries.localItem(resume.templateId));
   const { data: profile } = useSuspenseQuery(profileQueries.list());
 
   const createApplicationMutation = useCreateApplication();
-
-  const applicationCollection = createListCollection({
-    items: listing.applications.map((app) => {
-      return {
-        label: formatApplicationStatusDisplay(app),
-        value: app.id,
-      };
-    }),
-  });
+  const navigate = useNavigate();
 
   // Show empty state if no application ID
   if (!applicationId) {
@@ -67,16 +56,10 @@ const ApplicationsPageContent = memo(function ApplicationsPageContent() {
               No applications yet. Create your first application to track your progress.
             </Text>
           </VStack>
-          <IconButton
-            aria-label="Create application"
-            variant="solid"
-            size="md"
-            onClick={onOpen}
-            disabled={createApplicationMutation.isPending}
-          >
-            <PiPlus />
+          <Button size="md" onClick={onOpen} disabled={createApplicationMutation.isPending}>
+            <LuPlus size={16} />
             {createApplicationMutation.isPending ? 'Creating...' : 'New Application'}
-          </IconButton>
+          </Button>
         </VStack>
         <CreateApplicationModal open={open} onOpenChange={setOpen} />
         <StatusEventModal />
@@ -86,213 +69,204 @@ const ApplicationsPageContent = memo(function ApplicationsPageContent() {
 
   return (
     <StatusEventProvider>
-      {/* Two-column splitter: left (apps list + timeline) / right (details + charts + previews) */}
-      <Splitter.Root
-        panels={[
-          { id: 'left', minSize: 15 },
-          { id: 'right', minSize: 15 },
-        ]}
-        defaultSize={[20, 80]}
-        borderWidth="1px"
-        h="calc(100vh - 100px)"
-      >
-        {/* Left panel: contains horizontal splitter for applications list and timeline */}
-        <Splitter.Panel id="left">
-          <Splitter.Root
-            panels={[
-              { id: 'top', minSize: 20 },
-              { id: 'bottom', minSize: 20 },
-            ]}
-            defaultSize={[50, 50]}
-            orientation="vertical"
-            h="full"
-          >
-            {/* Top panel: Applications list */}
-            <Splitter.Panel id="top">
-              <VStack align="stretch" gap="4" p="4" h="full" overflowY="auto">
-                <HStack justify="space-between">
-                  <Heading size="md">Applications</Heading>
-                  <IconButton
-                    aria-label="Create application"
-                    variant="plain"
-                    size="xs"
-                    mr="-3"
-                    onClick={onOpen}
-                    disabled={createApplicationMutation.isPending}
-                  >
-                    <PiPlus />
-                  </IconButton>
-                </HStack>
-                <VStack align="stretch" gap="2">
-                  {applicationCollection.items.map(({ label, value }) => {
-                    const isActive = value === applicationId;
-                    return (
-                      <Text
-                        key={value}
-                        as="button"
-                        onClick={() => {
-                          if (!isActive) {
-                            navigate(`/listings/${listingId}/applications/${value}`);
-                          }
-                        }}
-                        px="3"
-                        py="2"
-                        borderRadius="md"
-                        textAlign="left"
-                        cursor={isActive ? 'default' : 'pointer'}
-                        bg={isActive ? 'bg-muted' : 'transparent'}
-                        color={isActive ? 'fg' : 'fg-muted'}
-                        _hover={!isActive ? { bg: 'bg-subtle', color: 'fg' } : undefined}
-                        transition="colors 200ms"
-                        fontWeight={isActive ? 'medium' : 'normal'}
-                      >
-                        {label}
-                      </Text>
-                    );
-                  })}
-                </VStack>
-              </VStack>
-            </Splitter.Panel>
+      <VStack align="stretch" h="full" gap="0">
+        {/* Toolbar row with application title and new button */}
+        <HStack justify="space-between" align="center" px="4" pt="3" flexShrink={0}>
+          <Text fontWeight="semibold" fontSize="lg">
+            {application.currentStatus}
+          </Text>
+          <Button size="sm" onClick={onOpen} disabled={createApplicationMutation.isPending}>
+            <LuPlus size={16} />
+            {createApplicationMutation.isPending ? 'Creating...' : 'New Application'}
+          </Button>
+        </HStack>
 
-            {/* Resize trigger between top and bottom */}
-            <Splitter.ResizeTrigger id="top:bottom">
-              <Splitter.ResizeTriggerSeparator />
-            </Splitter.ResizeTrigger>
-
-            {/* Bottom panel: Application event timeline */}
-            <Splitter.Panel id="bottom" p="4">
-              <Timeline application={application} />
-            </Splitter.Panel>
-          </Splitter.Root>
-        </Splitter.Panel>
-
-        {/* Resize trigger between left and right */}
-        <Splitter.ResizeTrigger id="left:right">
-          <Splitter.ResizeTriggerSeparator />
-        </Splitter.ResizeTrigger>
-
-        {/* Right panel: Details, stats, charts, and previews */}
-        <Splitter.Panel id="right">
-          <VStack align="stretch" gap="4" p="4" h="full" overflowY="auto">
-            <Details application={application} listing={listing} />
-
-            {/* Top row: Resume, Cover Letter, Match Score, 2 Stats in HStack */}
-            <HStack gap="4" w="full" align="stretch">
-              {/* Resume Preview */}
-              <Box
-                borderRadius="md"
-                p="4"
-                flex="1"
-                minH="0"
-                cursor="pointer"
-                _hover={{ bg: 'bg-subtle' }}
-                transition="background 200ms"
-                onClick={() => {
-                  navigate(`/listings/${listingId}/applications/${applicationId}`);
-                }}
-                display="flex"
-                flexDirection="column"
-              >
-                <VStack align="stretch" gap="2" h="full">
-                  <Text textStyle="sm" color="fg.muted">
-                    Resume
+        {/* Main grid: 4 columns, 3 rows */}
+        <Grid
+          flex="1"
+          minH="0"
+          minW="0"
+          templateColumns="repeat(4, minmax(0, 1fr))"
+          templateRows="repeat(3, 1fr)"
+          gap="4"
+          p="4"
+          autoFlow="dense"
+          h="full"
+        >
+          {/* Timeline Flow: spans rows 1-3, cols 1-2 (left) */}
+          <GridItem rowSpan={3} colSpan={2} minH="0">
+            <Card.Root h="full" display="flex" flexDir="column" variant="outline">
+              <Card.Header pb="2">
+                <VStack gap="0" align="stretch">
+                  <Heading size="sm">Application Timeline</Heading>
+                  <Text fontSize="xs" color="fg.muted">
+                    Track all status updates and decisions in your application journey
                   </Text>
-                  <Box flex="1" minH="0" w="full" overflowY="auto">
-                    <ReadonlyResumePreview
-                      template={template}
-                      sections={resume.sections}
-                      profile={profile}
-                    />
-                  </Box>
                 </VStack>
-              </Box>
+              </Card.Header>
+              <Card.Body flex="1" minH="0" p="4">
+                <ApplicationFlow
+                  application={application}
+                  onCreateNew={onOpen}
+                  isCreatingNew={createApplicationMutation.isPending}
+                  title={application.currentStatus}
+                />
+              </Card.Body>
+            </Card.Root>
+          </GridItem>
 
-              {/* Cover Letter Preview */}
-              <Box
-                borderRadius="md"
-                p="4"
-                flex="1"
-                minH="0"
-                cursor="pointer"
-                _hover={{ bg: 'bg-subtle' }}
-                transition="background 200ms"
-                onClick={() => {
-                  navigate(`/listings/${listingId}/applications/${applicationId}`);
-                }}
-                display="flex"
-                flexDirection="column"
-              >
-                <VStack align="stretch" gap="2" h="full">
-                  <Text textStyle="sm" color="fg.muted">
-                    Cover Letter
-                  </Text>
-                  <Box flex="1" minH="0" w="full" overflowY="auto">
-                    <ReadonlyResumePreview
-                      template={template}
-                      sections={resume.sections}
-                      profile={profile}
-                    />
-                  </Box>
-                </VStack>
-              </Box>
-
-              {/* Match Score Stat */}
-              <Stat.Root borderWidth="1px" borderRadius="md" p="4" flex="0 0 auto" minW="120px">
-                <Stat.Label>Match Score</Stat.Label>
-                <Box mt="2">
-                  <SegmentedSemicircleGauge percent={Math.random()} />
-                </Box>
-              </Stat.Root>
-
-              {/* Current State and Last Updated stacked */}
-              <VStack gap="4" flex="0 0 auto" minW="120px">
-                {/* Current State Stat */}
-                <Stat.Root borderWidth="1px" borderRadius="md" p="4" flex="1" w="full">
-                  <Stat.Label>Current State</Stat.Label>
-                  <Stat.ValueText mt="2">{application.currentStatus}</Stat.ValueText>
-                </Stat.Root>
-
-                {/* Last Updated Stat */}
-                <Stat.Root borderWidth="1px" borderRadius="md" p="4" flex="1" w="full">
-                  <Stat.Label>Last Updated</Stat.Label>
-                  <Stat.ValueText mt="2">
-                    {application.statusEvents[0]?.date
-                      ? new Date(application.statusEvents[0].date).toLocaleDateString()
+          {/* Job Info Header: spans 2 cols, row 1 (top right) */}
+          <GridItem colSpan={2} rowSpan={1} minH="0">
+            <Card.Root h="full" display="flex" flexDir="column">
+              <Card.Header pb="3">
+                <VStack gap="1" align="stretch">
+                  <Heading size="sm">
+                    {listing &&
+                    'title' in listing &&
+                    listing.title &&
+                    listing &&
+                    'company' in listing &&
+                    listing.company
+                      ? `${listing.title} at ${listing.company}`
                       : 'N/A'}
-                  </Stat.ValueText>
-                </Stat.Root>
-              </VStack>
-            </HStack>
-
-            {/* Bottom row: Content Quality and Skills Radar in HStack */}
-            <HStack gap="4" w="full" flex="1" minH="0" align="stretch">
-              {/* Content Quality */}
-              <Box borderRadius="md" p="4" flex="1" minW="0" display="flex" flexDirection="column">
-                <VStack align="stretch" gap="2" h="full">
-                  <Text textStyle="sm" color="fg.muted">
-                    Content Quality
-                  </Text>
-                  <Box flex="1" minH="0">
-                    <ContentQualityChart />
-                  </Box>
+                  </Heading>
+                  <HStack gap="2" fontSize="xs" color="fg.muted" flexWrap="wrap">
+                    <Text>
+                      {listing && 'location' in listing && listing.location
+                        ? listing.location
+                        : 'N/A'}
+                    </Text>
+                    <Text>•</Text>
+                    <Text>Applied {application.statusEvents[0]?.date || 'N/A'}</Text>
+                  </HStack>
                 </VStack>
-              </Box>
+              </Card.Header>
 
-              {/* Skills Radar */}
-              <Box borderRadius="md" p="4" flex="1" minW="0" display="flex" flexDirection="column">
-                <VStack align="stretch" gap="2" h="full">
-                  <Text textStyle="sm" color="fg.muted">
-                    Skills Radar
-                  </Text>
-                  <Box flex="1" minH="0">
-                    <SkillsComparison applicationId={applicationId} listingId={listingId!} />
-                  </Box>
+              <Card.Body pb="3" pt="3">
+                <HStack gap="6" align="flex-start">
+                  <Stat.Root size="lg">
+                    <Stat.Label>
+                      Status
+                      <Icon>
+                        <LuTag />
+                      </Icon>
+                    </Stat.Label>
+                    <Stat.ValueText>{application.currentStatus}</Stat.ValueText>
+                    <Stat.HelpText>Current stage</Stat.HelpText>
+                  </Stat.Root>
+                  <Stat.Root size="lg">
+                    <Stat.Label>
+                      Days Since
+                      <Icon as={LuCalendar} />
+                    </Stat.Label>
+                    <Stat.ValueText>
+                      {application.statusEvents[0]?.date
+                        ? Math.floor(
+                            (Date.now() - new Date(application.statusEvents[0].date).getTime()) /
+                              (1000 * 60 * 60 * 24)
+                          )
+                        : 'N/A'}
+                    </Stat.ValueText>
+                    <Stat.HelpText>Since first applied</Stat.HelpText>
+                  </Stat.Root>
+                  <Stat.Root size="lg">
+                    <Stat.Label>
+                      Updates
+                      <Icon as={LuRefreshCw} />
+                    </Stat.Label>
+                    <Stat.ValueText>{application.statusEvents.length}</Stat.ValueText>
+                    <Stat.HelpText>Total status changes</Stat.HelpText>
+                  </Stat.Root>
+                  <Stat.Root size="lg">
+                    <Stat.Label>
+                      Location
+                      <Icon as={LuMapPin} />
+                    </Stat.Label>
+                    <Stat.ValueText fontSize="lg" truncate maxW="160px">
+                      {listing && 'location' in listing && listing.location
+                        ? listing.location
+                        : 'N/A'}
+                    </Stat.ValueText>
+                    <Stat.HelpText>Role location</Stat.HelpText>
+                  </Stat.Root>
+                </HStack>
+                <VStack gap="3" pt="8" pb="2">
+                  <VStack gap="1" align="stretch" w="full">
+                    <Text fontSize="xs" fontWeight="semibold" color="fg.muted">
+                      Match Score
+                    </Text>
+                    <SegmentedGauge
+                      percent={Math.random()}
+                      showPercentage
+                      layout="block"
+                      size="xl"
+                    />
+                  </VStack>
                 </VStack>
-              </Box>
-            </HStack>
-          </VStack>
-        </Splitter.Panel>
-      </Splitter.Root>
+              </Card.Body>
+            </Card.Root>
+          </GridItem>
+
+          {/* Funnel: spans 2 cols, row 3 (bottom right) */}
+          <GridItem colSpan={2} rowSpan={1} minH="0">
+            <Card.Root h="full" display="flex" flexDir="column">
+              <Card.Header pb="2">
+                <VStack gap="0" align="stretch">
+                  <Heading size="sm">Application Pipeline</Heading>
+                  <Text fontSize="xs" color="fg.muted">
+                    How applicants progress through each stage of this hiring process
+                  </Text>
+                </VStack>
+              </Card.Header>
+              <Card.Body flex="1" minH="0">
+                <ApplicationFunnel currentStatus={application.currentStatus} />
+              </Card.Body>
+            </Card.Root>
+          </GridItem>
+
+          {/* Resume: col 3, row 2 */}
+          <GridItem colSpan={1} rowSpan={1} minH="0">
+            <Card.Root
+              h="full"
+              display="flex"
+              flexDir="column"
+              overflow="hidden"
+              cursor="pointer"
+              onClick={() => navigate(`/resume/${resume.id}`)}
+            >
+              <ResumePreviewCard template={template} sections={resume.sections} profile={profile} />
+              <Card.Body gap="2">
+                <HStack justify="space-between" align="flex-start">
+                  <Card.Title>Resume</Card.Title>
+                  <Icon as={LuArrowUpRight} size="lg" color="fg.muted" flexShrink={0} />
+                </HStack>
+                <Card.Description>Submitted for this position</Card.Description>
+              </Card.Body>
+            </Card.Root>
+          </GridItem>
+
+          {/* Cover Letter: col 4, row 2 */}
+          <GridItem colSpan={1} rowSpan={1} minH="0">
+            <Card.Root
+              h="full"
+              display="flex"
+              flexDir="column"
+              overflow="hidden"
+              cursor="pointer"
+              onClick={() => navigate(`/resume/${resume.id}`)}
+            >
+              <ResumePreviewCard template={template} sections={resume.sections} profile={profile} />
+              <Card.Body gap="2">
+                <HStack justify="space-between" align="flex-start">
+                  <Card.Title>Cover Letter</Card.Title>
+                  <Icon as={LuArrowUpRight} size="lg" color="fg.muted" flexShrink={0} />
+                </HStack>
+                <Card.Description>Tailored for this role</Card.Description>
+              </Card.Body>
+            </Card.Root>
+          </GridItem>
+        </Grid>
+      </VStack>
 
       <CreateApplicationModal open={open} onOpenChange={setOpen} />
       <StatusEventModal />

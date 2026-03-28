@@ -1,8 +1,14 @@
 import { Box, HStack, Text } from '@chakra-ui/react';
 
-const BAR_W_PX = 3;
-const GAP_W_PX = 2.5;
-const TOTAL_W_PX = BAR_W_PX + GAP_W_PX;
+type GaugeSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
+const SIZE_CONFIG: Record<GaugeSize, { barW: number; gapW: number; height: string }> = {
+  xs: { barW: 2,   gapW: 1.5, height: '2' },
+  sm: { barW: 2.5, gapW: 2,   height: '3' },
+  md: { barW: 3,   gapW: 2.5, height: '4' },
+  lg: { barW: 4,   gapW: 3,   height: '6' },
+  xl: { barW: 6,   gapW: 4,   height: '8' },
+};
 
 const RED = 'var(--chakra-colors-fg-error)';
 const YELLOW = 'var(--chakra-colors-fg-warning)';
@@ -14,6 +20,7 @@ interface SegmentedGaugeProps {
   tooltipLabel?: string;
   showPercentage?: boolean;
   height?: string;
+  size?: GaugeSize;
   layout?: 'inline' | 'block';
 }
 
@@ -21,16 +28,20 @@ interface SegmentedGaugeProps {
 export function SegmentedGauge({
   percent = 0,
   showPercentage = false,
-  height = '4',
+  height,
+  size = 'md',
   layout = 'inline',
 }: SegmentedGaugeProps) {
+  const { barW, gapW, height: sizeHeight } = SIZE_CONFIG[size];
+  const resolvedHeight = height ?? sizeHeight;
+  const totalW = barW + gapW;
   const percentAsPercentage = Math.min(1, Math.max(0, percent)) * 100;
   const roundedPercent = Math.round(percentAsPercentage);
 
   const gauge = (
     <Box
       w="full"
-      h={height}
+      h={resolvedHeight}
       background={`
           linear-gradient(to right,
             ${RED} 0%, 
@@ -47,9 +58,9 @@ export function SegmentedGauge({
         WebkitMaskImage: `repeating-linear-gradient(
             to right,
             black 0px,
-            black ${BAR_W_PX}px,
-            transparent ${BAR_W_PX}px,
-            transparent ${TOTAL_W_PX}px
+            black ${barW}px,
+            transparent ${barW}px,
+            transparent ${totalW}px
           )`,
         backgroundSize: 'calc(100% + 2px) 100%',
       }}

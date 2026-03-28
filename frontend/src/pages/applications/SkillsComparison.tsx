@@ -23,15 +23,15 @@ const mockSkillsData = [
 
 export const SkillsComparison = memo(function SkillsComparison(_props: SkillComparisonProps) {
   return (
-    <VStack align="stretch" gap="4">
-      <Heading size="md">Skills Comparison</Heading>
-      <Box h="400px" w="full">
+    <VStack align="stretch" gap="1" h="full" minH="0">
+      <Heading size="sm">Skills Comparison</Heading>
+      <Box flex="1" minH="0" w="full">
         <ResponsiveRadar
           data={mockSkillsData}
           keys={['user', 'required']}
           indexBy="skill"
           valueFormat=">-.0f"
-          margin={{ top: 60, right: 80, bottom: 60, left: 80 }}
+          margin={{ top: 40, right: 60, bottom: 40, left: 60 }}
           borderColor={{ from: 'color', modifiers: [['darker', 2]] }}
           gridLabelOffset={36}
           dotSize={6}

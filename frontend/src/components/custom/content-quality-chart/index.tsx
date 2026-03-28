@@ -1,4 +1,4 @@
-import { Box, Text, VStack } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { ResponsiveBar } from '@nivo/bar';
 
 import { nivoChartColors, nivoTheme } from '@/components/theme/nivo.theme';
@@ -84,15 +84,9 @@ export const ContentQualityChart = ({ data = mockData }: ContentQualityChartProp
 
   return (
     <Box w="full" h="full" display="flex" flexDirection="column">
-      <VStack align="stretch" gap="2" mb="4">
-        <Text fontWeight="bold" fontSize="sm">
-          Content Quality by Section
-        </Text>
-        <Text fontSize="xs" color="fg.muted">
-          Bar length proportional to section character count. Colors: Signal (green), Neutral
-          (gray), Noise (red)
-        </Text>
-      </VStack>
+      <Text fontWeight="bold" fontSize="sm" mb="2">
+        Content Quality
+      </Text>
       <Box flex="1" w="full" position="relative">
         <ResponsiveBar
           data={transformedData}

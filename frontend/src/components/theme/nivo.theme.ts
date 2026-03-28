@@ -126,7 +126,7 @@ export const nivoTheme: Theme = {
       background: colorVar('bg.panel'),
       color: colorVar('fg'),
       fontSize: fontSizeVar('sm'),
-      borderRadius: 'var(--chakra-radii-2xs)',
+      borderRadius: 'var(--chakra-radii-md)',
       border: `1px solid ${colorVar('border.muted')}`,
       boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
       padding: '8px 12px',
