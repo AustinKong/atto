@@ -11,7 +11,7 @@ export function AppLogo({ isOpen }: { isOpen: boolean }) {
 
   return (
     <NavLink to="/">
-      <SidebarItem gap="2">
+      <SidebarItem gap="xs">
         <Center w="6" h="6" flexShrink={0}>
           <Image w="5" h="5" objectFit="contain" src={imageSrc} />
         </Center>

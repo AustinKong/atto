@@ -1,7 +1,8 @@
 import { defineSlotRecipe } from '@chakra-ui/react';
+import { tabsAnatomy } from '@chakra-ui/react/anatomy';
 
 export const tabsRecipe = defineSlotRecipe({
-  slots: ['root', 'list', 'trigger', 'content'],
+  slots: tabsAnatomy.keys(),
   base: {
     root: {
       display: 'flex !important',
@@ -11,7 +12,7 @@ export const tabsRecipe = defineSlotRecipe({
     content: {
       flex: '1',
       overflowY: 'auto',
-      py: '2',
+      py: 'xs',
     },
   },
 });

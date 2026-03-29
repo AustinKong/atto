@@ -10,20 +10,15 @@ export function Toolbar({
   onSearchChange: (value: string) => void;
 }) {
   return (
-    <HStack p="1.5" borderBottom="1px solid" borderColor="border">
+    <HStack p="2xs" borderBottom="subtle">
       <InputGroup startElement={<PiMagnifyingGlass />} w="md">
         <Input
-          size="md"
           placeholder="Search listings"
           value={searchInput}
           onChange={(e) => onSearchChange(e.target.value)}
         />
       </InputGroup>
       <Spacer />
-      {/* <Button variant="subtle">
-        <PiDownload />
-        Export
-      </Button> */}
       <Button asChild>
         <Link to="/listings/new">
           <PiPlus />

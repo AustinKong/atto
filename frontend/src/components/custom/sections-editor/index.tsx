@@ -98,7 +98,7 @@ export const SectionsEditor = forwardRef<
         modifiers={[restrictToParentElement, restrictToVerticalAxis]}
       >
         <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
-          <VStack gap="3" align="stretch" asChild>
+          <VStack gap="sm" align="stretch" asChild>
             <form autoComplete="off" spellCheck="false">
               {fields.map((field, index) => (
                 <SectionEditor

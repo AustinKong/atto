@@ -39,8 +39,8 @@ export function FormFields({
   errors: Partial<Record<keyof FormValues, { message?: string }>>;
 }) {
   return (
-    <VStack gap="4" align="stretch">
-      <HStack gap="4" align="flex-end">
+    <VStack gap="md" align="stretch">
+      <HStack gap="md" align="flex-end">
         <Field.Root flex="2">
           <Field.Label>Status</Field.Label>
           <Controller
@@ -106,7 +106,7 @@ export function FormFields({
       </Field.Root>
 
       {selectedStatus === 'interview' && (
-        <HStack gap="4" align="flex-end">
+        <HStack gap="md" align="flex-end">
           <Field.Root flex="1">
             <Field.Label>Scheduled Time</Field.Label>
             <Input

@@ -40,7 +40,7 @@ export const DetailedItem = memo(function DetailedItem({
       align="stretch"
       borderWidth="1px"
       borderRadius="md"
-      p="3"
+      p="sm"
       bg="bg.subtle"
       position="relative"
     >
@@ -73,7 +73,7 @@ const DetailedItemContent = memo(function DetailedItemContent({
   return (
     <>
       <HStack justify="space-between" w="full">
-        <HStack align="center" gap="3" flex="1">
+        <HStack align="center" gap="sm" flex="1">
           <HStack
             {...attributes}
             {...listeners}
@@ -110,7 +110,7 @@ const DetailedItemContent = memo(function DetailedItemContent({
         </IconButton>
       </HStack>
 
-      <VStack gap="2" w="full" align="stretch" pl="8">
+      <VStack gap="xs" w="full" align="stretch" pl="xl">
         <Input
           {...register(`sections.${sectionIndex}.content.${itemIndex}.subtitle`)}
           placeholder="Subtitle (e.g., Company)"
@@ -140,7 +140,7 @@ const DetailedItemContent = memo(function DetailedItemContent({
                     variant="flushed"
                     rows={1}
                     minH="auto"
-                    py="2"
+                    py="xs"
                     css={{ fieldSizing: 'content' }}
                     resize="none"
                     flex="1"

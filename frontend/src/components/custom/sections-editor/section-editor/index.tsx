@@ -43,8 +43,8 @@ export const SectionEditor = memo(function SectionEditor({
       zIndex={transform ? 1 : 0}
       defaultOpen
     >
-      <HStack justify="space-between" w="full" p="3" bg="bg.subtle">
-        <HStack gap="2" flex="1">
+      <HStack justify="space-between" w="full" p="sm" bg="bg.subtle">
+        <HStack gap="xs" flex="1">
           <Box
             {...attributes}
             {...listeners}
@@ -93,7 +93,7 @@ export const SectionEditor = memo(function SectionEditor({
       </HStack>
 
       <Collapsible.Content>
-        <Box pr="4" pb="4" pl="8">
+        <Box pr="md" pb="md" pl="xl">
           <SectionContent sectionIndex={index} control={control} />
         </Box>
       </Collapsible.Content>

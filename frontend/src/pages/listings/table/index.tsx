@@ -56,9 +56,9 @@ const columns = [
       const domain = info.row.original.domain;
 
       return (
-        <HStack gap={2} alignItems={'center'} w="full" overflow="hidden">
-          <CompanyLogo domain={domain} companyName={company} size="2xs" flexShrink={0} />
-          <Text truncate flex={1} minW={0}>
+        <HStack gap="sm" overflow="hidden">
+          <CompanyLogo domain={domain} companyName={company} size="2xs" flexShrink="0" />
+          <Text truncate flex="1">
             {company}
           </Text>
         </HStack>
@@ -84,10 +84,8 @@ const columns = [
 
       return (
         <Badge variant="subtle" colorPalette={statusInfo.colorPalette}>
-          <HStack gap={1}>
-            <statusInfo.icon />
-            <Text>{statusInfo.label}</Text>
-          </HStack>
+          <statusInfo.icon />
+          {statusInfo.label}
         </Badge>
       );
     },
@@ -95,7 +93,6 @@ const columns = [
     enableSorting: false,
   }),
   columnHelper.accessor('id', {
-    id: 'match-score',
     header: 'Match Score',
     cell: (info) => {
       const id = info.getValue();
@@ -169,7 +166,7 @@ const Table = React.memo(function Table({ debouncedSearch }: { debouncedSearch: 
     (listing: ListingSummary) => {
       navigate({ pathname: `/listings/${listing.id}`, search: location.search }, { replace: true });
     },
-    [navigate]
+    [location.search, navigate]
   );
 
   const handleRowHover = useCallback(

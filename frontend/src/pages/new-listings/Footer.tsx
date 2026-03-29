@@ -12,10 +12,9 @@ export function Footer({
 }) {
   return (
     <HStack
-      borderTop="1px solid"
-      borderColor="border"
-      px="4"
-      py="2"
+      borderTop="subtle"
+      px="md"
+      py="xs"
       justify="space-between"
       align="center"
       color="fg.muted"
@@ -31,12 +30,12 @@ export function Footer({
       <HStack align="center">
         {pendingCount > 0 ? (
           <>
-            <Spinner size="xs" mb="1" />
+            <Spinner size="xs" mb="2xs" />
             <Text>{pendingCount} listings pending</Text>
           </>
         ) : (
           <>
-            <Icon mb="1">
+            <Icon mb="2xs">
               <PiCheck />
             </Icon>
             <Text>No actions pending</Text>

@@ -1,6 +1,5 @@
 import type { QueryClient } from '@tanstack/react-query';
 
-import { ErrorElement } from '@/components/ui/ErrorBoundary';
 import { applicationLoader } from '@/loaders/application.loaders';
 import { listingLoader } from '@/loaders/listing.loaders';
 import { resumeLoader } from '@/loaders/resume.loaders';
@@ -17,7 +16,6 @@ export function resumeRoute(queryClient: QueryClient) {
     path: 'resumes/:resumeId',
     loader: resumeLoader(queryClient),
     handle: { breadcrumb: 'Resume' },
-    errorElement: <ErrorElement />,
     children: [
       {
         index: true,

@@ -23,7 +23,7 @@ const mockSkillsData = [
 
 export const SkillsComparison = memo(function SkillsComparison(_props: SkillComparisonProps) {
   return (
-    <VStack align="stretch" gap="1" h="full" minH="0">
+    <VStack align="stretch" gap="2xs" h="full" minH="0">
       <Heading size="sm">Skills Comparison</Heading>
       <Box flex="1" minH="0" w="full">
         <ResponsiveRadar

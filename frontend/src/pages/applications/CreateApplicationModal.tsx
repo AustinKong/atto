@@ -77,8 +77,8 @@ export function CreateApplicationModal({
             </Dialog.Header>
 
             <Dialog.Body>
-              <VStack align="stretch" gap="6">
-                <VStack align="stretch" gap="3">
+              <VStack align="stretch" gap="lg">
+                <VStack align="stretch" gap="sm">
                   <Text fontWeight="medium" fontSize="sm">
                     Resume Setup
                   </Text>
@@ -86,7 +86,7 @@ export function CreateApplicationModal({
                     value={resumeMode}
                     onValueChange={(e) => setResumeMode(e.value as ResumeCreationMode)}
                     orientation="horizontal"
-                    gap="3"
+                    gap="sm"
                     disabled={createApplicationMutation.isPending}
                   >
                     <HStack align="stretch">
@@ -95,7 +95,7 @@ export function CreateApplicationModal({
                           <RadioCard.ItemHiddenInput />
                           <RadioCard.ItemControl>
                             <RadioCard.ItemContent>
-                              <Icon size="xl" color="fg.muted" mb="2">
+                              <Icon size="xl" color="fg.muted" mb="xs">
                                 {option.icon}
                               </Icon>
                               <RadioCard.ItemText fontSize="sm" fontWeight="medium">
@@ -104,7 +104,7 @@ export function CreateApplicationModal({
                               <RadioCard.ItemDescription fontSize="xs">
                                 <Text>{option.description}</Text>
                                 {option.warning && (
-                                  <Text color="fg.error" mt="2">
+                                  <Text color="fg.error" mt="xs">
                                     {option.warning}
                                     <Icon size="xs">
                                       <LuTriangleAlert />

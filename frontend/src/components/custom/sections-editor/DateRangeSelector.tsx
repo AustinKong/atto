@@ -49,7 +49,7 @@ export function DateRangeSelector({
           fontSize="sm"
           h="10"
         >
-          <HStack gap="2" alignItems="center">
+          <HStack gap="xs" alignItems="center">
             <DisplayDate
               date={start}
               options={{ month: 'short', year: 'numeric' }}
@@ -81,8 +81,8 @@ export function DateRangeSelector({
           <Popover.Content width="auto">
             <Popover.Arrow />
             <Popover.Body>
-              <HStack gap="4">
-                <VStack align="stretch" gap="1" flex="1">
+              <HStack gap="md">
+                <VStack align="stretch" gap="2xs" flex="1">
                   <Text fontSize="sm">Start Date</Text>
                   <Box>
                     <ISOYearMonthInput
@@ -93,7 +93,7 @@ export function DateRangeSelector({
                   </Box>
                 </VStack>
 
-                <VStack align="stretch" gap="1" flex="1">
+                <VStack align="stretch" gap="2xs" flex="1">
                   <HStack justify="space-between">
                     <Text fontSize="sm">End Date</Text>
                     <HStack>

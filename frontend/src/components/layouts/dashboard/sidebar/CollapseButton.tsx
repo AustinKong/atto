@@ -5,7 +5,7 @@ import { SidebarIcon, SidebarItem, SidebarLabel } from './index';
 
 export function CollapseButton({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
   return (
-    <Box p="2">
+    <Box p="xs">
       <SidebarItem
         as="button"
         w="full"

@@ -34,7 +34,7 @@ export const ApplicationFunnel = memo(function ApplicationFunnel({
   const currentIndex = FUNNEL_STAGES.findIndex((s) => s.id === currentStatus);
 
   return (
-    <VStack align="stretch" gap="1" h="full" minH="0">
+    <VStack align="stretch" gap="2xs" h="full" minH="0">
       <Box flex="1" minH="0" w="full" position="relative">
         <ResponsiveFunnel
           data={FUNNEL_STAGES}

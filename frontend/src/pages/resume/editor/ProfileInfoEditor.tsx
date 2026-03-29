@@ -52,7 +52,7 @@ export const ProfileEditor = memo(function ProfileEditor() {
         </Collapsible.Trigger>
         <Collapsible.Content asChild>
           <form autoComplete="off" spellCheck="false">
-            <VStack gap={4} align="stretch" mt="4">
+            <VStack gap={4} align="stretch" mt="md">
               <HStack>
                 <Field.Root required>
                   <Field.Label>

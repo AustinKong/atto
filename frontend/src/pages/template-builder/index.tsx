@@ -90,7 +90,7 @@ export function TemplateBuilderPage() {
 
   return (
     <VStack h="full" gap="0" alignItems="stretch">
-      <HStack p="4" borderBottom="1px solid" borderColor="border" gap="4" wrap="wrap">
+      <HStack p="md" borderBottom="subtle" gap="md" wrap="wrap">
         <Box w="250px">
           <Select.Root
             size="sm"

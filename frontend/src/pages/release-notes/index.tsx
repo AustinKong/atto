@@ -14,7 +14,7 @@ export function ReleaseNotesPage() {
   const { data: releaseNotes } = useSuspenseQuery(releaseNotesQueries.item(version!));
 
   return (
-    <VStack h="full" overflowY="auto" p="2">
+    <VStack h="full" overflowY="auto" p="xs">
       {releaseNotes.version !== getCurrentVersion() && (
         <Alert.Root status="warning">
           <Alert.Indicator />
@@ -36,7 +36,7 @@ export function ReleaseNotesPage() {
           </ChakraLink>
         </Alert.Root>
       )}
-      <Prose p="6" w="full" maxW="120ch">
+      <Prose p="lg" w="full" maxW="120ch">
         <Markdown remarkPlugins={[remarkGfm]}>{releaseNotes.notes}</Markdown>
       </Prose>
     </VStack>

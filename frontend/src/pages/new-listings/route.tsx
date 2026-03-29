@@ -1,4 +1,4 @@
-import { ErrorElement } from '@/components/ui/ErrorBoundary';
+import { baseRoute } from '@/routes';
 
 import { NewListingsPage } from './index';
 
@@ -9,12 +9,11 @@ export function newListingsRoute() {
       breadcrumb: 'Listings',
     },
     children: [
-      {
+      baseRoute({
         path: 'new',
         handle: { breadcrumb: 'New' },
         element: <NewListingsPage />,
-        errorElement: <ErrorElement />,
-      },
+      }),
     ],
   };
 }

@@ -37,19 +37,19 @@ export function TemplatesPage() {
   return (
     <VStack h="full" alignItems="stretch" gap="0" p="0">
       {isPickerMode && (
-        <Box borderBottom="1px solid" borderColor="border" px="6" py="3">
+        <Box borderBottom="subtle" px="lg" py="sm">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
             ← Back to Resume
           </Button>
         </Box>
       )}
-      <Box flex="1" overflowY="auto" p="6">
+      <Box flex="1" overflowY="auto" p="lg">
         {templates.length === 0 ? (
           <Center h="200px">
             <Text color="fg.muted">No templates found</Text>
           </Center>
         ) : (
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap="6" w="full">
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap="lg" w="full">
             {templates.map((template: TemplateSummary) => (
               <TemplateCard
                 key={template.id}
@@ -63,7 +63,7 @@ export function TemplatesPage() {
       </Box>
 
       {totalPages > 1 && (
-        <Stack direction="row" justify="center" gap="2" mt="4">
+        <Stack direction="row" justify="center" gap="xs" mt="md">
           <Button
             size="sm"
             variant="outline"

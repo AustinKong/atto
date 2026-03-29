@@ -27,8 +27,8 @@ export function Section({
   }
 
   return (
-    <VStack align="stretch" gap="4">
-      <Box mb="4">
+    <VStack align="stretch" gap="md">
+      <Box mb="md">
         <Heading size="xl" textTransform="capitalize">
           {title}
         </Heading>

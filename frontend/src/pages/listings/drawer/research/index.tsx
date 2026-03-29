@@ -88,12 +88,12 @@ export function Intelligence() {
   };
 
   return (
-    <VStack px="4" gap="6" align="stretch" key={listing.id}>
+    <VStack px="md" gap="lg" align="stretch" key={listing.id}>
       {/* Sentiment Analysis */}
-      <VStack align="stretch" gap="3">
+      <VStack align="stretch" gap="sm">
         <Heading size="sm">Sentiment Analysis</Heading>
         <SegmentedGauge percent={sentiment?.value ?? 0} showPercentage height="6" />
-        <HStack gap="2">
+        <HStack gap="xs">
           <Text color="fg.muted" textStyle="xs">
             {sentimentSources.length > 0
               ? `Sentiment collected from ${sentimentSources.length} sources`
@@ -105,7 +105,7 @@ export function Intelligence() {
 
       {/* Salary Range */}
       {salary ? (
-        <VStack align="stretch" gap="1">
+        <VStack align="stretch" gap="2xs">
           <Heading size="sm">Salary Range</Heading>
           <VStack align="stretch" h="24">
             <ResponsiveBoxPlot
@@ -185,7 +185,7 @@ export function Intelligence() {
       ) : null}
 
       {/* Company News & Competitive Landscape */}
-      <VStack align="stretch" gap="3">
+      <VStack align="stretch" gap="sm">
         <Heading size="sm">Recent News & Market Position</Heading>
         <Text color="fg.muted" textStyle="sm">
           {marketSummary ?? 'No market summary generated yet.'}
@@ -193,17 +193,17 @@ export function Intelligence() {
       </VStack>
 
       {/* Key Insights */}
-      <VStack align="stretch" gap="3">
+      <VStack align="stretch" gap="sm">
         <Heading size="sm">Key Insights for Applicants</Heading>
         {applicantInsights.length === 0 ? (
           <Text color="fg.muted" textStyle="sm">
             No applicant insights yet. Generate research to populate this section.
           </Text>
         ) : (
-          <List.Root as="ol" gap="2" color="fg.muted" textStyle="sm">
+          <List.Root as="ol" gap="xs" color="fg.muted" textStyle="sm">
             {applicantInsights.map((insight) => {
               return (
-                <List.Item key={insight} ml="4">
+                <List.Item key={insight} ml="md">
                   {insight}
                 </List.Item>
               );
@@ -242,7 +242,7 @@ export function Intelligence() {
       </HStack>
 
       {/* Your Notes */}
-      <VStack align="stretch" gap="2">
+      <VStack align="stretch" gap="xs">
         <Heading size="md">Your Notes</Heading>
         <Textarea
           value={notes}

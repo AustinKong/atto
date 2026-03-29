@@ -27,13 +27,13 @@ export function StatusFilterMenu({
       <Menu.Trigger asChild>
         <HStack
           alignItems="center"
-          gap="1"
+          gap="2xs"
           cursor="pointer"
           userSelect="none"
           onClick={(e) => e.stopPropagation()}
         >
           <Text>Status {statuses.length > 0 && `(${statuses.length})`}</Text>
-          {statuses.length == 0 && <PiSliders size="14" />}
+          {statuses.length == 0 && <PiSliders />}
         </HStack>
       </Menu.Trigger>
       <Portal>

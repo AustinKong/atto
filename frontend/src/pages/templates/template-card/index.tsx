@@ -92,7 +92,7 @@ export const TemplateCard = memo(function TemplateCard({
           <Text color="fg.muted">Template not found</Text>
         </Center>
       )}
-      <Card.Body gap="2">
+      <Card.Body gap="xs">
         <HStack justify="space-between" align="flex-start">
           <Card.Title>{template.title || template.id}</Card.Title>
           {isRemoteOnly ? (

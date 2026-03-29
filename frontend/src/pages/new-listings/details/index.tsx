@@ -127,8 +127,8 @@ function DetailsForm({
       as="form"
       onSubmit={handleSubmit(onSubmit)}
       align="stretch"
-      p="4"
-      gap="4"
+      p="md"
+      gap="md"
       h="full"
       overflowY="auto"
       overflowX="hidden"

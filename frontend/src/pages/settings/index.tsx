@@ -141,8 +141,8 @@ export function SettingsPage() {
       />
       <Box overflowY="auto">
         <VStack
-          gap="12"
-          p="8"
+          gap="2xl"
+          p="xl"
           maxW={{ base: 'full', md: 'breakpoint-md', lg: 'breakpoint-lg' }}
           w="full"
           align="stretch"
@@ -165,14 +165,14 @@ export function SettingsPage() {
           {showAdvanced && (
             <>
               <Separator w="full" />
-              <VStack align="stretch" gap="4">
+              <VStack align="stretch" gap="md">
                 <Text textStyle="lg" color="fg.error">
                   ⚠️ Developer Tools
                 </Text>
                 <Text color="fg.error">
                   Dangerous operations that will permanently delete data. Use with extreme caution.
                 </Text>
-                <VStack align="stretch" gap="2">
+                <VStack align="stretch" gap="xs">
                   <Button
                     onClick={() => seedMutation.mutate()}
                     loading={seedMutation.isPending}

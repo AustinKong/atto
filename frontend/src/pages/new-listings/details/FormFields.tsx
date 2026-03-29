@@ -103,7 +103,7 @@ export function FormFields({
                   variant="flushed"
                   rows={1}
                   minH="auto"
-                  py="2"
+                  py="xs"
                   css={{ fieldSizing: 'content' }}
                   resize="none"
                   flex="1"

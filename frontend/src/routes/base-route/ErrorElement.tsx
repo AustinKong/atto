@@ -60,7 +60,7 @@ export function ErrorElement() {
         <Heading>{title}</Heading>
         <Text color="fg.muted">{subtitle}</Text>
 
-        {body && <HStack mt="4">{body}</HStack>}
+        {body && <HStack mt="md">{body}</HStack>}
       </VStack>
     </Center>
   );

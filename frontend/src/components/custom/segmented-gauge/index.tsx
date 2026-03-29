@@ -69,7 +69,7 @@ export function SegmentedGauge({
 
   if (layout === 'inline' && showPercentage) {
     return (
-      <HStack w="full" gap="3" align="flex-end">
+      <HStack w="full" gap="sm" align="flex-end">
         <Box flex="1">{gauge}</Box>
         <Text fontFamily="monospace" fontSize="sm" minW="3ch">
           {String(roundedPercent).padStart(2, '0')}%

@@ -16,7 +16,7 @@ export function Header({
   const { domain, company, url } = getListingInfo(listingDraft);
 
   return (
-    <HStack gap="3" align="start">
+    <HStack gap="sm" align="start">
       <CompanyLogo domain={domain} companyName={company || '?'} size="xl" />
       <VStack alignItems="start" gap="0" flex="1" minW="0">
         <Text fontSize="xl" fontWeight="bold" lineHeight="shorter">

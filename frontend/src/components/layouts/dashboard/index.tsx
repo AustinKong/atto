@@ -11,7 +11,7 @@ export function DashboardLayout() {
       <Sidebar />
       <VStack w="full" h="full" bg="bg.main" gap="0" minW="0" align="stretch">
         <Navbar />
-        <Box as="main" w="full" flex="1" overflow="hidden">
+        <Box as="main" w="full" flex="1" overflow="hidden" position="relative">
           <Outlet />
         </Box>
       </VStack>

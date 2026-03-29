@@ -40,7 +40,7 @@ export function ResumePreview({
         _dark={{ bgColor: 'gray.700' }}
         position="relative"
       >
-        <Center minW="full" minH="full" p="8">
+        <Center minW="full" minH="full" p="xl">
           <Document
             template={template}
             sections={sections}
@@ -53,10 +53,10 @@ export function ResumePreview({
       <HStack
         borderRadius="md"
         bottom="4"
-        gap="2"
+        gap="xs"
         position="absolute"
         bgColor="bg.panel"
-        p="2"
+        p="xs"
         left="50%"
         transform="translateX(-50%)"
         pointerEvents="auto"

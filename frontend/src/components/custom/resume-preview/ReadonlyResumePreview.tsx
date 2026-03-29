@@ -60,7 +60,7 @@ export function ReadonlyResumePreview({
       h="full"
       w="full"
       ref={containerRef}
-      p="2" // Padding has to be here to be included in the scale calculation
+      p="xs" // Padding has to be here to be included in the scale calculation
       // bgColor="gray.300"
       // _dark={{ bgColor: 'gray.700' }}
       {...props}

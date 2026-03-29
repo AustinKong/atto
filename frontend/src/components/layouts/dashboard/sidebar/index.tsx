@@ -58,22 +58,20 @@ export function Sidebar() {
       h="full"
       alignItems="stretch"
       transition="all 0.1s ease-in-out"
-      borderRight="1px solid"
-      borderColor="border"
+      borderRight="subtle"
       gap="0"
     >
       <Box
         h="12"
-        px="2"
-        borderBottom="1px solid"
-        borderColor="border"
+        px="xs"
+        borderBottom="subtle"
         display="flex"
         alignItems="center"
       >
         <AppLogo isOpen={isOpen} />
       </Box>
 
-      <VStack as="nav" alignItems="stretch" gap="1" p="2">
+      <VStack as="nav" alignItems="stretch" gap="2xs" p="xs">
         {INTERNAL_NAV_ITEMS.map((item) => (
           <InternalNavItem
             key={item.path}
@@ -88,7 +86,7 @@ export function Sidebar() {
 
       <Spacer />
 
-      <VStack alignItems="stretch" gap="1" p="2">
+      <VStack alignItems="stretch" gap="2xs" p="xs">
         {EXTERNAL_NAV_ITEMS.map((item) => (
           <ExternalNavItem
             key={item.path}

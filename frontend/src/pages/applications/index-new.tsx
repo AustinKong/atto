@@ -49,7 +49,7 @@ const ApplicationsPageContent = memo(function ApplicationsPageContent() {
   if (!applicationId) {
     return (
       <StatusEventProvider>
-        <VStack align="stretch" gap="4" px="4" mb="4">
+        <VStack align="stretch" gap="md" px="md" mb="md">
           <VStack align="stretch">
             <Heading size="md">Applications</Heading>
             <Text color="fg.muted">
@@ -71,7 +71,7 @@ const ApplicationsPageContent = memo(function ApplicationsPageContent() {
     <StatusEventProvider>
       <VStack align="stretch" h="full" gap="0">
         {/* Toolbar row with application title and new button */}
-        <HStack justify="space-between" align="center" px="4" pt="3" flexShrink={0}>
+        <HStack justify="space-between" align="center" px="md" pt="sm" flexShrink={0}>
           <Text fontWeight="semibold" fontSize="lg">
             {application.currentStatus}
           </Text>
@@ -88,15 +88,15 @@ const ApplicationsPageContent = memo(function ApplicationsPageContent() {
           minW="0"
           templateColumns="repeat(4, minmax(0, 1fr))"
           templateRows="repeat(3, 1fr)"
-          gap="4"
-          p="4"
+          gap="md"
+          p="md"
           autoFlow="dense"
           h="full"
         >
           {/* Timeline Flow: spans rows 1-3, cols 1-2 (left) */}
           <GridItem rowSpan={3} colSpan={2} minH="0">
             <Card.Root h="full" display="flex" flexDir="column" variant="outline">
-              <Card.Header pb="2">
+              <Card.Header pb="xs">
                 <VStack gap="0" align="stretch">
                   <Heading size="sm">Application Timeline</Heading>
                   <Text fontSize="xs" color="fg.muted">
@@ -104,7 +104,7 @@ const ApplicationsPageContent = memo(function ApplicationsPageContent() {
                   </Text>
                 </VStack>
               </Card.Header>
-              <Card.Body flex="1" minH="0" p="4">
+              <Card.Body flex="1" minH="0" p="md">
                 <ApplicationFlow
                   application={application}
                   onCreateNew={onOpen}
@@ -118,8 +118,8 @@ const ApplicationsPageContent = memo(function ApplicationsPageContent() {
           {/* Job Info Header: spans 2 cols, row 1 (top right) */}
           <GridItem colSpan={2} rowSpan={1} minH="0">
             <Card.Root h="full" display="flex" flexDir="column">
-              <Card.Header pb="3">
-                <VStack gap="1" align="stretch">
+              <Card.Header pb="sm">
+                <VStack gap="2xs" align="stretch">
                   <Heading size="sm">
                     {listing &&
                     'title' in listing &&
@@ -130,7 +130,7 @@ const ApplicationsPageContent = memo(function ApplicationsPageContent() {
                       ? `${listing.title} at ${listing.company}`
                       : 'N/A'}
                   </Heading>
-                  <HStack gap="2" fontSize="xs" color="fg.muted" flexWrap="wrap">
+                  <HStack gap="xs" fontSize="xs" color="fg.muted" flexWrap="wrap">
                     <Text>
                       {listing && 'location' in listing && listing.location
                         ? listing.location
@@ -142,8 +142,8 @@ const ApplicationsPageContent = memo(function ApplicationsPageContent() {
                 </VStack>
               </Card.Header>
 
-              <Card.Body pb="3" pt="3">
-                <HStack gap="6" align="flex-start">
+              <Card.Body pb="sm" pt="sm">
+                <HStack gap="lg" align="flex-start">
                   <Stat.Root size="lg">
                     <Stat.Label>
                       Status
@@ -190,8 +190,8 @@ const ApplicationsPageContent = memo(function ApplicationsPageContent() {
                     <Stat.HelpText>Role location</Stat.HelpText>
                   </Stat.Root>
                 </HStack>
-                <VStack gap="3" pt="8" pb="2">
-                  <VStack gap="1" align="stretch" w="full">
+                <VStack gap="sm" pt="xl" pb="xs">
+                  <VStack gap="2xs" align="stretch" w="full">
                     <Text fontSize="xs" fontWeight="semibold" color="fg.muted">
                       Match Score
                     </Text>
@@ -210,7 +210,7 @@ const ApplicationsPageContent = memo(function ApplicationsPageContent() {
           {/* Funnel: spans 2 cols, row 3 (bottom right) */}
           <GridItem colSpan={2} rowSpan={1} minH="0">
             <Card.Root h="full" display="flex" flexDir="column">
-              <Card.Header pb="2">
+              <Card.Header pb="xs">
                 <VStack gap="0" align="stretch">
                   <Heading size="sm">Application Pipeline</Heading>
                   <Text fontSize="xs" color="fg.muted">
@@ -235,7 +235,7 @@ const ApplicationsPageContent = memo(function ApplicationsPageContent() {
               onClick={() => navigate(`/resume/${resume.id}`)}
             >
               <ResumePreviewCard template={template} sections={resume.sections} profile={profile} />
-              <Card.Body gap="2">
+              <Card.Body gap="xs">
                 <HStack justify="space-between" align="flex-start">
                   <Card.Title>Resume</Card.Title>
                   <Icon as={LuArrowUpRight} size="lg" color="fg.muted" flexShrink={0} />
@@ -256,7 +256,7 @@ const ApplicationsPageContent = memo(function ApplicationsPageContent() {
               onClick={() => navigate(`/resume/${resume.id}`)}
             >
               <ResumePreviewCard template={template} sections={resume.sections} profile={profile} />
-              <Card.Body gap="2">
+              <Card.Body gap="xs">
                 <HStack justify="space-between" align="flex-start">
                   <Card.Title>Cover Letter</Card.Title>
                   <Icon as={LuArrowUpRight} size="lg" color="fg.muted" flexShrink={0} />

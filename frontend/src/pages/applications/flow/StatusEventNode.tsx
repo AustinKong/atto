@@ -110,9 +110,9 @@ export const StatusEventNode = memo(function StatusEventNode({
         style={{ zIndex: 10, width: 12, height: 12 }}
       />
       <Card.Root size="sm" overflow="hidden">
-        <Card.Header bg="colorPalette.subtle" colorPalette={def.colorPalette} py="2" px="3">
+        <Card.Header bg="colorPalette.subtle" colorPalette={def.colorPalette} py="xs" px="sm">
           <HStack justify="space-between">
-            <HStack gap="2">
+            <HStack gap="xs">
               {React.createElement(def.iconFill as React.ComponentType<{ size?: number }>, {
                 size: 14,
               })}
@@ -132,7 +132,7 @@ export const StatusEventNode = memo(function StatusEventNode({
             </IconButton>
           </HStack>
         </Card.Header>
-        <Card.Body py="3" px="3" className="nodrag nopan">
+        <Card.Body py="sm" px="sm" className="nodrag nopan">
           <FormFields
             control={control}
             register={register}

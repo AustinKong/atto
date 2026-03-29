@@ -110,7 +110,7 @@ export const PasswordStrengthMeter = React.forwardRef<HTMLDivElement, PasswordSt
     const { label, colorPalette } = getColorPalette(percent);
 
     return (
-      <Stack align="flex-end" gap="1" ref={ref} {...rest}>
+      <Stack align="flex-end" gap="2xs" ref={ref} {...rest}>
         <HStack width="full" {...rest}>
           {Array.from({ length: max }).map((_, index) => (
             <Box

@@ -33,11 +33,11 @@ function TokenCounter() {
   const remainingTokens = 150;
 
   return (
-    <VStack px="3" py="2" align="stretch" gap="2">
+    <VStack px="sm" py="xs" align="stretch" gap="xs">
       <Heading id="user-menu-heading" size="sm">
         OpenAI Tokens
       </Heading>
-      <DataList.Root size="md" orientation="horizontal" gap="1">
+      <DataList.Root size="md" orientation="horizontal" gap="2xs">
         <DataList.Item>
           <DataList.ItemLabel>Total</DataList.ItemLabel>
           <DataList.ItemValue>{totalTokens.toLocaleString()}</DataList.ItemValue>

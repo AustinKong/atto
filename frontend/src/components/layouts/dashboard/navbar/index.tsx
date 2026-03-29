@@ -12,9 +12,8 @@ export function Navbar() {
       aria-label="Primary navigation"
       w="full"
       h="12"
-      px="4"
-      borderBottom="1px solid"
-      borderColor="border"
+      px="md"
+      borderBottom="subtle"
     >
       <Breadcrumb />
       <Spacer />

@@ -1,9 +1,9 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { Outlet } from 'react-router';
 
-import { ErrorElement } from '@/components/ui/ErrorBoundary';
 import { applicationLoader } from '@/loaders/application.loaders';
 import { applicationsListRedirectLoader, listingLoader } from '@/loaders/listing.loaders';
+import { baseRoute } from '@/routes';
 import type { Application } from '@/types/application.types';
 import type { Listing } from '@/types/listing.types';
 import { formatApplicationStatusDisplay } from '@/utils/formatters/application.formatters';
@@ -24,18 +24,17 @@ export function applicationsRoute(queryClient: QueryClient) {
           breadcrumb: (data: { listing: Listing }) => formatListingBreadcrumb(data.listing),
         },
         children: [
-          {
+          baseRoute({
             path: 'applications',
             handle: { breadcrumb: 'Applications' },
             element: <Outlet />,
-            errorElement: <ErrorElement />,
             children: [
               {
                 index: true,
                 element: <ApplicationsEmpty />,
                 loader: applicationsListRedirectLoader(queryClient),
               },
-              {
+              baseRoute({
                 path: ':applicationId',
                 element: <Applications />,
                 loader: applicationLoader(queryClient),
@@ -43,10 +42,9 @@ export function applicationsRoute(queryClient: QueryClient) {
                   breadcrumb: (data: { application: Application }) =>
                     formatApplicationStatusDisplay(data.application),
                 },
-                errorElement: <ErrorElement />,
-              },
+              }),
             ],
-          },
+          }),
         ],
       },
     ],

@@ -38,7 +38,7 @@ export function Toolbar({
   }
 
   return (
-    <HStack h="10" borderBottom="1px solid" borderColor="border" w="full" p="1">
+    <HStack h="10" borderBottom="subtle" w="full" p="2xs">
       <Button variant="subtle" size="xs" onClick={() => navigate(templatesPath)}>
         <PiLayout />
         Choose another template (Current: {template.title})

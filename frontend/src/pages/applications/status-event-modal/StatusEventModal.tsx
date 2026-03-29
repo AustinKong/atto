@@ -153,7 +153,7 @@ export function StatusEventModal() {
             <Dialog.Header>
               <Dialog.Title>{isNewEvent ? 'Create' : 'Edit'} Timeline Event</Dialog.Title>
             </Dialog.Header>
-            <Dialog.Body pb="8">
+            <Dialog.Body pb="xl">
               <FormFields
                 control={control}
                 register={register}

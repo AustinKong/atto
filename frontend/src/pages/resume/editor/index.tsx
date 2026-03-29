@@ -30,8 +30,8 @@ export function Editor() {
         <Tabs.Trigger value="json">JSON Editor</Tabs.Trigger>
       </Tabs.List>
 
-      <Tabs.Content value="visual" p="4" overflowX="hidden">
-        <VStack align="stretch" gap="4">
+      <Tabs.Content value="visual" p="md" overflowX="hidden">
+        <VStack align="stretch" gap="md">
           <ProfileEditor />
           <SectionsEditor
             ref={sectionsEditorRef}

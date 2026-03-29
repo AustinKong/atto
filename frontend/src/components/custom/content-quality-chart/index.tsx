@@ -84,7 +84,7 @@ export const ContentQualityChart = ({ data = mockData }: ContentQualityChartProp
 
   return (
     <Box w="full" h="full" display="flex" flexDirection="column">
-      <Text fontWeight="bold" fontSize="sm" mb="2">
+      <Text fontWeight="bold" fontSize="sm" mb="xs">
         Content Quality
       </Text>
       <Box flex="1" w="full" position="relative">
@@ -123,13 +123,12 @@ export const ContentQualityChart = ({ data = mockData }: ContentQualityChartProp
             <Box
               bg="bg.panel"
               color="fg"
-              px="2"
-              py="1"
+              px="xs"
+              py="2xs"
               borderRadius="sm"
               fontSize="xs"
               fontWeight="bold"
-              border="1px solid"
-              borderColor="border.muted"
+              border="muted"
             >
               {id}: {Math.abs(Math.round(value))}
             </Box>

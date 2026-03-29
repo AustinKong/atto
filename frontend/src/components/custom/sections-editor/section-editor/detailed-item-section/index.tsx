@@ -57,7 +57,7 @@ export const DetailedItemSection = memo(
         autoScroll={false}
       >
         <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
-          <VStack gap="4" w="full" align="stretch">
+          <VStack gap="md" w="full" align="stretch">
             {fields.map((field, index) => (
               <DetailedItem
                 key={field.id}
@@ -75,7 +75,7 @@ export const DetailedItemSection = memo(
           aria-label="Add experience item"
           variant="outline"
           w="full"
-          mt="2"
+          mt="xs"
         >
           <PiPlus /> Add Entry
         </Button>

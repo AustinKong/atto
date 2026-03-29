@@ -25,19 +25,19 @@ export function SourceTooltip({ sources }: SourceTooltipProps) {
       <Portal>
         <HoverCard.Positioner>
           <HoverCard.Content>
-            <VStack align="stretch" gap="3">
+            <VStack align="stretch" gap="sm">
               {sources.map((source, index) => {
                 const domain = new URL(source.url).hostname.replace('www.', '');
                 return (
                   <VStack
                     key={index}
                     align="stretch"
-                    gap="2"
+                    gap="xs"
                     pb={index < sources.length - 1 ? '2' : '0'}
                     borderBottom={index < sources.length - 1 ? '1px solid' : 'none'}
                     borderColor="border.muted"
                   >
-                    <HStack gap="2" align="center" asChild cursor="pointer">
+                    <HStack gap="xs" align="center" asChild cursor="pointer">
                       <Link to={source.url} target="_blank" rel="noopener noreferrer">
                         <CompanyLogo
                           domain={domain}

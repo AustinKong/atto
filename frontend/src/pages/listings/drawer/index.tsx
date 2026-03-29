@@ -1,20 +1,26 @@
-import { CloseButton, Tabs } from '@chakra-ui/react';
+import { CloseButton, Icon, Tabs } from '@chakra-ui/react';
+import { LuArrowUpRight } from 'react-icons/lu';
 import { Link, useNavigate, useParams } from 'react-router';
 
 import { Info as DetailsTab } from './info';
-import { Intelligence as IntelligenceTab } from './intelligence';
+import { Intelligence as IntelligenceTab } from './research';
 
 export function ListingDrawer() {
   const navigate = useNavigate();
   const { listingId } = useParams<{ listingId: string }>();
 
   return (
-    <Tabs.Root defaultValue="details">
+    <Tabs.Root defaultValue="info">
       <Tabs.List>
-        <Tabs.Trigger value="details">Details</Tabs.Trigger>
-        <Tabs.Trigger value="intelligence">Intelligence</Tabs.Trigger>
+        <Tabs.Trigger value="info">Info</Tabs.Trigger>
+        <Tabs.Trigger value="research">Research</Tabs.Trigger>
         <Tabs.Trigger value="applications" asChild>
-          <Link to={`/listings/${listingId}/applications`}>Applications</Link>
+          <Link to={`/listings/${listingId}/applications`}>
+            Applications{' '}
+            <Icon size="md">
+              <LuArrowUpRight />
+            </Icon>
+          </Link>
         </Tabs.Trigger>
         <CloseButton
           position="absolute"
@@ -23,10 +29,10 @@ export function ListingDrawer() {
           variant="plain"
         />
       </Tabs.List>
-      <Tabs.Content value="details">
+      <Tabs.Content value="info">
         <DetailsTab />
       </Tabs.Content>
-      <Tabs.Content value="intelligence">
+      <Tabs.Content value="research">
         <IntelligenceTab />
       </Tabs.Content>
     </Tabs.Root>

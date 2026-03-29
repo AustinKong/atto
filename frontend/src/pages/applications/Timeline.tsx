@@ -43,7 +43,7 @@ function StatusEventPeople({ event }: { event: StatusEvent }) {
   if (!people || people.length === 0) return null;
 
   return (
-    <HStack gap="2">
+    <HStack gap="xs">
       <Icon>
         <PiPerson />
       </Icon>
@@ -70,9 +70,9 @@ function InterviewEventDetails({ event }: { event: StatusEventInterview }) {
   if (!scheduledAt && !location) return null;
 
   return (
-    <VStack align="stretch" gap="1">
+    <VStack align="stretch" gap="2xs">
       {scheduledAt && (
-        <HStack gap="2">
+        <HStack gap="xs">
           <Icon>
             <LuClock />
           </Icon>
@@ -85,7 +85,7 @@ function InterviewEventDetails({ event }: { event: StatusEventInterview }) {
         </HStack>
       )}
       {location && (
-        <HStack gap="2">
+        <HStack gap="xs">
           <Icon>
             <LuMapPin />
           </Icon>
@@ -156,7 +156,7 @@ function TimelineItem({ event, application }: { event: StatusEvent; application:
             <InterviewEventDetails event={event as StatusEventInterview} />
           </Collapsible.Content>
 
-          <HStack justify="space-between" w="full" mt="1" fontSize="sm" color="fg.muted">
+          <HStack justify="space-between" w="full" mt="2xs" fontSize="sm" color="fg.muted">
             {hasContent && (
               <Collapsible.Trigger asChild>
                 <Text as="button" _hover={{ textDecoration: 'underline' }} cursor="pointer">
@@ -202,7 +202,7 @@ export function Timeline({ application }: { application: Application }) {
         </IconButton>
       </HStack>
 
-      <ChakraTimeline.Root size="xl" variant="solid" mt="4">
+      <ChakraTimeline.Root size="xl" variant="solid" mt="md">
         {application.statusEvents.map((event: StatusEvent) => (
           <TimelineItem key={event.id} event={event} application={application} />
         ))}

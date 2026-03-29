@@ -34,8 +34,7 @@ export function Toolbar({
       w="full"
       justifyContent="space-between"
       p="1.5"
-      borderBottom="1px solid"
-      borderColor="border"
+      borderBottom="subtle"
     >
       <Button onClick={() => open()}>Add Listings</Button>
 

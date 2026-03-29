@@ -1,10 +1,10 @@
 import { Splitter, VStack } from '@chakra-ui/react';
-import { Center, Spinner } from '@chakra-ui/react';
 import { Suspense } from 'react';
 import { Outlet, useParams } from 'react-router';
 
 import { useDebouncedUrlSyncedState } from '@/hooks/use-debounced-url-synced-state.hooks';
 import { useLocalStorage } from '@/hooks/use-local-storage.hooks';
+import { Loader } from '@/routes/base-route/Loader';
 
 import { Table } from './table';
 import { Toolbar } from './Toolbar';
@@ -35,16 +35,9 @@ export function ListingsPage() {
           if (isDrawerOpen) setDrawerOpenSizes(details.size);
         }}
         h="full"
-        w="full"
       >
         <Splitter.Panel id="table">
-          <Suspense
-            fallback={
-              <Center h="full">
-                <Spinner />
-              </Center>
-            }
-          >
+          <Suspense fallback={<Loader />}>
             <Table debouncedSearch={debouncedSearchInput} />
           </Suspense>
         </Splitter.Panel>

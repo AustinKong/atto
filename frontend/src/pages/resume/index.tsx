@@ -31,10 +31,10 @@ export function ResumePage() {
       </Splitter.Panel>
       <Splitter.ResizeTrigger id="preview:graphs" />
       <Splitter.Panel id="graphs">
-        <VStack align="stretch" gap="4" p="4" h="full" overflowY="auto">
+        <VStack align="stretch" gap="md" p="md" h="full" overflowY="auto">
           {/* Match Score Gauge */}
-          <Box borderRadius="md" p="4">
-            <VStack align="stretch" gap="2">
+          <Box borderRadius="md" p="md">
+            <VStack align="stretch" gap="xs">
               <Text textStyle="sm" color="fg.muted">
                 Match Score
               </Text>
@@ -43,8 +43,8 @@ export function ResumePage() {
           </Box>
 
           {/* Skills Radar */}
-          <Box borderRadius="md" p="4" flex="1" minW="0" overflowY="auto">
-            <VStack align="stretch" gap="2" h="full">
+          <Box borderRadius="md" p="md" flex="1" minW="0" overflowY="auto">
+            <VStack align="stretch" gap="xs" h="full">
               <Text textStyle="sm" color="fg.muted">
                 Skills Radar
               </Text>
@@ -55,8 +55,8 @@ export function ResumePage() {
           </Box>
 
           {/* Content Quality */}
-          <Box borderRadius="md" p="4" flex="1" minW="0" overflowY="auto">
-            <VStack align="stretch" gap="2" h="full">
+          <Box borderRadius="md" p="md" flex="1" minW="0" overflowY="auto">
+            <VStack align="stretch" gap="xs" h="full">
               <Text textStyle="sm" color="fg.muted">
                 Content Quality
               </Text>

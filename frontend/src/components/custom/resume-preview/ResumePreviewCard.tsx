@@ -52,8 +52,8 @@ export function ResumePreviewCard({
         minH="0"
         overflow="hidden"
         bg="bg.muted"
-        py="8"
-        px="12"
+        py="xl"
+        px="2xl"
         borderRadius="sm"
       >
         <Box h={`${scaledHeight}px`}>

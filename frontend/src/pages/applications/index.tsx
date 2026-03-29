@@ -21,7 +21,7 @@ export function ApplicationsEmpty() {
 
   return (
     <>
-      <VStack align="stretch" gap="4" px="4" mb="4">
+      <VStack align="stretch" gap="md" px="md" mb="md">
         <VStack align="stretch">
           <Heading size="md">Applications</Heading>
           <Text color="fg.muted">
@@ -56,7 +56,7 @@ export function Applications() {
 
   return (
     <StatusEventProvider>
-      <VStack align="stretch" gap="4" px="4" mb="4">
+      <VStack align="stretch" gap="md" px="md" mb="md">
         <Details application={application} listing={listing} />
         <SkillsComparison applicationId={applicationId} listingId={listingId!} />
         <Timeline application={application} />
