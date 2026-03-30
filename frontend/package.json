@@ -44,6 +44,7 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@chakra-ui/cli": "^3.34.0",
     "@eslint/js": "^9.36.0",
     "@types/node": "^24.6.0",
     "@types/react": "^19.1.16",

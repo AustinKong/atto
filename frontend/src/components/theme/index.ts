@@ -1,3 +1,5 @@
+import { createSystem, defaultConfig, type SystemConfig } from '@chakra-ui/react';
+
 import { badgeRecipe } from './recipes/badge.recipe';
 import { buttonRecipe } from './recipes/button.recipe';
 import { closeButtonRecipe } from './recipes/close-button.recipe';
@@ -22,7 +24,7 @@ import { borderTokens } from './tokens/borders';
 import { colorTokens } from './tokens/colors';
 import { fontTokens } from './tokens/fonts';
 
-export const themeConfig = {
+const themeConfig: SystemConfig = {
   theme: {
     tokens: {
       colors: colorTokens,
@@ -34,6 +36,7 @@ export const themeConfig = {
       spacing: spacingSemanticTokens,
       colors: colorSemanticTokens,
     },
+    // Info: Chakra UI doesn't support recipes for primitives like VStack and HStack. So, there is no way to set default align="stretch" gap="0"
     recipes: {
       button: buttonRecipe,
       iconButton: iconButtonRecipe,
@@ -73,4 +76,8 @@ export const themeConfig = {
       borderRadius: '0px',
     },
   },
+  strictTokens: true,
 };
+
+// Must export default for chakra typegen to work
+export default createSystem(defaultConfig, themeConfig);

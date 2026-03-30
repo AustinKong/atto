@@ -1,13 +1,14 @@
-import { Box, Heading, Text, VStack } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { ResponsiveTreeMap } from '@nivo/treemap';
 
 import { nivoChartColors, nivoTheme } from '@/components/theme/nivo.theme';
 import type { Listing } from '@/types/listing.types';
 
+import { Section } from '../Section';
+
 export function KeywordAnalysis({ listing }: { listing: Listing }) {
   return (
-    <VStack align="stretch">
-      <Heading size="md">Keyword Analysis</Heading>
+    <Section title="Keyword Analysis">
       {listing.keywords.length > 0 ? (
         <Box h="sm" overflow="hidden" p="2xs">
           <ResponsiveTreeMap
@@ -28,10 +29,8 @@ export function KeywordAnalysis({ listing }: { listing: Listing }) {
           />
         </Box>
       ) : (
-        <Text color="fg.muted" textStyle="sm">
-          No keyword analysis available for this listing.
-        </Text>
+        <Text color="fg.muted">No keyword analysis available for this listing.</Text>
       )}
-    </VStack>
+    </Section>
   );
 }

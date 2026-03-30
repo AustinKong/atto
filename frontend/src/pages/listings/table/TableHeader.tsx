@@ -21,7 +21,7 @@ export function TableHeader({ table }: { table: Table<ListingSummary> }) {
                 <HStack
                   alignItems="center"
                   userSelect="none"
-                  cursor={canSort ? 'pointer' : 'default'}
+                  cursor={canSort ? 'button' : undefined}
                   onClick={header.column.getToggleSortingHandler()}
                   display="inline-flex"
                 >

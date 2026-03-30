@@ -24,7 +24,7 @@ export function ListingDrawer() {
         </Tabs.Trigger>
         <CloseButton
           position="absolute"
-          right="0"
+          right="none"
           onClick={() => navigate('/listings', { replace: true })}
           variant="plain"
         />

@@ -43,7 +43,6 @@ export const listingsQueries = {
     });
   },
 
-  // Single listing query factory
   item: (id: string) =>
     queryOptions({
       queryKey: ['listing', id] as const,

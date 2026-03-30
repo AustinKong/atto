@@ -1,13 +1,14 @@
-import { DataList, Heading, Tag, VStack, Wrap } from '@chakra-ui/react';
+import { DataList, Tag, Wrap } from '@chakra-ui/react';
 
 import { DisplayDate } from '@/components/ui/DisplayDate';
 import type { Listing } from '@/types/listing.types';
 import { formatSalary } from '@/utils/formatters/listing.formatters';
 
+import { Section } from '../Section';
+
 export function About({ listing }: { listing: Listing }) {
   return (
-    <VStack align="stretch">
-      <Heading size="md">About the Role</Heading>
+    <Section title="About the Role">
       <DataList.Root orientation="horizontal" gap="xs" size="lg">
         <DataList.Item>
           <DataList.ItemLabel>Location</DataList.ItemLabel>
@@ -38,6 +39,6 @@ export function About({ listing }: { listing: Listing }) {
           </DataList.ItemValue>
         </DataList.Item>
       </DataList.Root>
-    </VStack>
+    </Section>
   );
 }

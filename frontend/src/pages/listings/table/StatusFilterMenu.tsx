@@ -28,7 +28,7 @@ export function StatusFilterMenu({
         <HStack
           alignItems="center"
           gap="2xs"
-          cursor="pointer"
+          cursor="button"
           userSelect="none"
           onClick={(e) => e.stopPropagation()}
         >

@@ -28,6 +28,7 @@ interface ApplicationFunnelProps {
   currentStatus: StatusEnum;
 }
 
+// TODO: Maybe see if instead of label, use annotaitn of "You": https://nivo.tarazevits.io/storybook/?path=/story/boxplot--markers-and-annotations
 export const ApplicationFunnel = memo(function ApplicationFunnel({
   currentStatus,
 }: ApplicationFunnelProps) {

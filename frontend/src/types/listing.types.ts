@@ -50,9 +50,7 @@ export type ListingResearch = {
   market: {
     summary: string;
   };
-  applicantInsights: {
-    insights: string[];
-  };
+  applicantInsights: { insights: string[] };
   generatedAt: string;
 };
 
