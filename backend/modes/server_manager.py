@@ -1,4 +1,5 @@
 import asyncio
+import os
 import signal
 from collections import deque
 from collections.abc import Callable
@@ -13,6 +14,7 @@ class ServerManager:
     on_line: Callable[[str], None] | None = None,
     on_exit: Callable[[int], None] | None = None,
     log_buffer_size: int = 500,
+    env: dict[str, str] | None = None,
   ):
     """
     Initialize the server manager.
@@ -22,6 +24,7 @@ class ServerManager:
       on_line: Optional callback(line) invoked for each captured output line.
       on_exit: Optional callback(return_code) invoked when the process exits.
       log_buffer_size: Max lines to keep in ring buffer (prevents unbounded memory).
+      env: Optional environment variables dict to pass to subprocess.
     """
     self.command = command
     self.on_line = on_line
@@ -29,6 +32,7 @@ class ServerManager:
     self.log_buffer = deque(maxlen=log_buffer_size)
     self.proc: asyncio.subprocess.Process | None = None
     self._read_task: asyncio.Task | None = None
+    self.env = env or os.environ.copy()
 
   @property
   def running(self) -> bool:
@@ -43,7 +47,10 @@ class ServerManager:
       return False
 
     self.proc = await asyncio.create_subprocess_exec(
-      *self.command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+      *self.command,
+      stdout=asyncio.subprocess.PIPE,
+      stderr=asyncio.subprocess.PIPE,
+      env=self.env,
     )
     self._read_task = asyncio.create_task(self._read_output_loop())
 

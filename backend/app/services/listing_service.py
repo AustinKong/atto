@@ -23,6 +23,7 @@ from app.schemas import (
 )
 from app.schemas.listing import Keyword, ListingResearch
 from app.schemas.task_status import TaskStatus
+from app.utils.auth_context import use_session_cookie
 from app.utils.text import ground_quote
 from app.utils.url import normalize_url
 
@@ -138,37 +139,43 @@ class ListingService:
       screenshot=screenshot,
     )
 
-  async def generate_research_task(self, listing_id: UUID) -> None:
-    self.listing_repository.set_research_status(listing_id, TaskStatus.RUNNING)
+  # Must manually plumb the Clerk session cookie because this is a background task
+  async def generate_research_task(
+    self,
+    listing_id: UUID,
+    session_cookie: str | None = None,
+  ) -> None:
+    with use_session_cookie(session_cookie):
+      self.listing_repository.set_research_status(listing_id, TaskStatus.RUNNING)
 
-    try:
-      listing = self.listing_repository.get(listing_id)
+      try:
+        listing = self.listing_repository.get(listing_id)
 
-      # Perform sequentially since crawling is very resource intensive
-      # TODO: Allow user to crawl in parallel, adding a setting for users with powerful machines
-      sentiment = await self.listing_research_client.get_sentiment_analysis(listing)
-      salary = await self.listing_research_client.get_salary_range(listing)
-      market = await self.listing_research_client.get_market_context(listing)
+        # Perform sequentially since crawling is very resource intensive
+        # TODO: Allow user to crawl in parallel, adding a setting for users with powerful machines
+        sentiment = await self.listing_research_client.get_sentiment_analysis(listing)
+        salary = await self.listing_research_client.get_salary_range(listing)
+        market = await self.listing_research_client.get_market_context(listing)
 
-      insights_result = await self.listing_research_client.get_applicant_insights(
-        listing=listing,
-        sentiment=sentiment,
-        salary=salary,
-        market=market,
-      )
-      research = ListingResearch(
-        sentiment=sentiment,
-        salary=salary,
-        market=market,
-        applicant_insights=insights_result,
-        generated_at=datetime.now(UTC),
-      )
+        insights_result = await self.listing_research_client.get_applicant_insights(
+          listing=listing,
+          sentiment=sentiment,
+          salary=salary,
+          market=market,
+        )
+        research = ListingResearch(
+          sentiment=sentiment,
+          salary=salary,
+          market=market,
+          applicant_insights=insights_result,
+          generated_at=datetime.now(UTC),
+        )
 
-      self.listing_repository.update_research(
-        listing_id,
-        research.model_dump_json(by_alias=True),
-      )
-      self.listing_repository.set_research_status(listing_id, TaskStatus.SUCCEEDED)
-    except Exception as e:
-      self.listing_repository.set_research_status(listing_id, TaskStatus.FAILED, str(e))
-      raise
+        self.listing_repository.update_research(
+          listing_id,
+          research.model_dump_json(by_alias=True),
+        )
+        self.listing_repository.set_research_status(listing_id, TaskStatus.SUCCEEDED)
+      except Exception as e:
+        self.listing_repository.set_research_status(listing_id, TaskStatus.FAILED, str(e))
+        raise

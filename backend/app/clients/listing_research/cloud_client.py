@@ -1,7 +1,6 @@
 import asyncio
 
-import httpx
-
+from app.clients.cloud_api_client import CloudApiClient
 from app.clients.model import ModelClient
 from app.clients.scraping import ScrapingClient
 from app.schemas.listing import (
@@ -28,9 +27,11 @@ class CloudListingResearchClient(ListingResearchClient):
     self,
     llm_client: ModelClient,
     scraping_client: ScrapingClient,
+    cloud_api_client: CloudApiClient,
   ):
     self.llm_client = llm_client
     self.scraping_client = scraping_client
+    self.cloud_api_client = cloud_api_client
 
   async def get_sentiment_analysis(self, listing: Listing) -> SentimentAnalysisResult:
     query = SENTIMENT_SEARCH_QUERY.format(company=listing.company)
@@ -45,14 +46,10 @@ class CloudListingResearchClient(ListingResearchClient):
       max_results=10,
     )
 
-    # TODO: Create an API client that handles auth and error handling instead of raw httpx calls.
-    async with httpx.AsyncClient() as http_client:
-      response = await http_client.get(
-        'cloud/glassdoor-sentiment-analysis',
-        params={'company': listing.company, 'role': listing.title},
-      )
-      response.raise_for_status()
-      _sentiment_results = response.json()
+    _sentiment_results = await self.cloud_api_client.get_json(
+      '/cloud/glassdoor-sentiment-analysis',
+      params={'company': listing.company, 'role': listing.title},
+    )
 
     prompt = SENTIMENT_PROMPT_TEMPLATE.format(
       listing_json=listing.model_dump_json(),
@@ -62,24 +59,18 @@ class CloudListingResearchClient(ListingResearchClient):
     return await self.llm_client.call_structured(prompt, SentimentAnalysisResult)
 
   async def get_salary_range(self, listing: Listing) -> SalaryRangeResult:
-    async with httpx.AsyncClient() as http_client:
-      response = await http_client.get(
-        'cloud/salary-range',
-        params={'company': listing.company, 'role': listing.title, 'location': listing.location},
-      )
-      response.raise_for_status()
-      results = response.json()
+    results = await self.cloud_api_client.get_json(
+      '/cloud/salary-range',
+      params={'company': listing.company, 'role': listing.title, 'location': listing.location},
+    )
 
     return SalaryRangeResult.model_validate(results)
 
   async def get_market_context(self, listing: Listing) -> MarketContextResult:
-    async with httpx.AsyncClient() as http_client:
-      response = await http_client.get(
-        'cloud/market-context',
-        params={'company': listing.company, 'role': listing.title},
-      )
-      response.raise_for_status()
-      _market_results = response.json()
+    _market_results = await self.cloud_api_client.get_json(
+      '/cloud/market-context',
+      params={'company': listing.company, 'role': listing.title},
+    )
 
     query_one = MARKET_SEARCH_QUERY_1.format(company=listing.company)
     query_two = MARKET_SEARCH_QUERY_2.format(title=listing.title)

@@ -1,4 +1,3 @@
-import subprocess
 import sys
 import webbrowser
 from pathlib import Path
@@ -47,8 +46,20 @@ def install_playwright_browsers():
       browser = p.chromium.launch(headless=True)
       browser.close()
   except Exception:
+    # Avoid using subprocess.run to install browsers as it breaks in frozen context.
     print('Downloading Chromium... please wait.')
-    subprocess.run([sys.executable, '-m', 'playwright', 'install', 'chromium'], check=True)
+    from playwright.__main__ import main as playwright_main
+
+    original_argv = sys.argv
+    try:
+      sys.argv = ['playwright', 'install', 'chromium']
+      try:
+        playwright_main()
+      except SystemExit as exc:
+        if exc.code not in (0, None):
+          raise
+    finally:
+      sys.argv = original_argv
 
 
 def main():

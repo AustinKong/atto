@@ -1,3 +1,4 @@
+import os
 import sys
 
 from textual import on
@@ -67,13 +68,23 @@ class ConsoleApp(App):
   def __init__(self, **kwargs):
     super().__init__(**kwargs)
     # Spawn the server subprocess via headless script.
+    # Use environment variable instead of argv because in frozen context, sys.argv is no reliable.
+    env = os.environ.copy()
+    env['ATTO_HEADLESS'] = '1'
+
     self.server = ServerManager(
-      command=[sys.executable, '--headless'],
-      on_line=lambda line: self.log_widget.write(line),
-      on_exit=lambda return_code: (
-        setattr(self.restart_button, 'disabled', False) if return_code != 0 else None
-      ),
+      command=[sys.executable],
+      env=env,
+      on_line=self.on_line,
+      on_exit=self.on_server_exit,
     )
+
+  def on_line(self, line: str) -> None:
+    self.log_widget.write(line)
+
+  def on_server_exit(self, return_code: int) -> None:
+    if return_code != 0:
+      self.restart_button.disabled = False
 
   async def on_mount(self) -> None:
     try:
@@ -85,7 +96,7 @@ class ConsoleApp(App):
     yield Static(LOGO, id='logo')
 
     yield Static(
-      '⚠️ Do not close this window!  |  🌐 Access the app at: http://localhost:3000', id='disclaimer'
+      '⚠️ Do not close this window!  |  🌐 Access the app at: http://127.0.0.1:8000', id='disclaimer'
     )
 
     with Container(id='log-section'):

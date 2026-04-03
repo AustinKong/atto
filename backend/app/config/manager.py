@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 from app.config.schemas import (
   AppConfig,
+  AuthPrefs,
   ExperiencesPrefs,
   ExperimentalPrefs,
   IngestionPrefs,
@@ -69,6 +70,10 @@ class ConfigManager:
   @property
   def model(self) -> ModelPrefs:
     return self.config.model
+
+  @property
+  def auth(self) -> AuthPrefs:
+    return self.config.auth
 
   @property
   def listings(self) -> ListingsPrefs:

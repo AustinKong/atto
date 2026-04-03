@@ -140,6 +140,15 @@ class ModelPrefs(BaseModel):
   )
 
 
+class AuthPrefs(BaseModel):
+  clerk_publishable_key: str = ConfigField(
+    default='pk_test_c2hpbmluZy1yZWRiaXJkLTE4LmNsZXJrLmFjY291bnRzLmRldiQ',
+    title='Clerk Publishable Key',
+    description=('Public Clerk key used by the frontend auth SDK. '),
+    exposure='advanced',
+  )
+
+
 class ListingsPrefs(BaseModel):
   semantic_threshold: float = ConfigField(
     default=0.90,
@@ -254,6 +263,11 @@ class AppConfig(BaseModel):
     default_factory=ModelPrefs,
     title='AI Models',
     description='LLM and embedding model settings',
+  )
+  auth: AuthPrefs = Field(
+    default_factory=AuthPrefs,
+    title='Authentication',
+    description='Clerk frontend authentication settings',
   )
   listings: ListingsPrefs = Field(
     default_factory=ListingsPrefs,

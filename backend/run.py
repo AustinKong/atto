@@ -1,8 +1,8 @@
+import os
 import sys
 
 if __name__ == '__main__':
-  # if '--headless' in sys.argv or not sys.stdin.isatty():
-  if '--headless' in sys.argv:
+  if os.environ.get('ATTO_HEADLESS') == '1' or '--headless' in sys.argv:
     try:
       sys.argv.remove('--headless')
     except ValueError:
