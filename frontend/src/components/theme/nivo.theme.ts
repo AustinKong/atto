@@ -1,5 +1,12 @@
 import type { Theme } from '@nivo/theming';
 
+// FIXME: Nivo Theme seems to not update in response to Chakra color mode changes.
+// Opening the page in light mode, then switching to dark mode causes all colors to stay as old.
+// Only on page refresh does the dark mode colors come in. Likely because Nivo's theming system doesn't support dynamic updates.
+// Minor issue but should be investigated further.
+
+// Also consider if there is an equivalent to useToken that can be used to reference Chakra tokens
+
 // Maps Chakra UI v3 tokens to CSS variable references so Nivo themes
 // automatically respond to light/dark mode and system font configuration.
 const colorVar = (token: string) => `var(--chakra-colors-${token.replace(/\./g, '-')})`;

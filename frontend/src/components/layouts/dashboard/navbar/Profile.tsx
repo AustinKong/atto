@@ -1,6 +1,20 @@
 import { Avatar, DataList, Heading, Menu, Portal, VStack } from '@chakra-ui/react';
+import { useNavigate } from 'react-router';
+
+import { useAuth } from '@/hooks/use-auth.hooks';
 
 export function Profile() {
+  const navigate = useNavigate();
+  const { signOut, isSignedIn, user, exitGuestMode } = useAuth();
+
+  const avatarName = user?.fullName ?? user?.username ?? 'Guest User';
+  const avatarSrc = user?.imageUrl;
+
+  function handleLogin() {
+    exitGuestMode();
+    navigate('/sign-in');
+  }
+
   return (
     <Menu.Root positioning={{ placement: 'bottom-end' }}>
       <Menu.Trigger
@@ -12,14 +26,24 @@ export function Profile() {
         aria-controls="user-menu"
       >
         <Avatar.Root size="sm">
-          <Avatar.Fallback name="User" />
-          <Avatar.Image alt="" src="https://api.dicebear.com/9.x/notionists-neutral/svg?seed=Leo" />
+          <Avatar.Fallback name={avatarName} />
+          {/* TODO: Check if this is correct pattern in charkaui */}
+          {avatarSrc ? <Avatar.Image alt={avatarName} src={avatarSrc} /> : null}
         </Avatar.Root>
       </Menu.Trigger>
       <Portal>
         <Menu.Positioner>
           <Menu.Content id="user-menu" minW="70" aria-labelledby="user-menu-heading">
             <TokenCounter />
+            {isSignedIn ? (
+              <Menu.Item value="logout" onClick={() => signOut()}>
+                Logout
+              </Menu.Item>
+            ) : (
+              <Menu.Item value="login" onClick={handleLogin}>
+                Login
+              </Menu.Item>
+            )}
           </Menu.Content>
         </Menu.Positioner>
       </Portal>

@@ -23,7 +23,9 @@ export function Intelligence() {
     <VStack px="md" gap="lg" align="stretch" key={listing.id}>
       <SentimentAnalysis sentiment={research?.sentiment} />
 
-      {research?.salary && <SalaryRange salary={research.salary} listingSalary={listing.salary} />}
+      {research?.salary && (
+        <SalaryRange salaryRange={research.salary} listingSalary={listing.salary} />
+      )}
 
       <MarketSummary summary={research?.market.summary} />
 

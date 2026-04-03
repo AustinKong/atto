@@ -76,7 +76,7 @@ const themeConfig: SystemConfig = {
       borderRadius: '0px',
     },
   },
-  strictTokens: true,
+  strictTokens: false,
 };
 
 // Must export default for chakra typegen to work
