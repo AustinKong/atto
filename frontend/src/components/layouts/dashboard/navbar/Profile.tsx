@@ -12,7 +12,7 @@ export function Profile() {
 
   function handleLogin() {
     exitGuestMode();
-    navigate('/sign-in');
+    navigate('/auth');
   }
 
   return (
