@@ -6,14 +6,13 @@ class RedisSettings(BaseModel):
   url: str = 'redis://localhost:6379/0'
 
 
+# TODO: Why are these have default. remove
 class PostgresSettings(BaseModel):
   url: str = 'postgresql+asyncpg://postgres:postgres@localhost:5432/atto_cloud'
 
 
 class ClerkSettings(BaseModel):
-  jwks_url: str
-  issuer: str
-  audience: str | None = None
+  secret_key: str
 
 
 class CloudSettings(BaseSettings):
@@ -23,11 +22,13 @@ class CloudSettings(BaseSettings):
   postgres: PostgresSettings = PostgresSettings()
   clerk: ClerkSettings
 
+  # TODO: Should probably nest these as well
   glassdoor_api_key: str = ''
   salary_api_key: str = ''
   market_api_key: str = ''
   gemini_api_key: str = ''
-  gemini_model: str = 'gemini-2.0-flash'
+  gemini_model: str = 'gemini-3.1-flash-lite-preview'
+  gemini_embedding_model: str = 'gemini-embedding-001'
   gemini_temperature: float = 0.2
 
   default_token_budget: int = 1000

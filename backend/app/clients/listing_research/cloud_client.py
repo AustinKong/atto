@@ -46,7 +46,7 @@ class CloudListingResearchClient(ListingResearchClient):
       max_results=10,
     )
 
-    _sentiment_results = await self.cloud_api_client.get_json(
+    _sentiment_results = await self.cloud_api_client.get(
       '/cloud/glassdoor-sentiment-analysis',
       params={'company': listing.company, 'role': listing.title},
     )
@@ -59,7 +59,7 @@ class CloudListingResearchClient(ListingResearchClient):
     return await self.llm_client.call_structured(prompt, SentimentAnalysisResult)
 
   async def get_salary_range(self, listing: Listing) -> SalaryRangeResult:
-    results = await self.cloud_api_client.get_json(
+    results = await self.cloud_api_client.get(
       '/cloud/salary-range',
       params={'company': listing.company, 'role': listing.title, 'location': listing.location},
     )
@@ -67,7 +67,7 @@ class CloudListingResearchClient(ListingResearchClient):
     return SalaryRangeResult.model_validate(results)
 
   async def get_market_context(self, listing: Listing) -> MarketContextResult:
-    _market_results = await self.cloud_api_client.get_json(
+    _market_results = await self.cloud_api_client.get(
       '/cloud/market-context',
       params={'company': listing.company, 'role': listing.title},
     )

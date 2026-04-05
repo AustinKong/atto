@@ -1,9 +1,13 @@
 services:
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: cloud/Dockerfile
     ports:
       - "8001:8001"
-    env_file: .env
+    env_file:
+      - path: ./cloud/.env
+        required: true
     environment:
       REDIS__URL: redis://redis:6379/0
       POSTGRES__URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/atto_cloud

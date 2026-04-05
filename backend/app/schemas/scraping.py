@@ -6,7 +6,7 @@ from pydantic import Field, HttpUrl
 
 from app.schemas.dates import ISODate
 from app.schemas.listing import Listing, ListingBase, Money
-from app.schemas.types import CamelModel
+from shared.schemas.types import CamelModel
 
 T = TypeVar('T')
 

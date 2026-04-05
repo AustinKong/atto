@@ -1,4 +1,4 @@
-from app.schemas.types import CamelModel
+from shared.schemas.types import CamelModel
 
 
 class Profile(CamelModel):

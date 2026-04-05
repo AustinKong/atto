@@ -29,6 +29,7 @@
 
   // Python: Ruff owns formatting and fixes
   "[python]": { "editor.defaultFormatter": "charliermarsh.ruff" },
+  "python.analysis.extraPaths": ["backend", "cloud", "shared"],
 
   // --- Explorer hygiene (optional; but don't hide config you edit often) ---
   "files.exclude": {

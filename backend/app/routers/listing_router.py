@@ -87,13 +87,13 @@ async def generate_research(
   background_tasks: BackgroundTasks,
   listing_service: Annotated[ListingService, Depends()],
   listing_repository: Annotated[ListingRepository, Depends()],
-  session_cookie: Annotated[str | None, Cookie(alias='__session')] = None,
+  session_token: Annotated[str | None, Cookie(alias='__session')] = None,
 ):
   listing_repository.set_research_status(id, TaskStatus.PENDING)
   background_tasks.add_task(
     listing_service.generate_research_task,
     id,
-    session_cookie,
+    session_token,
   )
   return listing_repository.get_research_status(id)
 

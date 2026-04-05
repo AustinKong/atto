@@ -1,11 +1,7 @@
-from typing import Annotated
-
 import httpx
-from fastapi import Depends
 from pydantic import BaseModel
 
-from app.clients.base_client import ProviderClient
-from app.dependencies import get_http_client
+from app.clients.base_client import ProviderClient, throttled
 from app.utils.settings import settings
 
 
@@ -20,13 +16,15 @@ class GlassdoorClient(ProviderClient):
   bucket_capacity = 100
   refill_rate = 1.0  # 1 token/s → 3600/hour
 
-  def __init__(self, http: Annotated[httpx.AsyncClient, Depends(get_http_client)]) -> None:
+  def __init__(self, http_client: httpx.AsyncClient) -> None:
+    super().__init__()
+    self._http_client = http_client
     self._api_key = settings.glassdoor_api_key
-    self._http = http
 
+  @throttled
   async def get_company_reviews(self, company: str, role: str) -> GlassdoorReviews:
     # TODO: replace with real Glassdoor API endpoint
-    response = await self._http.get(
+    response = await self._http_client.get(
       'https://api.glassdoor.com/api/api.htm',
       params={
         't.k': self._api_key,

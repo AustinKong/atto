@@ -149,6 +149,22 @@ class AuthPrefs(BaseModel):
   )
 
 
+class CloudPrefs(BaseModel):
+  base_url: str = ConfigField(
+    default='http://localhost:8001',
+    title='Cloud Service URL',
+    description='Base URL for the cloud service used by backend cloud clients.',
+    exposure='advanced',
+  )
+  timeout: float = ConfigField(
+    default=30.0,
+    title='Cloud Request Timeout',
+    ge=1.0,
+    description='Timeout in seconds for requests from backend to cloud.',
+    exposure='advanced',
+  )
+
+
 class ListingsPrefs(BaseModel):
   semantic_threshold: float = ConfigField(
     default=0.90,
@@ -268,6 +284,11 @@ class AppConfig(BaseModel):
     default_factory=AuthPrefs,
     title='Authentication',
     description='Clerk frontend authentication settings',
+  )
+  cloud: CloudPrefs = Field(
+    default_factory=CloudPrefs,
+    title='Cloud Service',
+    description='Backend cloud service settings',
   )
   listings: ListingsPrefs = Field(
     default_factory=ListingsPrefs,

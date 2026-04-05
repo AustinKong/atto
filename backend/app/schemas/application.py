@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 from pydantic import Field, field_validator
 
 from app.schemas.dates import ISODate, ISODatetime
-from app.schemas.types import CamelModel
+from shared.schemas.types import CamelModel
 
 
 class StatusEnum(StrEnum):

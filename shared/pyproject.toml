@@ -1,0 +1,31 @@
+[project]
+name = "shared"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+  "pydantic>=2.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"shared" = "."}
+packages = ["shared"]
+
+[tool.ruff]
+line-length = 100
+indent-width = 2
+target-version = "py311"
+lint.extend-select = ["E", "F", "B", "UP", "I"]
+fix = true
+show-fixes = true
+
+[tool.ruff.lint.isort]
+known-first-party = ["shared"]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+line-ending = "lf"

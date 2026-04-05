@@ -1,38 +1,55 @@
 from typing import Any
 
 import httpx
+from pydantic import BaseModel
 
-from app.utils.auth_context import get_session_cookie
+from app.config import settings
+from app.utils.auth_context import get_session_token
 from app.utils.errors import ServiceError
+
+RequestPayload = BaseModel | list[Any] | dict[str, Any]
 
 
 class CloudApiClient:
   def __init__(
     self,
-    base_url: str = 'http://localhost:8001',
-    timeout: float = 30.0,
+    base_url: str = settings.cloud.base_url,
+    timeout: float = settings.cloud.timeout,
   ) -> None:
     self._base_url = base_url.rstrip('/')
     self._timeout = timeout
 
-  async def get_json(self, path: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
-    return await self.request_json('GET', path, params=params)
+  async def get(self, path: str, params: dict[str, Any] | None = None) -> Any:
+    return await self._request('GET', path, params=params)
 
-  async def post_json(self, path: str, payload: dict[str, Any]) -> dict[str, Any]:
-    return await self.request_json('POST', path, json_body=payload)
+  async def post(
+    self,
+    path: str,
+    payload: RequestPayload | str | None = None,
+    params: dict[str, Any] | None = None,
+  ) -> Any:
+    return await self._request('POST', path, params=params, payload=payload)
 
-  async def request_json(
+  async def _request(
     self,
     method: str,
     path: str,
     *,
     params: dict[str, Any] | None = None,
-    json_body: dict[str, Any] | None = None,
-  ) -> dict[str, Any]:
+    payload: RequestPayload | str | None = None,
+  ) -> Any:
     if not self._base_url:
       raise ServiceError('Cloud URL is not configured')
 
     headers = self._build_headers()
+    json_payload: list[Any] | dict[str, Any] | None = None
+    text_payload: str | None = None
+    if isinstance(payload, BaseModel):
+      json_payload = payload.model_dump(by_alias=True)
+    elif isinstance(payload, str):
+      text_payload = payload
+    else:
+      json_payload = payload
 
     try:
       async with httpx.AsyncClient(base_url=self._base_url, timeout=self._timeout) as client:
@@ -40,7 +57,8 @@ class CloudApiClient:
           method=method,
           url=path,
           params=params,
-          json=json_body,
+          json=json_payload,
+          content=text_payload,
           headers=headers,
         )
         response.raise_for_status()
@@ -52,14 +70,14 @@ class CloudApiClient:
     except httpx.RequestError as exc:
       raise ServiceError(f'Cloud request failed: {str(exc)}') from exc
 
-    data = response.json()
-    if not isinstance(data, dict):
-      raise ServiceError('Cloud response must be a JSON object')
-    return data
+    content_type = response.headers.get('content-type', '').lower()
+    if 'application/json' in content_type:
+      return response.json()
+    return response.text
 
   @staticmethod
   def _build_headers() -> dict[str, str]:
-    session_cookie = get_session_cookie()
-    if not session_cookie:
-      raise ServiceError('Missing Cookie header for cloud request')
-    return {'Cookie': f'__session={session_cookie}'}
+    session_token = get_session_token()
+    if not session_token:
+      raise ServiceError('Missing Clerk session token for cloud request')
+    return {'Authorization': f'Bearer {session_token}'}

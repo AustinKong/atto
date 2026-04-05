@@ -15,7 +15,7 @@ from .local_client import LocalListingResearchClient
 def get_listing_research_client(
   llm_client: Annotated[ModelClient, Depends(get_model_client)],
   scraping_client: Annotated[ScrapingClient, Depends(get_scraping_client)],
-  cloud_api_client: Annotated[CloudApiClient, Depends(CloudApiClient)],
+  cloud_api_client: Annotated[CloudApiClient, Depends()],
 ) -> ListingResearchClient:
   if is_authorized():
     return CloudListingResearchClient(

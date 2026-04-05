@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 from pydantic import Field
 
 from app.schemas.dates import ISOYearMonth
-from app.schemas.types import CamelModel
+from shared.schemas.types import CamelModel
 
 
 class ExperienceType(Enum):

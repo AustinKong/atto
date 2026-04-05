@@ -23,7 +23,7 @@ from app.schemas import (
 )
 from app.schemas.listing import Keyword, ListingResearch
 from app.schemas.task_status import TaskStatus
-from app.utils.auth_context import use_session_cookie
+from app.utils.auth_context import use_session_token
 from app.utils.text import ground_quote
 from app.utils.url import normalize_url
 
@@ -143,9 +143,9 @@ class ListingService:
   async def generate_research_task(
     self,
     listing_id: UUID,
-    session_cookie: str | None = None,
+    session_token: str | None = None,
   ) -> None:
-    with use_session_cookie(session_cookie):
+    with use_session_token(session_token):
       self.listing_repository.set_research_status(listing_id, TaskStatus.RUNNING)
 
       try:

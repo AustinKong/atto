@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from app.clients.cloud_api_client import CloudApiClient
 from app.utils.errors import ServiceError
+from shared.schemas.model import CallStructuredRequest
 
 from .base_client import ModelClient
 
@@ -15,26 +16,24 @@ class CloudModelClient(ModelClient):
     self._api_client = api_client
 
   async def call_structured(self, input: str, response_model: type[T]) -> T:
-    payload = {
-      'input': input,
-      'response_schema': response_model.model_json_schema(),
-    }
-
-    data = await self._api_client.post_json('/cloud/model/structured', payload)
-    output = data.get('output')
-    if not output:
-      raise ServiceError('Cloud model did not return any content')
-
-    return response_model.model_validate_json(output)
+    data = await self._api_client.post(
+      '/cloud/model/structured',
+      payload=CallStructuredRequest(
+        input=input,
+        response_schema=response_model.model_json_schema(),
+      ),
+    )
+    return response_model.model_validate(data)
 
   async def call_unstructured(self, input: str) -> str:
-    payload = {'input': input}
-    data = await self._api_client.post_json('/cloud/model/unstructured', payload)
-    output = data.get('output')
+    output = await self._api_client.post('/cloud/model/unstructured', payload=input)
     if not output:
       raise ServiceError('Cloud model did not return any content')
 
     return output
 
   async def embed(self, texts: list[str]) -> list[list[float]]:
-    raise NotImplementedError('Cloud client does not support embeddings')
+    data = await self._api_client.post('/cloud/model/embed', payload=texts)
+    if not isinstance(data, list):
+      raise ServiceError('Cloud model did not return embeddings')
+    return data

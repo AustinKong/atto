@@ -3,14 +3,15 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from app.config.manager import settings
 from app.exception_handlers import (
   application_error_exception_handler,
   duplicate_error_exception_handler,
   not_found_exception_handler,
   service_error_exception_handler,
 )
-from app.middleware import exception_logging_middleware
 from app.middleware.auth import auth_context_middleware
+from app.middleware.logging import exception_logging_middleware
 from app.repositories import ResumeRepository
 from app.routers import (
   application_router,
@@ -38,7 +39,7 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
-  app = FastAPI(lifespan=lifespan)
+  app = FastAPI(lifespan=lifespan, debug=settings.experimental.debug_mode)
 
   app.include_router(application_router, prefix='/api')
   app.include_router(config_router, prefix='/api')

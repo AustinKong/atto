@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from app.schemas.types import CamelModel
+from shared.schemas.types import CamelModel
 
 
 class LinkSelectionResponse(CamelModel):

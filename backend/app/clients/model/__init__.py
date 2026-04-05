@@ -13,7 +13,7 @@ from .openai_client import OpenAIModelClient
 
 
 def get_model_client(
-  cloud_api_client: Annotated[CloudApiClient, Depends(CloudApiClient)],
+  cloud_api_client: Annotated[CloudApiClient, Depends()],
 ) -> ModelClient:
   if is_authorized():
     return CloudModelClient(cloud_api_client)

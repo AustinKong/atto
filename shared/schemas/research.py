@@ -1,10 +1,11 @@
 from pydantic import Field
 
-from app.schemas.types import CamelModel
+from .types import CamelModel
 
 
 class SentimentAnalysisSource(CamelModel):
   url: str
+  title: str
   content: str = Field(description='Relevant quote or extract from the source')
 
 

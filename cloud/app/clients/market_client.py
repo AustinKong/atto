@@ -1,11 +1,7 @@
-from typing import Annotated
-
 import httpx
-from fastapi import Depends
 from pydantic import BaseModel
 
-from app.clients.base_client import ProviderClient
-from app.dependencies import get_http_client
+from app.clients.base_client import ProviderClient, throttled
 from app.utils.settings import settings
 
 
@@ -24,13 +20,15 @@ class MarketClient(ProviderClient):
   bucket_capacity = 150
   refill_rate = 1.5
 
-  def __init__(self, http: Annotated[httpx.AsyncClient, Depends(get_http_client)]) -> None:
+  def __init__(self, http_client: httpx.AsyncClient) -> None:
+    super().__init__()
+    self._http_client = http_client
     self._api_key = settings.market_api_key
-    self._http = http
 
+  @throttled
   async def get_market_news(self, company: str, role: str) -> MarketData:
     # TODO: replace with real news/market API endpoint
-    response = await self._http.get(
+    response = await self._http_client.get(
       'https://newsapi.org/v2/everything',
       params={'apiKey': self._api_key, 'q': f'{company} {role}', 'pageSize': '10'},
     )

@@ -1,57 +1,47 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
-from redis.asyncio import Redis
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, Query
 
-from app.db import get_db_session
-from app.dependencies import get_redis
-from app.endpoints.glassdoor_sentiment_endpoint import GlassdoorSentimentEndpoint
-from app.endpoints.market_context_endpoint import MarketContextEndpoint
-from app.endpoints.salary_range_endpoint import SalaryRangeEndpoint
-from app.schemas.auth import AuthenticatedUser
-from app.schemas.research import MarketContextResult, SalaryRangeResult, SentimentAnalysisResult
-from app.services.auth_service import get_authenticated_user
-from app.services.request_handler import handle_request
+from app.dependencies import require_tokens
+from app.services.research_service import ResearchService
+from shared.schemas.research import MarketContextResult, SalaryRangeResult, SentimentAnalysisResult
 
 router = APIRouter(prefix='/cloud', tags=['Research'])
 
 
-@router.get('/glassdoor-sentiment-analysis', response_model=SentimentAnalysisResult)
+@router.get(
+  '/glassdoor-sentiment-analysis',
+  response_model=SentimentAnalysisResult,
+  dependencies=[Depends(require_tokens(cost=10))],
+)
 async def glassdoor_sentiment_analysis(
-  company: str,
-  role: str,
-  user: Annotated[AuthenticatedUser, Depends(get_authenticated_user)],
-  redis: Annotated[Redis, Depends(get_redis)],
-  db: Annotated[AsyncSession, Depends(get_db_session)],
-  endpoint: Annotated[GlassdoorSentimentEndpoint, Depends()],
+  company: Annotated[str, Query()],
+  role: Annotated[str, Query()],
+  research_service: Annotated[ResearchService, Depends()],
 ) -> SentimentAnalysisResult:
-  return await handle_request(user, endpoint, {'company': company, 'role': role}, redis, db)
+  return await research_service.get_glassdoor_sentiment(company, role)
 
 
-@router.get('/salary-range', response_model=SalaryRangeResult)
+@router.get(
+  '/salary-range', response_model=SalaryRangeResult, dependencies=[Depends(require_tokens(cost=8))]
+)
 async def salary_range(
-  role: str,
-  company: str,
-  user: Annotated[AuthenticatedUser, Depends(get_authenticated_user)],
-  redis: Annotated[Redis, Depends(get_redis)],
-  db: Annotated[AsyncSession, Depends(get_db_session)],
-  endpoint: Annotated[SalaryRangeEndpoint, Depends()],
-  location: str | None = None,
+  role: Annotated[str, Query()],
+  company: Annotated[str, Query()],
+  research_service: Annotated[ResearchService, Depends()],
+  location: Annotated[str | None, Query()] = None,
 ) -> SalaryRangeResult:
-  params = {'role': role, 'company': company}
-  if location:
-    params['location'] = location
-  return await handle_request(user, endpoint, params, redis, db)
+  return await research_service.get_salary_range(role, company, location)
 
 
-@router.get('/market-context', response_model=MarketContextResult)
+@router.get(
+  '/market-context',
+  response_model=MarketContextResult,
+  dependencies=[Depends(require_tokens(cost=12))],
+)
 async def market_context(
-  company: str,
-  role: str,
-  user: Annotated[AuthenticatedUser, Depends(get_authenticated_user)],
-  redis: Annotated[Redis, Depends(get_redis)],
-  db: Annotated[AsyncSession, Depends(get_db_session)],
-  endpoint: Annotated[MarketContextEndpoint, Depends()],
+  company: Annotated[str, Query()],
+  role: Annotated[str, Query()],
+  research_service: Annotated[ResearchService, Depends()],
 ) -> MarketContextResult:
-  return await handle_request(user, endpoint, {'company': company, 'role': role}, redis, db)
+  return await research_service.get_market_context(company, role)

@@ -6,6 +6,11 @@ from pydantic import BeforeValidator, Field, HttpUrl
 from app.schemas.application import Application, StatusEnum
 from app.schemas.dates import ISODate, ISODatetime
 from app.schemas.types import CamelModel, parse_json_list_as, parse_json_model_as
+from shared.schemas.research import (
+  MarketContextResult,
+  SalaryRangeResult,
+  SentimentAnalysisResult,
+)
 
 
 class Keyword(CamelModel):
@@ -16,37 +21,6 @@ class Keyword(CamelModel):
 class Money(CamelModel):
   value: int
   currency: str = Field(default='USD', pattern=r'^[A-Z]{3}$')
-
-
-# TODO: Might be useful as a general purpose schema for future calls that need to cite sources
-class SentimentAnalysisSource(CamelModel):
-  url: str
-  title: str
-  content: str = Field(description='Relevant quote or extract from the source')
-
-
-class SentimentAnalysisResult(CamelModel):
-  value: float = Field(
-    ge=0.0,
-    le=1.0,
-    description='Score from 0.0 to 1.0 indicating overall sentiment positivity',
-  )
-  sources: list[SentimentAnalysisSource] = Field(
-    default_factory=list, description='List of sources used for sentiment analysis'
-  )
-
-
-class SalaryRangeResult(CamelModel):
-  industry_min: int
-  industry_q1: int
-  industry_median: int
-  industry_q3: int
-  industry_max: int
-  currency: str = Field(default='USD', pattern=r'^[A-Z]{3}$')
-
-
-class MarketContextResult(CamelModel):
-  summary: str = Field(description='Concise market context summary for the role and company')
 
 
 class ApplicantInsightsResult(CamelModel):
