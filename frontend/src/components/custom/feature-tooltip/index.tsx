@@ -23,7 +23,7 @@ export function FeatureTooltip({
   }
 
   return (
-    <HoverCard.Root>
+    <HoverCard.Root size="xs">
       <HoverCard.Trigger asChild>
         <IconButton size={size} color={color} variant="plain">
           {getIcon()}

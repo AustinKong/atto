@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/use-auth.hooks';
 
 export function Profile() {
   const navigate = useNavigate();
-  const { signOut, isSignedIn, user, exitGuestMode } = useAuth();
+  const { signOut, accessMode, user, exitGuestMode } = useAuth();
 
   const avatarName = user?.fullName ?? user?.username ?? 'Guest User';
   const avatarSrc = user?.imageUrl;
@@ -35,7 +35,7 @@ export function Profile() {
         <Menu.Positioner>
           <Menu.Content id="user-menu" minW="70" aria-labelledby="user-menu-heading">
             <TokenCounter />
-            {isSignedIn ? (
+            {accessMode === 'signed_in' ? (
               <Menu.Item value="logout" onClick={() => signOut()}>
                 Logout
               </Menu.Item>

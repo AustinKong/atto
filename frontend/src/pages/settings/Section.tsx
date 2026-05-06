@@ -44,12 +44,17 @@ export function Section({
           gap={{ base: '4', md: '20' }}
           invalid={!!errors[`${name}.${fieldName}`]}
         >
-          <Box>
+          <VStack align="start">
             <Field.Label textStyle="md">{field.title}</Field.Label>
             <Field.HelperText color="fg.muted" textStyle="sm">
               {field.description}
             </Field.HelperText>
-          </Box>
+            {field.disabledMessage ? (
+              <Field.HelperText color="fg.warning" textStyle="xs">
+                {field.disabledMessage}
+              </Field.HelperText>
+            ) : null}
+          </VStack>
           <VStack align={{ base: 'start', md: 'end' }} w="full">
             <FieldInput
               field={field}
@@ -58,6 +63,7 @@ export function Section({
               register={register}
               control={control}
               errors={errors}
+              disabled={Boolean(field.disabledMessage)}
             />
             <Field.ErrorText>{errors[`${name}.${fieldName}`]?.message}</Field.ErrorText>
           </VStack>

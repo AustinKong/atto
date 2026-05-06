@@ -3,6 +3,7 @@ export type BaseSettingsField<T> = {
   title: string;
   description: string;
   exposure: 'normal' | 'advanced' | 'secret';
+  disabledMessage?: string | null;
 };
 
 export type SettingsFieldString = BaseSettingsField<string> & {

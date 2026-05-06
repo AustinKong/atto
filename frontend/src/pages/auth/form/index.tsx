@@ -35,7 +35,7 @@ export function Form() {
 
       <Email />
 
-      <Button type="button" variant="outline" onClick={handleContinueAsGuest}>
+      <Button type="button" variant="solid" onClick={handleContinueAsGuest}>
         Continue Without Signing In <LuArrowRight />
       </Button>
     </VStack>

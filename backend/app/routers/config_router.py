@@ -47,6 +47,7 @@ def get_settings():
         'minimum': field_meta.get('minimum'),
         'maximum': field_meta.get('maximum'),
         'enum': field_meta.get('enum'),
+        'disabledMessage': field_meta.get('disabledMessage'),
       }
 
       if (provider := DYNAMIC_ENUM_PROVIDERS.get((category_key, field_key))) is not None:

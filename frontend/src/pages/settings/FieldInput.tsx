@@ -24,6 +24,7 @@ export function FieldInput({
   fieldName,
   register,
   control,
+  disabled,
   errors: _errors,
 }: {
   field: SettingsField;
@@ -31,6 +32,7 @@ export function FieldInput({
   fieldName: string;
   register: UseFormRegister<Record<string, unknown>>;
   control: Control<Record<string, unknown>>;
+  disabled?: boolean;
   errors: FieldErrors<Record<string, unknown>>;
 }) {
   const fullName = `${section}.${fieldName}`;
@@ -38,14 +40,26 @@ export function FieldInput({
   switch (field.type) {
     case 'string':
       return (
-        <StringInput field={field} fullName={fullName} register={register} control={control} />
+        <StringInput
+          field={field}
+          fullName={fullName}
+          register={register}
+          control={control}
+          disabled={disabled}
+        />
       );
     case 'number':
-      return <NumberInput field={field} fullName={fullName} control={control} />;
+      return (
+        <NumberInput field={field} fullName={fullName} control={control} disabled={disabled} />
+      );
     case 'integer':
-      return <IntegerInput field={field} fullName={fullName} control={control} />;
+      return (
+        <IntegerInput field={field} fullName={fullName} control={control} disabled={disabled} />
+      );
     case 'boolean':
-      return <BooleanInput field={field} fullName={fullName} control={control} />;
+      return (
+        <BooleanInput field={field} fullName={fullName} control={control} disabled={disabled} />
+      );
     default:
       return null;
   }
@@ -56,11 +70,13 @@ function StringInput({
   fullName,
   register,
   control,
+  disabled,
 }: {
   field: SettingsFieldString;
   fullName: string;
   register: UseFormRegister<Record<string, unknown>>;
   control: Control<Record<string, unknown>>;
+  disabled?: boolean;
 }) {
   // Check if this field has an enum (should be rendered as a select)
   if (field.enum && field.enum.length > 0) {
@@ -79,6 +95,7 @@ function StringInput({
           <Select.Root
             collection={options}
             value={[rhfField.value as string]}
+            disabled={disabled}
             onValueChange={({ value }) => rhfField.onChange(value[0])}
             onInteractOutside={() => rhfField.onBlur()}
           >
@@ -110,9 +127,9 @@ function StringInput({
   }
 
   return field.exposure === 'secret' ? (
-    <PasswordInput w="full" {...register(fullName)} />
+    <PasswordInput w="full" disabled={disabled} {...register(fullName)} />
   ) : (
-    <Input w="full" {...register(fullName)} />
+    <Input w="full" disabled={disabled} {...register(fullName)} />
   );
 }
 
@@ -120,10 +137,12 @@ function NumberInput({
   field,
   fullName,
   control,
+  disabled,
 }: {
   field: SettingsFieldNumber;
   fullName: string;
   control: Control<Record<string, unknown>>;
+  disabled?: boolean;
 }) {
   return (
     <Controller
@@ -137,6 +156,7 @@ function NumberInput({
           min={field.minimum}
           max={field.maximum}
           step={0.01}
+          disabled={disabled}
           onValueChange={({ value }) => rhfField.onChange(value[0])}
           onFocusChange={({ focusedIndex }) => {
             if (focusedIndex !== -1) return;
@@ -163,10 +183,12 @@ function IntegerInput({
   field,
   fullName,
   control,
+  disabled,
 }: {
   field: SettingsFieldInteger;
   fullName: string;
   control: Control<Record<string, unknown>>;
+  disabled?: boolean;
 }) {
   return (
     <Controller
@@ -179,6 +201,7 @@ function IntegerInput({
           value={String(rhfField.value ?? '')}
           min={field.minimum}
           max={field.maximum}
+          disabled={disabled}
           onValueChange={({ value }) => rhfField.onChange(value)}
         >
           <ChakraNumberInput.Control />
@@ -193,10 +216,12 @@ function BooleanInput({
   field: _field,
   fullName,
   control,
+  disabled,
 }: {
   field: SettingsFieldBoolean;
   fullName: string;
   control: Control<Record<string, unknown>>;
+  disabled?: boolean;
 }) {
   return (
     <Controller
@@ -206,6 +231,7 @@ function BooleanInput({
         <Switch.Root
           name={rhfField.name}
           checked={!!rhfField.value}
+          disabled={disabled}
           onCheckedChange={({ checked }) => rhfField.onChange(checked)}
           alignSelf="end"
         >

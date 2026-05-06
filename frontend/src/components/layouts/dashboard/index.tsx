@@ -1,6 +1,6 @@
 import { Box, HStack, VStack } from '@chakra-ui/react';
-import { RedirectToSignIn } from '@clerk/react';
 import { Outlet } from 'react-router';
+import { Navigate } from 'react-router';
 
 import { useAuth } from '@/hooks/use-auth.hooks';
 import { Loader } from '@/routes/base-route/Loader';
@@ -10,7 +10,7 @@ import { Popup } from './Popup';
 import { Sidebar } from './sidebar';
 
 export function DashboardLayout() {
-  const { isLoaded, isSignedIn, isGuestMode } = useAuth();
+  const { isLoaded, accessMode } = useAuth();
 
   if (!isLoaded) {
     return (
@@ -20,8 +20,8 @@ export function DashboardLayout() {
     );
   }
 
-  if (!isSignedIn && !isGuestMode) {
-    return <RedirectToSignIn />;
+  if (accessMode === 'signed_out') {
+    return <Navigate to="/auth" replace />;
   }
 
   return (

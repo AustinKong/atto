@@ -8,13 +8,13 @@ import { Form } from './form';
 import gradient from './gradient.png';
 
 export function AuthPage() {
-  const { isLoaded, isSignedIn, isGuestMode } = useAuth();
+  const { isLoaded, accessMode } = useAuth();
 
   if (!isLoaded) {
     return <Loader />;
   }
 
-  if (isSignedIn || isGuestMode) {
+  if (accessMode !== 'signed_out') {
     return <Navigate to="/listings" replace />;
   }
 

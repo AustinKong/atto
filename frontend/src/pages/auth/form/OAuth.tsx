@@ -32,7 +32,7 @@ export function OAuth() {
     }
   }
 
-  const isAnySubmitting = loadingStrategy !== null;
+  const _isAnySubmitting = loadingStrategy !== null;
 
   if (!isLoaded) {
     return <Loader />;
@@ -43,7 +43,8 @@ export function OAuth() {
       <Button
         type="button"
         variant="outline"
-        disabled={!isLoaded || isAnySubmitting}
+        // disabled={!isLoaded || isAnySubmitting}
+        disabled
         loading={loadingStrategy === 'oauth_google'}
         onClick={() => handleSocialSignIn('oauth_google')}
       >
@@ -54,7 +55,8 @@ export function OAuth() {
       <Button
         type="button"
         variant="outline"
-        disabled={!isLoaded || isAnySubmitting}
+        // disabled={!isLoaded || isAnySubmitting}
+        disabled
         loading={loadingStrategy === 'oauth_apple'}
         onClick={() => handleSocialSignIn('oauth_apple')}
       >
@@ -67,6 +69,9 @@ export function OAuth() {
           {errorMessage}
         </Text>
       ) : null}
+      <Text color="fg.muted" textStyle="xs">
+        Cloud sign-in is unavailable. Continue without signing in for local mode.
+      </Text>
     </VStack>
   );
 }

@@ -1,6 +1,8 @@
 import { useAuth as useClerkAuth, useUser } from '@clerk/react';
 import { useEffect } from 'react';
 
+import { type AccessMode } from '@/types/auth.types';
+
 import { useLocalStorage } from './use-local-storage.hooks';
 
 const GUEST_MODE_STORAGE_KEY = 'atto-guest-mode';
@@ -24,11 +26,16 @@ export function useAuth() {
     setIsGuestMode(false);
   }
 
+  const accessMode: AccessMode = clerkAuth.isSignedIn
+    ? 'signed_in'
+    : isGuestMode
+      ? 'guest'
+      : 'signed_out';
+
   return {
     ...clerkAuth,
     user,
-    isGuestMode,
-    setIsGuestMode,
+    accessMode,
     enterGuestMode,
     exitGuestMode,
   };

@@ -63,6 +63,7 @@ def get_data_dir() -> Path:
 def ConfigField(
   *,
   exposure: Literal['normal', 'advanced', 'secret', 'hidden'] = 'normal',
+  disabled_message: str | None = None,  # None means the field is enabled
   **kwargs: Any,
 ) -> Any:
   """
@@ -70,7 +71,10 @@ def ConfigField(
   """
   return Field(
     **kwargs,
-    json_schema_extra={'exposure': exposure},
+    json_schema_extra={
+      'exposure': exposure,
+      'disabledMessage': disabled_message,
+    },
   )
 
 
@@ -155,6 +159,7 @@ class CloudPrefs(BaseModel):
     title='Cloud Service URL',
     description='Base URL for the cloud service used by backend cloud clients.',
     exposure='advanced',
+    disabled_message='Cloud service is temporarily unavailable.',
   )
   timeout: float = ConfigField(
     default=30.0,
@@ -162,6 +167,7 @@ class CloudPrefs(BaseModel):
     ge=1.0,
     description='Timeout in seconds for requests from backend to cloud.',
     exposure='advanced',
+    disabled_message='Cloud service is temporarily unavailable.',
   )
 
 
