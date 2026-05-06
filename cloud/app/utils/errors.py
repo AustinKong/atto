@@ -1,3 +1,7 @@
+# TODO: NGL these errors are pretty useless. they are too specific
+# Each error should encapsulate one type of error code basically
+# Also, should jut move error classes into shared package
+
 class CloudError(Exception):
   pass
 

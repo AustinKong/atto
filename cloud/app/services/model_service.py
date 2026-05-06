@@ -5,8 +5,8 @@ from typing import Annotated, Any, cast
 from fastapi import Depends
 from redis.asyncio import Redis
 
-from app.clients.gemini_client import GeminiClient
-from app.dependencies import get_gemini_client, get_redis
+from app.clients.gemini_client import GeminiClient, get_gemini_client
+from app.clients.redis_client import get_redis
 from app.utils.redis_keys import cache_key
 
 

@@ -1,14 +1,12 @@
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import SQLModel
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.clients.database_client import engine
+from app.models import User
 
 
 async def run_migrations(session: AsyncSession) -> None:
-  await session.execute(
-    text("""
-      CREATE TABLE IF NOT EXISTS users (
-        id          TEXT PRIMARY KEY,
-        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    """)
-  )
+  _ = User
+  async with engine.begin() as conn:
+    await conn.run_sync(SQLModel.metadata.create_all)
   await session.commit()

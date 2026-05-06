@@ -1,10 +1,19 @@
 import time
 import uuid
+from collections.abc import AsyncGenerator
+from typing import Annotated
 
+from fastapi import Depends, HTTPException
 from redis.asyncio import Redis
 
+from app.schemas.auth import AuthContext
+from app.services.auth_service import get_authenticated_user
+from app.utils import errors
 from app.utils.redis_keys import budget_key
 from app.utils.settings import settings
+
+# TODO: Remove this error
+_token_budget_error = getattr(errors, 'TokenBudgetExceededError', Exception)
 
 # Lua script: atomically check budget and conditionally deduct.
 # KEYS[1] = budget sorted set key
@@ -47,6 +56,7 @@ return 0
 """
 
 
+# TODO: Check the code here, and rename to token_service?
 class TokenBudgetService:
   def __init__(self, redis: Redis) -> None:
     self._redis = redis
@@ -55,6 +65,7 @@ class TokenBudgetService:
   async def _get_sha(self) -> str:
     if self._script_sha is None:
       self._script_sha = await self._redis.script_load(_CHECK_AND_DEDUCT_SCRIPT)
+    assert self._script_sha is not None
     return self._script_sha
 
   async def check_and_deduct(self, user_id: str, cost: int, request_id: str) -> bool:
@@ -67,7 +78,8 @@ class TokenBudgetService:
     new_member = f'{now_ms}:{cost}:{request_id}'
     sha = await self._get_sha()
 
-    result = await self._redis.evalsha(
+    result = await self._redis.execute_command(
+      'EVALSHA',
       sha,
       1,
       budget_key(user_id),
@@ -104,3 +116,38 @@ class TokenBudgetService:
         except ValueError:
           pass
     return total
+
+
+def require_tokens(cost: int):
+  async def dep(
+    user_context: Annotated[AuthContext, Depends(get_authenticated_user)],
+    token_budget_service: Annotated[TokenBudgetService, Depends()],
+  ) -> AsyncGenerator[None, None]:
+    request_id = str(uuid.uuid4())
+
+    access = user_context.access
+    user_id = user_context.user.id
+
+    if access.access_mode == 'denied':
+      raise HTTPException(
+        status_code=402,
+        detail={
+          'code': access.access_denial_code or 'requires_subscription_or_byok',
+          'message': 'An active subscription or BYOK is required to use cloud features.',
+        },
+      )
+
+    if access.access_mode == 'byok':
+      yield
+      return
+
+    deducted = await token_budget_service.check_and_deduct(user_id, cost, request_id)
+    if not deducted:
+      raise _token_budget_error(f'Token budget exceeded. Requested {cost} tokens.')
+    try:
+      yield
+    except Exception:
+      await token_budget_service.refund(user_id, cost, request_id)
+      raise
+
+  return dep

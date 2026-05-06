@@ -80,4 +80,8 @@ class CloudApiClient:
     session_token = get_session_token()
     if not session_token:
       raise ServiceError('Missing Clerk session token for cloud request')
-    return {'Authorization': f'Bearer {session_token}'}
+    has_byok = bool(settings.model.api_key.strip())
+    return {
+      'Authorization': f'Bearer {session_token}',
+      'X-Atto-Byok': 'true' if has_byok else 'false',
+    }

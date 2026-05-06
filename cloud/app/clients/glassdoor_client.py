@@ -1,7 +1,8 @@
 import httpx
+from fastapi import Request
 from pydantic import BaseModel
 
-from app.clients.base_client import ProviderClient, throttled
+from app.clients.provider_client import ProviderClient, throttled
 from app.utils.settings import settings
 
 
@@ -19,15 +20,14 @@ class GlassdoorClient(ProviderClient):
   def __init__(self, http_client: httpx.AsyncClient) -> None:
     super().__init__()
     self._http_client = http_client
-    self._api_key = settings.glassdoor_api_key
 
   @throttled
   async def get_company_reviews(self, company: str, role: str) -> GlassdoorReviews:
     # TODO: replace with real Glassdoor API endpoint
     response = await self._http_client.get(
-      'https://api.glassdoor.com/api/api.htm',
+      settings.providers.glassdoor.base_url,
       params={
-        't.k': self._api_key,
+        't.k': settings.providers.glassdoor.api_key,
         'action': 'employers',
         'q': company,
         'format': 'json',
@@ -40,3 +40,7 @@ class GlassdoorClient(ProviderClient):
       overall_rating=data.get('overallRating', 0.0),
       reviews=[r.get('pros', '') for r in data.get('reviews', [])],
     )
+
+
+def get_glassdoor_client(request: Request) -> GlassdoorClient:
+  return request.app.state.glassdoor_client

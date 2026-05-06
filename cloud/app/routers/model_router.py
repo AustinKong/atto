@@ -3,8 +3,8 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Body, Depends
 from fastapi.responses import PlainTextResponse
 
-from app.dependencies import require_tokens
 from app.services.model_service import ModelService
+from app.services.token_budget_service import require_tokens
 from shared.schemas.model import CallStructuredRequest
 
 router = APIRouter(prefix='/cloud/model', tags=['Model'])

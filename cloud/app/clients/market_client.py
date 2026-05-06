@@ -1,7 +1,8 @@
 import httpx
+from fastapi import Request
 from pydantic import BaseModel
 
-from app.clients.base_client import ProviderClient, throttled
+from app.clients.provider_client import ProviderClient, throttled
 from app.utils.settings import settings
 
 
@@ -23,13 +24,14 @@ class MarketClient(ProviderClient):
   def __init__(self, http_client: httpx.AsyncClient) -> None:
     super().__init__()
     self._http_client = http_client
-    self._api_key = settings.market_api_key
+    self._api_key = settings.providers.market.api_key
+    self._base_url = settings.providers.market.base_url
 
   @throttled
   async def get_market_news(self, company: str, role: str) -> MarketData:
     # TODO: replace with real news/market API endpoint
     response = await self._http_client.get(
-      'https://newsapi.org/v2/everything',
+      self._base_url,
       params={'apiKey': self._api_key, 'q': f'{company} {role}', 'pageSize': '10'},
     )
     response.raise_for_status()
@@ -43,3 +45,7 @@ class MarketClient(ProviderClient):
       for a in data.get('articles', [])
     ]
     return MarketData(articles=articles)
+
+
+def get_market_client(request: Request) -> MarketClient:
+  return request.app.state.market_client

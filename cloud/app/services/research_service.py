@@ -3,10 +3,10 @@ from typing import Annotated
 from fastapi import Depends
 from redis.asyncio import Redis
 
-from app.clients.glassdoor_client import GlassdoorClient
-from app.clients.market_client import MarketClient
-from app.clients.salary_client import SalaryClient
-from app.dependencies import get_glassdoor_client, get_market_client, get_redis, get_salary_client
+from app.clients.glassdoor_client import GlassdoorClient, get_glassdoor_client
+from app.clients.market_client import MarketClient, get_market_client
+from app.clients.redis_client import get_redis
+from app.clients.salary_client import SalaryClient, get_salary_client
 from app.utils.redis_keys import cache_key
 from shared.schemas.research import (
   MarketContextResult,

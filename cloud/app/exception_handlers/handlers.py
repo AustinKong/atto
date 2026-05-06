@@ -4,6 +4,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 
+# TODO: Maybe move exception handlers to shared package as well?
 async def token_budget_handler(request: Request, exc: Exception) -> JSONResponse:
   return JSONResponse(status_code=429, content={'detail': str(exc)})
 

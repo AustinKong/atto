@@ -1,7 +1,8 @@
 import httpx
+from fastapi import Request
 from pydantic import BaseModel
 
-from app.clients.base_client import ProviderClient, throttled
+from app.clients.provider_client import ProviderClient, throttled
 from app.utils.settings import settings
 
 
@@ -22,7 +23,8 @@ class SalaryClient(ProviderClient):
   def __init__(self, http_client: httpx.AsyncClient) -> None:
     super().__init__()
     self._http_client = http_client
-    self._api_key = settings.salary_api_key
+    self._api_key = settings.providers.salary.api_key
+    self._base_url = settings.providers.salary.base_url
 
   @throttled
   async def get_salary_range(self, role: str, company: str, location: str | None) -> SalaryData:
@@ -31,7 +33,11 @@ class SalaryClient(ProviderClient):
     if location:
       params['location'] = location
 
-    response = await self._http_client.get('https://api.salaryapi.com/v1/salary', params=params)
+    response = await self._http_client.get(self._base_url, params=params)
     response.raise_for_status()
     data = response.json()
     return SalaryData.model_validate(data)
+
+
+def get_salary_client(request: Request) -> SalaryClient:
+  return request.app.state.salary_client
