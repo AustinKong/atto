@@ -1,5 +1,7 @@
 # Cloud Agent Guidelines
 
+> ⚠️ **The cloud service is not currently being maintained.** Only local-mode is available at this time. Making changes to the cloud codebase is out of scope until further notice.
+
 Stack: Python 3.11+, FastAPI, PostgreSQL (via SQLAlchemy async), Redis, Gemini AI, Clerk (auth).
 
 The cloud service is a stateless HTTP API deployed separately from the local backend. It provides token-gated LLM and research endpoints consumed by the local backend's `CloudApiClient`.

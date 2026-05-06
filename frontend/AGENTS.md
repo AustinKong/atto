@@ -65,7 +65,7 @@ Single-file "leaf" components inside `components/ui/` may omit the folder (e.g. 
   ```ts
   export function Foo({ name }: { name: string }) { ... }
   ```
-- Use `React.memo` with a named inner function:
+- Only use `React.memo` when there is a clear performance reason. When used, wrap with a named inner function:
   ```ts
   const Foo = memo(function Foo({ name }: { name: string }) { ... });
   ```

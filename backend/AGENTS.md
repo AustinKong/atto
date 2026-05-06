@@ -42,7 +42,7 @@ config/         → settings singleton
 utils/          → pure helper functions
 ```
 
-Never skip a layer (e.g. do not call a repository directly from a router if a service is needed).
+For simple CRUD operations that require no business logic, a router may depend on a repository directly. Only introduce a service layer when business logic is needed.
 
 ## Routers
 
