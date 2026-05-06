@@ -37,17 +37,34 @@ These are enforced by tools (Prettier for TS, Ruff for Python) and must never be
 | Python classes | `PascalCase` |
 | Python constants | `SCREAMING_SNAKE_CASE` |
 
+## Application overview
+
+Atto is a local-first job application tracker. The frontend (React/Vite) runs on `:5173` during development and proxies `/api` and `/static` to the FastAPI backend on `:8000`. In production the backend serves the built frontend as static files from a single PyInstaller executable.
+
 ## Commands
 
 ```bash
-# Run both frontend and backend together
+# Run frontend + backend together
 npm run dev
+
+# Run individually
+npm run dev:frontend               # Vite dev server on :5173
+npm run dev:backend                # FastAPI + uvicorn on :8000
 
 # Lint & autofix everything (ESLint + Ruff)
 npm run lint:fix
 
+# Prettier-format frontend only
+npm --prefix frontend run format
+
 # Build distributable (frontend tsc+vite + PyInstaller)
 npm run dist
+
+# Build frontend only (tsc + vite)
+npm run build:frontend
+
+# Run backend directly (headless mode)
+backend/venv/bin/python backend/run.py --headless
 
 # Backend tests
 backend/venv/bin/python -m pytest

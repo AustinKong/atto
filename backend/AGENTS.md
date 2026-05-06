@@ -7,6 +7,7 @@ Stack: Python 3.11+, FastAPI, Pydantic v2, SQLite (via `sqlite3`), Playwright, O
 Enforced by Ruff — do not bypass:
 
 - 2-space indentation, single quotes, 100-char line width, LF endings.
+- **Type annotations are required on all function signatures** (parameters and return types).
 - Import sections (Ruff isort): stdlib → third-party → local (`app`, `shared`), each separated by a blank line, alphabetised within each section.
 - `known-first-party = ["app", "shared"]` so `app.*` and `shared.*` are treated as local.
 - Ruff rules: `E`, `F`, `B`, `UP`, `I` — fix before committing.

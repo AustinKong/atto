@@ -9,6 +9,7 @@ The cloud service is a stateless HTTP API deployed separately from the local bac
 Identical to the backend — enforced by Ruff:
 
 - 2-space indentation, single quotes, 100-char line width, LF endings.
+- **Type annotations are required on all function signatures** (parameters and return types).
 - Import sections (Ruff isort): stdlib → third-party → local (`app`, `shared`), alphabetised within each section.
 - Ruff rules: `E`, `F`, `B`, `UP`, `I` — fix before committing.
 

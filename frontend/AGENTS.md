@@ -19,14 +19,18 @@ Enforced by Prettier and ESLint — do not bypass:
 
 ## File & directory naming
 
-Follows `STYLE_GUIDE.md` exactly:
-
 | What | Convention | Example |
 |---|---|---|
 | Directories | `kebab-case` | `resume-preview/` |
 | React component files | `PascalCase` | `ResumePreview.tsx` |
 | All other `.ts/.tsx` files | `[entity].[suffix].ts` | `listing.queries.ts` |
 | Hook files | `use-[name].hooks.ts` | `use-debounce.hooks.ts` |
+| Assets (images, icons) | `kebab-case` | `company-logo.svg` |
+
+Directory naming rules:
+- Do **not** add `-page` or `-component` suffixes to directory names — the context is implied by location.
+  - ✅ `src/pages/dashboard/`
+  - ❌ `src/pages/dashboard-page/`
 
 Suffixes by category:
 
@@ -65,6 +69,13 @@ Single-file "leaf" components inside `components/ui/` may omit the folder (e.g. 
   ```ts
   const Foo = memo(function Foo({ name }: { name: string }) { ... });
   ```
+- Named event-handler functions use the `function` keyword unless the handler is short/simple (one expression):
+  ```ts
+  // preferred for non-trivial handlers
+  function handleSubmit() { ... }
+  // ok for trivial/short callbacks
+  onClick={() => setOpen(false)}
+  ```
 - Branded types for domain primitives (see `utils/date.utils.ts`):
   ```ts
   export type ISODate = string & { readonly __brand: 'ISODate' };
@@ -99,6 +110,7 @@ Single-file "leaf" components inside `components/ui/` may omit the folder (e.g. 
 - Always set `staleTime` on item queries (default `5 * 60 * 1000`).
 - Query keys are typed `as const` arrays: `['application', id] as const`.
 - Query key shape: `[entity, ...discriminators]`.
+- Consume queries in components via `useSuspenseQuery` (single items) or `useInfiniteQuery` (paginated lists).
 
 ## Mutations (`src/mutations/`)
 
