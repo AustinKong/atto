@@ -116,6 +116,4 @@ Pass `require_tokens` as a `dependencies=[Depends(require_tokens(cost=N))]` argu
 
 ## Testing
 
-```bash
-cd cloud && python -m pytest
-```
+> **Note:** There are no test cases at this stage of development. You do not need to write tests, and running the test runner will simply report zero tests collected. This section will be updated when testing infrastructure is introduced.

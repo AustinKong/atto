@@ -66,10 +66,10 @@ npm run build:frontend
 # Run backend directly (headless mode)
 backend/venv/bin/python backend/run.py --headless
 
-# Backend tests
+# Backend tests (no test cases yet — runner will report zero collected)
 backend/venv/bin/python -m pytest
 
-# Cloud tests
+# Cloud tests (no test cases yet — runner will report zero collected)
 cd cloud && python -m pytest
 ```
 

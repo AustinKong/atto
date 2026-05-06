@@ -143,8 +143,4 @@ Never skip a layer (e.g. do not call a repository directly from a router if a se
 
 ## Testing
 
-```bash
-backend/venv/bin/python -m pytest
-```
-
-Tests live alongside the application code (or in a `tests/` directory). Follow existing test patterns.
+> **Note:** There are no test cases at this stage of development. You do not need to write tests, and running the test runner will simply report zero tests collected. This section will be updated when testing infrastructure is introduced.
