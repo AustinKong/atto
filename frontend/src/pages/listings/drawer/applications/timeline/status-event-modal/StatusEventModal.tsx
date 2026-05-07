@@ -145,7 +145,7 @@ export function StatusEventModal() {
   };
 
   return (
-    <Dialog.RootProvider value={dialog} onExitComplete={() => reset()}>
+    <Dialog.RootProvider value={dialog} onExitComplete={() => reset()} placement="center">
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>

@@ -66,6 +66,7 @@ def create_tables():
       CREATE TABLE IF NOT EXISTS applications (
         id TEXT PRIMARY KEY,
         listing_id TEXT NOT NULL,
+        name TEXT NOT NULL,
         resume_id TEXT NOT NULL,
         current_status TEXT NOT NULL,
         last_status_at TEXT NOT NULL,

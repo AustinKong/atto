@@ -15,16 +15,18 @@ export function useCreateApplication(onSuccess?: (application: Application) => v
   return useMutation({
     mutationFn: async ({
       listingId,
+      name,
       resumeMode,
     }: {
       listingId: string;
+      name: string;
       resumeMode: ResumeCreationMode;
     }) => {
       const resume = await createResume(
         resumeMode,
         resumeMode === 'optimized' ? listingId : undefined
       );
-      return await createApplicationSvc(listingId, resume.id);
+      return await createApplicationSvc(listingId, resume.id, name);
     },
     onSuccess: (data, { listingId }) => {
       queryClient.invalidateQueries({ queryKey: ['listing', listingId] });

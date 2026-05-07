@@ -131,13 +131,22 @@ def run(json_path: str, default_resume_path: str):
             current_status = 'saved'
             last_status_at = None
 
+          application_name = listing_data.get('title') or f'Application {inserted_count + 1}'
+
           cursor.execute(
             """
             INSERT INTO applications 
-            (id, listing_id, resume_id, current_status, last_status_at)
-            VALUES (?, ?, ?, ?, ?)
+            (id, listing_id, name, resume_id, current_status, last_status_at)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
-            (application_id, listing_id, resume_id, current_status, last_status_at),
+            (
+              application_id,
+              listing_id,
+              application_name,
+              resume_id,
+              current_status,
+              last_status_at,
+            ),
           )
 
           # --- STATUS EVENTS ---

@@ -21,6 +21,7 @@ APPLICATION_WITH_EVENTS_QUERY = """
     a.id as application_id,
     a.resume_id,
     a.listing_id,
+    a.name,
     a.current_status,
     a.last_status_at,
     COALESCE(
@@ -77,11 +78,12 @@ class ApplicationRepository(DatabaseRepository):
   def create(self, application: Application) -> Application:
     with self.transaction():
       self.execute(
-        'INSERT INTO applications (id, listing_id, resume_id, current_status, '
-        'last_status_at) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO applications (id, listing_id, name, resume_id, current_status, '
+        'last_status_at) VALUES (?, ?, ?, ?, ?, ?)',
         (
           str(application.id),
           str(application.listing_id),
+          application.name,
           str(application.resume_id),
           application.current_status.value,
           application.last_status_at,

@@ -5,7 +5,6 @@ import { listingLoader } from '@/loaders/listing.loaders';
 import { resumeLoader } from '@/loaders/resume.loaders';
 import type { Application } from '@/types/application.types';
 import type { Listing } from '@/types/listing.types';
-import { formatApplicationStatusDisplay } from '@/utils/formatters/application.formatters';
 import { formatListingBreadcrumb } from '@/utils/formatters/listing.formatters';
 
 import { TemplatesPage } from '../templates';
@@ -50,8 +49,7 @@ export function applicationResumeRoute(queryClient: QueryClient) {
                 path: ':applicationId',
                 loader: applicationLoader(queryClient),
                 handle: {
-                  breadcrumb: (data: { application: Application }) =>
-                    formatApplicationStatusDisplay(data.application),
+                  breadcrumb: (data: { application: Application }) => data.application.name,
                 },
                 children: [
                   {
