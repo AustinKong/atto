@@ -86,6 +86,7 @@ export type StatusEvent =
 export type Application = {
   id: string;
   listingId: string;
+  name: string;
   resumeId: string;
   statusEvents: StatusEvent[];
   currentStatus: StatusEnum;

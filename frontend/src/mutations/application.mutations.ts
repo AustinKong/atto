@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router';
 
 import {
   createApplication as createApplicationSvc,
@@ -8,32 +7,31 @@ import {
   updateStatusEvent as updateStatusEventSvc,
 } from '@/services/application.service';
 import { createResume, type ResumeCreationMode } from '@/services/resume.service';
-import type { StatusEvent } from '@/types/application.types';
+import type { Application, StatusEvent } from '@/types/application.types';
 
-export function useCreateApplication(onSuccess?: () => void) {
+export function useCreateApplication(onSuccess?: (application: Application) => void) {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: async ({
       listingId,
+      name,
       resumeMode,
     }: {
       listingId: string;
+      name: string;
       resumeMode: ResumeCreationMode;
     }) => {
       const resume = await createResume(
         resumeMode,
         resumeMode === 'optimized' ? listingId : undefined
       );
-      return await createApplicationSvc(listingId, resume.id);
+      return await createApplicationSvc(listingId, resume.id, name);
     },
     onSuccess: (data, { listingId }) => {
       queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
       queryClient.setQueryData(['application', data.id], data);
-      onSuccess?.();
-      // Navigate to the new application
-      navigate(`/listings/${listingId}/applications/${data.id}`, { replace: true });
+      onSuccess?.(data);
     },
   });
 }
@@ -55,7 +53,7 @@ export function useCreateStatusEvent() {
     onSuccess: (_data, { applicationId, listingId }) => {
       queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
       queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
-      queryClient.invalidateQueries({ queryKey: ['listings'] }); // Invalidate main table
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
     },
   });
 }
@@ -79,7 +77,7 @@ export function useUpdateStatusEvent() {
     onSuccess: (_data, { applicationId, listingId }) => {
       queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
       queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
-      queryClient.invalidateQueries({ queryKey: ['listings'] }); // Invalidate main table
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
     },
   });
 }
@@ -101,7 +99,7 @@ export function useDeleteStatusEvent() {
     onSuccess: (_data, { applicationId, listingId }) => {
       queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
       queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
-      queryClient.invalidateQueries({ queryKey: ['listings'] }); // Invalidate main table
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
     },
   });
 }

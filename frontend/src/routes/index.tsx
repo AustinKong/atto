@@ -3,7 +3,6 @@ import { createBrowserRouter, Navigate, Outlet } from 'react-router';
 
 import { DashboardLayout } from '@/components/layouts/dashboard';
 import { Toaster } from '@/components/ui/Toaster';
-import { applicationsRoute } from '@/pages/applications/route';
 import { authRoute } from '@/pages/auth/route';
 import { listingsRoute } from '@/pages/listings/route';
 import { newListingsRoute } from '@/pages/new-listings/route';
@@ -39,7 +38,6 @@ export const router = createBrowserRouter([
           },
           releaseNotesRoute(queryClient),
           listingsRoute(queryClient),
-          applicationsRoute(queryClient),
           applicationResumeRoute(queryClient),
           newListingsRoute(),
           resumeRoute(queryClient),

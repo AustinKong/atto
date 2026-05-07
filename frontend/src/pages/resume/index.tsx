@@ -1,17 +1,23 @@
 import { Box, Splitter, Text, VStack } from '@chakra-ui/react';
+import { useParams } from 'react-router';
 
 import { ContentQualityChart } from '@/components/custom/content-quality-chart';
 import { SegmentedGauge } from '@/components/custom/segmented-gauge';
-import { SkillsComparison } from '@/pages/applications/SkillsComparison';
+import { SkillsComparison } from '@/pages/resume/SkillsComparison';
 
 import { Editor } from './editor';
 import { Preview } from './preview';
 
 export function ResumePage() {
   // Get listingId and applicationId from URL params if available
+  const { listingId: listingParam, applicationId: applicationParam } = useParams<{
+    listingId?: string;
+    applicationId?: string;
+  }>();
+  // TODO: WTH is this
   const urlParams = new URLSearchParams(window.location.search);
-  const listingId = urlParams.get('listingId') || '';
-  const applicationId = urlParams.get('applicationId') || '';
+  const listingId = listingParam ?? urlParams.get('listingId') ?? '';
+  const applicationId = applicationParam ?? urlParams.get('applicationId') ?? '';
 
   return (
     <Splitter.Root
@@ -30,6 +36,7 @@ export function ResumePage() {
         <Preview />
       </Splitter.Panel>
       <Splitter.ResizeTrigger id="preview:graphs" />
+      {/* TODO: Put graphs in a tab behind editor instead of on a split panel */}
       <Splitter.Panel id="graphs">
         <VStack align="stretch" gap="md" p="md" h="full" overflowY="auto">
           {/* Match Score Gauge */}

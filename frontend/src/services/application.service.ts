@@ -11,7 +11,11 @@ export async function getApplication(applicationId: string): Promise<Application
   return json as Application;
 }
 
-export async function createApplication(listingId: string, resumeId: string): Promise<Application> {
+export async function createApplication(
+  listingId: string,
+  resumeId: string,
+  name: string
+): Promise<Application> {
   const response = await fetch('/api/applications/', {
     method: 'POST',
     headers: {
@@ -19,6 +23,7 @@ export async function createApplication(listingId: string, resumeId: string): Pr
     },
     body: JSON.stringify({
       listingId,
+      name,
       resumeId,
       statusEvents: [],
     }),

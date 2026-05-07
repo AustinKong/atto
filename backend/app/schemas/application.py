@@ -113,6 +113,7 @@ StatusEvent = Annotated[
 class Application(CamelModel):
   id: UUID = Field(default_factory=uuid4)
   listing_id: UUID
+  name: str = Field(min_length=1)
   resume_id: UUID
   status_events: list[StatusEvent] = Field(default_factory=list)
   # Denormalized to significantly simplify listings_service.list_all query

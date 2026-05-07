@@ -1,40 +1,37 @@
-import { CloseButton, Icon, Tabs } from '@chakra-ui/react';
-import { LuArrowUpRight } from 'react-icons/lu';
-import { Link, useNavigate, useParams } from 'react-router';
-
-import { Info as DetailsTab } from './info';
-import { Intelligence as IntelligenceTab } from './research';
+import { Box, CloseButton, Tabs } from '@chakra-ui/react';
+import { Link, Outlet, useMatch, useNavigate, useParams } from 'react-router';
 
 export function ListingDrawer() {
   const navigate = useNavigate();
   const { listingId } = useParams<{ listingId: string }>();
 
+  const isResearch = useMatch('/listings/:listingId/research');
+  const isApplications = useMatch('/listings/:listingId/applications/*');
+
+  const activeTab = isResearch ? 'research' : isApplications ? 'applications' : 'info';
+
   return (
-    <Tabs.Root defaultValue="info">
+    <Tabs.Root h="full" display="flex" flexDirection="column" value={activeTab} navigate={() => {}}>
       <Tabs.List>
-        <Tabs.Trigger value="info">Info</Tabs.Trigger>
-        <Tabs.Trigger value="research">Research</Tabs.Trigger>
+        <Tabs.Trigger value="info" asChild>
+          <Link to={`/listings/${listingId}`}>Info</Link>
+        </Tabs.Trigger>
+        <Tabs.Trigger value="research" asChild>
+          <Link to={`/listings/${listingId}/research`}>Research</Link>
+        </Tabs.Trigger>
         <Tabs.Trigger value="applications" asChild>
-          <Link to={`/listings/${listingId}/applications`}>
-            Applications{' '}
-            <Icon size="md">
-              <LuArrowUpRight />
-            </Icon>
-          </Link>
+          <Link to={`/listings/${listingId}/applications`}>Applications</Link>
         </Tabs.Trigger>
         <CloseButton
           position="absolute"
-          right="none"
+          right="0"
           onClick={() => navigate('/listings', { replace: true })}
           variant="plain"
         />
       </Tabs.List>
-      <Tabs.Content value="info">
-        <DetailsTab />
-      </Tabs.Content>
-      <Tabs.Content value="research">
-        <IntelligenceTab />
-      </Tabs.Content>
+      <Box flex="1" overflowY="auto" py="sm">
+        <Outlet />
+      </Box>
     </Tabs.Root>
   );
 }
