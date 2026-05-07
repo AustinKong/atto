@@ -1,65 +1,61 @@
-import { Heading, IconButton, Text, useDisclosure, VStack } from '@chakra-ui/react';
+import { Text, VStack } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { PiPlus } from 'react-icons/pi';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
-import { useCreateApplication } from '@/mutations/application.mutations';
 import { applicationQueries } from '@/queries/application.queries';
 import { listingsQueries } from '@/queries/listing.queries';
 
-import { CreateApplicationModal } from './CreateApplicationModal';
 import { Details } from './Details';
-import { SkillsComparison } from './SkillsComparison';
 import { StatusEventModal, StatusEventProvider } from './status-event-modal';
 import { Timeline } from './Timeline';
 
-export function ApplicationsEmpty() {
-  const { listingId } = useParams<{ listingId: string }>();
-  const { open, onOpen, setOpen } = useDisclosure();
-  useSuspenseQuery(listingsQueries.item(listingId!));
-  const createApplicationMutation = useCreateApplication();
+function SelectedApplicationTimeline({ applicationId }: { applicationId: string }) {
+  const { data: application } = useSuspenseQuery(applicationQueries.item(applicationId));
 
-  return (
-    <>
-      <VStack align="stretch" gap="md" px="md" mb="md">
-        <VStack align="stretch">
-          <Heading size="md">Applications</Heading>
-          <Text color="fg.muted">
-            No applications yet. Create your first application to track your progress.
-          </Text>
-        </VStack>
-        <IconButton
-          aria-label="Create application"
-          variant="solid"
-          size="md"
-          onClick={onOpen}
-          disabled={createApplicationMutation.isPending}
-        >
-          <PiPlus />
-          {createApplicationMutation.isPending ? 'Creating...' : 'New Application'}
-        </IconButton>
-      </VStack>
-      <CreateApplicationModal open={open} onOpenChange={setOpen} />
-    </>
-  );
+  return <Timeline application={application} />;
 }
 
 export function Applications() {
-  const { listingId, applicationId } = useParams<{ listingId: string; applicationId: string }>();
+  const { listingId } = useParams<{ listingId: string }>();
   const { data: listing } = useSuspenseQuery(listingsQueries.item(listingId!));
 
-  const { data: application } = useSuspenseQuery(applicationQueries.item(applicationId!));
+  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
 
-  if (!applicationId) {
-    return <div>Application ID is required</div>;
-  }
+  useEffect(() => {
+    const firstApplicationId = listing.applications[0]?.id ?? null;
+
+    if (!selectedApplicationId) {
+      setSelectedApplicationId(firstApplicationId);
+      return;
+    }
+
+    const selectedStillExists = listing.applications.some((app) => app.id === selectedApplicationId);
+
+    if (!selectedStillExists) {
+      setSelectedApplicationId(firstApplicationId);
+    }
+  }, [listing.applications, selectedApplicationId]);
+
+  const selectedApplication =
+    listing.applications.find((application) => application.id === selectedApplicationId) ?? null;
 
   return (
     <StatusEventProvider>
       <VStack align="stretch" gap="md" px="md" mb="md">
-        <Details application={application} listing={listing} />
-        <SkillsComparison applicationId={applicationId} listingId={listingId!} />
-        <Timeline application={application} />
+        <Details
+          application={selectedApplication}
+          listing={listing}
+          selectedApplicationId={selectedApplicationId}
+          onSelectApplication={setSelectedApplicationId}
+          onApplicationCreated={setSelectedApplicationId}
+        />
+
+        {selectedApplicationId ? (
+          <SelectedApplicationTimeline applicationId={selectedApplicationId} />
+        ) : (
+          <Text color="fg.muted">No application selected.</Text>
+        )}
       </VStack>
       <StatusEventModal />
     </StatusEventProvider>

@@ -44,16 +44,21 @@ const RESUME_OPTIONS = [
 export function CreateApplicationModal({
   open,
   onOpenChange,
+  onCreated,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCreated?: (applicationId: string) => void;
 }) {
   const { listingId } = useParams<{ listingId: string }>();
   const [resumeMode, setResumeMode] = useState<ResumeCreationMode>('default');
 
-  const createApplicationMutation = useCreateApplication(() => onOpenChange(false));
+  const createApplicationMutation = useCreateApplication((application) => {
+    onOpenChange(false);
+    onCreated?.(application.id);
+  });
 
-  const handleConfirm = () => {
+  function handleConfirm() {
     if (listingId) {
       createApplicationMutation.mutateAsync({
         listingId,
@@ -61,7 +66,7 @@ export function CreateApplicationModal({
       });
       setResumeMode('default');
     }
-  };
+  }
 
   return (
     <Dialog.Root open={open} onOpenChange={(e) => onOpenChange(e.open)} size="lg">
