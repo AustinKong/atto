@@ -1,4 +1,4 @@
-import { Box, Center, HStack, IconButton, Text } from '@chakra-ui/react';
+import { Box, ButtonGroup, Center, IconButton } from '@chakra-ui/react';
 import { useCallback, useState } from 'react';
 import { LuMinus, LuPlus } from 'react-icons/lu';
 
@@ -50,36 +50,34 @@ export function ResumePreview({
           />
         </Center>
       </Box>
-      <HStack
-        borderRadius="md"
-        bottom="4"
-        gap="xs"
+      <ButtonGroup
+        attached
+        orientation="vertical"
         position="absolute"
-        bgColor="bg.panel"
-        p="xs"
-        left="50%"
-        transform="translateX(-50%)"
+        bottom="4"
+        left="3"
         pointerEvents="auto"
         zIndex="overlay"
       >
         <IconButton
-          size="2xs"
-          onClick={handleZoomOut}
-          disabled={scale <= MIN_SCALE}
-          aria-label="Zoom out"
-        >
-          <LuMinus />
-        </IconButton>
-        <Text>{Math.round(scale * 100)}%</Text>
-        <IconButton
-          size="2xs"
+          variant="surface"
+          size="xs"
           onClick={handleZoomIn}
           disabled={scale >= MAX_SCALE}
           aria-label="Zoom in"
         >
           <LuPlus />
         </IconButton>
-      </HStack>
+        <IconButton
+          variant="surface"
+          size="xs"
+          onClick={handleZoomOut}
+          disabled={scale <= MIN_SCALE}
+          aria-label="Zoom out"
+        >
+          <LuMinus />
+        </IconButton>
+      </ButtonGroup>
     </Box>
   );
 }

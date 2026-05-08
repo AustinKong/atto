@@ -1,48 +1,47 @@
 import { Tabs, VStack } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { useRef } from 'react';
 import { useParams } from 'react-router';
 
-import type { SectionsEditorHandle } from '@/components/custom/sections-editor';
 import { SectionsEditor } from '@/components/custom/sections-editor';
 import { useSaveResumeSections } from '@/mutations/resume.mutations';
 import { resumeQueries } from '@/queries/resume.queries';
 import type { Section } from '@/types/resume.types';
 
-import { JsonEditor } from './JsonEditor';
-import { ProfileEditor } from './ProfileInfoEditor';
+import { Breakdown } from './Breakdown';
+import { ProfileEditor } from './ProfileEditor';
 
-export function Editor() {
+export function Workspace({
+  applicationId,
+  listingId,
+}: {
+  applicationId: string;
+  listingId: string;
+}) {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
 
   const { mutate: saveResume } = useSaveResumeSections();
-  const sectionsEditorRef = useRef<SectionsEditorHandle | null>(null);
 
   const handleSectionsChange = (sections: Section[]) => {
     saveResume({ resumeId: resume.id, sections });
   };
 
   return (
-    <Tabs.Root defaultValue="visual">
+    <Tabs.Root defaultValue="editor">
       <Tabs.List h="10" alignItems="end">
-        <Tabs.Trigger value="visual">Visual Editor</Tabs.Trigger>
-        <Tabs.Trigger value="json">JSON Editor</Tabs.Trigger>
+        <Tabs.Trigger value="editor">Editor</Tabs.Trigger>
+        <Tabs.Trigger value="breakdown">Breakdown</Tabs.Trigger>
       </Tabs.List>
 
-      <Tabs.Content value="visual" p="md" overflowX="hidden">
+      <Tabs.Content value="editor" p="md" overflowX="hidden">
         <VStack align="stretch" gap="md">
           <ProfileEditor />
-          <SectionsEditor
-            ref={sectionsEditorRef}
-            defaultValues={resume.sections}
-            onChange={handleSectionsChange}
-          />
+          <SectionsEditor defaultValues={resume.sections} onChange={handleSectionsChange} />
         </VStack>
       </Tabs.Content>
 
-      <Tabs.Content value="json" p="0">
-        <JsonEditor />
+      <Tabs.Content value="breakdown" p="0">
+        <Breakdown applicationId={applicationId} listingId={listingId} />
       </Tabs.Content>
     </Tabs.Root>
   );
