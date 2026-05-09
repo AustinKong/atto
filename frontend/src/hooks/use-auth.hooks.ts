@@ -18,7 +18,12 @@ export function useAuth() {
     }
   }, [clerkAuth.isSignedIn, isGuestMode, setIsGuestMode]);
 
-  function enterGuestMode() {
+  async function enterGuestMode() {
+    try {
+      await clerkAuth.signOut();
+    } catch {
+      // Enter guest mode even if Clerk sign-out fails.
+    }
     setIsGuestMode(true);
   }
 

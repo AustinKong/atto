@@ -1,6 +1,5 @@
 import { Collapsible, Field, HStack, Input, Text, VStack } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { memo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { LuChevronLeft } from 'react-icons/lu';
 import { useParams } from 'react-router';
@@ -11,7 +10,7 @@ import { useSaveProfile } from '@/mutations/profile.mutations';
 import { profileQueries } from '@/queries/profile.queries';
 import type { Profile } from '@/types/profile.types';
 
-export const ProfileEditor = memo(function ProfileEditor() {
+export function Editor() {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { data: profile } = useSuspenseQuery(profileQueries.list());
 
@@ -127,6 +126,4 @@ export const ProfileEditor = memo(function ProfileEditor() {
       </FormProvider>
     </Collapsible.Root>
   );
-});
-
-ProfileEditor.displayName = 'ProfileEditor';
+}

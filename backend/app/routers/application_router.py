@@ -1,10 +1,12 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Cookie, Depends, status
 
 from app.repositories import ApplicationRepository
 from app.schemas import Application, StatusEvent
+from app.schemas.task_status import TaskStatus, TaskStatusEntry
+from app.services import ApplicationService
 
 router = APIRouter(
   prefix='/applications',
@@ -53,3 +55,28 @@ async def delete_status_event(
   application_repository: Annotated[ApplicationRepository, Depends()],
 ):
   application_repository.delete_event(event_id)
+
+
+@router.post('/{id}/analysis', response_model=TaskStatusEntry, status_code=status.HTTP_202_ACCEPTED)
+async def generate_analysis(
+  id: UUID,
+  background_tasks: BackgroundTasks,
+  application_service: Annotated[ApplicationService, Depends()],
+  application_repository: Annotated[ApplicationRepository, Depends()],
+  session_token: Annotated[str | None, Cookie(alias='__session')] = None,
+):
+  application_repository.set_analysis_status(id, TaskStatus.PENDING)
+  background_tasks.add_task(
+    application_service.generate_analysis_task,
+    id,
+    session_token,
+  )
+  return application_repository.get_analysis_status(id)
+
+
+@router.get('/{id}/analysis/status', response_model=TaskStatusEntry | None)
+async def get_analysis_status(
+  id: UUID,
+  application_repository: Annotated[ApplicationRepository, Depends()],
+):
+  return application_repository.get_analysis_status(id)

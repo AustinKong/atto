@@ -68,6 +68,7 @@ def create_tables():
         listing_id TEXT NOT NULL,
         name TEXT NOT NULL,
         resume_id TEXT NOT NULL,
+        analysis JSON,
         current_status TEXT NOT NULL,
         last_status_at TEXT NOT NULL,
         FOREIGN KEY (listing_id) REFERENCES listings (id) ON DELETE CASCADE,

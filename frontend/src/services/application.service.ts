@@ -1,4 +1,5 @@
 import type { Application, StatusEvent } from '@/types/application.types';
+import type { TaskStatusEntry } from '@/types/task-status.types';
 
 export async function getApplication(applicationId: string): Promise<Application> {
   const response = await fetch(`/api/applications/${applicationId}`);
@@ -92,4 +93,31 @@ export async function deleteStatusEvent(
 
   const json = await response.json();
   return json as Application;
+}
+
+export async function generateApplicationAnalysis(
+  applicationId: string
+): Promise<TaskStatusEntry> {
+  const response = await fetch(`/api/applications/${applicationId}/analysis`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    throw response;
+  }
+
+  return await response.json();
+}
+
+export async function getApplicationAnalysisStatus(
+  applicationId: string
+): Promise<TaskStatusEntry | null> {
+  const response = await fetch(`/api/applications/${applicationId}/analysis/status`);
+
+  if (!response.ok) {
+    throw response;
+  }
+
+  if (!response.body) return null;
+  return response.json();
 }

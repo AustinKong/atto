@@ -203,6 +203,8 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
 
     return listing
 
+  # TODO: Why aren't we being consistnet to have an update fn that takes Listing instead of individual fields?
+  # So update_notes and update_research can be consolidated. Same for applciation repository.
   def update_notes(self, listing_id, notes: str | None) -> Listing:
     self.execute(
       """

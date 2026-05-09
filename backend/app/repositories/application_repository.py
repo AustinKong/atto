@@ -6,12 +6,14 @@ from uuid import UUID
 from pydantic import TypeAdapter
 
 from app.repositories.base import DatabaseRepository
+from app.repositories.base.in_memory_kv_repository import InMemoryKVRepository
 from app.schemas import (
   Application,
   StatusEnum,
   StatusEvent,
   StatusEventSaved,
 )
+from app.schemas.task_status import TaskStatus, TaskStatusEntry
 from app.utils.errors import NotFoundError
 
 event_adapter = TypeAdapter(StatusEvent)
@@ -24,6 +26,7 @@ APPLICATION_WITH_EVENTS_QUERY = """
     a.name,
     a.current_status,
     a.last_status_at,
+    a.analysis,
     COALESCE(
       json_group_array(
         json_object(
@@ -41,9 +44,12 @@ APPLICATION_WITH_EVENTS_QUERY = """
 """
 
 
-class ApplicationRepository(DatabaseRepository):
+class ApplicationRepository(DatabaseRepository, InMemoryKVRepository):
+  ANALYSIS_TASK_NAMESPACE = 'application_analysis'
+
   def __init__(self):
-    super().__init__()
+    DatabaseRepository.__init__(self)
+    InMemoryKVRepository.__init__(self)
 
   def get(self, application_id: UUID) -> Application:
     row = self.fetch_one(
@@ -93,6 +99,28 @@ class ApplicationRepository(DatabaseRepository):
       self._sync_application_status(application.id)
 
     return self.get(application.id)
+
+  def update_analysis(self, application_id: UUID, analysis_json: str | None) -> Application:
+    self.execute(
+      """
+      UPDATE applications
+      SET analysis = ?
+      WHERE id = ?
+      """,
+      (analysis_json, str(application_id)),
+    )
+
+    return self.get(application_id)
+
+  def set_analysis_status(
+    self, application_id: UUID, status: TaskStatus, error: str | None = None
+  ) -> None:
+    self.set_value(
+      self.ANALYSIS_TASK_NAMESPACE, str(application_id), TaskStatusEntry(status=status, error=error)
+    )
+
+  def get_analysis_status(self, application_id: UUID) -> TaskStatusEntry | None:
+    return self.get_value(self.ANALYSIS_TASK_NAMESPACE, str(application_id))
 
   def create_event(self, status_event: StatusEvent, application_id: UUID) -> StatusEvent:
     with self.transaction():

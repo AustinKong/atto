@@ -7,16 +7,14 @@ import { useSaveResumeSections } from '@/mutations/resume.mutations';
 import { resumeQueries } from '@/queries/resume.queries';
 import type { Section } from '@/types/resume.types';
 
-import { Breakdown } from './Breakdown';
-import { ProfileEditor } from './ProfileEditor';
+import { Breakdown } from './breakdown';
+import { Editor } from './editor';
 
 export function Workspace({
   applicationId,
-  listingId,
   onSuggestionHover,
 }: {
   applicationId: string;
-  listingId: string;
   onSuggestionHover: (suggestionId: string | null) => void;
 }) {
   const { resumeId } = useParams<{ resumeId: string }>();
@@ -37,17 +35,13 @@ export function Workspace({
 
       <Tabs.Content value="editor" p="md" overflowX="hidden">
         <VStack align="stretch" gap="md">
-          <ProfileEditor />
+          <Editor />
           <SectionsEditor defaultValues={resume.sections} onChange={handleSectionsChange} />
         </VStack>
       </Tabs.Content>
 
       <Tabs.Content value="breakdown" p="0">
-        <Breakdown
-          applicationId={applicationId}
-          listingId={listingId}
-          onSuggestionHover={onSuggestionHover}
-        />
+        <Breakdown applicationId={applicationId} onSuggestionHover={onSuggestionHover} />
       </Tabs.Content>
     </Tabs.Root>
   );

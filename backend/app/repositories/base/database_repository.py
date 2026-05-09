@@ -1,4 +1,5 @@
 import sqlite3
+from collections.abc import Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 
@@ -13,7 +14,7 @@ class DatabaseRepository:
     pass
 
   @contextmanager
-  def transaction(self):
+  def transaction(self) -> Iterator[sqlite3.Connection]:
     """
     Creates a transaction context. Nested calls use the same connection.
 

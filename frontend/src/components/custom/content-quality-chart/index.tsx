@@ -83,11 +83,20 @@ export const ContentQualityChart = ({ data = mockData }: ContentQualityChartProp
   }));
 
   return (
-    <Box w="full" h="full" display="flex" flexDirection="column">
+    <Box
+      w="full"
+      h="full"
+      display="flex"
+      flexDirection="column"
+      flexGrow={3}
+      flexShrink={1}
+      flexBasis="72"
+      minW="60"
+    >
       <Text fontWeight="bold" fontSize="sm" mb="xs">
         Content Quality
       </Text>
-      <Box flex="1" w="full" position="relative">
+      <Box w="full" position="relative" h="2xs">
         <ResponsiveBar
           data={transformedData}
           indexBy="section"

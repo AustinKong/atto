@@ -83,11 +83,24 @@ export type StatusEvent =
   | StatusEventWithdrawn
   | StatusEventRescinded;
 
+export type SkillComparisonRow = {
+  skill: string;
+  resumeScore: number;
+  requiredScore: number;
+};
+
+export type ApplicationAnalysis = {
+  resumeHash: string;
+  generatedAt: ISODatetime;
+  skillsComparison: SkillComparisonRow[];
+};
+
 export type Application = {
   id: string;
   listingId: string;
   name: string;
   resumeId: string;
+  analysis: ApplicationAnalysis | null;
   statusEvents: StatusEvent[];
   currentStatus: StatusEnum;
 };

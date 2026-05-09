@@ -4,7 +4,11 @@ from fastapi import APIRouter, Depends, Query
 
 from app.services.research_service import ResearchService
 from app.services.token_budget_service import require_tokens
-from shared.schemas.research import MarketContextResult, SalaryRangeResult, SentimentAnalysisResult
+from shared.schemas.listing_research import (
+  MarketContextResult,
+  SalaryRangeResult,
+  SentimentAnalysisResult,
+)
 
 router = APIRouter(prefix='/cloud', tags=['Research'])
 

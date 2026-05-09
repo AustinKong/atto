@@ -11,8 +11,8 @@ export function Form() {
   const navigate = useNavigate();
   const { enterGuestMode } = useAuth();
 
-  function handleContinueAsGuest() {
-    enterGuestMode();
+  async function handleContinueAsGuest() {
+    await enterGuestMode();
     navigate('/listings');
   }
 

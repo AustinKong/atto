@@ -1,28 +1,21 @@
-import { Box, Button, Card, Collapsible, HStack, SimpleGrid, Text, VStack } from '@chakra-ui/react';
+import { Button, Card, Collapsible, HStack, Text, VStack } from '@chakra-ui/react';
 import { useMemo, useState } from 'react';
 import { LuCheck, LuChevronLeft, LuX } from 'react-icons/lu';
 
-import { ContentQualityChart } from '@/components/custom/content-quality-chart';
-import { SegmentedGauge } from '@/components/custom/segmented-gauge';
 import { RESUME_SUGGESTIONS } from '@/pages/resume/resume-suggestions.constants';
-import { SkillsComparison } from '@/pages/resume/SkillsComparison';
 
 type SuggestionDecision = 'accepted' | 'dismissed' | null;
 
-export function Breakdown({
-  applicationId,
-  listingId,
+// TODO: Update
+export function Suggestions({
   onSuggestionHover,
 }: {
-  applicationId: string;
-  listingId: string;
   onSuggestionHover: (suggestionId: string | null) => void;
 }) {
   const [suggestionDecisions, setSuggestionDecisions] = useState<
     Record<string, SuggestionDecision>
   >({});
   const [openSuggestions, setOpenSuggestions] = useState<Record<string, boolean>>({});
-
   const suggestions = useMemo(() => RESUME_SUGGESTIONS, []);
 
   function setSuggestionDecision(suggestionId: string, decision: SuggestionDecision) {
@@ -33,26 +26,7 @@ export function Breakdown({
   }
 
   return (
-    <VStack align="stretch" gap="md" p="md" h="full" overflowY="auto">
-      <VStack align="stretch" gap="xs">
-        <Text textStyle="sm" color="fg.muted">
-          Match Score
-        </Text>
-        <Box py="xs">
-          <SegmentedGauge percent={Math.random()} size="lg" />
-        </Box>
-      </VStack>
-
-      <SimpleGrid minChildWidth="22rem" gap="md">
-        <Box minW="0" h="18rem">
-          <SkillsComparison applicationId={applicationId} listingId={listingId} />
-        </Box>
-
-        <Box minW="0" h="18rem">
-          <ContentQualityChart />
-        </Box>
-      </SimpleGrid>
-
+    <>
       <Text textStyle="md" color="fg.muted">
         AI Suggestions
       </Text>
@@ -147,6 +121,6 @@ export function Breakdown({
           </VStack>
         ))}
       </VStack>
-    </VStack>
+    </>
   );
 }

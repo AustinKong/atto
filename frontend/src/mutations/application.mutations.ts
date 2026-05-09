@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
+import { applicationQueries } from '@/queries/application.queries';
 import {
   createApplication as createApplicationSvc,
   createStatusEvent as createStatusEventSvc,
   deleteStatusEvent as deleteStatusEventSvc,
+  generateApplicationAnalysis as generateApplicationAnalysisSvc,
   updateStatusEvent as updateStatusEventSvc,
 } from '@/services/application.service';
 import { createResume, type ResumeCreationMode } from '@/services/resume.service';
@@ -100,6 +102,18 @@ export function useDeleteStatusEvent() {
       queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
       queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
+    },
+  });
+}
+
+export function useGenerateApplicationAnalysis() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (applicationId: string) => generateApplicationAnalysisSvc(applicationId),
+    onSuccess: (data, applicationId) => {
+      queryClient.setQueryData(applicationQueries.analysisStatus(applicationId).queryKey, data);
+      queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
     },
   });
 }

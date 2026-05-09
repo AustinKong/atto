@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import UTC, date, datetime
 from typing import Annotated
@@ -26,6 +27,8 @@ from app.schemas.task_status import TaskStatus
 from app.utils.auth_context import use_session_token
 from app.utils.text import ground_quote
 from app.utils.url import normalize_url
+
+logger = logging.getLogger(__name__)
 
 
 class ListingService:
@@ -178,4 +181,4 @@ class ListingService:
         self.listing_repository.set_research_status(listing_id, TaskStatus.SUCCEEDED)
       except Exception as e:
         self.listing_repository.set_research_status(listing_id, TaskStatus.FAILED, str(e))
-        raise
+        logger.exception('Listing research generation failed for listing %s', listing_id)

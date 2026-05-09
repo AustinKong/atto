@@ -1,4 +1,11 @@
-from .application import Application, StatusEnum, StatusEvent, StatusEventSaved
+from .application import (
+  Application,
+  ApplicationAnalysis,
+  SkillComparisonRow,
+  StatusEnum,
+  StatusEvent,
+  StatusEventSaved,
+)
 from .dates import ISODate, ISODatetime, ISOYearMonth
 from .experience import (
   Experience,
@@ -32,7 +39,8 @@ from .scraping import (
 from .template import DEFAULT_TEMPLATE_ID, Template, TemplateSummary
 from .types import CamelModel, Page
 
-# TODO: Remove this init, honestly more effort than it's worth to maintain it, and it's not providing much value. Just import the models directly from their modules.
+# TODO: Remove this init. It's more effort than it's worth to maintain,
+# and doesn't provide much value. Import models directly from modules.
 
 __all__ = [
   # Base types
@@ -72,6 +80,8 @@ __all__ = [
   'SimpleSection',
   # Application
   'Application',
+  'ApplicationAnalysis',
+  'SkillComparisonRow',
   # StatusEvent
   'StatusEnum',
   'StatusEvent',

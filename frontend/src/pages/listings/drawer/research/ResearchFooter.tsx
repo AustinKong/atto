@@ -60,6 +60,8 @@ export function ResearchFooter({
       <Text>
         {isResearching
           ? 'Generating...'
+          : statusData?.status === 'failed'
+            ? 'Research generation failed'
           : research
             ? `Generated at ${new Date(research.generatedAt).toLocaleString()}`
             : 'Research not generated yet'}

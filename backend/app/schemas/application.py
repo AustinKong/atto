@@ -3,9 +3,10 @@ from enum import StrEnum
 from typing import Annotated, Literal
 from uuid import UUID, uuid4
 
-from pydantic import Field, field_validator
+from pydantic import BeforeValidator, Field, field_validator
 
 from app.schemas.dates import ISODate, ISODatetime
+from app.schemas.types import parse_json_model_as
 from shared.schemas.types import CamelModel
 
 
@@ -37,6 +38,18 @@ class StatusEnum(StrEnum):
       self.WITHDRAWN: 9,
       self.RESCINDED: 10,
     }[self]
+
+
+class SkillComparisonRow(CamelModel):
+  skill: str
+  resume_score: int = Field(ge=0, le=100)
+  required_score: int = Field(ge=0, le=100)
+
+
+class ApplicationAnalysis(CamelModel):
+  resume_hash: str
+  generated_at: ISODatetime
+  skills_comparison: list[SkillComparisonRow] = Field(default_factory=list)
 
 
 class Person(CamelModel):
@@ -115,6 +128,10 @@ class Application(CamelModel):
   listing_id: UUID
   name: str = Field(min_length=1)
   resume_id: UUID
+  analysis: Annotated[
+    ApplicationAnalysis | None,
+    BeforeValidator(parse_json_model_as(ApplicationAnalysis)),
+  ] = None
   status_events: list[StatusEvent] = Field(default_factory=list)
   # Denormalized to significantly simplify listings_service.list_all query
   current_status: StatusEnum = Field(default=StatusEnum.SAVED)

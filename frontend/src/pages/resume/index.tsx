@@ -6,12 +6,10 @@ import { Preview } from './preview';
 import { Workspace } from './workspace';
 
 export function ResumePage() {
-  const { listingId: listingParam, applicationId: applicationParam } = useParams<{
-    listingId?: string;
+  const { applicationId: applicationParam } = useParams<{
     applicationId?: string;
   }>();
   const urlParams = new URLSearchParams(window.location.search);
-  const listingId = listingParam ?? urlParams.get('listingId') ?? '';
   const applicationId = applicationParam ?? urlParams.get('applicationId') ?? '';
   const [hoveredSuggestionId, setHoveredSuggestionId] = useState<string | null>(null);
 
@@ -24,11 +22,7 @@ export function ResumePage() {
       defaultSize={[40, 60]}
     >
       <Splitter.Panel id="workspace">
-        <Workspace
-          applicationId={applicationId}
-          listingId={listingId}
-          onSuggestionHover={setHoveredSuggestionId}
-        />
+        <Workspace applicationId={applicationId} onSuggestionHover={setHoveredSuggestionId} />
       </Splitter.Panel>
       <Splitter.ResizeTrigger id="workspace:preview" />
       <Splitter.Panel id="preview">

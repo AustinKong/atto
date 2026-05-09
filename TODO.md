@@ -217,3 +217,6 @@ before i changed it to the current system, i used to have something very simiar.
 but in the old version the application id was stored in the url which made things hard. now i think application (selected) should just be in a context is enough.
 
 with that in mind, do the necessary research, and make that the top priority in the TODO. write all the details including the required commit hash. i will use this to prompt github copilot to work on it instead in the future
+
+## P4
+Alot of query keys in frontend (invalidation) keeps repeating the array query key like ['listings', 'research', id] etc. (example). But ideally should do something like this instead: applicationQueries.analysisStatus(applicationId).queryKey so that there won't be mismatch bugs
