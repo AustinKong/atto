@@ -13,9 +13,11 @@ import { ProfileEditor } from './ProfileEditor';
 export function Workspace({
   applicationId,
   listingId,
+  onSuggestionHover,
 }: {
   applicationId: string;
   listingId: string;
+  onSuggestionHover: (suggestionId: string | null) => void;
 }) {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
@@ -41,7 +43,11 @@ export function Workspace({
       </Tabs.Content>
 
       <Tabs.Content value="breakdown" p="0">
-        <Breakdown applicationId={applicationId} listingId={listingId} />
+        <Breakdown
+          applicationId={applicationId}
+          listingId={listingId}
+          onSuggestionHover={onSuggestionHover}
+        />
       </Tabs.Content>
     </Tabs.Root>
   );

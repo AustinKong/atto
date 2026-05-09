@@ -3,13 +3,15 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router';
 
 import { ResumePreview } from '@/components/custom/resume-preview';
+import { DEFAULT_RESUME_ID } from '@/constants/resume.constants';
+import { RESUME_SUGGESTIONS } from '@/pages/resume/resume-suggestions.constants';
 import { profileQueries } from '@/queries/profile.queries';
 import { resumeQueries } from '@/queries/resume.queries';
 import { templateQueries } from '@/queries/template.queries';
 
 import { Toolbar } from './Toolbar';
 
-export function Preview() {
+export function Preview({ highlightedSuggestionId }: { highlightedSuggestionId: string | null }) {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
   const { data: template } = useSuspenseQuery(templateQueries.localItem(resume.templateId));
@@ -18,7 +20,14 @@ export function Preview() {
   return (
     <VStack gap="0" h="full">
       <Toolbar resume={resume} template={template} profile={profile} />
-      <ResumePreview template={template} sections={resume.sections} profile={profile} />
+      <ResumePreview
+        template={template}
+        sections={resume.sections}
+        profile={profile}
+        commentPocEnabled={resume.id === DEFAULT_RESUME_ID}
+        suggestions={RESUME_SUGGESTIONS}
+        highlightedSuggestionId={highlightedSuggestionId}
+      />
     </VStack>
   );
 }
