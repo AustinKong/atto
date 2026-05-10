@@ -18,6 +18,7 @@ export function Document({
   template,
   sections,
   profile,
+  highlightedUnitIds = [],
   interactable = false,
   scale = 1,
   limitPages = Infinity,
@@ -26,23 +27,24 @@ export function Document({
   template: Template;
   sections: Section[];
   profile: Profile;
+  highlightedUnitIds?: string[];
   interactable?: boolean;
   scale?: number;
   limitPages?: number;
   pageWidth?: number;
 }) {
-  const { data: blob, isFetching } = useQuery(
+  const { data: renderedTemplate, isFetching } = useQuery(
     templateQueries.render(template, sections, profile, !interactable)
   );
 
   const [state, dispatch] = useReducer(documentReducer, initialState);
-  const { aUrl, bUrl, activeInstance } = state;
+  const { aUrl, aGeometry, bUrl, bGeometry, activeInstance } = state;
 
   useEffect(() => {
-    if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    dispatch({ type: 'NEW_URL', url });
-  }, [blob]);
+    if (!renderedTemplate) return;
+    const url = URL.createObjectURL(renderedTemplate.pdfBlob);
+    dispatch({ type: 'NEW_RENDER', url, geometry: renderedTemplate.geometry });
+  }, [renderedTemplate]);
 
   const handleInstanceReady = (instance: 'A' | 'B') => {
     dispatch({ type: 'TOGGLE_ACTIVE', instance });
@@ -59,10 +61,10 @@ export function Document({
   return (
     <Box position="relative">
       {[
-        { id: 'A' as const, url: aUrl },
-        { id: 'B' as const, url: bUrl },
+        { id: 'A' as const, url: aUrl, geometry: aGeometry },
+        { id: 'B' as const, url: bUrl, geometry: bGeometry },
       ].map(
-        ({ id, url }) =>
+        ({ id, url, geometry }) =>
           url && (
             <Box
               key={id}
@@ -73,6 +75,8 @@ export function Document({
             >
               <DocumentInstance
                 url={url}
+                geometry={geometry ?? {}}
+                highlightedUnitIds={highlightedUnitIds}
                 scale={scale}
                 pageWidth={pageWidth}
                 limitPages={limitPages}

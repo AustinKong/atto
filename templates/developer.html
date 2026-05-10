@@ -57,30 +57,30 @@
     <main>
       {% for section in sections %}
         <section style="margin-bottom: 5mm;">
-          <h2 style="font-family: var(--mono-font); font-size: 11pt; text-transform: uppercase; background: #f3f4f6; padding: 1mm 2.5mm; margin: 0 0 3mm 0; display: inline-block;">// {{ section.title }}</h2>
+          <h2 style="font-family: var(--mono-font); font-size: 11pt; text-transform: uppercase; background: #f3f4f6; padding: 1mm 2.5mm; margin: 0 0 3mm 0; display: inline-block;">// {{ section.title.content }}</h2>
 
           {% if section.type == 'detailed' %}
             {% for item in section.content %}
               <div style="margin-bottom: 3.5mm; break-inside: avoid;">
                 <div style="display: flex; justify-content: space-between; font-weight: 700;">
-                  <span style="font-size: 10pt;">{{ item.title }}</span>
-                  {% if item.start_date or item.end_date %}
+                  <span style="font-size: 10pt;">{{ item.title.content }}</span>
+                  {% if item.date_range.start_date or item.date_range.end_date %}
                     <span style="font-family: var(--mono-font); font-size: 9pt; color: var(--text-light); background-color: #f9fafb; padding: 0 1mm;">
-                      {% set start = item.start_date or '' %}
-                      {% set end = 'present' if item.end_date == 'present' else (item.end_date or '') %}
+                      {% set start = item.date_range.start_date or '' %}
+                      {% set end = (item.date_range.end_date or '') | replace('present', 'Present') %}
                       [{{ start }} - {{ end }}]
                     </span>
                   {% endif %}
                 </div>
                 
-                {% if item.subtitle %}
-                  <div style="color: var(--text-light); font-weight: 500;">{{ item.subtitle }}</div>
+                {% if item.subtitle.content %}
+                  <div style="color: var(--text-light); font-weight: 500;">{{ item.subtitle.content }}</div>
                 {% endif %}
 
                 {% if item.bullets %}
                   <ul style="margin: 1mm 0 0 0; padding-left: 5mm;">
                     {% for bullet in item.bullets %}
-                      <li style="margin-bottom: 0.5mm;">{{ bullet }}</li>
+                      <li style="margin-bottom: 0.5mm;">{{ bullet.content }}</li>
                     {% endfor %}
                   </ul>
                 {% endif %}
@@ -90,12 +90,12 @@
           {% elif section.type == 'simple' %}
             <div style="display: flex; flex-wrap: wrap; gap: 2mm; break-inside: avoid;">
               {% for bullet in section.content %}
-                <span style="font-family: var(--mono-font); font-size: 8.5pt; border: 1pt solid var(--border-color); padding: 0.5mm 2mm; border-radius: 1mm; background: #fff;">{{ bullet }}</span>
+                <span style="font-family: var(--mono-font); font-size: 8.5pt; border: 1pt solid var(--border-color); padding: 0.5mm 2mm; border-radius: 1mm; background: #fff;">{{ bullet.content }}</span>
               {% endfor %}
             </div>
 
           {% elif section.type == 'paragraph' %}
-            <p style="break-inside: avoid;">{{ section.content }}</p>
+            <p style="break-inside: avoid;">{{ section.content.content }}</p>
           {% endif %}
         </section>
       {% endfor %}

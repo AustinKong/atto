@@ -1,6 +1,7 @@
 import type { Profile } from '@/types/profile.types';
 import type { Section } from '@/types/resume.types';
 import { ISOYearMonth } from '@/utils/date.utils';
+import { createDateRangeUnit, createTextUnit } from '@/utils/resume.utils';
 
 // Default sample profile for template preview
 export const DEFAULT_TEMPLATE_PROFILE: Profile = {
@@ -14,86 +15,114 @@ export const DEFAULT_TEMPLATE_PROFILE: Profile = {
 // Default sample sections for template preview
 export const DEFAULT_TEMPLATE_SECTIONS: Section[] = [
   {
-    id: 'summary-1',
+    id: crypto.randomUUID(),
     type: 'paragraph',
-    title: 'Summary',
-    content:
-      'Practical full-stack software engineer with 5+ years building web applications and APIs. Strong background in Python and TypeScript, experience with cloud platforms and containerized deployments. Passionate about clean code, pragmatic testing, and mentoring junior engineers.',
+    title: createTextUnit('Summary'),
+    content: createTextUnit(
+      'Practical full-stack software engineer with 5+ years building web applications and APIs. Strong background in Python and TypeScript, experience with cloud platforms and containerized deployments. Passionate about clean code, pragmatic testing, and mentoring junior engineers.'
+    ),
   },
   {
-    id: 'skills-1',
+    id: crypto.randomUUID(),
     type: 'simple',
-    title: 'Skills',
+    title: createTextUnit('Skills'),
     content: [
-      'Languages: Python, TypeScript, JavaScript, SQL',
-      'Frameworks: React, Next.js, FastAPI, Django',
-      'Databases: PostgreSQL, Redis, MongoDB',
-      'DevOps: Docker, GitHub Actions, AWS (S3, Lambda)',
-      'Testing: pytest, Jest, Playwright',
+      createTextUnit('Languages: Python, TypeScript, JavaScript, SQL'),
+      createTextUnit('Frameworks: React, Next.js, FastAPI, Django'),
+      createTextUnit('Databases: PostgreSQL, Redis, MongoDB'),
+      createTextUnit('DevOps: Docker, GitHub Actions, AWS (S3, Lambda)'),
+      createTextUnit('Testing: pytest, Jest, Playwright'),
     ],
   },
   {
-    id: 'exp-1',
+    id: crypto.randomUUID(),
     type: 'detailed',
-    title: 'Experience',
+    title: createTextUnit('Experience'),
     content: [
       {
-        title: 'Software Engineer',
-        subtitle: 'BrightLayer Inc. — San Francisco, CA',
-        startDate: ISOYearMonth.parse('2022-06'),
-        endDate: 'present',
+        id: crypto.randomUUID(),
+        title: createTextUnit('Software Engineer'),
+        subtitle: createTextUnit('BrightLayer Inc. — San Francisco, CA'),
+        dateRange: createDateRangeUnit(ISOYearMonth.parse('2022-06'), 'present'),
         bullets: [
-          'Led migration of monolithic API to microservices using FastAPI and Docker, reducing deploy time significantly.',
-          'Built a metrics-backed feature flag system to enable gradual rollouts and reduce incidents.',
-          'Mentored junior engineers and ran code reviews to raise team standards.',
+          createTextUnit(
+            'Led migration of monolithic API to microservices using FastAPI and Docker, reducing deploy time significantly.'
+          ),
+          createTextUnit(
+            'Built a metrics-backed feature flag system to enable gradual rollouts and reduce incidents.'
+          ),
+          createTextUnit('Mentored junior engineers and ran code reviews to raise team standards.'),
         ],
       },
       {
-        title: 'Full-Stack Engineer',
-        subtitle: 'Orbit Labs — Remote',
-        startDate: ISOYearMonth.parse('2019-09'),
-        endDate: ISOYearMonth.parse('2022-05'),
+        id: crypto.randomUUID(),
+        title: createTextUnit('Full-Stack Engineer'),
+        subtitle: createTextUnit('Orbit Labs — Remote'),
+        dateRange: createDateRangeUnit(
+          ISOYearMonth.parse('2019-09'),
+          ISOYearMonth.parse('2022-05')
+        ),
         bullets: [
-          'Developed client dashboards with React and TypeScript, improving retention.',
-          'Implemented GraphQL endpoints and optimized DB indexes to reduce query latency.',
-          'Owned payments integration and subscription flows.',
+          createTextUnit(
+            'Developed client dashboards with React and TypeScript, improving retention.'
+          ),
+          createTextUnit(
+            'Implemented GraphQL endpoints and optimized DB indexes to reduce query latency.'
+          ),
+          createTextUnit('Owned payments integration and subscription flows.'),
         ],
       },
       {
-        title: 'Software Engineer (Intern)',
-        subtitle: 'University Research Lab — Sacramento, CA',
-        startDate: ISOYearMonth.parse('2018-06'),
-        endDate: ISOYearMonth.parse('2019-08'),
+        id: crypto.randomUUID(),
+        title: createTextUnit('Software Engineer (Intern)'),
+        subtitle: createTextUnit('University Research Lab — Sacramento, CA'),
+        dateRange: createDateRangeUnit(
+          ISOYearMonth.parse('2018-06'),
+          ISOYearMonth.parse('2019-08')
+        ),
         bullets: [
-          'Built ETL pipelines in Python to normalize and visualize experimental datasets.',
-          'Created an internal dashboard for researchers to run queries and export visualizations.',
+          createTextUnit(
+            'Built ETL pipelines in Python to normalize and visualize experimental datasets.'
+          ),
+          createTextUnit(
+            'Created an internal dashboard for researchers to run queries and export visualizations.'
+          ),
         ],
       },
     ],
   },
   {
-    id: 'edu-1',
+    id: crypto.randomUUID(),
     type: 'detailed',
-    title: 'Education',
+    title: createTextUnit('Education'),
     content: [
       {
-        title: 'B.S. in Computer Science',
-        subtitle: 'State University — Sacramento, CA',
-        startDate: ISOYearMonth.parse('2014-09'),
-        endDate: ISOYearMonth.parse('2018-06'),
+        id: crypto.randomUUID(),
+        title: createTextUnit('B.S. in Computer Science'),
+        subtitle: createTextUnit('State University — Sacramento, CA'),
+        dateRange: createDateRangeUnit(
+          ISOYearMonth.parse('2014-09'),
+          ISOYearMonth.parse('2018-06')
+        ),
         bullets: [
-          'Relevant coursework: Algorithms, Databases, Operating Systems, Software Engineering.',
+          createTextUnit(
+            'Relevant coursework: Algorithms, Databases, Operating Systems, Software Engineering.'
+          ),
         ],
       },
     ],
   },
   {
-    id: 'projects-1',
+    id: crypto.randomUUID(),
     type: 'simple',
-    title: 'Projects',
+    title: createTextUnit('Projects'),
     content: [
-      'TaskFlow — lightweight task manager with real-time collaboration (React, TypeScript).',
-      'LogInsight — CLI and web utility for parsing and visualizing structured logs (Python, FastAPI).',
+      createTextUnit(
+        'TaskFlow — lightweight task manager with real-time collaboration (React, TypeScript).'
+      ),
+      createTextUnit(
+        'LogInsight — CLI and web utility for parsing and visualizing structured logs (Python, FastAPI).'
+      ),
     ],
   },
 ];

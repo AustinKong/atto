@@ -1,3 +1,3 @@
 export { ReadonlyResumePreview } from './ReadonlyResumePreview';
-export { ResumePreview } from './ResumePreview';
+export { ResumePreview, type ResumePreviewHandle } from './ResumePreview';
 export { ResumePreviewCard } from './ResumePreviewCard';

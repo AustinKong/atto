@@ -16,6 +16,7 @@ import { sectionTypes } from '@/constants/section-types.constants';
 import { useWatchForm } from '@/hooks/use-watch-form.hooks';
 import type { SectionType } from '@/types/resume.types';
 import type { Section } from '@/types/resume.types';
+import { createTextUnit } from '@/utils/resume.utils';
 
 import { AddSectionButton } from './AddSectionButton';
 import { SectionEditor } from './section-editor';
@@ -73,7 +74,7 @@ export const SectionsEditor = forwardRef<
     const newSection: Section = {
       id: crypto.randomUUID(),
       type,
-      title: 'New Section',
+      title: createTextUnit('New Section'),
       content: config.createContent(),
     } as Section;
 

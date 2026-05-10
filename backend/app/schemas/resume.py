@@ -20,22 +20,33 @@ class SectionTypeEnum(StrEnum):
   PARAGRAPH = 'paragraph'
 
 
-class DetailedItem(CamelModel):
-  title: str
-  subtitle: str = ''
+class TextUnit(CamelModel):
+  id: UUID = Field(default_factory=uuid4)
+  content: str = ''
+
+
+class DateRangeUnit(CamelModel):
+  id: UUID = Field(default_factory=uuid4)
   start_date: ISOYearMonth | None = None
   end_date: ISOYearMonth | Literal['present'] | None = None
-  bullets: list[str]
+
+
+class DetailedItem(CamelModel):
+  id: UUID = Field(default_factory=uuid4)
+  title: TextUnit = Field(default_factory=TextUnit)
+  subtitle: TextUnit = Field(default_factory=TextUnit)
+  date_range: DateRangeUnit = Field(default_factory=DateRangeUnit)
+  bullets: list[TextUnit] = Field(default_factory=list)
 
 
 class BaseSection(CamelModel):
-  id: str
-  title: str
+  id: UUID
+  title: TextUnit = Field(default_factory=TextUnit)
 
 
 class SimpleSection(BaseSection):
   type: Literal[SectionTypeEnum.SIMPLE] = SectionTypeEnum.SIMPLE
-  content: list[str]
+  content: list[TextUnit]
 
 
 class DetailedSection(BaseSection):
@@ -45,7 +56,7 @@ class DetailedSection(BaseSection):
 
 class ParagraphSection(BaseSection):
   type: Literal[SectionTypeEnum.PARAGRAPH] = SectionTypeEnum.PARAGRAPH
-  content: str
+  content: TextUnit = Field(default_factory=TextUnit)
 
 
 Section = Annotated[
@@ -63,17 +74,17 @@ class Resume(CamelModel):
     text = ''
 
     for section in self.sections:
-      text += f'{section.title}\n'
+      text += f'{section.title.content}\n'
       if isinstance(section, SimpleSection):
-        text += f'{to_bullets(section.content)}\n'
+        text += f'{to_bullets([item.content for item in section.content])}\n'
       elif isinstance(section, DetailedSection):
         for item in section.content:
-          text += f'{item.title}\n'
-          if item.subtitle.strip():
-            text += f'{item.subtitle}\n'
-          text += f'{to_bullets(item.bullets)}\n'
+          text += f'{item.title.content}\n'
+          if item.subtitle.content.strip():
+            text += f'{item.subtitle.content}\n'
+          text += f'{to_bullets([bullet.content for bullet in item.bullets])}\n'
       elif isinstance(section, ParagraphSection):
-        text += f'{section.content}\n'
+        text += f'{section.content.content}\n'
 
     return text.strip()
 

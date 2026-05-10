@@ -3,6 +3,7 @@ import { memo } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 import { SortableListInput } from '@/components/custom/sortable-list-input';
+import { createTextUnit } from '@/utils/resume.utils';
 
 import type { SectionsEditorData } from '../../types';
 
@@ -18,7 +19,7 @@ export const SimpleBulletSection = memo(function SimpleBulletSection({
       control={control}
       register={register}
       name={`sections.${sectionIndex}.content`}
-      defaultItem={'' as never}
+      defaultItem={createTextUnit() as never}
     >
       <HStack justify="space-between">
         <SortableListInput.Label>Bullet Points</SortableListInput.Label>
@@ -31,7 +32,7 @@ export const SimpleBulletSection = memo(function SimpleBulletSection({
             <>
               <SortableListInput.Marker />
               <Textarea
-                {...register(`${name}.${index}`)}
+                {...register(`${name}.${index}.content`)}
                 placeholder="Enter bullet point..."
                 variant="flushed"
                 rows={1}

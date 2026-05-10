@@ -1,6 +1,7 @@
 import type { Profile } from '@/types/profile.types';
 import type { Section } from '@/types/resume.types';
 import { ISOYearMonth } from '@/utils/date.utils';
+import { createDateRangeUnit, createTextUnit } from '@/utils/resume.utils';
 
 interface EdgeCasePreset {
   name: string;
@@ -8,7 +9,29 @@ interface EdgeCasePreset {
   sections: Section[];
 }
 
-export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
+type DetailedSeedItem = {
+  title: string;
+  subtitle: string;
+  startDate: ISOYearMonth | null;
+  endDate: ISOYearMonth | 'present' | null;
+  bullets: string[];
+};
+
+function createTextUnits(items: string[]) {
+  return items.map((item) => createTextUnit(item));
+}
+
+function createDetailedContent(items: DetailedSeedItem[]) {
+  return items.map((item) => ({
+    id: crypto.randomUUID(),
+    title: createTextUnit(item.title),
+    subtitle: createTextUnit(item.subtitle),
+    dateRange: createDateRangeUnit(item.startDate, item.endDate),
+    bullets: createTextUnits(item.bullets),
+  }));
+}
+
+const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
   minimalDataStates: {
     name: 'Minimal Data States',
     profile: {
@@ -21,16 +44,16 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
     },
     sections: [
       {
-        id: 'min-1',
+        id: crypto.randomUUID(),
         type: 'simple',
-        title: 'Empty Simple Section',
-        content: [],
+        title: createTextUnit('Empty Simple Section'),
+        content: createTextUnits([]),
       },
       {
-        id: 'min-2',
+        id: crypto.randomUUID(),
         type: 'detailed',
-        title: 'Empty Detailed Section',
-        content: [
+        title: createTextUnit('Empty Detailed Section'),
+        content: createDetailedContent([
           {
             title: 'Job Title Only',
             subtitle: '',
@@ -38,7 +61,7 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
             endDate: null,
             bullets: [],
           },
-        ],
+        ]),
       },
     ],
   },
@@ -55,17 +78,18 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
     },
     sections: [
       {
-        id: 'flow-1',
+        id: crypto.randomUUID(),
         type: 'paragraph',
-        title: 'Text Flow Test',
-        content:
-          'This is a long paragraph.\n\nIt has double newlines to test spacing.\nIt also has a single newline.\nFinally, we include a very long word: Donaudampfschifffahrtselektrizitätenhauptbetriebswerkbauunterbeamtengesellschaft.',
+        title: createTextUnit('Text Flow Test'),
+        content: createTextUnit(
+          'This is a long paragraph.\n\nIt has double newlines to test spacing.\nIt also has a single newline.\nFinally, we include a very long word: Donaudampfschifffahrtselektrizitätenhauptbetriebswerkbauunterbeamtengesellschaft.'
+        ),
       },
       {
-        id: 'flow-2',
+        id: crypto.randomUUID(),
         type: 'detailed',
-        title: 'Flexbox Collision',
-        content: [
+        title: createTextUnit('Flexbox Collision'),
+        content: createDetailedContent([
           {
             title: 'Lead Software Engineer and Architectural Design Consultant for Cloud Systems',
             subtitle: 'Global Consolidated Industries and Technologies Corporation',
@@ -73,7 +97,7 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
             endDate: 'present',
             bullets: ['Unbroken_string_test_01234567890123456789012345678901234567890123456789'],
           },
-        ],
+        ]),
       },
     ],
   },
@@ -90,10 +114,10 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
     },
     sections: [
       {
-        id: 'date-1',
+        id: crypto.randomUUID(),
         type: 'detailed',
-        title: 'Date Logic',
-        content: [
+        title: createTextUnit('Date Logic'),
+        content: createDetailedContent([
           {
             title: 'Standard Present',
             subtitle: '',
@@ -122,7 +146,7 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
             endDate: null,
             bullets: [],
           },
-        ],
+        ]),
       },
     ],
   },
@@ -139,29 +163,30 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
     },
     sections: [
       {
-        id: 'summary-1',
+        id: crypto.randomUUID(),
         type: 'paragraph',
-        title: 'Summary',
-        content:
-          'Practical full-stack software engineer with 5+ years building web applications and APIs. Strong background in Python and TypeScript, experience with cloud platforms and containerized deployments. Passionate about clean code, pragmatic testing, and mentoring junior engineers.',
+        title: createTextUnit('Summary'),
+        content: createTextUnit(
+          'Practical full-stack software engineer with 5+ years building web applications and APIs. Strong background in Python and TypeScript, experience with cloud platforms and containerized deployments. Passionate about clean code, pragmatic testing, and mentoring junior engineers.'
+        ),
       },
       {
-        id: 'skills-1',
+        id: crypto.randomUUID(),
         type: 'simple',
-        title: 'Skills',
-        content: [
+        title: createTextUnit('Skills'),
+        content: createTextUnits([
           'Languages: Python, TypeScript, JavaScript, SQL',
           'Frameworks: React, Next.js, FastAPI, Django',
           'Databases: PostgreSQL, Redis, MongoDB',
           'DevOps: Docker, GitHub Actions, AWS (S3, Lambda)',
           'Testing: pytest, Jest, Playwright',
-        ],
+        ]),
       },
       {
-        id: 'exp-1',
+        id: crypto.randomUUID(),
         type: 'detailed',
-        title: 'Experience',
-        content: [
+        title: createTextUnit('Experience'),
+        content: createDetailedContent([
           {
             title: 'Software Engineer',
             subtitle: 'BrightLayer Inc. — San Francisco, CA',
@@ -194,13 +219,13 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
               'Created an internal dashboard for researchers to run queries and export visualizations.',
             ],
           },
-        ],
+        ]),
       },
       {
-        id: 'edu-1',
+        id: crypto.randomUUID(),
         type: 'detailed',
-        title: 'Education',
-        content: [
+        title: createTextUnit('Education'),
+        content: createDetailedContent([
           {
             title: 'B.S. in Computer Science',
             subtitle: 'State University — Sacramento, CA',
@@ -210,16 +235,16 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
               'Relevant coursework: Algorithms, Databases, Operating Systems, Software Engineering.',
             ],
           },
-        ],
+        ]),
       },
       {
-        id: 'projects-1',
+        id: crypto.randomUUID(),
         type: 'simple',
-        title: 'Projects',
-        content: [
+        title: createTextUnit('Projects'),
+        content: createTextUnits([
           'TaskFlow — lightweight task manager with real-time collaboration (React, TypeScript).',
           'LogInsight — CLI and web utility for parsing and visualizing structured logs (Python, FastAPI).',
-        ],
+        ]),
       },
     ],
   },
@@ -235,30 +260,31 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
     },
     sections: [
       {
-        id: 'multi-summary-1',
+        id: crypto.randomUUID(),
         type: 'paragraph',
-        title: 'Summary',
-        content:
-          'Highly experienced Principal Software Architect with over 15 years of experience in designing, building, and scaling enterprise-level applications. Proven track record of leading large, cross-functional teams to deliver mission-critical software solutions. Expert in cloud-native architectures, distributed systems, and high-performance computing. Adept at navigating complex technical challenges, fostering a culture of engineering excellence, and driving strategic technology initiatives that align with business objectives.',
+        title: createTextUnit('Summary'),
+        content: createTextUnit(
+          'Highly experienced Principal Software Architect with over 15 years of experience in designing, building, and scaling enterprise-level applications. Proven track record of leading large, cross-functional teams to deliver mission-critical software solutions. Expert in cloud-native architectures, distributed systems, and high-performance computing. Adept at navigating complex technical challenges, fostering a culture of engineering excellence, and driving strategic technology initiatives that align with business objectives.'
+        ),
       },
       {
-        id: 'multi-skills-1',
+        id: crypto.randomUUID(),
         type: 'simple',
-        title: 'Skills',
-        content: [
+        title: createTextUnit('Skills'),
+        content: createTextUnits([
           'Languages: Python, Go, TypeScript, Java, Rust, C++, C#, Kotlin, Scala, Ruby, Swift, Haskell, SQL, Bash',
           'Cloud & Infrastructure: AWS, GCP, Azure, Kubernetes, Docker, Terraform, Helm, Istio, Consul, Envoy, Unix/Linux',
           'Databases: PostgreSQL, MySQL, Cassandra, MongoDB, DynamoDB, Redis, Memcached, Elasticsearch, Kafka, Elasticsearch',
           'Messaging & Streaming: Kafka, RabbitMQ, ActiveMQ, SQS, SNS, Kinesis, Google Pub/Sub, gRPC, Protocol Buffers',
           'Observability & APM: Prometheus, Grafana, Datadog, Jaeger, OpenTelemetry, New Relic, Splunk, Elastic Stack',
           'Practices: Domain-Driven Design (DDD), Test-Driven Development (TDD), CI/CD, Agile/Scrum, SRE, Chaos Engineering',
-        ],
+        ]),
       },
       {
-        id: 'multi-exp-1',
+        id: crypto.randomUUID(),
         type: 'detailed',
-        title: 'Experience',
-        content: [
+        title: createTextUnit('Experience'),
+        content: createDetailedContent([
           {
             title: 'Principal Software Architect',
             subtitle: 'Global Tech Innovators — New York, NY',
@@ -323,13 +349,13 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
               'Wrote comprehensive technical documentation and system architecture diagrams for previously undocumented legacy systems.',
             ],
           },
-        ],
+        ]),
       },
       {
-        id: 'multi-edu-1',
+        id: crypto.randomUUID(),
         type: 'detailed',
-        title: 'Education',
-        content: [
+        title: createTextUnit('Education'),
+        content: createDetailedContent([
           {
             title: 'M.S. in Computer Science',
             subtitle: 'Massachusetts Institute of Technology (MIT) — Cambridge, MA',
@@ -347,13 +373,13 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
             endDate: ISOYearMonth.parse('2002-05'),
             bullets: ['Graduated Magna Cum Laude.', 'Minor in Mathematics.'],
           },
-        ],
+        ]),
       },
       {
-        id: 'multi-projects-1',
+        id: crypto.randomUUID(),
         type: 'detailed',
-        title: 'Open Source & Projects',
-        content: [
+        title: createTextUnit('Open Source & Projects'),
+        content: createDetailedContent([
           {
             title: 'DistributedTracer (Open Source)',
             subtitle: 'Creator and Maintainer',
@@ -374,19 +400,21 @@ export const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
               'Integrated custom operators and CRDs for advanced stateful workload management.',
             ],
           },
-        ],
+        ]),
       },
       {
-        id: 'multi-publications-1',
+        id: crypto.randomUUID(),
         type: 'simple',
-        title: 'Publications & Talks',
-        content: [
+        title: createTextUnit('Publications & Talks'),
+        content: createTextUnits([
           'Keynote Speaker: QCon 2022 - "Scaling Microservices Beyond the Breaking Point"',
           'Author: "The Pragmatic Architect", published by O\'Reilly Media (2020)',
           'Speaker: AWS re:Invent 2019 - "Active-Active Multi-Region Deployments made Easy"',
           'Guest Lecturer: Advanced Distributed Systems, MIT (2018-2021)',
-        ],
+        ]),
       },
     ],
   },
 };
+
+export { EDGE_CASE_PRESETS };

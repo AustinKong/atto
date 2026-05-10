@@ -14,7 +14,7 @@ export function Workspace({
   applicationId,
   onSuggestionHover,
 }: {
-  applicationId: string;
+  applicationId?: string;
   onSuggestionHover: (suggestionId: string | null) => void;
 }) {
   const { resumeId } = useParams<{ resumeId: string }>();
@@ -30,7 +30,9 @@ export function Workspace({
     <Tabs.Root defaultValue="editor">
       <Tabs.List h="10" alignItems="end">
         <Tabs.Trigger value="editor">Editor</Tabs.Trigger>
-        <Tabs.Trigger value="breakdown">Breakdown</Tabs.Trigger>
+        <Tabs.Trigger value="breakdown" disabled={!applicationId}>
+          Breakdown
+        </Tabs.Trigger>
       </Tabs.List>
 
       <Tabs.Content value="editor" p="md" overflowX="hidden">
@@ -40,9 +42,11 @@ export function Workspace({
         </VStack>
       </Tabs.Content>
 
-      <Tabs.Content value="breakdown" p="0">
-        <Breakdown applicationId={applicationId} onSuggestionHover={onSuggestionHover} />
-      </Tabs.Content>
+      {applicationId && (
+        <Tabs.Content value="breakdown" p="0">
+          <Breakdown applicationId={applicationId} onSuggestionHover={onSuggestionHover} />
+        </Tabs.Content>
+      )}
     </Tabs.Root>
   );
 }

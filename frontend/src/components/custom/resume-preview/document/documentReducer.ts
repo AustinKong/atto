@@ -1,30 +1,46 @@
+import type { TemplateRenderGeometry } from '@/types/template.types';
+
 export type DocumentState = {
   activeInstance: 'A' | 'B';
   aUrl?: string;
+  aGeometry?: TemplateRenderGeometry;
   bUrl?: string;
+  bGeometry?: TemplateRenderGeometry;
   pendingSwap: boolean;
 };
 
 export type DocumentAction =
-  | { type: 'NEW_URL'; url: string }
+  | { type: 'NEW_RENDER'; url: string; geometry: TemplateRenderGeometry }
   | { type: 'TOGGLE_ACTIVE'; instance: 'A' | 'B' };
 
 export const initialState: DocumentState = {
   activeInstance: 'A',
   aUrl: undefined,
+  aGeometry: undefined,
   bUrl: undefined,
+  bGeometry: undefined,
   pendingSwap: false,
 };
 
 export function documentReducer(state: DocumentState, action: DocumentAction): DocumentState {
   switch (action.type) {
-    case 'NEW_URL': {
+    case 'NEW_RENDER': {
       if (state.activeInstance === 'A') {
         if (state.bUrl) URL.revokeObjectURL(state.bUrl);
-        return { ...state, bUrl: action.url, pendingSwap: true };
+        return {
+          ...state,
+          bUrl: action.url,
+          bGeometry: action.geometry,
+          pendingSwap: true,
+        };
       } else {
         if (state.aUrl) URL.revokeObjectURL(state.aUrl);
-        return { ...state, aUrl: action.url, pendingSwap: true };
+        return {
+          ...state,
+          aUrl: action.url,
+          aGeometry: action.geometry,
+          pendingSwap: true,
+        };
       }
     }
     case 'TOGGLE_ACTIVE': {

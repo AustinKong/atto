@@ -14,6 +14,8 @@ from app.resources.prompts import (
 )
 from app.schemas import (
   DEFAULT_TEMPLATE_ID,
+  CamelModel,
+  DateRangeUnit,
   DetailedItem,
   DetailedSection,
   ParagraphSection,
@@ -21,6 +23,7 @@ from app.schemas import (
   Section,
   SectionTypeEnum,
   SimpleSection,
+  TextUnit,
 )
 
 router = APIRouter(
@@ -29,6 +32,33 @@ router = APIRouter(
 )
 
 
+class OptimizedDetailedItem(CamelModel):
+  title: str
+  subtitle: str = ''
+  bullets: list[str]
+
+
+class OptimizedSimpleSection(CamelModel):
+  content: list[str]
+
+
+class OptimizedParagraphSection(CamelModel):
+  content: str
+
+
+def merge_text_units(existing: list[TextUnit], updated: list[str]) -> list[TextUnit]:
+  merged: list[TextUnit] = []
+
+  for index, content in enumerate(updated):
+    if index < len(existing):
+      merged.append(TextUnit(id=existing[index].id, content=content))
+    else:
+      merged.append(TextUnit(content=content))
+
+  return merged
+
+
+# TODO: This is not human-verified. Need to look into and review this logic again
 @router.post('/')
 async def create_resume(
   resume_repository: Annotated[ResumeRepository, Depends()],
@@ -73,24 +103,29 @@ async def create_resume(
       if section.type == SectionTypeEnum.DETAILED:
 
         async def optimize_item(item: DetailedItem) -> DetailedItem:
-          item_text = f'  title: {item.title}\n  subtitle: {item.subtitle}\n' + '\n'.join(
-            f'    - {b}' for b in item.bullets
+          item_text = (
+            f'  title: {item.title.content}\n  subtitle: {item.subtitle.content}\n'
+            + '\n'.join(f'    - {b.content}' for b in item.bullets)
           )
           response = await llm_client.call_structured(
             input=OPTIMIZE_DETAILED_ITEM_PROMPT.format(
               **listing_context_kwargs,
-              item_title=item.title,
-              item_subtitle=item.subtitle,
+              item_title=item.title.content,
+              item_subtitle=item.subtitle.content,
               item_bullets=item_text,
             ),
-            response_model=DetailedItem,
+            response_model=OptimizedDetailedItem,
           )
           return DetailedItem(
-            title=response.title,
-            subtitle=response.subtitle,
-            start_date=item.start_date,
-            end_date=item.end_date,
-            bullets=response.bullets,
+            id=item.id,
+            title=TextUnit(id=item.title.id, content=response.title),
+            subtitle=TextUnit(id=item.subtitle.id, content=response.subtitle),
+            date_range=DateRangeUnit(
+              id=item.date_range.id,
+              start_date=item.date_range.start_date,
+              end_date=item.date_range.end_date,
+            ),
+            bullets=merge_text_units(item.bullets, response.bullets),
           )
 
         optimized_items = await asyncio.gather(*[optimize_item(item) for item in section.content])
@@ -104,30 +139,30 @@ async def create_resume(
           input=OPTIMIZE_PARAGRAPH_SECTION_PROMPT.format(
             **listing_context_kwargs,
             section_id=section.id,
-            section_title=section.title,
-            content=section.content,
+            section_title=section.title.content,
+            content=section.content.content,
           ),
-          response_model=ParagraphSection,
+          response_model=OptimizedParagraphSection,
         )
         return ParagraphSection(
           id=section.id,
           title=section.title,
-          content=response.content,
+          content=TextUnit(id=section.content.id, content=response.content),
         )
       elif section.type == SectionTypeEnum.SIMPLE:
         response = await llm_client.call_structured(
           input=OPTIMIZE_SIMPLE_SECTION_PROMPT.format(
             **listing_context_kwargs,
             section_id=section.id,
-            section_title=section.title,
-            items='\n'.join(f'- {item}' for item in section.content),
+            section_title=section.title.content,
+            items='\n'.join(f'- {item.content}' for item in section.content),
           ),
-          response_model=SimpleSection,
+          response_model=OptimizedSimpleSection,
         )
         return SimpleSection(
           id=section.id,
           title=section.title,
-          content=response.content,
+          content=merge_text_units(section.content, response.content),
         )
       else:
         return section

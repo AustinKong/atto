@@ -17,6 +17,7 @@ from .listing import Listing, ListingBase, ListingSummary
 from .profile import Profile
 from .resume import (
   DEFAULT_RESUME_ID,
+  DateRangeUnit,
   DetailedItem,
   DetailedSection,
   ParagraphSection,
@@ -24,6 +25,7 @@ from .resume import (
   Section,
   SectionTypeEnum,
   SimpleSection,
+  TextUnit,
 )
 from .scraping import (
   DeepCrawlResult,
@@ -36,7 +38,13 @@ from .scraping import (
   ListingDraftUnique,
   ListingExtraction,
 )
-from .template import DEFAULT_TEMPLATE_ID, Template, TemplateSummary
+from .template import (
+  DEFAULT_TEMPLATE_ID,
+  Template,
+  TemplateRenderRect,
+  TemplateRenderResponse,
+  TemplateSummary,
+)
 from .types import CamelModel, Page
 
 # TODO: Remove this init. It's more effort than it's worth to maintain,
@@ -70,6 +78,7 @@ __all__ = [
   'ListingExtraction',
   # Resume
   'DEFAULT_RESUME_ID',
+  'DateRangeUnit',
   'DetailedItem',
   'DetailedSection',
   'ParagraphSection',
@@ -78,6 +87,7 @@ __all__ = [
   'Section',
   'SectionTypeEnum',
   'SimpleSection',
+  'TextUnit',
   # Application
   'Application',
   'ApplicationAnalysis',
@@ -89,6 +99,8 @@ __all__ = [
   # Templates
   'DEFAULT_TEMPLATE_ID',
   'Template',
+  'TemplateRenderRect',
+  'TemplateRenderResponse',
   'TemplateSummary',
   # Pagination
   'Page',

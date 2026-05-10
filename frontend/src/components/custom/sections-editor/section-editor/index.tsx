@@ -56,7 +56,7 @@ export const SectionEditor = memo(function SectionEditor({
           </Box>
 
           <Input
-            {...register(`sections.${index}.title`)}
+            {...register(`sections.${index}.title.content`)}
             placeholder="Section Title"
             variant="flushed"
             fontWeight="medium"

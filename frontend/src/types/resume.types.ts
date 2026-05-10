@@ -10,38 +10,49 @@ export const SECTION_TYPES = {
 
 export type SectionType = (typeof SECTION_TYPES)[keyof typeof SECTION_TYPES];
 
-export interface DetailedItem {
-  title: string;
-  subtitle: string;
+export type TextUnit = {
+  id: string;
+  content: string;
+};
+
+export type DateRangeUnit = {
+  id: string;
   startDate: ISOYearMonth | null;
   endDate: ISOYearMonth | 'present' | null;
-  bullets: string[];
-}
+};
 
-export interface BaseSection {
+export type DetailedItem = {
   id: string;
-  title: string;
-}
+  title: TextUnit;
+  subtitle: TextUnit;
+  dateRange: DateRangeUnit;
+  bullets: TextUnit[];
+};
 
-export interface SimpleSection extends BaseSection {
+export type BaseSection = {
+  id: string;
+  title: TextUnit;
+};
+
+export type SimpleSection = BaseSection & {
   type: 'simple';
-  content: string[];
-}
+  content: TextUnit[];
+};
 
-export interface DetailedSection extends BaseSection {
+export type DetailedSection = BaseSection & {
   type: 'detailed';
   content: DetailedItem[];
-}
+};
 
-export interface ParagraphSection extends BaseSection {
+export type ParagraphSection = BaseSection & {
   type: 'paragraph';
-  content: string;
-}
+  content: TextUnit;
+};
 
 export type Section = SimpleSection | DetailedSection | ParagraphSection;
 
-export interface Resume {
+export type Resume = {
   id: string;
   templateId: string;
   sections: Section[];
-}
+};

@@ -29,7 +29,7 @@ class ResumeRepository(DatabaseRepository):
       (
         str(resume.id),
         str(resume.template_id),
-        json.dumps([section.model_dump() for section in resume.sections]),
+        json.dumps([section.model_dump(mode='json') for section in resume.sections]),
       ),
     )
 
@@ -44,7 +44,7 @@ class ResumeRepository(DatabaseRepository):
       'UPDATE resumes SET template_id = ?, sections = ? WHERE id = ?',
       (
         str(resume.template_id),
-        json.dumps([section.model_dump() for section in resume.sections]),
+        json.dumps([section.model_dump(mode='json') for section in resume.sections]),
         str(resume.id),
       ),
     )

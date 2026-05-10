@@ -164,9 +164,6 @@ export function TemplateBuilderPage() {
             template={templateContent}
             sections={preset.sections}
             profile={preset.profile}
-            suggestions={[]}
-            highlightedSuggestionId={null}
-            commentPocEnabled={false}
           />
         ) : (
           <VStack h="full" justify="center" align="center" color="fg.muted">

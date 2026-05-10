@@ -30,11 +30,12 @@ export function Toolbar({
   }, [params]);
 
   async function handleExport(): Promise<Blob> {
-    return render({
+    const rendered = await render({
       template,
       sections: resume.sections,
       profile,
     });
+    return rendered.pdfBlob;
   }
 
   return (

@@ -6,6 +6,8 @@ import { memo } from 'react';
 import { type Control, useFieldArray } from 'react-hook-form';
 import { PiPlus } from 'react-icons/pi';
 
+import { createDetailedItem } from '@/utils/resume.utils';
+
 import type { SectionsEditorData, TypedFieldArray } from '../../types';
 import { DetailedItem } from './DetailedItem';
 
@@ -39,13 +41,7 @@ export const DetailedItemSection = memo(
     };
 
     const addItem = () => {
-      append({
-        title: '',
-        subtitle: '',
-        startDate: null,
-        endDate: null,
-        bullets: [],
-      });
+      append(createDetailedItem());
     };
 
     return (

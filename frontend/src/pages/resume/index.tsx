@@ -1,8 +1,8 @@
 import { Splitter } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useCallback, useRef } from 'react';
 import { useParams } from 'react-router';
 
-import { Preview } from './preview';
+import { Preview, type PreviewHandle } from './preview';
 import { Workspace } from './workspace';
 
 export function ResumePage() {
@@ -11,7 +11,13 @@ export function ResumePage() {
   }>();
   const urlParams = new URLSearchParams(window.location.search);
   const applicationId = applicationParam ?? urlParams.get('applicationId') ?? '';
-  const [hoveredSuggestionId, setHoveredSuggestionId] = useState<string | null>(null);
+  // TODO: Change to use aa context to expose Preview's imperative fns so all children of ResumePage can update the preview highglihts
+  // This is temporary
+  const previewRef = useRef<PreviewHandle>(null);
+
+  const handleSuggestionHover = useCallback((suggestionId: string | null) => {
+    previewRef.current?.highlightSuggestion(suggestionId);
+  }, []);
 
   return (
     <Splitter.Root
@@ -22,11 +28,11 @@ export function ResumePage() {
       defaultSize={[40, 60]}
     >
       <Splitter.Panel id="workspace">
-        <Workspace applicationId={applicationId} onSuggestionHover={setHoveredSuggestionId} />
+        <Workspace applicationId={applicationId} onSuggestionHover={handleSuggestionHover} />
       </Splitter.Panel>
       <Splitter.ResizeTrigger id="workspace:preview" />
       <Splitter.Panel id="preview">
-        <Preview highlightedSuggestionId={hoveredSuggestionId} />
+        <Preview ref={previewRef} />
       </Splitter.Panel>
     </Splitter.Root>
   );

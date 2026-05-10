@@ -12,3 +12,18 @@ export type Template = {
   content: string;
   source: 'local' | 'remote';
 };
+
+export type TemplateRenderRect = {
+  pageIndex: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type TemplateRenderGeometry = Record<string, TemplateRenderRect[]>;
+
+export type RenderedTemplate = {
+  pdfBlob: Blob;
+  geometry: TemplateRenderGeometry;
+};

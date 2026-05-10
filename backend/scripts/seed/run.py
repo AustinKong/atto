@@ -3,12 +3,67 @@ import os
 import sqlite3
 import sys
 import uuid
+from typing import Any
 
 # Add the backend directory to the Python path so we can import app modules
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from app.config import settings
 from app.schemas import DEFAULT_RESUME_ID, DEFAULT_TEMPLATE_ID
+
+
+# TODO: Fix this temporary hack
+def _text_unit(content: str) -> dict[str, str]:
+  return {
+    'id': str(uuid.uuid4()),
+    'content': content,
+  }
+
+
+def _normalize_default_resume_sections(sections: list[dict[str, Any]]) -> list[dict[str, Any]]:
+  normalized: list[dict[str, Any]] = []
+
+  for section in sections:
+    section_type = section.get('type')
+    if section_type not in {'simple', 'detailed', 'paragraph'}:
+      continue
+
+    normalized_section: dict[str, Any] = {
+      'id': str(uuid.uuid4()),
+      'type': section_type,
+      'title': _text_unit(section.get('title', '')),
+    }
+
+    if section_type == 'simple':
+      content = section.get('content', [])
+      normalized_section['content'] = [
+        _text_unit(item) for item in content if isinstance(item, str)
+      ]
+    elif section_type == 'paragraph':
+      normalized_section['content'] = _text_unit(section.get('content', ''))
+    else:
+      items = section.get('content', [])
+      normalized_items: list[dict[str, Any]] = []
+      for item in items:
+        bullets = item.get('bullets', [])
+        normalized_items.append(
+          {
+            'id': str(uuid.uuid4()),
+            'title': _text_unit(item.get('title', '')),
+            'subtitle': _text_unit(item.get('subtitle', '')),
+            'dateRange': {
+              'id': str(uuid.uuid4()),
+              'startDate': item.get('startDate'),
+              'endDate': item.get('endDate'),
+            },
+            'bullets': [_text_unit(bullet) for bullet in bullets if isinstance(bullet, str)],
+          }
+        )
+      normalized_section['content'] = normalized_items
+
+    normalized.append(normalized_section)
+
+  return normalized
 
 
 def run(json_path: str, default_resume_path: str):
@@ -34,7 +89,7 @@ def run(json_path: str, default_resume_path: str):
       print(f'Successfully seeded profile to {profile_path}.')
 
       # Update the default resume with sections only (no profile)
-      sections = resume_data.get('sections', [])
+      sections = _normalize_default_resume_sections(resume_data.get('sections', []))
       with sqlite3.connect(settings.paths.db_path) as db:
         cursor = db.cursor()
         cursor.execute(

@@ -1,6 +1,12 @@
 import type { Page } from '@/types/common.types';
 import type { Profile, Section } from '@/types/resume.types';
-import type { Template, TemplateSummary } from '@/types/template.types';
+import type {
+  RenderedTemplate,
+  Template,
+  TemplateRenderGeometry,
+  TemplateSummary,
+} from '@/types/template.types';
+import { base64ToBlob } from '@/utils/bytes.utils';
 
 export async function getTemplates(
   page: number = 1,
@@ -52,7 +58,7 @@ export async function renderTemplate(
   template: Template,
   sections: Section[],
   profile: Profile
-): Promise<Blob> {
+): Promise<RenderedTemplate> {
   const response = await fetch(`/api/templates/render`, {
     method: 'POST',
     headers: {
@@ -65,7 +71,15 @@ export async function renderTemplate(
     throw response;
   }
 
-  return response.blob();
+  const payload = (await response.json()) as {
+    pdfBase64: string;
+    geometry: TemplateRenderGeometry;
+  };
+
+  return {
+    pdfBlob: base64ToBlob(payload.pdfBase64, 'application/pdf'),
+    geometry: payload.geometry,
+  };
 }
 
 export async function downloadRemoteTemplate(templateId: string): Promise<void> {

@@ -2,10 +2,16 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends
-from fastapi.responses import Response
 
 from app.repositories import TemplateRepository
-from app.schemas import Page, Profile, Section, Template, TemplateSummary
+from app.schemas import (
+  Page,
+  Profile,
+  Section,
+  Template,
+  TemplateRenderResponse,
+  TemplateSummary,
+)
 from app.services import TemplateService
 
 router = APIRouter(
@@ -82,21 +88,14 @@ async def get_local_template(
   return template_repository.get_local_template(id)
 
 
-@router.post('/render')
+@router.post('/render', response_model=TemplateRenderResponse)
 async def render_template(
   template_service: Annotated[TemplateService, Depends()],
   template: Annotated[Template, Body()],
   sections: Annotated[list[Section], Body()],
   profile: Annotated[Profile, Body()],
-):
-  pdf_bytes = await template_service.render_pdf(template.content, profile, sections)
-  return Response(
-    content=pdf_bytes,
-    media_type='application/pdf',
-    headers={
-      'Content-Disposition': 'attachment; filename="resume.pdf"',
-    },
-  )
+) -> TemplateRenderResponse:
+  return await template_service.render_pdf(template.content, profile, sections)
 
 
 @router.post('/remote/{id}/download')
