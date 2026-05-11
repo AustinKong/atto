@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 
 from pydantic import Field
 
-from app.schemas.dates import ISOYearMonth
+from shared.schemas.dates import ISOYearMonth
 from shared.schemas.types import CamelModel
 
 

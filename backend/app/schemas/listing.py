@@ -4,9 +4,9 @@ from uuid import UUID, uuid4
 from pydantic import BeforeValidator, Field, HttpUrl
 
 from app.schemas.application import Application, StatusEnum
-from app.schemas.dates import ISODate, ISODatetime
 from app.schemas.types import CamelModel, parse_json_list_as, parse_json_model_as
 from app.utils.text import to_bullets
+from shared.schemas.dates import ISODate, ISODatetime
 from shared.schemas.listing_research import (
   MarketContextResult,
   SalaryRangeResult,

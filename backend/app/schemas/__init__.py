@@ -1,12 +1,12 @@
+from shared.schemas.dates import ISODate, ISODatetime, ISOYearMonth
+
 from .application import (
   Application,
   ApplicationAnalysis,
-  SkillComparisonRow,
   StatusEnum,
   StatusEvent,
   StatusEventSaved,
 )
-from .dates import ISODate, ISODatetime, ISOYearMonth
 from .experience import (
   Experience,
   ExperienceType,
@@ -91,7 +91,6 @@ __all__ = [
   # Application
   'Application',
   'ApplicationAnalysis',
-  'SkillComparisonRow',
   # StatusEvent
   'StatusEnum',
   'StatusEvent',

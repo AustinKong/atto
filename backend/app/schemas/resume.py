@@ -6,8 +6,8 @@ from uuid import UUID, uuid4
 
 from pydantic import Field
 
-from app.schemas.dates import ISOYearMonth
 from app.utils.text import to_bullets
+from shared.schemas.dates import ISOYearMonth
 from shared.schemas.types import CamelModel
 
 # Reserved UUID for the default resume

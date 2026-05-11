@@ -89,10 +89,31 @@ export type SkillComparisonRow = {
   requiredScore: number;
 };
 
+export const CONTENT_QUALITY_CATEGORIES = [
+  'highSignal',
+  'lowSignal',
+  'neutral',
+  'lowNoise',
+  'highNoise',
+] as const;
+
+export type ContentQualityCategory = (typeof CONTENT_QUALITY_CATEGORIES)[number];
+
+export type ContentQualityScore = {
+  unitId: string;
+  score: number;
+};
+
+export type ContentQualitySection = {
+  sectionId: string;
+  scores: ContentQualityScore[];
+};
+
 export type ApplicationAnalysis = {
   resumeHash: string;
   generatedAt: ISODatetime;
   skillsComparison: SkillComparisonRow[];
+  contentQuality: ContentQualitySection[];
 };
 
 export type Application = {

@@ -1,7 +1,8 @@
-import re
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import Depends
+from pydantic import BaseModel
 
 from app.clients.model import ModelClient, get_model_client
 from app.resources.prompts import SKILL_REQUIRED_SCORE_PROMPT, SKILL_RESUME_SCORE_PROMPT
@@ -9,16 +10,26 @@ from app.schemas import (
   Application,
   Listing,
   Resume,
-  SkillComparisonRow,
 )
+from app.schemas.resume import BaseSection, Section, TextUnit
+from app.utils.deduplication import cosine_similarity, deduplicate_by
 from app.utils.errors import ServiceError
-from app.utils.text import to_bullets
-from shared.schemas.application_analysis import SkillScoreResult
+from app.utils.math import clamp
+from app.utils.text import contains_phrase, find_phrase_matches, to_bullets
+from shared.schemas.application_analysis import (
+  ContentQualityScore,
+  ContentQualitySection,
+  SkillComparisonRow,
+  SkillScoreResult,
+)
 
 from .base_client import ApplicationAnalysisClient
 
 LLM_WEIGHT = 0.6
 KEYWORD_WEIGHT = 0.4
+CONTENT_LEXICAL_WEIGHT = 0.4
+CONTENT_SEMANTIC_WEIGHT = 0.6
+# TODO: Add LLM component that looks for action verbs and quantifiable achievements
 
 
 class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
@@ -69,6 +80,65 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
       for skill in skills
     ]
 
+  async def get_content_quality(
+    self,
+    listing: Listing,
+    application: Application,
+    resume: Resume,
+  ) -> list[ContentQualitySection]:
+    requirement_texts = (
+      [listing.title, listing.description]
+      + listing.skills
+      + [keyword.word for keyword in listing.keywords]
+      + listing.requirements
+    )
+    requirement_texts = [term.strip() for term in requirement_texts if term.strip()]
+    if not requirement_texts:
+      raise ServiceError('Listing has no requirement text for content quality scoring')
+
+    lexical_terms = (
+      listing.skills + [keyword.word for keyword in listing.keywords] + listing.requirements
+    )
+    lexical_terms = deduplicate_by(
+      [term.strip() for term in lexical_terms if term.strip()],
+      key_selector=lambda term: term.lower(),
+    )
+
+    requirement_embeddings = await self.llm_client.embed(requirement_texts)
+    section_summaries: list[ContentQualitySection] = []
+
+    for section in resume.sections:
+      section_units = self._extract_section_text_units(section)
+      if not section_units:
+        continue
+
+      unit_embeddings = await self.llm_client.embed([text for _, text in section_units])
+      scored_units: list[ContentQualityScore] = []
+
+      for (unit_id, text), unit_embedding in zip(section_units, unit_embeddings, strict=True):
+        lexical_hit = 1.0 if any(contains_phrase(text, term) for term in lexical_terms) else 0.0
+
+        semantic_score = 0.0
+        for requirement_embedding in requirement_embeddings:
+          similarity = cosine_similarity(unit_embedding, requirement_embedding)
+          semantic_score = max(semantic_score, similarity)
+
+        score = clamp(
+          (CONTENT_LEXICAL_WEIGHT * lexical_hit) + (CONTENT_SEMANTIC_WEIGHT * semantic_score),
+          0.0,
+          1.0,
+        )
+        scored_units.append(ContentQualityScore(unit_id=unit_id, score=score))
+
+      section_summaries.append(
+        ContentQualitySection(
+          section_id=section.id,
+          scores=scored_units,
+        )
+      )
+
+    return section_summaries
+
   async def _score_skills_from_prompt(
     self,
     skills: list[str],
@@ -86,13 +156,12 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
       raise ServiceError('Invalid skill scoring response')
 
     llm_scores_by_skill = {
-      row.skill.lower().strip(): min(100, max(0, row.score)) for row in llm_result.rows
+      row.skill.lower().strip(): int(clamp(row.score, 0.0, 100.0)) for row in llm_result.rows
     }
     keyword_counts_by_skill: dict[str, int] = {}
     for skill in skills:
       key = skill.lower().strip()
-      pattern = re.compile(rf'(?<!\w){re.escape(skill.strip())}(?!\w)', re.IGNORECASE)
-      keyword_counts_by_skill[key] = len(pattern.findall(source_text))
+      keyword_counts_by_skill[key] = len(find_phrase_matches(source_text, skill))
 
     max_count = max(keyword_counts_by_skill.values()) if keyword_counts_by_skill else 0
 
@@ -104,6 +173,32 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
       llm_component = llm_scores_by_skill[key] / 100
       # hybrid = (0.6 * llm_component + 0.4 * keyword_score) * 100
       combined = (LLM_WEIGHT * llm_component + KEYWORD_WEIGHT * keyword_score) * 100
-      hybrid_scores[skill] = int(round(min(100, max(0, combined))))
+      hybrid_scores[skill] = int(round(clamp(combined, 0.0, 100.0)))
 
     return hybrid_scores
+
+  def _extract_section_text_units(self, section: Section) -> list[tuple[UUID, str]]:
+    units: list[tuple[UUID, str]] = []
+
+    def walk(node: BaseModel | list[object]) -> None:
+      if isinstance(node, TextUnit):
+        text = node.content.strip()
+        if text:
+          units.append((node.id, text))
+        return
+
+      if isinstance(node, BaseModel):
+        for field_name in node.__class__.model_fields:
+          if isinstance(node, BaseSection) and field_name == 'title':
+            continue
+          field_value = getattr(node, field_name)
+          if isinstance(field_value, (BaseModel, list)):
+            walk(field_value)
+        return
+
+      for item in node:
+        if isinstance(item, (BaseModel, list)):
+          walk(item)
+
+    walk(section)
+    return units

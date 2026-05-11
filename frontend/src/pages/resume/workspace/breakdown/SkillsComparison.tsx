@@ -37,6 +37,7 @@ export function SkillsComparison({ rows }: { rows: SkillComparisonRow[] | null }
             colors={nivoChartColors}
             legends={[
               {
+                // TODO: Review if these styles are necesary
                 anchor: 'top-right',
                 direction: 'column',
                 translateX: 50,

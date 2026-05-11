@@ -7,6 +7,8 @@ import { Document as ReactPDFDocument, Page, pdfjs } from 'react-pdf';
 
 import type { TemplateRenderGeometry, TemplateRenderRect } from '@/types/template.types';
 
+import type { ResumeHighlight } from '../ResumePreview';
+
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
   import.meta.url
@@ -15,7 +17,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 export function DocumentInstance({
   url,
   geometry,
-  highlightedUnitIds,
+  highlights,
   scale,
   pageWidth,
   limitPages,
@@ -24,7 +26,7 @@ export function DocumentInstance({
 }: {
   url: string;
   geometry: TemplateRenderGeometry;
-  highlightedUnitIds: string[];
+  highlights: ResumeHighlight[];
   scale: number;
   pageWidth: number;
   limitPages: number;
@@ -35,7 +37,7 @@ export function DocumentInstance({
   const renderedPages = useRef(0);
 
   const expectedPages = limitPages === Infinity ? pages : Math.min(pages, limitPages);
-  const highlightedRectsByPage = groupRectsByPage(geometry, highlightedUnitIds);
+  const highlightedRectsByPage = groupRectsByPage(geometry, highlights);
 
   return (
     <VStack asChild>
@@ -71,9 +73,9 @@ export function DocumentInstance({
                   top={`${rect.y * 100}%`}
                   width={`${rect.width * 100}%`}
                   height={`${rect.height * 100}%`}
-                  // TODO: Define theme tokens for this
-                  bg="rgba(255, 200, 0, 0.24)"
-                  outline="1px solid rgba(255, 200, 0, 0.35)"
+                  bg={rect.color}
+                  border={`1px solid ${rect.color}`}
+                  opacity={0.4}
                 />
               ))}
             </Box>
@@ -86,15 +88,18 @@ export function DocumentInstance({
 
 function groupRectsByPage(
   geometry: TemplateRenderGeometry,
-  highlightedUnitIds: string[]
-): Map<number, TemplateRenderRect[]> {
-  const rectsByPage = new Map<number, TemplateRenderRect[]>();
+  highlights: ResumeHighlight[]
+): Map<number, Array<TemplateRenderRect & { color: ResumeHighlight['color'] }>> {
+  const rectsByPage = new Map<
+    number,
+    Array<TemplateRenderRect & { color: ResumeHighlight['color'] }>
+  >();
 
-  for (const unitId of highlightedUnitIds) {
-    const rects = geometry[unitId] ?? [];
+  for (const highlight of highlights) {
+    const rects = geometry[highlight.unitId] ?? [];
     for (const rect of rects) {
       const pageRects = rectsByPage.get(rect.pageIndex) ?? [];
-      pageRects.push(rect);
+      pageRects.push({ ...rect, color: highlight.color });
       rectsByPage.set(rect.pageIndex, pageRects);
     }
   }

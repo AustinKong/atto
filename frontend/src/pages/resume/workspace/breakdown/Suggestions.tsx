@@ -2,21 +2,27 @@ import { Button, Card, Collapsible, HStack, Text, VStack } from '@chakra-ui/reac
 import { useMemo, useState } from 'react';
 import { LuCheck, LuChevronLeft, LuX } from 'react-icons/lu';
 
+import type { ResumeHighlight } from '@/components/custom/resume-preview';
+import { RESUME_HIGHLIGHT_LAYERS } from '@/pages/resume/highlight-layers.constants';
+import { useResumeHighlight } from '@/pages/resume/highlightContext';
 import { RESUME_SUGGESTIONS } from '@/pages/resume/resume-suggestions.constants';
+import type { Section } from '@/types/resume.types';
 
 type SuggestionDecision = 'accepted' | 'dismissed' | null;
 
 // TODO: Update
 export function Suggestions({
-  onSuggestionHover,
+  resumeSections,
 }: {
-  onSuggestionHover: (suggestionId: string | null) => void;
+  resumeSections: Section[];
 }) {
+  const { highlight, clear } = useResumeHighlight();
   const [suggestionDecisions, setSuggestionDecisions] = useState<
     Record<string, SuggestionDecision>
   >({});
   const [openSuggestions, setOpenSuggestions] = useState<Record<string, boolean>>({});
   const suggestions = useMemo(() => RESUME_SUGGESTIONS, []);
+  const suggestionUnitIds = useMemo(() => getSuggestionUnitIds(resumeSections), [resumeSections]);
 
   function setSuggestionDecision(suggestionId: string, decision: SuggestionDecision) {
     setSuggestionDecisions((previous) => ({
@@ -37,8 +43,13 @@ export function Suggestions({
             key={suggestion.id}
             align="stretch"
             gap="xs"
-            onMouseEnter={() => onSuggestionHover(suggestion.id)}
-            onMouseLeave={() => onSuggestionHover(null)}
+            onMouseEnter={() => {
+              highlight(
+                RESUME_HIGHLIGHT_LAYERS.suggestions,
+                getSuggestionHighlights(suggestion.id, suggestionUnitIds)
+              );
+            }}
+            onMouseLeave={() => clear(RESUME_HIGHLIGHT_LAYERS.suggestions)}
           >
             <Card.Root borderWidth="1px" variant="outline">
               <Collapsible.Root
@@ -123,4 +134,44 @@ export function Suggestions({
       </VStack>
     </>
   );
+}
+
+const SUGGESTION_HIGHLIGHT_STYLE = {
+  color: 'yellow.subtle',
+} as const;
+
+function getSuggestionHighlights(
+  suggestionId: string | null,
+  suggestionUnitIds: Record<string, string[]>
+): ResumeHighlight[] {
+  const highlightedUnitIds = suggestionId === null ? [] : (suggestionUnitIds[suggestionId] ?? []);
+  return highlightedUnitIds.map((unitId) => ({
+    unitId,
+    ...SUGGESTION_HIGHLIGHT_STYLE,
+  }));
+}
+
+function getSuggestionUnitIds(sections: Section[]): Record<string, string[]> {
+  const experienceSection = sections.find(
+    (section) => section.type === 'detailed' && section.title.content.toLowerCase() === 'experience'
+  );
+  const skillsSection = sections.find(
+    (section) => section.type === 'simple' && section.title.content.toLowerCase() === 'skills'
+  );
+
+  if (!experienceSection || experienceSection.type !== 'detailed') {
+    return {};
+  }
+
+  const firstExperience = experienceSection.content[0];
+  const firstBulletId = firstExperience?.bullets[0]?.id;
+  const secondBulletId = firstExperience?.bullets[1]?.id;
+  const firstSkillId =
+    skillsSection && skillsSection.type === 'simple' ? skillsSection.content[0]?.id : undefined;
+
+  return {
+    'exp-microservices': firstBulletId ? [firstBulletId] : [],
+    'exp-kafka': secondBulletId ? [secondBulletId] : [],
+    'skills-frontend': firstSkillId ? [firstSkillId] : [],
+  };
 }

@@ -4,8 +4,8 @@ from uuid import UUID, uuid4
 
 from pydantic import Field, HttpUrl
 
-from app.schemas.dates import ISODate
 from app.schemas.listing import Listing, ListingBase, Money
+from shared.schemas.dates import ISODate
 from shared.schemas.types import CamelModel
 
 T = TypeVar('T')

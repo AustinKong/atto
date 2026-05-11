@@ -1,10 +1,11 @@
-import { Box, ButtonGroup, Center, IconButton } from '@chakra-ui/react';
+import { Box, type BoxProps, ButtonGroup, Center, IconButton } from '@chakra-ui/react';
 import {
   type ForwardedRef,
   forwardRef,
   memo,
   useCallback,
   useImperativeHandle,
+  useMemo,
   useState,
 } from 'react';
 import { LuMinus, LuPlus } from 'react-icons/lu';
@@ -18,9 +19,22 @@ const MIN_SCALE = 0.5;
 const MAX_SCALE = 2;
 const SCALE_STEP = 0.1;
 
+export type ResumeHighlight = {
+  unitId: string;
+  color: BoxProps['bg'];
+};
+
+/**
+ * ResumePreview highlight layer behavior:
+ * 1. Highlights are grouped by layer key.
+ * 2. Calling `highlight(layerKey, highlights)` replaces only that layer's content.
+ * 3. Calling `clear(layerKey)` removes only that layer.
+ * 4. Render order is lexicographic by layer key:
+ *    smaller keys render first (below), larger keys render later (above).
+ */
 export type ResumePreviewHandle = {
-  highlight: (unitIds: string[]) => void;
-  clear: () => void;
+  highlight: (layerKey: string, highlights: ResumeHighlight[]) => void;
+  clear: (layerKey: string) => void;
 };
 
 export const ResumePreview = memo(
@@ -37,7 +51,11 @@ export const ResumePreview = memo(
     ref: ForwardedRef<ResumePreviewHandle>
   ) {
     const [scale, setScale] = useState(1);
-    const [highlightedUnitIds, setHighlightedUnitIds] = useState<string[]>([]);
+    const [highlightLayers, setHighlightLayers] = useState<Record<string, ResumeHighlight[]>>({});
+    const highlights = useMemo(() => {
+      const orderedLayerKeys = Object.keys(highlightLayers).sort((a, b) => a.localeCompare(b));
+      return orderedLayerKeys.flatMap((layerKey) => highlightLayers[layerKey] ?? []);
+    }, [highlightLayers]);
 
     const handleZoomIn = useCallback(() => {
       setScale((prev) => Math.min(prev + SCALE_STEP, MAX_SCALE));
@@ -50,11 +68,17 @@ export const ResumePreview = memo(
     useImperativeHandle(
       ref,
       () => ({
-        highlight: (unitIds) => {
-          setHighlightedUnitIds(unitIds);
+        highlight: (layerKey, nextHighlights) => {
+          setHighlightLayers((previous) => ({
+            ...previous,
+            [layerKey]: nextHighlights,
+          }));
         },
-        clear: () => {
-          setHighlightedUnitIds([]);
+        clear: (layerKey) => {
+          setHighlightLayers((previous) => {
+            const { [layerKey]: _removed, ...rest } = previous;
+            return rest;
+          });
         },
       }),
       []
@@ -75,7 +99,7 @@ export const ResumePreview = memo(
               template={template}
               sections={sections}
               profile={profile}
-              highlightedUnitIds={highlightedUnitIds}
+              highlights={highlights}
               interactable={true}
               scale={scale}
             />

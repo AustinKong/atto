@@ -10,12 +10,11 @@ import type { Section } from '@/types/resume.types';
 import { Breakdown } from './breakdown';
 import { Editor } from './editor';
 
+// TODO: Create a Section component similar to Listing > Application for consistency
 export function Workspace({
   applicationId,
-  onSuggestionHover,
 }: {
   applicationId?: string;
-  onSuggestionHover: (suggestionId: string | null) => void;
 }) {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
@@ -44,7 +43,7 @@ export function Workspace({
 
       {applicationId && (
         <Tabs.Content value="breakdown" p="0">
-          <Breakdown applicationId={applicationId} onSuggestionHover={onSuggestionHover} />
+          <Breakdown applicationId={applicationId} resumeSections={resume.sections} />
         </Tabs.Content>
       )}
     </Tabs.Root>

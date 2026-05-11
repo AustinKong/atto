@@ -1,34 +1,50 @@
 import { VStack, Wrap } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
-import { ContentQualityChart } from '@/components/custom/content-quality-chart';
-import { SkillsComparison } from '@/pages/resume/SkillsComparison';
+import { RESUME_HIGHLIGHT_LAYERS } from '@/pages/resume/highlight-layers.constants';
+import { useResumeHighlight } from '@/pages/resume/highlightContext';
 import { applicationQueries } from '@/queries/application.queries';
+import type { Section } from '@/types/resume.types';
 
 import { AnalysisFooter } from './AnalysisFooter';
+import { ContentQuality } from './ContentQuality';
 import { MatchScore } from './MatchScore';
+import { SkillsComparison } from './SkillsComparison';
 import { Suggestions } from './Suggestions';
 
 export function Breakdown({
   applicationId,
-  onSuggestionHover,
+  resumeSections,
 }: {
   applicationId: string;
-  onSuggestionHover: (suggestionId: string | null) => void;
+  resumeSections: Section[];
 }) {
-  const hasApplicationId = applicationId.trim() !== '';
+  const { clear } = useResumeHighlight();
   const { data: application, refetch: refetchApplication } = useQuery({
     ...applicationQueries.item(applicationId),
-    enabled: hasApplicationId,
   });
+  const resumeHashKey = application?.analysis?.resumeHash ?? 'no-analysis';
+
+  useEffect(
+    () => () => {
+      clear(RESUME_HIGHLIGHT_LAYERS.contentQuality);
+      clear(RESUME_HIGHLIGHT_LAYERS.suggestions);
+    },
+    [clear]
+  );
 
   return (
     <VStack align="stretch" gap="md" p="md" h="full" overflowY="auto">
       <MatchScore />
 
       <Wrap align="stretch" gap="md" minW="0">
-        <SkillsComparison rows={application?.analysis?.skillsComparison ?? null} />
-        <ContentQualityChart />
+        <SkillsComparison key={`skills-${resumeHashKey}`} rows={application?.analysis?.skillsComparison ?? null} />
+        <ContentQuality
+          key={`content-quality-${resumeHashKey}`}
+          contentQuality={application?.analysis?.contentQuality ?? null}
+          resumeSections={resumeSections}
+        />
       </Wrap>
 
       <AnalysisFooter
@@ -37,7 +53,7 @@ export function Breakdown({
         refetchApplication={refetchApplication}
       />
 
-      <Suggestions onSuggestionHover={onSuggestionHover} />
+      <Suggestions resumeSections={resumeSections} />
     </VStack>
   );
 }

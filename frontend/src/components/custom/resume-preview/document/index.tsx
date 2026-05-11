@@ -6,6 +6,7 @@ import { templateQueries } from '@/queries/template.queries';
 import type { Profile, Section } from '@/types/resume.types';
 import type { Template } from '@/types/template.types';
 
+import type { ResumeHighlight } from '../ResumePreview';
 import { DocumentInstance } from './DocumentInstance';
 import { documentReducer, initialState } from './documentReducer';
 
@@ -18,7 +19,7 @@ export function Document({
   template,
   sections,
   profile,
-  highlightedUnitIds = [],
+  highlights = [],
   interactable = false,
   scale = 1,
   limitPages = Infinity,
@@ -27,7 +28,7 @@ export function Document({
   template: Template;
   sections: Section[];
   profile: Profile;
-  highlightedUnitIds?: string[];
+  highlights?: ResumeHighlight[];
   interactable?: boolean;
   scale?: number;
   limitPages?: number;
@@ -76,7 +77,7 @@ export function Document({
               <DocumentInstance
                 url={url}
                 geometry={geometry ?? {}}
-                highlightedUnitIds={highlightedUnitIds}
+                highlights={highlights}
                 scale={scale}
                 pageWidth={pageWidth}
                 limitPages={limitPages}

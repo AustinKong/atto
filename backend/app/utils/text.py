@@ -66,3 +66,15 @@ def to_json_string(value: Any, indent: int = 2) -> str:
     return value.model_dump_json(indent=indent, by_alias=True)
 
   return json.dumps(value, indent=indent, default=str)
+
+
+def find_phrase_matches(text: str, phrase: str) -> list[str]:
+  normalized_phrase = phrase.strip()
+  if not normalized_phrase:
+    return []
+  pattern = re.compile(rf'(?<!\w){re.escape(normalized_phrase)}(?!\w)', re.IGNORECASE)
+  return pattern.findall(text)
+
+
+def contains_phrase(text: str, phrase: str) -> bool:
+  return len(find_phrase_matches(text, phrase)) > 0

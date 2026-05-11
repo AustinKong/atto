@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
 
-from app.schemas import Application, Listing, Resume, SkillComparisonRow
+from app.schemas import Application, Listing, Resume
+from shared.schemas.application_analysis import (
+  ContentQualitySection,
+  SkillComparisonRow,
+)
 
 
 class ApplicationAnalysisClient(ABC):
@@ -12,4 +16,14 @@ class ApplicationAnalysisClient(ABC):
     resume: Resume,
   ) -> list[SkillComparisonRow]:
     """Generate required vs resume skill scores for a listing+resume pair."""
+    pass
+
+  @abstractmethod
+  async def get_content_quality(
+    self,
+    listing: Listing,
+    application: Application,
+    resume: Resume,
+  ) -> list[ContentQualitySection]:
+    """Generate section-bucketed content quality units for a listing+resume pair."""
     pass

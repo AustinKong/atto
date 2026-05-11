@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -54,11 +54,17 @@ class ApplicationService:
           application=application,
           resume=resume,
         )
+        content_quality = await self.application_analysis_client.get_content_quality(
+          listing=listing,
+          application=application,
+          resume=resume,
+        )
 
         analysis = ApplicationAnalysis(
           resume_hash=resume.create_hash(),
-          generated_at=datetime.now(),
+          generated_at=datetime.now(UTC),
           skills_comparison=skills_comparison,
+          content_quality=content_quality,
         )
 
         self.application_repository.update_analysis(
