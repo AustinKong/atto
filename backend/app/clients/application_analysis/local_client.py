@@ -5,7 +5,11 @@ from fastapi import Depends
 from pydantic import BaseModel
 
 from app.clients.model import ModelClient, get_model_client
-from app.resources.prompts import SKILL_REQUIRED_SCORE_PROMPT, SKILL_RESUME_SCORE_PROMPT
+from app.resources.prompts import (
+  AI_SUGGESTIONS_PROMPT,
+  SKILL_REQUIRED_SCORE_PROMPT,
+  SKILL_RESUME_SCORE_PROMPT,
+)
 from app.schemas import (
   Application,
   Listing,
@@ -15,8 +19,9 @@ from app.schemas.resume import BaseSection, Section, TextUnit
 from app.utils.deduplication import cosine_similarity, deduplicate_by
 from app.utils.errors import ServiceError
 from app.utils.math import clamp
-from app.utils.text import contains_phrase, find_phrase_matches, to_bullets
+from app.utils.text import contains_phrase, find_phrase_matches, to_bullets, to_json_string
 from shared.schemas.application_analysis import (
+  AiSuggestions,
   ContentQualityScore,
   ContentQualitySection,
   SkillComparisonRow,
@@ -139,6 +144,44 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
 
     return section_summaries
 
+  async def get_ai_suggestions(
+    self,
+    listing: Listing,
+    application: Application,
+    resume: Resume,
+    content_quality: list[ContentQualitySection],
+  ) -> AiSuggestions:
+    quality_score_by_unit_id = self._create_content_quality_score_map(content_quality)
+    unit_rows: list[dict[str, str | float | None]] = []
+
+    for section in resume.sections:
+      section_units = self._extract_section_text_units(section)
+      for unit_id, text in section_units:
+        unit_rows.append(
+          {
+            'section_id': str(section.id),
+            'unit_id': str(unit_id),
+            'text': text,
+            'content_quality_score': quality_score_by_unit_id.get(unit_id),
+          }
+        )
+
+    if not unit_rows:
+      return AiSuggestions(
+        summary='No actionable suggestions were found for this resume.',
+      )
+
+    prompt = AI_SUGGESTIONS_PROMPT.format(
+      application_name=application.name,
+      listing_title=listing.title,
+      listing_requirements=to_bullets(listing.requirements),
+      units_json=to_json_string(unit_rows),
+    )
+    return await self.llm_client.call_structured(
+      input=prompt,
+      response_model=AiSuggestions,
+    )
+
   async def _score_skills_from_prompt(
     self,
     skills: list[str],
@@ -202,3 +245,12 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
 
     walk(section)
     return units
+
+  def _create_content_quality_score_map(
+    self, content_quality: list[ContentQualitySection]
+  ) -> dict[UUID, float]:
+    score_by_unit_id: dict[UUID, float] = {}
+    for section in content_quality:
+      for row in section.scores:
+        score_by_unit_id[row.unit_id] = row.score
+    return score_by_unit_id

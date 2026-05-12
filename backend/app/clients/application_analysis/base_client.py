@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from app.schemas import Application, Listing, Resume
 from shared.schemas.application_analysis import (
+  AiSuggestions,
   ContentQualitySection,
   SkillComparisonRow,
 )
@@ -26,4 +27,15 @@ class ApplicationAnalysisClient(ABC):
     resume: Resume,
   ) -> list[ContentQualitySection]:
     """Generate section-bucketed content quality units for a listing+resume pair."""
+    pass
+
+  @abstractmethod
+  async def get_ai_suggestions(
+    self,
+    listing: Listing,
+    application: Application,
+    resume: Resume,
+    content_quality: list[ContentQualitySection],
+  ) -> AiSuggestions:
+    """Generate holistic AI summary and unit-level suggestions for a listing+resume pair."""
     pass

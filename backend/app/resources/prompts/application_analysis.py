@@ -33,3 +33,25 @@ skills:
 resume_context:
 {source_text}
 """.strip()
+
+
+AI_SUGGESTIONS_PROMPT = """
+You are a resume coach generating structured suggestions.
+
+Rules:
+- Return one top-level `summary` for the whole resume.
+- Return `suggestions` as an array of unit-level suggestions.
+- Each suggestion MUST reference exactly one `unit_id` from `units_json`.
+- Keep feedback holistic and non-contradictory across units.
+- Prioritize high-impact edits and avoid low-value nitpicks.
+- Use listing requirements as the optimization target.
+- Suggest stronger action verbs, clarity, and outcomes when relevant.
+
+application_name: {application_name}
+listing_title: {listing_title}
+listing_requirements:
+{listing_requirements}
+
+units_json:
+{units_json}
+""".strip()

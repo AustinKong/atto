@@ -1,4 +1,8 @@
-from .application_analysis import SKILL_REQUIRED_SCORE_PROMPT, SKILL_RESUME_SCORE_PROMPT
+from .application_analysis import (
+  AI_SUGGESTIONS_PROMPT,
+  SKILL_REQUIRED_SCORE_PROMPT,
+  SKILL_RESUME_SCORE_PROMPT,
+)
 from .company_insights import COMPANY_INSIGHTS_PROMPT, LINK_SELECTION_PROMPT
 from .listing_extraction import LISTING_EXTRACTION_PROMPT
 from .resume_optimization import (
@@ -10,6 +14,7 @@ from .resume_optimization import (
 
 __all__ = [
   'COMPANY_INSIGHTS_PROMPT',
+  'AI_SUGGESTIONS_PROMPT',
   'SKILL_REQUIRED_SCORE_PROMPT',
   'SKILL_RESUME_SCORE_PROMPT',
   'LINK_SELECTION_PROMPT',

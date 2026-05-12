@@ -31,8 +31,20 @@ class ContentQualitySection(CamelModel):
   scores: list[ContentQualityScore] = Field(default_factory=list)
 
 
+class AiUnitSuggestion(CamelModel):
+  unit_id: UUID
+  suggestion: str
+  rationale: str | None = None
+
+
+class AiSuggestions(CamelModel):
+  summary: str
+  suggestions: list[AiUnitSuggestion] = Field(default_factory=list)
+
+
 class ApplicationAnalysis(CamelModel):
   resume_hash: str
   generated_at: ISODatetime
   skills_comparison: list[SkillComparisonRow] = Field(default_factory=list)
   content_quality: list[ContentQualitySection] = Field(default_factory=list)
+  ai_suggestions: AiSuggestions | None = None

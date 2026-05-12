@@ -59,12 +59,19 @@ class ApplicationService:
           application=application,
           resume=resume,
         )
+        ai_suggestions = await self.application_analysis_client.get_ai_suggestions(
+          listing=listing,
+          application=application,
+          resume=resume,
+          content_quality=content_quality,
+        )
 
         analysis = ApplicationAnalysis(
           resume_hash=resume.create_hash(),
           generated_at=datetime.now(UTC),
           skills_comparison=skills_comparison,
           content_quality=content_quality,
+          ai_suggestions=ai_suggestions,
         )
 
         self.application_repository.update_analysis(

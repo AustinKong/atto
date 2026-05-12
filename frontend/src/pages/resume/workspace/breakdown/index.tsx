@@ -53,7 +53,7 @@ export function Breakdown({
         refetchApplication={refetchApplication}
       />
 
-      <Suggestions resumeSections={resumeSections} />
+      <Suggestions aiSuggestions={application?.analysis?.aiSuggestions ?? null} />
     </VStack>
   );
 }
