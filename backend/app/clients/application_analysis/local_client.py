@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, TypedDict
 from uuid import UUID
 
 from fastapi import Depends
@@ -34,8 +34,15 @@ LLM_WEIGHT = 0.6
 KEYWORD_WEIGHT = 0.4
 CONTENT_LEXICAL_WEIGHT = 0.4
 CONTENT_SEMANTIC_WEIGHT = 0.6
-NO_ACTIONABLE_SUGGESTIONS_SUMMARY = 'No actionable suggestions were found for this resume.'
+DEFAULT_EMPTY_SUGGESTIONS_SUMMARY = 'No actionable suggestions were found for this resume.'
 # TODO: Add LLM component that looks for action verbs and quantifiable achievements
+
+
+class UnitSuggestionInput(TypedDict):
+  section_id: str
+  unit_id: str
+  text: str
+  content_quality_score: float | None
 
 
 class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
@@ -153,7 +160,7 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     content_quality: list[ContentQualitySection],
   ) -> AiSuggestions:
     quality_score_by_unit_id = self._create_content_quality_score_map(content_quality)
-    unit_rows: list[dict[str, str | float | None]] = []
+    unit_rows: list[UnitSuggestionInput] = []
 
     for section in resume.sections:
       section_units = self._extract_section_text_units(section)
@@ -169,7 +176,7 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
 
     if not unit_rows:
       return AiSuggestions(
-        summary=NO_ACTIONABLE_SUGGESTIONS_SUMMARY,
+        summary=DEFAULT_EMPTY_SUGGESTIONS_SUMMARY,
       )
 
     prompt = AI_SUGGESTIONS_PROMPT.format(
