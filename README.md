@@ -1,15 +1,12 @@
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="frontend/public/dark-icon.png">
-    <source media="(prefers-color-scheme: light)" srcset="frontend/public/light-icon.png">
-    <img alt="Atto Logo" src="frontend/public/light-icon.png" width="80">
+    <img alt="Atto Banner" src=".github/assets/atto-banner.webp" width="500">
   </picture>
-  <h1>Atto</h1>
+  <p align="center">Open-source AI-powered command center for job seekers.</p>
 
   <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" alt="Python">
   <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
   <img src="https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="React">
-  <img src="https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white" alt="React Router">
   <img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" alt="FastAPI">
   <img src="https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite">
 </div>
