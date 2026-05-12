@@ -1,4 +1,4 @@
-import { Button, Card, Collapsible, HStack, Text, VStack } from '@chakra-ui/react';
+import { Blockquote, Button, Card, Collapsible, HStack, Text, VStack } from '@chakra-ui/react';
 import { useState } from 'react';
 import { LuCheck, LuChevronLeft, LuX } from 'react-icons/lu';
 
@@ -9,11 +9,7 @@ import type { AISuggestions } from '@/types/application.types';
 
 type SuggestionDecision = 'accepted' | 'dismissed' | null;
 
-export function Suggestions({
-  aiSuggestions,
-}: {
-  aiSuggestions: AISuggestions | null;
-}) {
+export function Suggestions({ aiSuggestions }: { aiSuggestions: AISuggestions | null }) {
   const { highlight, clear } = useResumeHighlight();
   const [suggestionDecisions, setSuggestionDecisions] = useState<
     Record<string, SuggestionDecision>
@@ -84,14 +80,21 @@ export function Suggestions({
                     </Card.Header>
 
                     <Collapsible.Content>
-                      <Card.Body pt="sm" pb="sm">
-                        <VStack align="stretch" gap="2xs">
+                      <Card.Body pt="sm" pb="lg">
+                        <VStack align="stretch" gap="md">
                           <Text color="fg">{suggestion.suggestion}</Text>
-                          {suggestion.rationale ? (
-                            <Text color="fg.muted" textStyle="sm">
-                              {suggestion.rationale}
-                            </Text>
-                          ) : null}
+                          {suggestion.replacementText && (
+                            <VStack align="stretch" gap="xs">
+                              <Text color="fg.muted" textStyle="xs">
+                                Change to
+                              </Text>
+                              <Blockquote.Root variant="subtle">
+                                <Blockquote.Content>
+                                  {suggestion.replacementText}
+                                </Blockquote.Content>
+                              </Blockquote.Root>
+                            </VStack>
+                          )}
                         </VStack>
                       </Card.Body>
                     </Collapsible.Content>
@@ -100,29 +103,29 @@ export function Suggestions({
 
                 {(openSuggestions[suggestionId] ?? true) && (
                   <HStack gap="xs" justifyContent="flex-start">
-                    <Button
-                      size="2xs"
-                      variant="ghost"
-                      colorPalette="green"
-                      onClick={() => setSuggestionDecision(suggestionId, 'accepted')}
-                      bg={
-                        suggestionDecisions[suggestionId] === 'accepted'
-                          ? 'green.subtle'
-                          : undefined
-                      }
-                    >
-                      <LuCheck />
-                      Accept
-                    </Button>
+                    {suggestion.replacementText ? (
+                      <Button
+                        size="2xs"
+                        variant="ghost"
+                        colorPalette="green"
+                        onClick={() => setSuggestionDecision(suggestionId, 'accepted')}
+                        bg={
+                          suggestionDecisions[suggestionId] === 'accepted'
+                            ? 'green.subtle'
+                            : undefined
+                        }
+                      >
+                        <LuCheck />
+                        Accept
+                      </Button>
+                    ) : null}
                     <Button
                       size="2xs"
                       variant="ghost"
                       colorPalette="red"
                       onClick={() => setSuggestionDecision(suggestionId, 'dismissed')}
                       bg={
-                        suggestionDecisions[suggestionId] === 'dismissed'
-                          ? 'red.subtle'
-                          : undefined
+                        suggestionDecisions[suggestionId] === 'dismissed' ? 'red.subtle' : undefined
                       }
                     >
                       <LuX />

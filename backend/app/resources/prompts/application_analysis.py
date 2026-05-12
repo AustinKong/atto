@@ -44,11 +44,17 @@ Rules:
 - Each suggestion MUST include a unique string `id` in kebab-case
   (example: `suggestion-1`, `impact-metrics-2`).
 - Each suggestion MUST reference exactly one `unit_id` from `units_json`.
+- Each suggestion MUST place both recommendation and rationale directly inside `suggestion`.
+- Each suggestion MUST include `replacement_text` as either a rewritten line or `null`.
+- Keep `replacement_text` close in length to the original text unless the
+  recommendation is to shorten.
 - `units_json` contains only filtered lower-quality units, so focus edits there.
 - Keep feedback holistic and non-contradictory across units.
 - Prioritize high-impact edits and avoid low-value nitpicks.
 - Use listing title, description, skills, keywords, and requirements as optimization targets.
 - Suggest stronger action verbs, clarity, and outcomes when relevant.
+- Avoid suggestions on skills-inventory lines unless role-critical skills are missing
+  or incorrectly represented.
 
 application_name: {application_name}
 listing_title: {listing_title}

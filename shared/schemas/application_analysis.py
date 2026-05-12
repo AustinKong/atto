@@ -35,7 +35,7 @@ class AIUnitSuggestion(CamelModel):
   id: str
   unit_id: UUID
   suggestion: str
-  rationale: str | None = None
+  replacement_text: str | None = None
 
 
 class AISuggestions(CamelModel):
@@ -46,6 +46,7 @@ class AISuggestions(CamelModel):
 class ApplicationAnalysis(CamelModel):
   resume_hash: str
   generated_at: ISODatetime
+  match_score: float = Field(default=0.0, ge=0.0, le=1.0)
   skills_comparison: list[SkillComparisonRow] = Field(default_factory=list)
   content_quality: list[ContentQualitySection] = Field(default_factory=list)
   ai_suggestions: AISuggestions | None = None

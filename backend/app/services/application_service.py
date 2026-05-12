@@ -64,10 +64,16 @@ class ApplicationService:
           application=application,
           resume=resume,
         )
+        match_score = self.application_analysis_client.compute_match_score(
+          skills_comparison=skills_comparison,
+          content_quality=content_quality,
+          ai_suggestions=ai_suggestions,
+        )
 
         analysis = ApplicationAnalysis(
           resume_hash=resume.create_hash(),
           generated_at=datetime.now(UTC),
+          match_score=match_score,
           skills_comparison=skills_comparison,
           content_quality=content_quality,
           ai_suggestions=ai_suggestions,

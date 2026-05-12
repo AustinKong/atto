@@ -113,7 +113,7 @@ export type AIUnitSuggestion = {
   id: string;
   unitId: string;
   suggestion: string;
-  rationale: string | null;
+  replacementText: string | null;
 };
 
 export type AISuggestions = {
@@ -124,6 +124,7 @@ export type AISuggestions = {
 export type ApplicationAnalysis = {
   resumeHash: string;
   generatedAt: ISODatetime;
+  matchScore: number;
   skillsComparison: SkillComparisonRow[];
   contentQuality: ContentQualitySection[];
   aiSuggestions: AISuggestions | null;
