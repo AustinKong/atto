@@ -16,14 +16,17 @@ import { Suggestions } from './Suggestions';
 export function Breakdown({
   applicationId,
   resumeSections,
+  onAcceptSuggestion,
 }: {
   applicationId: string;
   resumeSections: Section[];
+  onAcceptSuggestion: (unitId: string, replacementText: string) => void;
 }) {
   const { clear } = useResumeHighlight();
   const { data: application, refetch: refetchApplication } = useQuery({
     ...applicationQueries.item(applicationId),
   });
+  const analysis = application?.analysis ?? null;
   const resumeHashKey = application?.analysis?.resumeHash ?? 'no-analysis';
 
   useEffect(
@@ -36,24 +39,32 @@ export function Breakdown({
 
   return (
     <VStack align="stretch" gap="md" p="md" h="full" overflowY="auto">
-      <MatchScore />
+      <MatchScore analysis={analysis} />
 
       <Wrap align="stretch" gap="md" minW="0">
-        <SkillsComparison key={`skills-${resumeHashKey}`} rows={application?.analysis?.skillsComparison ?? null} />
+        <SkillsComparison
+          key={`skills-${resumeHashKey}`}
+          rows={analysis?.skillsComparison ?? null}
+        />
         <ContentQuality
           key={`content-quality-${resumeHashKey}`}
-          contentQuality={application?.analysis?.contentQuality ?? null}
+          contentQuality={analysis?.contentQuality ?? null}
           resumeSections={resumeSections}
         />
       </Wrap>
 
       <AnalysisFooter
         applicationId={applicationId}
-        analysis={application?.analysis ?? null}
+        analysis={analysis}
         refetchApplication={refetchApplication}
       />
 
-      <Suggestions resumeSections={resumeSections} />
+      <Suggestions
+        key={`suggestions-${resumeHashKey}`}
+        applicationId={applicationId}
+        aiSuggestions={analysis?.aiSuggestions ?? null}
+        onAcceptSuggestion={onAcceptSuggestion}
+      />
     </VStack>
   );
 }

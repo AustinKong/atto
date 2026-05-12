@@ -1,6 +1,10 @@
 import type {
   DateRangeUnit,
   DetailedItem,
+  DetailedSection,
+  ParagraphSection,
+  Section,
+  SimpleSection,
   TextUnit,
 } from '@/types/resume.types';
 import type { ISOYearMonth } from '@/utils/date.utils';
@@ -31,4 +35,56 @@ export function createDetailedItem(): DetailedItem {
     dateRange: createDateRangeUnit(),
     bullets: [],
   };
+}
+
+// TODO: Another function that needs to handle cases based on different section types
+// We should consolidate/centralize these
+export function replaceTextUnitContentById(
+  sections: Section[],
+  unitId: string,
+  replacementText: string
+): { sections: Section[]; updated: boolean } {
+  let updated = false;
+
+  function replaceTextUnit(unit: TextUnit): TextUnit {
+    if (unit.id !== unitId) {
+      return unit;
+    }
+    if (unit.content === replacementText) {
+      return unit;
+    }
+    updated = true;
+    return { ...unit, content: replacementText };
+  }
+
+  const nextSections = sections.map((section) => {
+    if (section.type === 'simple') {
+      const nextSection: SimpleSection = {
+        ...section,
+        content: section.content.map(replaceTextUnit),
+      };
+      return nextSection;
+    }
+
+    if (section.type === 'paragraph') {
+      const nextSection: ParagraphSection = {
+        ...section,
+        content: replaceTextUnit(section.content),
+      };
+      return nextSection;
+    }
+
+    const nextSection: DetailedSection = {
+      ...section,
+      content: section.content.map((item) => ({
+        ...item,
+        title: replaceTextUnit(item.title),
+        subtitle: replaceTextUnit(item.subtitle),
+        bullets: item.bullets.map(replaceTextUnit),
+      })),
+    };
+    return nextSection;
+  });
+
+  return { sections: nextSections, updated };
 }

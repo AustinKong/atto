@@ -5,7 +5,11 @@ from fastapi import Depends
 from pydantic import BaseModel
 
 from app.clients.model import ModelClient, get_model_client
-from app.resources.prompts import SKILL_REQUIRED_SCORE_PROMPT, SKILL_RESUME_SCORE_PROMPT
+from app.resources.prompts import (
+  AI_SUGGESTIONS_PROMPT,
+  SKILL_REQUIRED_SCORE_PROMPT,
+  SKILL_RESUME_SCORE_PROMPT,
+)
 from app.schemas import (
   Application,
   Listing,
@@ -15,8 +19,9 @@ from app.schemas.resume import BaseSection, Section, TextUnit
 from app.utils.deduplication import cosine_similarity, deduplicate_by
 from app.utils.errors import ServiceError
 from app.utils.math import clamp
-from app.utils.text import contains_phrase, find_phrase_matches, to_bullets
+from app.utils.text import contains_phrase, find_phrase_matches, to_bullets, to_json_string
 from shared.schemas.application_analysis import (
+  AISuggestions,
   ContentQualityScore,
   ContentQualitySection,
   SkillComparisonRow,
@@ -29,6 +34,8 @@ LLM_WEIGHT = 0.6
 KEYWORD_WEIGHT = 0.4
 CONTENT_LEXICAL_WEIGHT = 0.4
 CONTENT_SEMANTIC_WEIGHT = 0.6
+DEFAULT_EMPTY_SUGGESTIONS_SUMMARY = 'No actionable suggestions were found for this resume.'
+AI_SUGGESTIONS_SCORE_THRESHOLD = 0.6
 # TODO: Add LLM component that looks for action verbs and quantifiable achievements
 
 
@@ -38,6 +45,9 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     llm_client: Annotated[ModelClient, Depends(get_model_client)],
   ) -> None:
     self.llm_client = llm_client
+    # Allows get_ai_suggestions to reuse content quality scores cleanly locally without recomputing,
+    # while keeping the function signature clean for future cloud implementation.
+    self._content_quality_cache: dict[tuple[UUID, UUID, str], list[ContentQualitySection]] = {}
 
   async def get_skills_comparison(
     self,
@@ -86,6 +96,15 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     application: Application,
     resume: Resume,
   ) -> list[ContentQualitySection]:
+    cache_key = (
+      listing.id,
+      application.id,
+      resume.create_hash(),
+    )
+
+    if cache_key in self._content_quality_cache:
+      return self._content_quality_cache[cache_key]
+
     requirement_texts = (
       [listing.title, listing.description]
       + listing.skills
@@ -137,7 +156,62 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
         )
       )
 
+    self._content_quality_cache[cache_key] = section_summaries
     return section_summaries
+
+  async def get_ai_suggestions(
+    self,
+    listing: Listing,
+    application: Application,
+    resume: Resume,
+  ) -> AISuggestions:
+    content_quality = await self.get_content_quality(
+      listing=listing,
+      application=application,
+      resume=resume,
+    )
+    # Build a unit-id lookup table
+    quality_score_by_unit_id: dict[UUID, float] = {}
+    for section in content_quality:
+      for row in section.scores:
+        quality_score_by_unit_id[row.unit_id] = row.score
+
+    unit_rows: list = []
+
+    for section in resume.sections:
+      section_units = self._extract_section_text_units(section)
+      for unit_id, text in section_units:
+        content_quality_score = quality_score_by_unit_id[unit_id]
+        # Filter low-quality units to avoid context bloat
+        if content_quality_score >= AI_SUGGESTIONS_SCORE_THRESHOLD:
+          continue
+
+        unit_rows.append(
+          {
+            'unit_id': str(unit_id),
+            'text': text,
+            'content_quality_score': content_quality_score,
+          }
+        )
+
+    if not unit_rows:
+      return AISuggestions(
+        summary=DEFAULT_EMPTY_SUGGESTIONS_SUMMARY,
+      )
+
+    prompt = AI_SUGGESTIONS_PROMPT.format(
+      application_name=application.name,
+      listing_title=listing.title,
+      listing_description=listing.description,
+      listing_skills=to_bullets(listing.skills),
+      listing_keywords=to_bullets([keyword.word for keyword in listing.keywords]),
+      listing_requirements=to_bullets(listing.requirements),
+      units_json=to_json_string(unit_rows),
+    )
+    return await self.llm_client.call_structured(
+      input=prompt,
+      response_model=AISuggestions,
+    )
 
   async def _score_skills_from_prompt(
     self,
@@ -178,6 +252,7 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     return hybrid_scores
 
   def _extract_section_text_units(self, section: Section) -> list[tuple[UUID, str]]:
+    """Recursively extracts text units as (id, stripped text) tuples (NOT TextUnit objects)."""
     units: list[tuple[UUID, str]] = []
 
     def walk(node: BaseModel | list[object]) -> None:

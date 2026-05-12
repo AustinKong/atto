@@ -121,3 +121,18 @@ export async function getApplicationAnalysisStatus(
   if (!response.body) return null;
   return response.json();
 }
+
+export async function removeApplicationAnalysisSuggestion(
+  applicationId: string,
+  suggestionId: string
+): Promise<Application> {
+  const response = await fetch(`/api/applications/${applicationId}/analysis/suggestions/${suggestionId}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    throw response;
+  }
+
+  return (await response.json()) as Application;
+}

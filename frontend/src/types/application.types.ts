@@ -109,11 +109,25 @@ export type ContentQualitySection = {
   scores: ContentQualityScore[];
 };
 
+export type AIUnitSuggestion = {
+  id: string;
+  unitId: string;
+  suggestion: string;
+  replacementText: string | null;
+};
+
+export type AISuggestions = {
+  summary: string;
+  suggestions: AIUnitSuggestion[];
+};
+
 export type ApplicationAnalysis = {
   resumeHash: string;
   generatedAt: ISODatetime;
+  matchScore: number;
   skillsComparison: SkillComparisonRow[];
   contentQuality: ContentQualitySection[];
+  aiSuggestions: AISuggestions | null;
 };
 
 export type Application = {
