@@ -32,6 +32,7 @@ class ContentQualitySection(CamelModel):
 
 
 class AiUnitSuggestion(CamelModel):
+  id: str
   unit_id: UUID
   suggestion: str
   rationale: str | None = None

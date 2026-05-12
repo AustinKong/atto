@@ -34,6 +34,7 @@ LLM_WEIGHT = 0.6
 KEYWORD_WEIGHT = 0.4
 CONTENT_LEXICAL_WEIGHT = 0.4
 CONTENT_SEMANTIC_WEIGHT = 0.6
+NO_ACTIONABLE_SUGGESTIONS_SUMMARY = 'No actionable suggestions were found for this resume.'
 # TODO: Add LLM component that looks for action verbs and quantifiable achievements
 
 
@@ -168,7 +169,7 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
 
     if not unit_rows:
       return AiSuggestions(
-        summary='No actionable suggestions were found for this resume.',
+        summary=NO_ACTIONABLE_SUGGESTIONS_SUMMARY,
       )
 
     prompt = AI_SUGGESTIONS_PROMPT.format(

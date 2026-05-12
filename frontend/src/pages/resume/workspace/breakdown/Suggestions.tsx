@@ -45,7 +45,7 @@ export function Suggestions({
             {aiSuggestions?.summary}
           </Text>
           {suggestions.map((suggestion, index) => {
-            const suggestionId = `${suggestion.unitId}-${index}`;
+            const suggestionId = suggestion.id;
             return (
               <VStack
                 key={suggestionId}

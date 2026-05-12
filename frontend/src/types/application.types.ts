@@ -110,6 +110,7 @@ export type ContentQualitySection = {
 };
 
 export type AiUnitSuggestion = {
+  id: string;
   unitId: string;
   suggestion: string;
   rationale: string | null;
