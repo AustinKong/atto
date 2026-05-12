@@ -21,7 +21,7 @@ from app.utils.errors import ServiceError
 from app.utils.math import clamp
 from app.utils.text import contains_phrase, find_phrase_matches, to_bullets, to_json_string
 from shared.schemas.application_analysis import (
-  AiSuggestions,
+  AISuggestions,
   ContentQualityScore,
   ContentQualitySection,
   SkillComparisonRow,
@@ -160,7 +160,7 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     application: Application,
     resume: Resume,
     content_quality: list[ContentQualitySection],
-  ) -> AiSuggestions:
+  ) -> AISuggestions:
     quality_score_by_unit_id = self._create_content_quality_score_map(content_quality)
     unit_rows: list[UnitSuggestionInput] = []
 
@@ -177,7 +177,7 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
         )
 
     if not unit_rows:
-      return AiSuggestions(
+      return AISuggestions(
         summary=DEFAULT_EMPTY_SUGGESTIONS_SUMMARY,
       )
 
@@ -189,7 +189,7 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     )
     return await self.llm_client.call_structured(
       input=prompt,
-      response_model=AiSuggestions,
+      response_model=AISuggestions,
     )
 
   async def _score_skills_from_prompt(

@@ -5,14 +5,14 @@ import { LuCheck, LuChevronLeft, LuX } from 'react-icons/lu';
 import type { ResumeHighlight } from '@/components/custom/resume-preview';
 import { RESUME_HIGHLIGHT_LAYERS } from '@/pages/resume/highlight-layers.constants';
 import { useResumeHighlight } from '@/pages/resume/highlightContext';
-import type { AiSuggestions } from '@/types/application.types';
+import type { AISuggestions } from '@/types/application.types';
 
 type SuggestionDecision = 'accepted' | 'dismissed' | null;
 
 export function Suggestions({
   aiSuggestions,
 }: {
-  aiSuggestions: AiSuggestions | null;
+  aiSuggestions: AISuggestions | null;
 }) {
   const { highlight, clear } = useResumeHighlight();
   const [suggestionDecisions, setSuggestionDecisions] = useState<

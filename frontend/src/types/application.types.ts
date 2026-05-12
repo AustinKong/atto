@@ -109,16 +109,16 @@ export type ContentQualitySection = {
   scores: ContentQualityScore[];
 };
 
-export type AiUnitSuggestion = {
+export type AIUnitSuggestion = {
   id: string;
   unitId: string;
   suggestion: string;
   rationale: string | null;
 };
 
-export type AiSuggestions = {
+export type AISuggestions = {
   summary: string;
-  suggestions: AiUnitSuggestion[];
+  suggestions: AIUnitSuggestion[];
 };
 
 export type ApplicationAnalysis = {
@@ -126,7 +126,7 @@ export type ApplicationAnalysis = {
   generatedAt: ISODatetime;
   skillsComparison: SkillComparisonRow[];
   contentQuality: ContentQualitySection[];
-  aiSuggestions: AiSuggestions | null;
+  aiSuggestions: AISuggestions | null;
 };
 
 export type Application = {
