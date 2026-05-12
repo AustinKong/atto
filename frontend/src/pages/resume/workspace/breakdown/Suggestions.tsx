@@ -3,26 +3,44 @@ import { useState } from 'react';
 import { LuCheck, LuChevronLeft, LuX } from 'react-icons/lu';
 
 import type { ResumeHighlight } from '@/components/custom/resume-preview';
+import { useRemoveApplicationAnalysisSuggestion } from '@/mutations/application.mutations';
 import { RESUME_HIGHLIGHT_LAYERS } from '@/pages/resume/highlight-layers.constants';
 import { useResumeHighlight } from '@/pages/resume/highlightContext';
 import type { AISuggestions } from '@/types/application.types';
 
-type SuggestionDecision = 'accepted' | 'dismissed' | null;
-
-export function Suggestions({ aiSuggestions }: { aiSuggestions: AISuggestions | null }) {
+export function Suggestions({
+  applicationId,
+  aiSuggestions,
+  onAcceptSuggestion,
+}: {
+  applicationId: string;
+  aiSuggestions: AISuggestions | null;
+  onAcceptSuggestion: (unitId: string, replacementText: string) => void;
+}) {
   const { highlight, clear } = useResumeHighlight();
-  const [suggestionDecisions, setSuggestionDecisions] = useState<
-    Record<string, SuggestionDecision>
-  >({});
+  const { mutate: removeSuggestion } = useRemoveApplicationAnalysisSuggestion();
   const [openSuggestions, setOpenSuggestions] = useState<Record<string, boolean>>({});
   const suggestions = aiSuggestions?.suggestions ?? [];
   const hasData = suggestions.length > 0;
 
-  function setSuggestionDecision(suggestionId: string, decision: SuggestionDecision) {
-    setSuggestionDecisions((previous) => ({
-      ...previous,
-      [suggestionId]: previous[suggestionId] === decision ? null : decision,
-    }));
+  function handleDismissSuggestion(suggestionId: string) {
+    removeSuggestion({ applicationId, suggestionId });
+  }
+
+  function handleAcceptSuggestion({
+    suggestionId,
+    unitId,
+    replacementText,
+  }: {
+    suggestionId: string;
+    unitId: string;
+    replacementText: string | null;
+  }) {
+    if (!replacementText) {
+      return;
+    }
+    onAcceptSuggestion(unitId, replacementText);
+    removeSuggestion({ applicationId, suggestionId });
   }
 
   return (
@@ -108,11 +126,12 @@ export function Suggestions({ aiSuggestions }: { aiSuggestions: AISuggestions | 
                         size="2xs"
                         variant="ghost"
                         colorPalette="green"
-                        onClick={() => setSuggestionDecision(suggestionId, 'accepted')}
-                        bg={
-                          suggestionDecisions[suggestionId] === 'accepted'
-                            ? 'green.subtle'
-                            : undefined
+                        onClick={() =>
+                          handleAcceptSuggestion({
+                            suggestionId,
+                            unitId: suggestion.unitId,
+                            replacementText: suggestion.replacementText,
+                          })
                         }
                       >
                         <LuCheck />
@@ -123,10 +142,7 @@ export function Suggestions({ aiSuggestions }: { aiSuggestions: AISuggestions | 
                       size="2xs"
                       variant="ghost"
                       colorPalette="red"
-                      onClick={() => setSuggestionDecision(suggestionId, 'dismissed')}
-                      bg={
-                        suggestionDecisions[suggestionId] === 'dismissed' ? 'red.subtle' : undefined
-                      }
+                      onClick={() => handleDismissSuggestion(suggestionId)}
                     >
                       <LuX />
                       Dismiss

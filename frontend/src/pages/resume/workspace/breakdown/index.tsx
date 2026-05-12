@@ -16,9 +16,11 @@ import { Suggestions } from './Suggestions';
 export function Breakdown({
   applicationId,
   resumeSections,
+  onAcceptSuggestion,
 }: {
   applicationId: string;
   resumeSections: Section[];
+  onAcceptSuggestion: (unitId: string, replacementText: string) => void;
 }) {
   const { clear } = useResumeHighlight();
   const { data: application, refetch: refetchApplication } = useQuery({
@@ -40,7 +42,10 @@ export function Breakdown({
       <MatchScore analysis={analysis} />
 
       <Wrap align="stretch" gap="md" minW="0">
-        <SkillsComparison key={`skills-${resumeHashKey}`} rows={analysis?.skillsComparison ?? null} />
+        <SkillsComparison
+          key={`skills-${resumeHashKey}`}
+          rows={analysis?.skillsComparison ?? null}
+        />
         <ContentQuality
           key={`content-quality-${resumeHashKey}`}
           contentQuality={analysis?.contentQuality ?? null}
@@ -54,7 +59,12 @@ export function Breakdown({
         refetchApplication={refetchApplication}
       />
 
-      <Suggestions aiSuggestions={analysis?.aiSuggestions ?? null} />
+      <Suggestions
+        key={`suggestions-${resumeHashKey}`}
+        applicationId={applicationId}
+        aiSuggestions={analysis?.aiSuggestions ?? null}
+        onAcceptSuggestion={onAcceptSuggestion}
+      />
     </VStack>
   );
 }

@@ -7,6 +7,7 @@ from app.repositories import ApplicationRepository
 from app.schemas import Application, StatusEvent
 from app.schemas.task_status import TaskStatus, TaskStatusEntry
 from app.services import ApplicationService
+from app.utils.errors import NotFoundError
 
 router = APIRouter(
   prefix='/applications',
@@ -80,3 +81,28 @@ async def get_analysis_status(
   application_repository: Annotated[ApplicationRepository, Depends()],
 ):
   return application_repository.get_analysis_status(id)
+
+
+@router.delete('/{id}/analysis/suggestions/{suggestion_id}', response_model=Application)
+async def remove_analysis_suggestion(
+  id: UUID,
+  suggestion_id: str,
+  application_repository: Annotated[ApplicationRepository, Depends()],
+):
+  application = application_repository.get(id)
+  analysis = application.analysis
+  ai_suggestions = analysis.ai_suggestions if analysis else None
+  if not analysis or not ai_suggestions:
+    raise NotFoundError(f'No AI suggestions found for application {id}')
+
+  previous_count = len(ai_suggestions.suggestions)
+  ai_suggestions.suggestions = [
+    suggestion for suggestion in ai_suggestions.suggestions if suggestion.id != suggestion_id
+  ]
+  if len(ai_suggestions.suggestions) == previous_count:
+    raise NotFoundError(f'AI suggestion {suggestion_id} not found for application {id}')
+
+  return application_repository.update_analysis(
+    id,
+    analysis.model_dump_json(by_alias=True),
+  )

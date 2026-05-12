@@ -6,6 +6,7 @@ import {
   createStatusEvent as createStatusEventSvc,
   deleteStatusEvent as deleteStatusEventSvc,
   generateApplicationAnalysis as generateApplicationAnalysisSvc,
+  removeApplicationAnalysisSuggestion as removeApplicationAnalysisSuggestionSvc,
   updateStatusEvent as updateStatusEventSvc,
 } from '@/services/application.service';
 import { createResume, type ResumeCreationMode } from '@/services/resume.service';
@@ -114,6 +115,23 @@ export function useGenerateApplicationAnalysis() {
     onSuccess: (data, applicationId) => {
       queryClient.setQueryData(applicationQueries.analysisStatus(applicationId).queryKey, data);
       queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
+    },
+  });
+}
+
+export function useRemoveApplicationAnalysisSuggestion() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      applicationId,
+      suggestionId,
+    }: {
+      applicationId: string;
+      suggestionId: string;
+    }) => removeApplicationAnalysisSuggestionSvc(applicationId, suggestionId),
+    onSuccess: (data, { applicationId }) => {
+      queryClient.setQueryData(applicationQueries.item(applicationId).queryKey, data);
     },
   });
 }

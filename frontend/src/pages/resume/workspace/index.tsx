@@ -1,29 +1,48 @@
 import { Tabs, VStack } from '@chakra-ui/react';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useRef } from 'react';
 import { useParams } from 'react-router';
 
-import { SectionsEditor } from '@/components/custom/sections-editor';
+import { SectionsEditor, type SectionsEditorHandle } from '@/components/custom/sections-editor';
 import { useSaveResumeSections } from '@/mutations/resume.mutations';
 import { resumeQueries } from '@/queries/resume.queries';
 import type { Section } from '@/types/resume.types';
+import { replaceTextUnitContentById } from '@/utils/resume.utils';
 
 import { Breakdown } from './breakdown';
 import { Editor } from './editor';
 
 // TODO: Create a Section component similar to Listing > Application for consistency
-export function Workspace({
-  applicationId,
-}: {
-  applicationId?: string;
-}) {
+export function Workspace({ applicationId }: { applicationId?: string }) {
   const { resumeId } = useParams<{ resumeId: string }>();
   const { data: resume } = useSuspenseQuery(resumeQueries.item(resumeId!));
+  const queryClient = useQueryClient();
+  const sectionsEditorRef = useRef<SectionsEditorHandle>(null);
 
   const { mutate: saveResume } = useSaveResumeSections();
 
   const handleSectionsChange = (sections: Section[]) => {
     saveResume({ resumeId: resume.id, sections });
   };
+
+  // TODO: Accepting suggestion -> repaint is a bit slow, see if we can eagerly update instead
+  function handleAcceptSuggestion(unitId: string, replacementText: string): void {
+    const { sections: updatedSections, updated } = replaceTextUnitContentById(
+      resume.sections,
+      unitId,
+      replacementText
+    );
+    if (!updated) {
+      return;
+    }
+
+    sectionsEditorRef.current?.reset(updatedSections);
+    queryClient.setQueryData(resumeQueries.item(resume.id).queryKey, {
+      ...resume,
+      sections: updatedSections,
+    });
+    saveResume({ resumeId: resume.id, sections: updatedSections });
+  }
 
   return (
     <Tabs.Root defaultValue="editor">
@@ -37,13 +56,21 @@ export function Workspace({
       <Tabs.Content value="editor" p="md" overflowX="hidden">
         <VStack align="stretch" gap="md">
           <Editor />
-          <SectionsEditor defaultValues={resume.sections} onChange={handleSectionsChange} />
+          <SectionsEditor
+            ref={sectionsEditorRef}
+            defaultValues={resume.sections}
+            onChange={handleSectionsChange}
+          />
         </VStack>
       </Tabs.Content>
 
       {applicationId && (
         <Tabs.Content value="breakdown" p="0">
-          <Breakdown applicationId={applicationId} resumeSections={resume.sections} />
+          <Breakdown
+            applicationId={applicationId}
+            resumeSections={resume.sections}
+            onAcceptSuggestion={handleAcceptSuggestion}
+          />
         </Tabs.Content>
       )}
     </Tabs.Root>
