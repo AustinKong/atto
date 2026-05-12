@@ -35,7 +35,6 @@ class ApplicationAnalysisClient(ABC):
     listing: Listing,
     application: Application,
     resume: Resume,
-    content_quality: list[ContentQualitySection],
   ) -> AISuggestions:
     """Generate holistic AI summary and unit-level suggestions for a listing+resume pair."""
     pass

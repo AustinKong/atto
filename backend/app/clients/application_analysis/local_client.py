@@ -1,4 +1,4 @@
-from typing import Annotated, TypedDict
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends
@@ -35,16 +35,8 @@ KEYWORD_WEIGHT = 0.4
 CONTENT_LEXICAL_WEIGHT = 0.4
 CONTENT_SEMANTIC_WEIGHT = 0.6
 DEFAULT_EMPTY_SUGGESTIONS_SUMMARY = 'No actionable suggestions were found for this resume.'
+AI_SUGGESTIONS_SCORE_THRESHOLD = 0.6
 # TODO: Add LLM component that looks for action verbs and quantifiable achievements
-
-
-class UnitSuggestionInput(TypedDict):
-  """Resume unit context passed to the LLM for AI suggestion generation."""
-
-  section_id: str
-  unit_id: str
-  text: str
-  content_quality_score: float | None
 
 
 class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
@@ -53,6 +45,9 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     llm_client: Annotated[ModelClient, Depends(get_model_client)],
   ) -> None:
     self.llm_client = llm_client
+    # Allows get_ai_suggestions to reuse content quality scores cleanly locally without recomputing,
+    # while keeping the function signature clean for future cloud implementation.
+    self._content_quality_cache: dict[tuple[UUID, UUID, str], list[ContentQualitySection]] = {}
 
   async def get_skills_comparison(
     self,
@@ -101,6 +96,15 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     application: Application,
     resume: Resume,
   ) -> list[ContentQualitySection]:
+    cache_key = (
+      listing.id,
+      application.id,
+      resume.create_hash(),
+    )
+
+    if cache_key in self._content_quality_cache:
+      return self._content_quality_cache[cache_key]
+
     requirement_texts = (
       [listing.title, listing.description]
       + listing.skills
@@ -152,6 +156,7 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
         )
       )
 
+    self._content_quality_cache[cache_key] = section_summaries
     return section_summaries
 
   async def get_ai_suggestions(
@@ -159,20 +164,33 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     listing: Listing,
     application: Application,
     resume: Resume,
-    content_quality: list[ContentQualitySection],
   ) -> AISuggestions:
-    quality_score_by_unit_id = self._create_content_quality_score_map(content_quality)
-    unit_rows: list[UnitSuggestionInput] = []
+    content_quality = await self.get_content_quality(
+      listing=listing,
+      application=application,
+      resume=resume,
+    )
+    # Build a unit-id lookup table
+    quality_score_by_unit_id: dict[UUID, float] = {}
+    for section in content_quality:
+      for row in section.scores:
+        quality_score_by_unit_id[row.unit_id] = row.score
+
+    unit_rows: list = []
 
     for section in resume.sections:
       section_units = self._extract_section_text_units(section)
       for unit_id, text in section_units:
+        content_quality_score = quality_score_by_unit_id[unit_id]
+        # Filter low-quality units to avoid context bloat
+        if content_quality_score >= AI_SUGGESTIONS_SCORE_THRESHOLD:
+          continue
+
         unit_rows.append(
           {
-            'section_id': str(section.id),
             'unit_id': str(unit_id),
             'text': text,
-            'content_quality_score': quality_score_by_unit_id.get(unit_id),
+            'content_quality_score': content_quality_score,
           }
         )
 
@@ -184,6 +202,9 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     prompt = AI_SUGGESTIONS_PROMPT.format(
       application_name=application.name,
       listing_title=listing.title,
+      listing_description=listing.description,
+      listing_skills=to_bullets(listing.skills),
+      listing_keywords=to_bullets([keyword.word for keyword in listing.keywords]),
       listing_requirements=to_bullets(listing.requirements),
       units_json=to_json_string(unit_rows),
     )
@@ -231,6 +252,7 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     return hybrid_scores
 
   def _extract_section_text_units(self, section: Section) -> list[tuple[UUID, str]]:
+    """Recursively extracts text units as (id, stripped text) tuples (NOT TextUnit objects)."""
     units: list[tuple[UUID, str]] = []
 
     def walk(node: BaseModel | list[object]) -> None:
@@ -255,14 +277,3 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
 
     walk(section)
     return units
-
-  def _create_content_quality_score_map(
-    self, content_quality: list[ContentQualitySection]
-  ) -> dict[UUID, float]:
-    """Create a unit-id keyed lookup table for content quality scores."""
-
-    score_by_unit_id: dict[UUID, float] = {}
-    for section in content_quality:
-      for row in section.scores:
-        score_by_unit_id[row.unit_id] = row.score
-    return score_by_unit_id

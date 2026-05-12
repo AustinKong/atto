@@ -63,7 +63,6 @@ class ApplicationService:
           listing=listing,
           application=application,
           resume=resume,
-          content_quality=content_quality,
         )
 
         analysis = ApplicationAnalysis(

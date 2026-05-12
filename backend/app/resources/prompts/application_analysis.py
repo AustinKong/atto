@@ -44,13 +44,20 @@ Rules:
 - Each suggestion MUST include a unique string `id` in kebab-case
   (example: `suggestion-1`, `impact-metrics-2`).
 - Each suggestion MUST reference exactly one `unit_id` from `units_json`.
+- `units_json` contains only filtered lower-quality units, so focus edits there.
 - Keep feedback holistic and non-contradictory across units.
 - Prioritize high-impact edits and avoid low-value nitpicks.
-- Use listing requirements as the optimization target.
+- Use listing title, description, skills, keywords, and requirements as optimization targets.
 - Suggest stronger action verbs, clarity, and outcomes when relevant.
 
 application_name: {application_name}
 listing_title: {listing_title}
+listing_description:
+{listing_description}
+listing_skills:
+{listing_skills}
+listing_keywords:
+{listing_keywords}
 listing_requirements:
 {listing_requirements}
 
