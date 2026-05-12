@@ -39,6 +39,8 @@ DEFAULT_EMPTY_SUGGESTIONS_SUMMARY = 'No actionable suggestions were found for th
 
 
 class UnitSuggestionInput(TypedDict):
+  """Resume unit context passed to the LLM for AI suggestion generation."""
+
   section_id: str
   unit_id: str
   text: str
@@ -257,6 +259,8 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
   def _create_content_quality_score_map(
     self, content_quality: list[ContentQualitySection]
   ) -> dict[UUID, float]:
+    """Create a unit-id keyed lookup table for content quality scores."""
+
     score_by_unit_id: dict[UUID, float] = {}
     for section in content_quality:
       for row in section.scores:
