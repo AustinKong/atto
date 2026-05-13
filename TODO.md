@@ -191,7 +191,6 @@ This roadmap focuses on the local frontend and backend. Cloud remains disabled/p
   - [ ] `backend/app/routers/config_router.py`: remove dynamic enum/config logic if no longer used.
   - [ ] `backend/app/clients/model/__init__.py`: replace ad-hoc provider switching with clearer dispatch.
   - [ ] `backend/app/clients/scraping/local_client.py`: add logging and revisit crawl result truncation.
-  - [ ] `backend/app/resources/scripts/__init__.py`: remove dead code.
 
 ## P3 - Tests And Verification
 

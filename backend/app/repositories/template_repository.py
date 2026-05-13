@@ -6,7 +6,7 @@ import httpx
 
 from app.config import settings
 from app.repositories.base import FileRepository
-from app.schemas import DEFAULT_TEMPLATE_ID, Template, TemplateSummary
+from app.schemas.template import DEFAULT_TEMPLATE_ID, Template, TemplateSummary
 from app.utils.errors import DuplicateError
 
 

@@ -4,14 +4,14 @@ from uuid import UUID
 from fastapi import APIRouter, Body, Depends
 
 from app.repositories import TemplateRepository
-from app.schemas import (
-  Page,
-  Profile,
-  Section,
+from app.schemas.profile import Profile
+from app.schemas.resume import Section
+from app.schemas.template import (
   Template,
   TemplateRenderResponse,
   TemplateSummary,
 )
+from app.schemas.types import Page
 from app.services import TemplateService
 
 router = APIRouter(

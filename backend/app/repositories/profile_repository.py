@@ -2,7 +2,7 @@ from pathlib import Path
 
 from app.config import settings
 from app.repositories.base import JSONRepository
-from app.schemas import Profile
+from app.schemas.profile import Profile
 
 
 class ProfileRepository(JSONRepository):

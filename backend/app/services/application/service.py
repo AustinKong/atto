@@ -10,10 +10,10 @@ from app.clients.application_analysis import (
   get_application_analysis_client,
 )
 from app.repositories import ApplicationRepository, ListingRepository, ResumeRepository
-from app.schemas import ApplicationAnalysis
 from app.schemas.task_status import TaskStatus
 from app.utils.auth_context import use_session_token
 from app.utils.errors import ServiceError
+from shared.schemas.application_analysis import ApplicationAnalysis
 
 logger = logging.getLogger(__name__)
 

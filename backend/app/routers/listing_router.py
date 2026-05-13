@@ -5,14 +5,11 @@ from fastapi import APIRouter, BackgroundTasks, Body, Cookie, Depends, Query, st
 from pydantic import HttpUrl
 
 from app.repositories import ApplicationRepository, ListingRepository
-from app.schemas import (
-  Listing,
-  ListingDraft,
-  ListingSummary,
-  Page,
-  StatusEnum,
-)
+from app.schemas.application import StatusEnum
+from app.schemas.listing import Listing, ListingSummary
+from app.schemas.listing_draft import ListingDraft
 from app.schemas.task_status import TaskStatus, TaskStatusEntry
+from app.schemas.types import Page
 from app.services import ListingService
 
 router = APIRouter(

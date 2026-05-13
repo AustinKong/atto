@@ -7,7 +7,7 @@ from pydantic import TypeAdapter
 
 from app.repositories.base import DatabaseRepository
 from app.repositories.base.in_memory_kv_repository import InMemoryKVRepository
-from app.schemas import (
+from app.schemas.application import (
   Application,
   StatusEnum,
   StatusEvent,

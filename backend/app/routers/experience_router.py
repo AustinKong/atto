@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 
 from app.repositories import ExperienceRepository
-from app.schemas import Experience
+from app.schemas.experience import Experience
 
 router = APIRouter(
   prefix='/experiences',

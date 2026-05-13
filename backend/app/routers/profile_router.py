@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from app.repositories import ProfileRepository
-from app.schemas import Profile
+from app.schemas.profile import Profile
 
 router = APIRouter(
   prefix='/profile',

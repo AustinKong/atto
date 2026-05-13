@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, BackgroundTasks, Cookie, Depends, status
 
 from app.repositories import ApplicationRepository
-from app.schemas import Application, StatusEvent
+from app.schemas.application import Application, StatusEvent
 from app.schemas.task_status import TaskStatus, TaskStatusEntry
 from app.services import ApplicationService
 from app.utils.errors import NotFoundError

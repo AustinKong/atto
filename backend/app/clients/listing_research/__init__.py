@@ -9,7 +9,7 @@ from app.utils.auth_context import is_authorized
 
 from .base_client import ListingResearchClient
 from .cloud_client import CloudListingResearchClient
-from .local_client import LocalListingResearchClient
+from .local import LocalListingResearchClient
 
 
 def get_listing_research_client(
@@ -19,8 +19,6 @@ def get_listing_research_client(
 ) -> ListingResearchClient:
   if is_authorized():
     return CloudListingResearchClient(
-      llm_client=llm_client,
-      scraping_client=scraping_client,
       cloud_api_client=cloud_api_client,
     )
 

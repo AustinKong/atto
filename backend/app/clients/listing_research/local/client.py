@@ -3,25 +3,30 @@ import asyncio
 from app.clients.model import ModelClient
 from app.clients.scraping import ScrapingClient
 from app.schemas.listing import (
+  ApplicantInsightsResult,
   Listing,
   MarketContextResult,
   SalaryRangeResult,
   SentimentAnalysisResult,
 )
-from app.utils.text import to_json_string
+from app.utils.text import to_bullets, to_json_string
 
-from .base_client import ListingResearchClient
-from .constants import (
-  MARKET_MAX_RESULTS,
+from ..base_client import ListingResearchClient
+from .prompts import (
+  APPLICANT_INSIGHTS_PROMPT_TEMPLATE,
   MARKET_PROMPT_TEMPLATE,
+  SALARY_PROMPT_TEMPLATE,
+  SENTIMENT_PROMPT_TEMPLATE,
+)
+from .search_config import (
+  MARKET_MAX_RESULTS,
   MARKET_SEARCH_QUERY_1,
   MARKET_SEARCH_QUERY_2,
   SALARY_MAX_RESULTS,
-  SALARY_PROMPT_TEMPLATE,
   SALARY_SEARCH_QUERY,
-  SENTIMENT_PROMPT_TEMPLATE,
   SENTIMENT_SEARCH_QUERY,
 )
+from .sources import format_crawl_results
 
 
 class LocalListingResearchClient(ListingResearchClient):
@@ -47,7 +52,7 @@ class LocalListingResearchClient(ListingResearchClient):
 
     prompt = SENTIMENT_PROMPT_TEMPLATE.format(
       listing_json=listing.model_dump_json(),
-      research_context=self.format_crawl_results(results),
+      research_context=format_crawl_results(results),
     )
     return await self.llm_client.call_structured(prompt, SentimentAnalysisResult)
 
@@ -68,7 +73,7 @@ class LocalListingResearchClient(ListingResearchClient):
     )
     prompt = SALARY_PROMPT_TEMPLATE.format(
       listing_json=to_json_string(listing),
-      research_context=self.format_crawl_results(documents),
+      research_context=format_crawl_results(documents),
     )
     return await self.llm_client.call_structured(prompt, SalaryRangeResult)
 
@@ -98,7 +103,24 @@ class LocalListingResearchClient(ListingResearchClient):
     combined = (results_one + results_two)[:MARKET_MAX_RESULTS]
     prompt = MARKET_PROMPT_TEMPLATE.format(
       listing_json=to_json_string(listing),
-      research_context=self.format_crawl_results(combined),
+      research_context=format_crawl_results(combined),
     )
     response_text = await self.llm_client.call_unstructured(prompt)
     return MarketContextResult(summary=response_text.strip())
+
+  async def get_applicant_insights(
+    self,
+    listing: Listing,
+    sentiment: SentimentAnalysisResult,
+    salary: SalaryRangeResult,
+    market: MarketContextResult,
+  ) -> ApplicantInsightsResult:
+    prompt = APPLICANT_INSIGHTS_PROMPT_TEMPLATE.format(
+      listing_json=to_json_string(listing),
+      sentiment_json=to_json_string(sentiment),
+      salary_json=to_json_string(salary),
+      market_summary=market.summary,
+      listing_description=listing.description,
+      listing_requirements=to_bullets(listing.requirements),
+    )
+    return await self.llm_client.call_structured(prompt, ApplicantInsightsResult)

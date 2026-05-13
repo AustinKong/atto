@@ -2,7 +2,8 @@ import json
 from uuid import UUID
 
 from app.repositories.base import DatabaseRepository
-from app.schemas import DEFAULT_RESUME_ID, DEFAULT_TEMPLATE_ID, Resume
+from app.schemas.resume import DEFAULT_RESUME_ID, Resume
+from app.schemas.template import DEFAULT_TEMPLATE_ID
 from app.utils.errors import NotFoundError
 
 

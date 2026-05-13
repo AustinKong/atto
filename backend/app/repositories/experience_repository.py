@@ -7,7 +7,8 @@ from fastapi import Depends
 from app.clients.model import ModelClient, get_model_client
 from app.config import settings
 from app.repositories.base import DatabaseRepository, VectorRepository
-from app.schemas import Experience, Listing
+from app.schemas.experience import Experience
+from app.schemas.listing import Listing
 from app.utils.errors import NotFoundError, ServiceError
 
 

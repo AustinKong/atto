@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 
-from app.schemas import Application, Listing, Resume
+from app.schemas.application import Application
+from app.schemas.listing import Listing
+from app.schemas.resume import Resume
 from app.utils.math import clamp
 from shared.schemas.application_analysis import (
   AISuggestions,

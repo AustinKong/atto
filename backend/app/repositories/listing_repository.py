@@ -10,8 +10,10 @@ from app.clients.model import ModelClient, get_model_client
 from app.config import settings
 from app.repositories.base import DatabaseRepository, VectorRepository
 from app.repositories.base.in_memory_kv_repository import InMemoryKVRepository
-from app.schemas import Listing, ListingSummary, Page, StatusEnum
+from app.schemas.application import StatusEnum
+from app.schemas.listing import Listing, ListingSummary
 from app.schemas.task_status import TaskStatus, TaskStatusEntry
+from app.schemas.types import Page
 from app.utils.deduplication import fuzzy_text_similarity
 from app.utils.errors import NotFoundError
 from app.utils.status_ordering import generate_latest_event_sql
@@ -203,8 +205,9 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
 
     return listing
 
-  # TODO: Why aren't we being consistnet to have an update fn that takes Listing instead of individual fields?
-  # So update_notes and update_research can be consolidated. Same for applciation repository.
+  # TODO: Why aren't we being consistent to have an update fn that takes Listing instead of
+  # individual fields? So update_notes and update_research can be consolidated. Same for
+  # application repository.
   def update_notes(self, listing_id, notes: str | None) -> Listing:
     self.execute(
       """
