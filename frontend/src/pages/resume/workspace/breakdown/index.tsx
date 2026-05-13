@@ -1,11 +1,14 @@
 import { VStack, Wrap } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { RESUME_HIGHLIGHT_LAYERS } from '@/pages/resume/highlight-layers.constants';
 import { useResumeHighlight } from '@/pages/resume/highlightContext';
 import { applicationQueries } from '@/queries/application.queries';
+import type { Resume } from '@/types/resume.types';
 import type { Section } from '@/types/resume.types';
+import { hashResume, hashUnitContent } from '@/utils/hash.utils';
+import { extractSectionTextUnits } from '@/utils/resume.utils';
 
 import { AnalysisFooter } from './AnalysisFooter';
 import { ContentQuality } from './ContentQuality';
@@ -15,19 +18,54 @@ import { Suggestions } from './Suggestions';
 
 export function Breakdown({
   applicationId,
+  resume,
   resumeSections,
   onAcceptSuggestion,
 }: {
   applicationId: string;
+  resume: Resume;
   resumeSections: Section[];
   onAcceptSuggestion: (unitId: string, replacementText: string) => void;
 }) {
   const { clear } = useResumeHighlight();
+  const [currentResumeHash, setCurrentResumeHash] = useState<string | null>(null);
+  const [unitHashesById, setUnitHashesById] = useState<Record<string, string>>({});
   const { data: application, refetch: refetchApplication } = useQuery({
     ...applicationQueries.item(applicationId),
   });
   const analysis = application?.analysis ?? null;
   const resumeHashKey = application?.analysis?.resumeHash ?? 'no-analysis';
+  const isSkillsComparisonOutdated = Boolean(
+    analysis?.resumeHash && currentResumeHash && analysis.resumeHash !== currentResumeHash
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function computeHashes() {
+      const [resumeHash, unitHashes] = await Promise.all([
+        hashResume(resume),
+        Promise.all(
+          extractSectionTextUnits(resume.sections).map(async (unit) => ({
+            unitId: unit.id,
+            unitHash: await hashUnitContent(unit.content),
+          }))
+        ),
+      ]);
+      if (cancelled) {
+        return;
+      }
+
+      setCurrentResumeHash(resumeHash);
+      setUnitHashesById(Object.fromEntries(unitHashes.map((entry) => [entry.unitId, entry.unitHash])));
+    }
+
+    void computeHashes();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [resume]);
 
   useEffect(
     () => () => {
@@ -45,11 +83,13 @@ export function Breakdown({
         <SkillsComparison
           key={`skills-${resumeHashKey}`}
           rows={analysis?.skillsComparison ?? null}
+          isOutdated={isSkillsComparisonOutdated}
         />
         <ContentQuality
           key={`content-quality-${resumeHashKey}`}
           contentQuality={analysis?.contentQuality ?? null}
           resumeSections={resumeSections}
+          unitHashesById={unitHashesById}
         />
       </Wrap>
 
@@ -64,6 +104,7 @@ export function Breakdown({
         applicationId={applicationId}
         aiSuggestions={analysis?.aiSuggestions ?? null}
         onAcceptSuggestion={onAcceptSuggestion}
+        unitHashesById={unitHashesById}
       />
     </VStack>
   );

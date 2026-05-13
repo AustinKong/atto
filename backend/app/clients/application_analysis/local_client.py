@@ -1,3 +1,4 @@
+import hashlib
 from typing import Annotated
 from uuid import UUID
 
@@ -147,7 +148,13 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
           0.0,
           1.0,
         )
-        scored_units.append(ContentQualityScore(unit_id=unit_id, score=score))
+        scored_units.append(
+          ContentQualityScore(
+            unit_id=unit_id,
+            unit_hash=self._create_unit_hash(text),
+            score=score,
+          )
+        )
 
       section_summaries.append(
         ContentQualitySection(
@@ -172,9 +179,11 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     )
     # Build a unit-id lookup table
     quality_score_by_unit_id: dict[UUID, float] = {}
+    unit_hash_by_unit_id: dict[UUID, str | None] = {}
     for section in content_quality:
       for row in section.scores:
         quality_score_by_unit_id[row.unit_id] = row.score
+        unit_hash_by_unit_id[row.unit_id] = row.unit_hash
 
     unit_rows: list = []
 
@@ -208,10 +217,14 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
       listing_requirements=to_bullets(listing.requirements),
       units_json=to_json_string(unit_rows),
     )
-    return await self.llm_client.call_structured(
+    suggestions = await self.llm_client.call_structured(
       input=prompt,
       response_model=AISuggestions,
     )
+    for suggestion in suggestions.suggestions:
+      suggestion.unit_hash = unit_hash_by_unit_id.get(suggestion.unit_id)
+
+    return suggestions
 
   async def _score_skills_from_prompt(
     self,
@@ -277,3 +290,6 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
 
     walk(section)
     return units
+
+  def _create_unit_hash(self, text: str) -> str:
+    return hashlib.sha256(text.encode('utf-8')).hexdigest()

@@ -68,6 +68,7 @@ export function Workspace({ applicationId }: { applicationId?: string }) {
         <Tabs.Content value="breakdown" p="0">
           <Breakdown
             applicationId={applicationId}
+            resume={resume}
             resumeSections={resume.sections}
             onAcceptSuggestion={handleAcceptSuggestion}
           />

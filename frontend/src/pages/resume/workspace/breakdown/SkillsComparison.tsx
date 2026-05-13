@@ -6,7 +6,13 @@ import type { SkillComparisonRow } from '@/types/application.types';
 // Ensures it looks visually balanced even for low scores
 const VISUAL_SCORE_FLOOR = 10;
 
-export function SkillsComparison({ rows }: { rows: SkillComparisonRow[] | null }) {
+export function SkillsComparison({
+  rows,
+  isOutdated,
+}: {
+  rows: SkillComparisonRow[] | null;
+  isOutdated: boolean;
+}) {
   const hasData = Boolean(rows && rows.length > 0);
   const radarData = (rows ?? []).map((row) => ({
     skill: row.skill,
@@ -16,7 +22,7 @@ export function SkillsComparison({ rows }: { rows: SkillComparisonRow[] | null }
 
   return (
     <VStack align="stretch" gap="2xs" flexGrow={2} flexShrink={1} flexBasis="60" minW="60">
-      <Heading size="sm">Skills Comparison</Heading>
+      <Heading size="sm">{isOutdated ? 'Skills Comparison (Outdated)' : 'Skills Comparison'}</Heading>
       {hasData ? (
         <Box h="2xs">
           <ResponsiveRadar

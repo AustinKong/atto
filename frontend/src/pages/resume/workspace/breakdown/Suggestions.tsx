@@ -12,10 +12,12 @@ export function Suggestions({
   applicationId,
   aiSuggestions,
   onAcceptSuggestion,
+  unitHashesById,
 }: {
   applicationId: string;
   aiSuggestions: AISuggestions | null;
   onAcceptSuggestion: (unitId: string, replacementText: string) => void;
+  unitHashesById: Record<string, string>;
 }) {
   const { highlight, clear } = useResumeHighlight();
   const { mutate: removeSuggestion } = useRemoveApplicationAnalysisSuggestion();
@@ -60,6 +62,7 @@ export function Suggestions({
           </Text>
           {suggestions.map((suggestion, index) => {
             const suggestionId = suggestion.id;
+            const isOutdated = !suggestion.unitHash || unitHashesById[suggestion.unitId] !== suggestion.unitHash;
             return (
               <VStack
                 key={suggestionId}
@@ -86,7 +89,10 @@ export function Suggestions({
                     <Card.Header p="sm">
                       <Collapsible.Trigger asChild>
                         <HStack justifyContent="space-between" cursor="pointer">
-                          <Text>Suggestion {index + 1}</Text>
+                          <Text>
+                            Suggestion {index + 1}
+                            {isOutdated ? ' (Outdated)' : ''}
+                          </Text>
                           <Collapsible.Indicator
                             transition="transform 0.2s"
                             _open={{ transform: 'rotate(-90deg)' }}
@@ -121,7 +127,7 @@ export function Suggestions({
 
                 {(openSuggestions[suggestionId] ?? true) && (
                   <HStack gap="xs" justifyContent="flex-start">
-                    {suggestion.replacementText ? (
+                    {!isOutdated && suggestion.replacementText ? (
                       <Button
                         size="2xs"
                         variant="ghost"
@@ -138,15 +144,27 @@ export function Suggestions({
                         Accept
                       </Button>
                     ) : null}
-                    <Button
-                      size="2xs"
-                      variant="ghost"
-                      colorPalette="red"
-                      onClick={() => handleDismissSuggestion(suggestionId)}
-                    >
-                      <LuX />
-                      Dismiss
-                    </Button>
+                    {isOutdated ? (
+                      <Button
+                        size="2xs"
+                        variant="ghost"
+                        colorPalette="gray"
+                        onClick={() => handleDismissSuggestion(suggestionId)}
+                      >
+                        <LuX />
+                        Outdated
+                      </Button>
+                    ) : (
+                      <Button
+                        size="2xs"
+                        variant="ghost"
+                        colorPalette="red"
+                        onClick={() => handleDismissSuggestion(suggestionId)}
+                      >
+                        <LuX />
+                        Dismiss
+                      </Button>
+                    )}
                   </HStack>
                 )}
               </VStack>

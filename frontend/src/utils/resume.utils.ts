@@ -88,3 +88,48 @@ export function replaceTextUnitContentById(
 
   return { sections: nextSections, updated };
 }
+
+export function extractSectionTextUnits(sections: Section[]): Array<{ id: string; content: string }> {
+  const units: Array<{ id: string; content: string }> = [];
+
+  for (const section of sections) {
+    if (section.type === 'simple') {
+      for (const unit of section.content) {
+        const content = unit.content.trim();
+        if (content) {
+          units.push({ id: unit.id, content });
+        }
+      }
+      continue;
+    }
+
+    if (section.type === 'paragraph') {
+      const content = section.content.content.trim();
+      if (content) {
+        units.push({ id: section.content.id, content });
+      }
+      continue;
+    }
+
+    for (const item of section.content) {
+      const title = item.title.content.trim();
+      if (title) {
+        units.push({ id: item.title.id, content: title });
+      }
+
+      const subtitle = item.subtitle.content.trim();
+      if (subtitle) {
+        units.push({ id: item.subtitle.id, content: subtitle });
+      }
+
+      for (const bullet of item.bullets) {
+        const bulletContent = bullet.content.trim();
+        if (bulletContent) {
+          units.push({ id: bullet.id, content: bulletContent });
+        }
+      }
+    }
+  }
+
+  return units;
+}
