@@ -1,4 +1,3 @@
-import hashlib
 from typing import Annotated
 from uuid import UUID
 
@@ -19,6 +18,7 @@ from app.schemas import (
 from app.schemas.resume import BaseSection, Section, TextUnit
 from app.utils.deduplication import cosine_similarity, deduplicate_by
 from app.utils.errors import ServiceError
+from app.utils.hash import hash_trimmed_text
 from app.utils.math import clamp
 from app.utils.text import contains_phrase, find_phrase_matches, to_bullets, to_json_string
 from shared.schemas.application_analysis import (
@@ -151,7 +151,7 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
         scored_units.append(
           ContentQualityScore(
             unit_id=unit_id,
-            unit_hash=self._create_unit_hash(text),
+            unit_hash=hash_trimmed_text(text),
             score=score,
           )
         )
@@ -290,6 +290,3 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
 
     walk(section)
     return units
-
-  def _create_unit_hash(self, text: str) -> str:
-    return hashlib.sha256(text.strip().encode('utf-8')).hexdigest()

@@ -28,15 +28,20 @@ export function Breakdown({
   onAcceptSuggestion: (unitId: string, replacementText: string) => void;
 }) {
   const { clear } = useResumeHighlight();
-  const [currentResumeHash, setCurrentResumeHash] = useState<string | null>(null);
-  const [unitHashesById, setUnitHashesById] = useState<Record<string, string>>({});
+  const [hashes, setHashes] = useState<{
+    resumeHash: string | null;
+    unitHashesById: Record<string, string>;
+  }>({
+    resumeHash: null,
+    unitHashesById: {},
+  });
   const { data: application, refetch: refetchApplication } = useQuery({
     ...applicationQueries.item(applicationId),
   });
   const analysis = application?.analysis ?? null;
   const resumeHashKey = application?.analysis?.resumeHash ?? 'no-analysis';
   const isSkillsComparisonOutdated = Boolean(
-    analysis?.resumeHash && currentResumeHash && analysis.resumeHash !== currentResumeHash
+    analysis?.resumeHash && hashes.resumeHash && analysis.resumeHash !== hashes.resumeHash
   );
 
   useEffect(() => {
@@ -56,10 +61,12 @@ export function Breakdown({
         return;
       }
 
-      setCurrentResumeHash(resumeHash);
-      setUnitHashesById(
-        Object.fromEntries(unitHashes.map((entry) => [entry.unitId, entry.unitHash]))
-      );
+      setHashes({
+        resumeHash,
+        unitHashesById: Object.fromEntries(
+          unitHashes.map((entry) => [entry.unitId, entry.unitHash])
+        ),
+      });
     }
 
     void computeHashes();
@@ -91,7 +98,7 @@ export function Breakdown({
           key={`content-quality-${resumeHashKey}`}
           contentQuality={analysis?.contentQuality ?? null}
           resumeSections={resumeSections}
-          unitHashesById={unitHashesById}
+          unitHashesById={hashes.unitHashesById}
         />
       </Wrap>
 
@@ -106,7 +113,7 @@ export function Breakdown({
         applicationId={applicationId}
         aiSuggestions={analysis?.aiSuggestions ?? null}
         onAcceptSuggestion={onAcceptSuggestion}
-        unitHashesById={unitHashesById}
+        unitHashesById={hashes.unitHashesById}
       />
     </VStack>
   );
