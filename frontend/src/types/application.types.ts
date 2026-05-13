@@ -101,6 +101,7 @@ export type ContentQualityCategory = (typeof CONTENT_QUALITY_CATEGORIES)[number]
 
 export type ContentQualityScore = {
   unitId: string;
+  unitHash: string;
   score: number;
 };
 
@@ -112,6 +113,7 @@ export type ContentQualitySection = {
 export type AIUnitSuggestion = {
   id: string;
   unitId: string;
+  unitHash: string;
   suggestion: string;
   replacementText: string | null;
 };

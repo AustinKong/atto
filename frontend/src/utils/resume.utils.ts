@@ -37,8 +37,33 @@ export function createDetailedItem(): DetailedItem {
   };
 }
 
-// TODO: Another function that needs to handle cases based on different section types
-// We should consolidate/centralize these
+type SectionHandlers<T> = {
+  simple: (section: SimpleSection) => T;
+  detailed: (section: DetailedSection) => T;
+  paragraph: (section: ParagraphSection) => T;
+};
+
+function mapSection<T>(section: Section, handlers: SectionHandlers<T>): T {
+  switch (section.type) {
+    case 'simple':
+      return handlers.simple(section);
+    case 'detailed':
+      return handlers.detailed(section);
+    case 'paragraph':
+      return handlers.paragraph(section);
+    default:
+      throw new Error(`Unsupported section type: ${(section as { type: string }).type}`);
+  }
+}
+
+function getTrimmedUnit(unit: TextUnit): { id: string; content: string } | null {
+  const content = unit.content.trim();
+  if (!content) {
+    return null;
+  }
+  return { id: unit.id, content };
+}
+
 export function replaceTextUnitContentById(
   sections: Section[],
   unitId: string,
@@ -57,34 +82,77 @@ export function replaceTextUnitContentById(
     return { ...unit, content: replacementText };
   }
 
-  const nextSections = sections.map((section) => {
-    if (section.type === 'simple') {
-      const nextSection: SimpleSection = {
-        ...section,
-        content: section.content.map(replaceTextUnit),
-      };
-      return nextSection;
-    }
-
-    if (section.type === 'paragraph') {
-      const nextSection: ParagraphSection = {
-        ...section,
-        content: replaceTextUnit(section.content),
-      };
-      return nextSection;
-    }
-
-    const nextSection: DetailedSection = {
-      ...section,
-      content: section.content.map((item) => ({
-        ...item,
-        title: replaceTextUnit(item.title),
-        subtitle: replaceTextUnit(item.subtitle),
-        bullets: item.bullets.map(replaceTextUnit),
-      })),
-    };
-    return nextSection;
-  });
+  const nextSections = sections.map((section) =>
+    mapSection<Section>(section, {
+      simple: (simpleSection) => {
+        const nextSection: SimpleSection = {
+          ...simpleSection,
+          content: simpleSection.content.map(replaceTextUnit),
+        };
+        return nextSection;
+      },
+      paragraph: (paragraphSection) => {
+        const nextSection: ParagraphSection = {
+          ...paragraphSection,
+          content: replaceTextUnit(paragraphSection.content),
+        };
+        return nextSection;
+      },
+      detailed: (detailedSection) => {
+        const nextSection: DetailedSection = {
+          ...detailedSection,
+          content: detailedSection.content.map((item) => ({
+            ...item,
+            title: replaceTextUnit(item.title),
+            subtitle: replaceTextUnit(item.subtitle),
+            bullets: item.bullets.map(replaceTextUnit),
+          })),
+        };
+        return nextSection;
+      },
+    })
+  );
 
   return { sections: nextSections, updated };
+}
+
+function extractSectionTextUnitsForSection(section: Section): Array<{ id: string; content: string }> {
+  return mapSection(section, {
+    simple: (simpleSection) =>
+      simpleSection.content
+        .map(getTrimmedUnit)
+        .filter((unit): unit is { id: string; content: string } => unit !== null),
+    paragraph: (paragraphSection) => {
+      const unit = getTrimmedUnit(paragraphSection.content);
+      return unit ? [unit] : [];
+    },
+    detailed: (detailedSection) => {
+      const units: Array<{ id: string; content: string }> = [];
+
+      for (const item of detailedSection.content) {
+        const titleUnit = getTrimmedUnit(item.title);
+        if (titleUnit) {
+          units.push(titleUnit);
+        }
+
+        const subtitleUnit = getTrimmedUnit(item.subtitle);
+        if (subtitleUnit) {
+          units.push(subtitleUnit);
+        }
+
+        for (const bullet of item.bullets) {
+          const bulletUnit = getTrimmedUnit(bullet);
+          if (bulletUnit) {
+            units.push(bulletUnit);
+          }
+        }
+      }
+
+      return units;
+    },
+  });
+}
+
+export function extractSectionTextUnits(sections: Section[]): Array<{ id: string; content: string }> {
+  return sections.flatMap((section) => extractSectionTextUnitsForSection(section));
 }

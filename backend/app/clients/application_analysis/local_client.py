@@ -2,7 +2,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.clients.model import ModelClient, get_model_client
 from app.resources.prompts import (
@@ -18,10 +18,12 @@ from app.schemas import (
 from app.schemas.resume import BaseSection, Section, TextUnit
 from app.utils.deduplication import cosine_similarity, deduplicate_by
 from app.utils.errors import ServiceError
+from app.utils.hash import hash_trimmed_text
 from app.utils.math import clamp
 from app.utils.text import contains_phrase, find_phrase_matches, to_bullets, to_json_string
 from shared.schemas.application_analysis import (
   AISuggestions,
+  AIUnitSuggestion,
   ContentQualityScore,
   ContentQualitySection,
   SkillComparisonRow,
@@ -37,6 +39,18 @@ CONTENT_SEMANTIC_WEIGHT = 0.6
 DEFAULT_EMPTY_SUGGESTIONS_SUMMARY = 'No actionable suggestions were found for this resume.'
 AI_SUGGESTIONS_SCORE_THRESHOLD = 0.6
 # TODO: Add LLM component that looks for action verbs and quantifiable achievements
+
+
+class AIUnitSuggestionDraft(BaseModel):
+  id: str
+  unit_id: UUID
+  suggestion: str
+  replacement_text: str | None = None
+
+
+class AISuggestionsDraft(BaseModel):
+  summary: str
+  suggestions: list[AIUnitSuggestionDraft] = Field(default_factory=list)
 
 
 class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
@@ -147,7 +161,13 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
           0.0,
           1.0,
         )
-        scored_units.append(ContentQualityScore(unit_id=unit_id, score=score))
+        scored_units.append(
+          ContentQualityScore(
+            unit_id=unit_id,
+            unit_hash=hash_trimmed_text(text),
+            score=score,
+          )
+        )
 
       section_summaries.append(
         ContentQualitySection(
@@ -172,9 +192,11 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     )
     # Build a unit-id lookup table
     quality_score_by_unit_id: dict[UUID, float] = {}
+    unit_hash_by_unit_id: dict[UUID, str] = {}
     for section in content_quality:
       for row in section.scores:
         quality_score_by_unit_id[row.unit_id] = row.score
+        unit_hash_by_unit_id[row.unit_id] = row.unit_hash
 
     unit_rows: list = []
 
@@ -208,10 +230,27 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
       listing_requirements=to_bullets(listing.requirements),
       units_json=to_json_string(unit_rows),
     )
-    return await self.llm_client.call_structured(
+    suggestions_draft = await self.llm_client.call_structured(
       input=prompt,
-      response_model=AISuggestions,
+      response_model=AISuggestionsDraft,
     )
+    suggestions: list[AIUnitSuggestion] = []
+    for suggestion in suggestions_draft.suggestions:
+      unit_hash = unit_hash_by_unit_id.get(suggestion.unit_id)
+      if unit_hash is None:
+        continue
+
+      suggestions.append(
+        AIUnitSuggestion(
+          id=suggestion.id,
+          unit_id=suggestion.unit_id,
+          unit_hash=unit_hash,
+          suggestion=suggestion.suggestion,
+          replacement_text=suggestion.replacement_text,
+        )
+      )
+
+    return AISuggestions(summary=suggestions_draft.summary, suggestions=suggestions)
 
   async def _score_skills_from_prompt(
     self,

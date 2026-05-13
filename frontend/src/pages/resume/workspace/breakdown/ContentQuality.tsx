@@ -16,6 +16,7 @@ import {
   getContentQualityMaxMagnitude,
   labelForContentQualityKey,
 } from '@/utils/content-quality.utils';
+import { isUnitOutdated } from '@/utils/hash.utils';
 
 const CONTENT_QUALITY_KEYS: Array<keyof Omit<ContentQualityDatum, 'section'>> = [
   'lowNoise',
@@ -28,9 +29,11 @@ const CONTENT_QUALITY_KEYS: Array<keyof Omit<ContentQualityDatum, 'section'>> = 
 export function ContentQuality({
   contentQuality,
   resumeSections,
+  unitHashesById,
 }: {
   contentQuality: ContentQualitySection[] | null;
   resumeSections: Section[];
+  unitHashesById: Record<string, string>;
 }) {
   const { highlight, clear } = useResumeHighlight();
   const { open: showHighlights, onOpen, onClose } = useDisclosure();
@@ -63,8 +66,13 @@ export function ContentQuality({
 
   const data: ContentQualityDatum[] = (contentQuality ?? []).map((section) => {
     const counts = countContentQualityCategories(section);
+    const isOutdated = section.scores.some((row) =>
+      isUnitOutdated(row.unitHash, unitHashesById[row.unitId])
+    );
+    const sectionTitle = sectionTitleById.get(section.sectionId) ?? section.sectionId;
+
     return {
-      section: sectionTitleById.get(section.sectionId) ?? section.sectionId,
+      section: isOutdated ? `${sectionTitle} (Outdated)` : sectionTitle,
       highSignal: counts.highSignal,
       neutral: counts.neutral,
       lowSignal: counts.lowSignal,
