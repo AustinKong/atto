@@ -57,7 +57,9 @@ export function Breakdown({
       }
 
       setCurrentResumeHash(resumeHash);
-      setUnitHashesById(Object.fromEntries(unitHashes.map((entry) => [entry.unitId, entry.unitHash])));
+      setUnitHashesById(
+        Object.fromEntries(unitHashes.map((entry) => [entry.unitId, entry.unitHash]))
+      );
     }
 
     void computeHashes();

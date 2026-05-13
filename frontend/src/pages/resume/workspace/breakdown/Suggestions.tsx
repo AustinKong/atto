@@ -62,7 +62,8 @@ export function Suggestions({
           </Text>
           {suggestions.map((suggestion, index) => {
             const suggestionId = suggestion.id;
-            const isOutdated = !suggestion.unitHash || unitHashesById[suggestion.unitId] !== suggestion.unitHash;
+            const isOutdated =
+              !suggestion.unitHash || unitHashesById[suggestion.unitId] !== suggestion.unitHash;
             return (
               <VStack
                 key={suggestionId}

@@ -5,7 +5,7 @@ function normalizeJsonValue(value: unknown): unknown {
     return value.map(normalizeJsonValue);
   }
 
-  if (value && typeof value === 'object') {
+  if (value !== null && typeof value === 'object') {
     const objectValue = value as Record<string, unknown>;
     const sortedEntries = Object.keys(objectValue)
       .sort()

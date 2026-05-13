@@ -292,4 +292,4 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     return units
 
   def _create_unit_hash(self, text: str) -> str:
-    return hashlib.sha256(text.encode('utf-8')).hexdigest()
+    return hashlib.sha256(text.strip().encode('utf-8')).hexdigest()
