@@ -7,6 +7,7 @@ import { useRemoveApplicationAnalysisSuggestion } from '@/mutations/application.
 import { RESUME_HIGHLIGHT_LAYERS } from '@/pages/resume/highlight-layers.constants';
 import { useResumeHighlight } from '@/pages/resume/highlightContext';
 import type { AISuggestions } from '@/types/application.types';
+import { isUnitOutdated } from '@/utils/hash.utils';
 
 export function Suggestions({
   applicationId,
@@ -62,8 +63,10 @@ export function Suggestions({
           </Text>
           {suggestions.map((suggestion, index) => {
             const suggestionId = suggestion.id;
-            const isOutdated =
-              !suggestion.unitHash || unitHashesById[suggestion.unitId] !== suggestion.unitHash;
+            const isOutdated = isUnitOutdated(
+              suggestion.unitHash,
+              unitHashesById[suggestion.unitId]
+            );
             return (
               <VStack
                 key={suggestionId}

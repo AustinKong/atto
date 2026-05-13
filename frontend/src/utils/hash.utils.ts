@@ -1,5 +1,9 @@
 import type { Resume } from '@/types/resume.types';
 
+/**
+ * Produces a deterministic JSON-compatible value by recursively sorting object keys.
+ * This keeps hashing stable regardless of source object key insertion order.
+ */
 function normalizeJsonValue(value: unknown): unknown {
   if (Array.isArray(value)) {
     return value.map(normalizeJsonValue);
@@ -30,4 +34,11 @@ export async function hashResume(resume: Resume): Promise<string> {
 
 export async function hashUnitContent(content: string): Promise<string> {
   return sha256Hex(content.trim());
+}
+
+export function isUnitOutdated(expectedUnitHash: string | null, currentUnitHash: string | undefined): boolean {
+  if (!expectedUnitHash) {
+    return true;
+  }
+  return currentUnitHash !== expectedUnitHash;
 }
