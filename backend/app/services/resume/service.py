@@ -1,15 +1,9 @@
 import asyncio
-from typing import cast
+from typing import assert_never
 
 from app.clients.model import ModelClient
 from app.schemas.listing import Listing
-from app.schemas.resume import (
-  DetailedSection,
-  ParagraphSection,
-  Section,
-  SectionTypeEnum,
-  SimpleSection,
-)
+from app.schemas.resume import DetailedSection, ParagraphSection, Section, SimpleSection
 from app.utils.text import to_bullets
 
 from .optimization import (
@@ -32,26 +26,26 @@ async def optimize_resume_sections(
   )
 
   async def optimize_section(section: Section) -> Section:
-    match section.type:
-      case SectionTypeEnum.DETAILED:
-        return await optimize_detailed_section(
-          section=cast(DetailedSection, section),
-          listing_context=listing_context,
-          llm_client=llm_client,
-        )
-      case SectionTypeEnum.PARAGRAPH:
-        return await optimize_paragraph_section(
-          section=cast(ParagraphSection, section),
-          listing_context=listing_context,
-          llm_client=llm_client,
-        )
-      case SectionTypeEnum.SIMPLE:
+    match section:
+      case SimpleSection():
         return await optimize_simple_section(
-          section=cast(SimpleSection, section),
+          section=section,
+          listing_context=listing_context,
+          llm_client=llm_client,
+        )
+      case DetailedSection():
+        return await optimize_detailed_section(
+          section=section,
+          listing_context=listing_context,
+          llm_client=llm_client,
+        )
+      case ParagraphSection():
+        return await optimize_paragraph_section(
+          section=section,
           listing_context=listing_context,
           llm_client=llm_client,
         )
       case _:
-        return section
+        assert_never(section)
 
   return await asyncio.gather(*[optimize_section(section) for section in sections])

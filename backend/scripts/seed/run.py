@@ -9,7 +9,8 @@ from typing import Any
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from app.config import settings
-from app.schemas import DEFAULT_RESUME_ID, DEFAULT_TEMPLATE_ID
+from app.schemas.resume import DEFAULT_RESUME_ID
+from app.schemas.template import DEFAULT_TEMPLATE_ID
 
 
 # TODO: Fix this temporary hack

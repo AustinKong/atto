@@ -135,42 +135,6 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
       pages=(total_count + size - 1) // size,
     )
 
-  # TODO: This has business logic, should lift to service layer.
-  async def find_similar(
-    self,
-    new_listing: Listing,
-  ) -> Listing | None:
-    """
-    Find similar listing using BOTH semantic and heuristic methods.
-
-    Args:
-      new_listing: New listing to check for similarities
-
-    Returns:
-      Similar listing if a match is found, None otherwise.
-    """
-    best_match = None
-    best_score = 0.0
-
-    semantic_matches = await self._find_semantic_duplicates(new_listing)
-    if semantic_matches:
-      match, score = semantic_matches[0]
-      if score > best_score:
-        best_match = match
-        best_score = score
-
-    heuristic_matches = self._find_heuristic_duplicates(new_listing)
-    if heuristic_matches:
-      match, score = heuristic_matches[0]
-      if score > best_score:
-        best_match = match
-        best_score = score
-
-    if best_match and new_listing.company != best_match.company:
-      best_match = None
-
-    return best_match
-
   async def create(self, listing: Listing) -> Listing:
     self.execute(
       """
@@ -258,7 +222,7 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
 
     return '\n'.join(parts)
 
-  async def _find_semantic_duplicates(
+  async def find_semantic_duplicate_candidates(
     self,
     new_listing: Listing,
   ) -> list[tuple[Listing, float]]:
@@ -310,7 +274,7 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
 
     return sorted(similar, key=lambda x: x[1], reverse=True)
 
-  def _find_heuristic_duplicates(
+  def find_heuristic_duplicate_candidates(
     self,
     new_listing: Listing,
   ) -> list[tuple[Listing, float]]:
@@ -337,6 +301,6 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
         and company_sim >= settings.listings.company_threshold
       ):
         combined_score = (title_sim + company_sim) / 2
-        similar.append((existing_listing, combined_score))
+        similar.append((self.get(existing_listing.id), combined_score))
 
     return sorted(similar, key=lambda x: x[1], reverse=True)

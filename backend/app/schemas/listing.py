@@ -5,7 +5,6 @@ from pydantic import BeforeValidator, Field, HttpUrl
 
 from app.schemas.application import Application, StatusEnum
 from app.schemas.types import CamelModel, parse_json_list_as, parse_json_model_as
-from app.utils.text import to_bullets
 from shared.schemas.dates import ISODate, ISODatetime
 from shared.schemas.listing_research import (
   MarketContextResult,
@@ -76,12 +75,6 @@ class Listing(ListingBase):
   ]
 
   applications: list[Application] = Field(default_factory=list)
-
-  def to_analysis_text(self) -> str:
-    text = f'{self.description}\n'
-    if self.requirements:
-      text += f'{to_bullets(self.requirements)}\n'
-    return text.strip()
 
 
 class ListingSummary(ListingBase):

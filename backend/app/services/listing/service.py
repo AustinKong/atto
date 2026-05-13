@@ -23,6 +23,7 @@ from app.utils.auth_context import use_session_token
 from app.utils.url import normalize_url
 
 from .drafts import build_duplicate_candidate, build_listing_extraction
+from .duplicates import find_similar_listing
 from .prompts import LISTING_EXTRACTION_PROMPT
 from .schemas import ExtractionResponse
 
@@ -97,8 +98,9 @@ class ListingService:
     # TODO: If salary is null after extraction, look it up via external sources.
     # - Cloud mode: call a salary API (e.g. Levels.fyi, Glassdoor API) using company + title.
     # - Local mode: use scraping_client.search() against sites like nodeflair.com, glassdoor.com.
-    similar_match = await self.listing_repository.find_similar(
-      build_duplicate_candidate(listing, id, url)
+    similar_match = await find_similar_listing(
+      listing_repository=self.listing_repository,
+      new_listing=build_duplicate_candidate(listing, id, url),
     )
     if similar_match:
       return ListingDraftDuplicateContent(

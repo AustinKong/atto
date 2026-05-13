@@ -43,7 +43,7 @@ type SectionHandlers<T> = {
   paragraph: (section: ParagraphSection) => T;
 };
 
-function mapSection<T>(section: Section, handlers: SectionHandlers<T>): T {
+function matchSection<T>(section: Section, handlers: SectionHandlers<T>): T {
   switch (section.type) {
     case 'simple':
       return handlers.simple(section);
@@ -83,7 +83,7 @@ export function replaceTextUnitContentById(
   }
 
   const nextSections = sections.map((section) =>
-    mapSection<Section>(section, {
+    matchSection<Section>(section, {
       simple: (simpleSection) => {
         const nextSection: SimpleSection = {
           ...simpleSection,
@@ -117,7 +117,7 @@ export function replaceTextUnitContentById(
 }
 
 function extractSectionTextUnitsForSection(section: Section): Array<{ id: string; content: string }> {
-  return mapSection(section, {
+  return matchSection(section, {
     simple: (simpleSection) =>
       simpleSection.content
         .map(getTrimmedUnit)

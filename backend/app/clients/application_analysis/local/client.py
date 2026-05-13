@@ -24,6 +24,7 @@ from .ai_suggestions import (
   build_suggestion_unit_rows,
   map_suggestions_response,
 )
+from .analysis_text import build_listing_analysis_text, build_resume_analysis_text
 from .content_quality import (
   build_lexical_terms,
   build_requirement_texts,
@@ -55,8 +56,8 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     resume: Resume,
   ) -> list[SkillComparisonRow]:
     skills = listing.skills
-    listing_text = listing.to_analysis_text()
-    resume_text = resume.to_analysis_text()
+    listing_text = build_listing_analysis_text(listing)
+    resume_text = build_resume_analysis_text(resume)
 
     required_prompt = SKILL_REQUIRED_SCORE_PROMPT.format(
       application_name=application.name,

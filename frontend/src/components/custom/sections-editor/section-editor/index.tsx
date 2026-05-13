@@ -7,6 +7,8 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import { LuChevronLeft } from 'react-icons/lu';
 import { PiDotsSixVertical, PiTrash } from 'react-icons/pi';
 
+import type { Section } from '@/types/resume.types';
+
 import type { SectionsEditorData } from '../types';
 import { DetailedItemSection } from './detailed-item-section';
 import { ParagraphSection } from './paragraph-section';
@@ -110,20 +112,20 @@ const SectionContent = memo(function SectionContent({
   sectionIndex: number;
   control: Control<SectionsEditorData>;
 }) {
-  const type = useWatch({ name: `sections.${sectionIndex}.type`, control });
+  const section = useWatch({ name: `sections.${sectionIndex}`, control }) as Section | undefined;
+  if (!section) {
+    return <Text color="fg.muted">Unknown section type</Text>;
+  }
 
-  switch (type) {
+  switch (section.type) {
     case 'paragraph':
       return <ParagraphSection sectionIndex={sectionIndex} />;
-
     case 'detailed':
       return <DetailedItemSection sectionIndex={sectionIndex} control={control} />;
-
     case 'simple':
       return <SimpleBulletSection sectionIndex={sectionIndex} />;
-
     default:
-      return <Text color="fg.muted">Unknown section type</Text>;
+      throw new Error(`Unsupported section type: ${(section as { type: string }).type}`);
   }
 });
 

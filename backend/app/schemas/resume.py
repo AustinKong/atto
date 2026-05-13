@@ -1,11 +1,10 @@
 from enum import StrEnum
-from typing import Annotated, Literal, cast
+from typing import Annotated, Literal
 from uuid import UUID, uuid4
 
 from pydantic import Field
 
 from app.utils.hash import hash_json_value
-from app.utils.text import to_bullets
 from shared.schemas.dates import ISOYearMonth
 from shared.schemas.types import CamelModel
 
@@ -69,42 +68,5 @@ class Resume(CamelModel):
   template_id: UUID
   sections: list[Section]
 
-  def to_analysis_text(self) -> str:
-    text = ''
-
-    for section in self.sections:
-      text += f'{section.title.content}\n'
-      text += f'{_build_section_analysis_text(section)}\n'
-
-    return text.strip()
-
   def create_hash(self) -> str:
     return hash_json_value(self.model_dump(mode='json', by_alias=True))
-
-
-def _build_simple_section_text(section: SimpleSection) -> str:
-  return to_bullets([item.content for item in section.content])
-
-
-def _build_detailed_section_text(section: DetailedSection) -> str:
-  text = ''
-  for item in section.content:
-    text += f'{item.title.content}\n'
-    if item.subtitle.content.strip():
-      text += f'{item.subtitle.content}\n'
-    text += f'{to_bullets([bullet.content for bullet in item.bullets])}\n'
-  return text.strip()
-
-
-def _build_paragraph_section_text(section: ParagraphSection) -> str:
-  return section.content.content
-
-
-def _build_section_analysis_text(section: Section) -> str:
-  if section.type == SectionTypeEnum.SIMPLE:
-    return _build_simple_section_text(cast(SimpleSection, section))
-  if section.type == SectionTypeEnum.DETAILED:
-    return _build_detailed_section_text(cast(DetailedSection, section))
-  if section.type == SectionTypeEnum.PARAGRAPH:
-    return _build_paragraph_section_text(cast(ParagraphSection, section))
-  return ''
