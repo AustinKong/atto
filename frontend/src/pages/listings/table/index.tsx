@@ -92,14 +92,15 @@ const columns = [
     size: 15,
     enableSorting: false,
   }),
-  columnHelper.accessor('id', {
+  columnHelper.accessor('matchScore', {
     header: 'Match Score',
     cell: (info) => {
-      const id = info.getValue();
-      // Generate a stable random percentage based on the ID
-      const seed = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const percent = ((seed % 100) + 1) / 100;
-      return <SegmentedGauge percent={percent} showPercentage />;
+      const score = info.getValue();
+      return typeof score === 'number' ? (
+        <SegmentedGauge percent={score} size="md" />
+      ) : (
+        <Text color="fg.muted">N/A</Text>
+      );
     },
     size: 15,
     enableSorting: false,

@@ -104,9 +104,11 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
       SELECT 
         l.id, l.url, l.title, l.company, l.domain, l.location, l.posted_date,
         le.date as last_status_at,
-        le.status as current_status
+        le.status as current_status,
+        json_extract(a.analysis, '$.matchScore') as match_score
       FROM listings l
       LEFT JOIN latest_events le ON l.id = le.listing_id AND le.rn = 1
+      LEFT JOIN applications a ON a.id = le.application_id
       {where_clause}
       GROUP BY l.id
       ORDER BY {order_by}

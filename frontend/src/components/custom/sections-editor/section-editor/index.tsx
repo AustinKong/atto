@@ -1,4 +1,4 @@
-import { Box, Collapsible, HStack, IconButton, Input, Text } from '@chakra-ui/react';
+import { Box, Card, Collapsible, HStack, IconButton, Input, Text } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { memo } from 'react';
@@ -36,70 +36,72 @@ export const SectionEditor = memo(function SectionEditor({
   };
 
   return (
-    <Collapsible.Root
+    <Card.Root
       ref={setNodeRef}
       style={style}
-      borderWidth="1px"
-      borderRadius="md"
-      bg="bg.panel"
+      variant="outline"
       zIndex={transform ? 1 : 0}
-      defaultOpen
+      overflow="hidden"
     >
-      <HStack justify="space-between" w="full" p="sm" bg="bg.subtle">
-        <HStack gap="xs" flex="1">
-          <Box
-            {...attributes}
-            {...listeners}
-            cursor="grab"
-            color="fg.muted"
-            _active={{ cursor: 'grabbing' }}
-          >
-            <PiDotsSixVertical />
-          </Box>
-
-          <Input
-            {...register(`sections.${index}.title.content`)}
-            placeholder="Section Title"
-            variant="flushed"
-            fontWeight="medium"
-            flex="1"
-          />
-        </HStack>
-
-        <HStack gap="0">
-          <Collapsible.Trigger asChild>
-            <IconButton
-              variant="ghost"
-              size="xs"
-              aria-label="Toggle section"
-              _open={{ bg: 'transparent' }}
-            >
-              <Collapsible.Indicator
-                transition="transform 0.2s"
-                _open={{ transform: 'rotate(-90deg)' }}
+      <Collapsible.Root defaultOpen>
+        <Card.Header p="sm" bg="bg.subtle">
+          <HStack justify="space-between" w="full">
+            <HStack gap="xs" flex="1">
+              <Box
+                {...attributes}
+                {...listeners}
+                cursor="grab"
+                color="fg.muted"
+                _active={{ cursor: 'grabbing' }}
               >
-                <LuChevronLeft />
-              </Collapsible.Indicator>
-            </IconButton>
-          </Collapsible.Trigger>
-          <IconButton
-            variant="ghost"
-            size="xs"
-            color="fg.error"
-            onClick={onDelete}
-            aria-label="Delete section"
-          >
-            <PiTrash />
-          </IconButton>
-        </HStack>
-      </HStack>
+                <PiDotsSixVertical />
+              </Box>
 
-      <Collapsible.Content>
-        <Box pr="md" pb="md" pl="xl">
-          <SectionContent sectionIndex={index} control={control} />
-        </Box>
-      </Collapsible.Content>
-    </Collapsible.Root>
+              <Input
+                {...register(`sections.${index}.title.content`)}
+                placeholder="Section Title"
+                variant="flushed"
+                fontWeight="medium"
+                flex="1"
+              />
+            </HStack>
+
+            <HStack gap="0">
+              <Collapsible.Trigger asChild>
+                <IconButton
+                  variant="ghost"
+                  size="xs"
+                  aria-label="Toggle section"
+                  _open={{ bg: 'transparent' }}
+                >
+                  <Collapsible.Indicator
+                    transition="transform 0.2s"
+                    _open={{ transform: 'rotate(-90deg)' }}
+                  >
+                    <LuChevronLeft />
+                  </Collapsible.Indicator>
+                </IconButton>
+              </Collapsible.Trigger>
+              <IconButton
+                variant="ghost"
+                size="xs"
+                color="fg.error"
+                onClick={onDelete}
+                aria-label="Delete section"
+              >
+                <PiTrash />
+              </IconButton>
+            </HStack>
+          </HStack>
+        </Card.Header>
+
+        <Collapsible.Content>
+          <Card.Body pt="0" pr="md" pb="md" pl="xl">
+            <SectionContent sectionIndex={index} control={control} />
+          </Card.Body>
+        </Collapsible.Content>
+      </Collapsible.Root>
+    </Card.Root>
   );
 });
 

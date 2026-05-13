@@ -82,3 +82,4 @@ class ListingSummary(ListingBase):
   url: HttpUrl
   current_status: StatusEnum | None = None
   last_status_at: str | None = None
+  match_score: float | None = None

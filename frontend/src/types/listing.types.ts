@@ -64,4 +64,5 @@ export type ListingSummary = {
   postedDate: ISODate | null;
   currentStatus: StatusEnum | null;
   lastStatusAt: string | null;
+  matchScore: number | null;
 };
