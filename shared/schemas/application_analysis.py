@@ -23,7 +23,7 @@ class SkillScoreResult(CamelModel):
 
 class ContentQualityScore(CamelModel):
   unit_id: UUID
-  unit_hash: str | None = None
+  unit_hash: str
   score: float = Field(ge=0.0, le=1.0)
 
 
@@ -35,7 +35,7 @@ class ContentQualitySection(CamelModel):
 class AIUnitSuggestion(CamelModel):
   id: str
   unit_id: UUID
-  unit_hash: str | None = None
+  unit_hash: str
   suggestion: str
   replacement_text: str | None = None
 

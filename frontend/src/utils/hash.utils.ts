@@ -36,9 +36,6 @@ export async function hashUnitContent(content: string): Promise<string> {
   return sha256Hex(content.trim());
 }
 
-export function isUnitOutdated(expectedUnitHash: string | null, currentUnitHash: string | undefined): boolean {
-  if (!expectedUnitHash) {
-    return true;
-  }
+export function isUnitOutdated(expectedUnitHash: string, currentUnitHash: string | undefined): boolean {
   return currentUnitHash !== expectedUnitHash;
 }
