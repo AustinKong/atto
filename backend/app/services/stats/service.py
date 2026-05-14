@@ -57,16 +57,16 @@ class StatsService:
     self,
     status_events: list[tuple[str, StatusEnum, date]],
   ) -> ApplicationFunnel:
-    grouped_events: dict[str, list[StatusEnum]] = defaultdict(list)
+    status_sequences_by_app: dict[str, list[StatusEnum]] = defaultdict(list)
     for application_id, status, _event_date in status_events:
-      events = grouped_events[application_id]
+      events = status_sequences_by_app[application_id]
       if not events or events[-1] != status:
         events.append(status)
 
     transition_counts: dict[tuple[StatusEnum, StatusEnum], int] = defaultdict(int)
     active_nodes: set[StatusEnum] = set()
 
-    for statuses in grouped_events.values():
+    for statuses in status_sequences_by_app.values():
       active_nodes.update(statuses)
       for source, target in zip(statuses, statuses[1:], strict=False):
         transition_counts[(source, target)] += 1

@@ -150,7 +150,6 @@ export function DashboardPage() {
             data={historyData}
             margin={{ top: 20, right: 24, bottom: 60, left: 56 }}
             xScale={{ type: 'point' }}
-            xFormat="time:%Y-%m-%d"
             yScale={{ type: 'linear', min: 0, max: 'auto', stacked: true, reverse: false }}
             axisTop={null}
             axisRight={null}
