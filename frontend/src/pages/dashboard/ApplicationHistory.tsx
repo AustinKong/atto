@@ -20,11 +20,7 @@ const HISTORY_VALUE_ACCESSORS = {
   rescinded: (point: ApplicationHistoryPoint) => point.rescinded,
 } as const;
 
-type ApplicationHistoryChartProps = {
-  history: ApplicationHistory;
-};
-
-export function ApplicationHistoryChart({ history }: ApplicationHistoryChartProps) {
+export function ApplicationHistoryChart({ history }: { history: ApplicationHistory }) {
   const historyData = useMemo(
     () =>
       history.keys.map((status) => ({

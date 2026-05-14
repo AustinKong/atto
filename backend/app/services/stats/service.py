@@ -13,6 +13,7 @@ from app.schemas.stats import (
   ApplicationHistory,
   ApplicationHistoryPoint,
 )
+from shared.schemas.dates import ISODate
 
 
 class StatsService:
@@ -22,7 +23,7 @@ class StatsService:
   ) -> None:
     self.application_repository = application_repository
 
-  def get_funnel(self, start_date: date | None) -> ApplicationFunnel:
+  def get_funnel(self, start_date: ISODate | None) -> ApplicationFunnel:
     status_events = self.application_repository.list_status_events(start_date)
     status_sequences_by_app: dict[str, list[StatusEnum]] = defaultdict(list)
     for application_id, status, _event_date in status_events:
@@ -52,7 +53,7 @@ class StatsService:
       links=ordered_links,
     )
 
-  def get_history(self, start_date: date | None) -> ApplicationHistory:
+  def get_history(self, start_date: ISODate | None) -> ApplicationHistory:
     status_events = self.application_repository.list_status_events(start_date)
     if not status_events:
       return ApplicationHistory(points=[])

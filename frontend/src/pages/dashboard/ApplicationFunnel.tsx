@@ -6,11 +6,7 @@ import type { ApplicationFunnel } from '@/types/stats.types';
 
 import { formatStatusLabel } from './status-label.utils';
 
-type ApplicationFunnelChartProps = {
-  funnel: ApplicationFunnel;
-};
-
-export function ApplicationFunnelChart({ funnel }: ApplicationFunnelChartProps) {
+export function ApplicationFunnelChart({ funnel }: { funnel: ApplicationFunnel }) {
   return (
     <Box border="subtle" borderRadius="md" p="sm" h="24rem">
       <Heading size="sm" mb="sm">
