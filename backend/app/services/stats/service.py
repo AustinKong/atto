@@ -1,11 +1,10 @@
-import re
 from collections import defaultdict
 from datetime import UTC, date, datetime, timedelta
 from typing import Annotated
 
 from fastapi import Depends
 
-from app.repositories import StatsRepository
+from app.repositories import ApplicationRepository
 from app.schemas.application import StatusEnum
 from app.schemas.stats import (
   ApplicationFunnel,
@@ -13,45 +12,23 @@ from app.schemas.stats import (
   ApplicationFunnelNode,
   ApplicationHistory,
   ApplicationHistoryPoint,
-  StatsResponse,
 )
-
-RELATIVE_DATE_PATTERN = re.compile(r'^(\d+)d$')
 
 
 class StatsService:
   def __init__(
     self,
-    stats_repository: Annotated[StatsRepository, Depends()],
+    application_repository: Annotated[ApplicationRepository, Depends()],
   ) -> None:
-    self.stats_repository = stats_repository
+    self.application_repository = application_repository
 
-  async def get_stats(self, start_date: date | None) -> StatsResponse:
-    status_events = self.stats_repository.list_status_events(start_date)
+  def get_funnel(self, start_date: date | None) -> ApplicationFunnel:
+    status_events = self.application_repository.list_status_events(start_date)
+    return self._build_funnel(status_events)
 
-    return StatsResponse(
-      application_funnel=self._build_funnel(status_events),
-      application_history=self._build_history(status_events, start_date),
-    )
-
-  def parse_start_date(self, value: str) -> date | None:
-    normalized = value.strip().lower()
-
-    if normalized == 'all':
-      return None
-
-    if relative_match := RELATIVE_DATE_PATTERN.fullmatch(normalized):
-      days = int(relative_match.group(1))
-      if days < 1:
-        raise ValueError('Relative day range must be at least 1 day')
-      return datetime.now(UTC).date() - timedelta(days=days)
-
-    try:
-      return date.fromisoformat(normalized)
-    except ValueError as error:
-      raise ValueError(
-        'Invalid startDate. Use "all", "<number>d" (for example "14d"), or "YYYY-MM-DD".'
-      ) from error
+  def get_history(self, start_date: date | None) -> ApplicationHistory:
+    status_events = self.application_repository.list_status_events(start_date)
+    return self._build_history(status_events, start_date)
 
   def _build_funnel(
     self,
