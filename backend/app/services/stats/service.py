@@ -24,16 +24,6 @@ class StatsService:
 
   def get_funnel(self, start_date: date | None) -> ApplicationFunnel:
     status_events = self.application_repository.list_status_events(start_date)
-    return self._build_funnel(status_events)
-
-  def get_history(self, start_date: date | None) -> ApplicationHistory:
-    status_events = self.application_repository.list_status_events(start_date)
-    return self._build_history(status_events, start_date)
-
-  def _build_funnel(
-    self,
-    status_events: list[tuple[str, StatusEnum, date]],
-  ) -> ApplicationFunnel:
     status_sequences_by_app: dict[str, list[StatusEnum]] = defaultdict(list)
     for application_id, status, _event_date in status_events:
       events = status_sequences_by_app[application_id]
@@ -62,11 +52,8 @@ class StatsService:
       links=ordered_links,
     )
 
-  def _build_history(
-    self,
-    status_events: list[tuple[str, StatusEnum, date]],
-    start_date: date | None,
-  ) -> ApplicationHistory:
+  def get_history(self, start_date: date | None) -> ApplicationHistory:
+    status_events = self.application_repository.list_status_events(start_date)
     if not status_events:
       return ApplicationHistory(points=[])
 
@@ -74,11 +61,12 @@ class StatsService:
     for _application_id, status, event_date in status_events:
       counts_by_date[event_date][status] += 1
 
+    earliest_event_date = min(counts_by_date.keys())
     if start_date is not None:
-      history_start = start_date
+      history_start = max(start_date, earliest_event_date)
       history_end = datetime.now(UTC).date()
     else:
-      history_start = min(counts_by_date.keys())
+      history_start = earliest_event_date
       history_end = max(counts_by_date.keys())
 
     points: list[ApplicationHistoryPoint] = []

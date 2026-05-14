@@ -25,6 +25,8 @@ STATUS_EVENTS_QUERY = """
     se.status,
     se.date
   FROM status_events se
+  {where_clause}
+  ORDER BY se.application_id, se.date ASC, se.id ASC
 """
 
 APPLICATION_WITH_EVENTS_QUERY = """
@@ -91,9 +93,9 @@ class ApplicationRepository(DatabaseRepository, InMemoryKVRepository):
     return [self._parse_application_row(row) for row in rows]
 
   def list_status_events(self, start_date: date | None = None) -> list[tuple[str, StatusEnum, date]]:
-    where_clause = ' WHERE se.date >= ?' if start_date else ''
+    where_clause = 'WHERE se.date >= ?' if start_date else ''
     rows = self.fetch_all(
-      f'{STATUS_EVENTS_QUERY}{where_clause} ORDER BY se.application_id, se.date ASC, se.id ASC',
+      STATUS_EVENTS_QUERY.format(where_clause=where_clause),
       (start_date.isoformat(),) if start_date else (),
     )
 

@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
+from datetime import UTC, datetime, timedelta
 
 from app.schemas.stats import StatsResponse
 from app.services.stats import StatsService
@@ -15,7 +16,9 @@ router = APIRouter(
 @router.get('/stats', response_model=StatsResponse)
 async def get_stats(
   stats_service: Annotated[StatsService, Depends()],
-  start_date: Annotated[ISODate | None, Query(alias='startDate')] = None,
+  start_date: Annotated[ISODate | None, Query(alias='startDate')] = (
+    datetime.now(UTC).date() - timedelta(days=7)
+  ),
 ):
   return StatsResponse(
     application_funnel=stats_service.get_funnel(start_date),

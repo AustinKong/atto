@@ -1,9 +1,11 @@
 import type { StatsDateRange, StatsResponse } from '@/types/stats.types';
 import { ISODate } from '@/utils/date.utils';
 
+const UNIX_EPOCH_DATE = ISODate.parse('1970-01-01');
+
 function resolveStartDate(dateRange: StatsDateRange) {
   if (dateRange === 'all') {
-    return undefined;
+    return UNIX_EPOCH_DATE;
   }
 
   const days = Number.parseInt(dateRange, 10);
@@ -13,14 +15,8 @@ function resolveStartDate(dateRange: StatsDateRange) {
 }
 
 export async function getStats(startDate: StatsDateRange = '14d'): Promise<StatsResponse> {
-  const params = new URLSearchParams();
-  const resolvedStartDate = resolveStartDate(startDate);
-  if (resolvedStartDate) {
-    params.set('startDate', resolvedStartDate);
-  }
-
-  const url =
-    params.size > 0 ? `/api/dashboard/stats?${params.toString()}` : '/api/dashboard/stats';
+  const params = new URLSearchParams({ startDate: resolveStartDate(startDate) });
+  const url = `/api/dashboard/stats?${params.toString()}`;
   const response = await fetch(url);
 
   if (!response.ok) {
