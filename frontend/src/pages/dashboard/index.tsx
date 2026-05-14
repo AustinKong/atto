@@ -24,8 +24,8 @@ const DATE_RANGE_OPTIONS = createListCollection({
     { label: '1 week', value: '7d' },
     { label: '2 weeks', value: '14d' },
     { label: '1 month', value: '30d' },
-    { label: '3 month', value: '90d' },
-    { label: '6 month', value: '180d' },
+    { label: '3 months', value: '90d' },
+    { label: '6 months', value: '180d' },
     { label: 'All time', value: 'all' },
   ] as const,
 });
