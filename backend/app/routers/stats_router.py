@@ -19,6 +19,9 @@ async def get_stats(
   try:
     parsed_start_date = stats_service.parse_start_date(start_date)
   except ValueError as error:
-    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error)) from error
+    raise HTTPException(
+      status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+      detail=str(error),
+    ) from error
 
   return await stats_service.get_stats(parsed_start_date)

@@ -99,9 +99,10 @@ class StatsService:
 
     if start_date is not None:
       history_start = start_date
+      history_end = datetime.now(UTC).date()
     else:
       history_start = min(counts_by_date.keys())
-    history_end = max(counts_by_date.keys())
+      history_end = max(counts_by_date.keys())
 
     points: list[ApplicationHistoryPoint] = []
     cursor = history_start

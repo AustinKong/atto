@@ -1,12 +1,12 @@
 import {
   Box,
+  createListCollection,
   Heading,
   HStack,
   Portal,
   Select,
   Text,
   VStack,
-  createListCollection,
 } from '@chakra-ui/react';
 import { ResponsiveLine } from '@nivo/line';
 import { ResponsiveSankey } from '@nivo/sankey';
