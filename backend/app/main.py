@@ -21,6 +21,7 @@ from app.routers import (
   listing_router,
   profile_router,
   resume_router,
+  stats_router,
   template_router,
 )
 from app.utils.errors import (
@@ -48,6 +49,7 @@ def create_app() -> FastAPI:
   app.include_router(listing_router, prefix='/api')
   app.include_router(profile_router, prefix='/api')
   app.include_router(resume_router, prefix='/api')
+  app.include_router(stats_router, prefix='/api')
   app.include_router(template_router, prefix='/api')
 
   app.add_exception_handler(NotFoundError, not_found_exception_handler)
