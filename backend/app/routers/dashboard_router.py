@@ -6,12 +6,12 @@ from app.schemas.stats import StatsResponse
 from app.services.stats import StatsService
 
 router = APIRouter(
-  prefix='/stats',
-  tags=['Stats'],
+  prefix='/dashboard',
+  tags=['Dashboard'],
 )
 
 
-@router.get('', response_model=StatsResponse)
+@router.get('/stats', response_model=StatsResponse)
 async def get_stats(
   stats_service: Annotated[StatsService, Depends()],
   start_date: Annotated[str, Query(alias='startDate')] = '14d',
