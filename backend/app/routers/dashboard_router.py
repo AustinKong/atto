@@ -20,9 +20,12 @@ async def get_stats(
   stats_service: Annotated[StatsService, Depends()],
   start_date: Annotated[ISODate | None, Query(alias='startDate')] = None,
 ):
-  if start_date is None:
-    start_date = datetime.now(UTC).date() - timedelta(days=7)
-  resolved_start_date = None if start_date == UNIX_EPOCH_DATE else start_date
+  resolved_start_date = start_date
+  if resolved_start_date is None:
+    resolved_start_date = datetime.now(UTC).date() - timedelta(days=7)
+  elif resolved_start_date == UNIX_EPOCH_DATE:
+    resolved_start_date = None
+
   return StatsResponse(
     application_funnel=stats_service.get_funnel(resolved_start_date),
     application_history=stats_service.get_history(resolved_start_date),
