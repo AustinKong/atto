@@ -18,10 +18,10 @@ UNIX_EPOCH_DATE = date(1970, 1, 1)
 @router.get('/stats', response_model=StatsResponse)
 async def get_stats(
   stats_service: Annotated[StatsService, Depends()],
-  start_date: Annotated[ISODate | None, Query(alias='startDate')] = (
-    datetime.now(UTC).date() - timedelta(days=7)
-  ),
+  start_date: Annotated[ISODate | None, Query(alias='startDate')] = None,
 ):
+  if start_date is None:
+    start_date = datetime.now(UTC).date() - timedelta(days=7)
   resolved_start_date = None if start_date == UNIX_EPOCH_DATE else start_date
   return StatsResponse(
     application_funnel=stats_service.get_funnel(resolved_start_date),
