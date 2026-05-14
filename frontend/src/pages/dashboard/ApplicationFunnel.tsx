@@ -4,16 +4,11 @@ import { ResponsiveSankey } from '@nivo/sankey';
 import { nivoChartColors, nivoTheme } from '@/components/theme/nivo.theme';
 import type { ApplicationFunnel } from '@/types/stats.types';
 
+import { formatStatusLabel } from './status-label.utils';
+
 type ApplicationFunnelChartProps = {
   funnel: ApplicationFunnel;
 };
-
-function formatStatusLabel(status: string) {
-  return status
-    .split('_')
-    .map((word) => word[0].toUpperCase() + word.slice(1))
-    .join(' ');
-}
 
 export function ApplicationFunnelChart({ funnel }: ApplicationFunnelChartProps) {
   return (

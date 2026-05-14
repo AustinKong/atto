@@ -5,6 +5,8 @@ import { useMemo } from 'react';
 import { nivoChartColors, nivoTheme } from '@/components/theme/nivo.theme';
 import type { ApplicationHistory, ApplicationHistoryPoint } from '@/types/stats.types';
 
+import { formatStatusLabel } from './status-label.utils';
+
 const HISTORY_VALUE_ACCESSORS = {
   saved: (point: ApplicationHistoryPoint) => point.saved,
   applied: (point: ApplicationHistoryPoint) => point.applied,
@@ -21,13 +23,6 @@ const HISTORY_VALUE_ACCESSORS = {
 type ApplicationHistoryChartProps = {
   history: ApplicationHistory;
 };
-
-function formatStatusLabel(status: string) {
-  return status
-    .split('_')
-    .map((word) => word[0].toUpperCase() + word.slice(1))
-    .join(' ');
-}
 
 export function ApplicationHistoryChart({ history }: ApplicationHistoryChartProps) {
   const historyData = useMemo(

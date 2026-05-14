@@ -61,12 +61,11 @@ class StatsService:
     for _application_id, status, event_date in status_events:
       counts_by_date[event_date][status] += 1
 
-    earliest_event_date = min(counts_by_date.keys())
     if start_date is not None:
-      history_start = max(start_date, earliest_event_date)
+      history_start = start_date
       history_end = datetime.now(UTC).date()
     else:
-      history_start = earliest_event_date
+      history_start = min(counts_by_date.keys())
       history_end = max(counts_by_date.keys())
 
     points: list[ApplicationHistoryPoint] = []
