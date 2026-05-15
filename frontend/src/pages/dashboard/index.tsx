@@ -1,9 +1,22 @@
-import { createListCollection, Heading, HStack, Portal, Select, VStack } from '@chakra-ui/react';
+import {
+  createListCollection,
+  Grid,
+  Heading,
+  HStack,
+  Portal,
+  Select,
+  VStack,
+} from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router';
 
+import { type ParamHandler, useUrlSyncedState } from '@/hooks/use-url-synced-state.hooks';
 import { statsQueries } from '@/queries/stats.queries';
-import { STATS_DATE_RANGES, type StatsDateRange } from '@/types/stats.types';
+import type { StatsDateRange } from '@/types/stats.types';
+import {
+  DEFAULT_STATS_DATE_RANGE,
+  parseStatsDateRange,
+  parseStatsDateRangeOrDefault,
+} from '@/utils/stats.utils';
 
 import { ApplicationFunnelChart } from './ApplicationFunnel';
 import { ApplicationHistoryChart } from './ApplicationHistory';
@@ -19,16 +32,15 @@ const DATE_RANGE_OPTIONS = createListCollection({
   ] as const,
 });
 
-function parseDateRange(value: string | null): StatsDateRange {
-  if (value && STATS_DATE_RANGES.includes(value as StatsDateRange)) {
-    return value as StatsDateRange;
-  }
-  return '14d';
-}
+const statsDateRangeHandler: ParamHandler<StatsDateRange> = {
+  serialize: (value) => value,
+  deserialize: (params, key) => parseStatsDateRange(params.get(key)),
+};
 
 export function DashboardPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const dateRange = parseDateRange(searchParams.get('startDate'));
+  const [dateRange, setDateRange] = useUrlSyncedState('range', DEFAULT_STATS_DATE_RANGE, {
+    custom: statsDateRangeHandler,
+  });
   const { data: stats } = useSuspenseQuery(statsQueries.item(dateRange));
 
   return (
@@ -40,10 +52,7 @@ export function DashboardPage() {
           collection={DATE_RANGE_OPTIONS}
           value={[dateRange]}
           onValueChange={({ value }) => {
-            const next = parseDateRange(value[0]);
-            const nextParams = new URLSearchParams(searchParams);
-            nextParams.set('startDate', next);
-            setSearchParams(nextParams);
+            setDateRange(parseStatsDateRangeOrDefault(value[0]));
           }}
         >
           <Select.HiddenSelect />
@@ -69,8 +78,10 @@ export function DashboardPage() {
           </Portal>
         </Select.Root>
       </HStack>
-      <ApplicationFunnelChart funnel={stats.applicationFunnel} />
-      <ApplicationHistoryChart history={stats.applicationHistory} />
+      <Grid templateColumns={{ base: '1fr', xl: '2fr 3fr' }} gap="md">
+        <ApplicationFunnelChart funnel={stats.applicationFunnel} />
+        <ApplicationHistoryChart history={stats.applicationHistory} />
+      </Grid>
     </VStack>
   );
 }

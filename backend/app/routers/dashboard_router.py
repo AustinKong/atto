@@ -5,20 +5,19 @@ from fastapi import APIRouter, Depends, Query
 
 from app.schemas.stats import StatsResponse
 from app.services.stats import StatsService
-from shared.schemas.dates import ISODate
 
 router = APIRouter(
   prefix='/dashboard',
   tags=['Dashboard'],
 )
 
+
 @router.get('/stats', response_model=StatsResponse)
 async def get_stats(
   stats_service: Annotated[StatsService, Depends()],
-  start_date: Annotated[ISODate | None, Query(alias='startDate')] = None,
-):
-  if start_date is None:
-    start_date = datetime.now(UTC).date() - timedelta(days=7)
+  days: Annotated[int, Query(ge=1, le=36500)] = 7,
+) -> StatsResponse:
+  start_date = datetime.now(UTC).date() - timedelta(days=days)
 
   return StatsResponse(
     application_funnel=stats_service.get_funnel(start_date),

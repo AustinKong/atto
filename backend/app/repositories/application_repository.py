@@ -1,5 +1,5 @@
-from datetime import date
 import json
+from datetime import date
 from sqlite3 import Row
 from typing import Any
 from uuid import UUID
@@ -16,7 +16,6 @@ from app.schemas.application import (
 )
 from app.schemas.task_status import TaskStatus, TaskStatusEntry
 from app.utils.errors import NotFoundError
-from shared.schemas.dates import ISODate
 
 event_adapter = TypeAdapter(StatusEvent)
 
@@ -26,7 +25,7 @@ STATUS_EVENTS_QUERY = """
     se.status,
     se.date
   FROM status_events se
-  {where_clause}
+  WHERE se.date >= ?
   ORDER BY se.application_id, se.date ASC, se.id ASC
 """
 
@@ -93,13 +92,10 @@ class ApplicationRepository(DatabaseRepository, InMemoryKVRepository):
 
     return [self._parse_application_row(row) for row in rows]
 
-  def list_status_events(
-    self, start_date: ISODate | None = None
-  ) -> list[tuple[str, StatusEnum, ISODate]]:
-    where_clause = 'WHERE se.date >= ?' if start_date else ''
+  def list_status_events(self, start_date: date) -> list[tuple[str, StatusEnum, date]]:
     rows = self.fetch_all(
-      STATUS_EVENTS_QUERY.format(where_clause=where_clause),
-      (start_date.isoformat(),) if start_date else (),
+      STATUS_EVENTS_QUERY,
+      (start_date.isoformat(),),
     )
 
     return [
