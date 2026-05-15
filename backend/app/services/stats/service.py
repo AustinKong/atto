@@ -23,12 +23,12 @@ class StatsService:
     self.application_repository = application_repository
 
   def get_funnel(self, start_date: date) -> ApplicationFunnel:
-    status_events = self.application_repository.list_status_events(start_date)
+    status_events = self.application_repository.list_status_events_by_date(start_date)
     status_sequences_by_app: dict[str, list[StatusEnum]] = defaultdict(list)
-    for application_id, status, _event_date in status_events:
+    for application_id, event in status_events:
       events = status_sequences_by_app[application_id]
-      if not events or events[-1] != status:
-        events.append(status)
+      if not events or events[-1] != event.status:
+        events.append(event.status)
 
     transition_counts: dict[tuple[StatusEnum, StatusEnum], int] = defaultdict(int)
     active_nodes: set[StatusEnum] = set()
@@ -53,13 +53,13 @@ class StatsService:
     )
 
   def get_history(self, start_date: date) -> ApplicationHistory:
-    status_events = self.application_repository.list_status_events(start_date)
+    status_events = self.application_repository.list_status_events_by_date(start_date)
     if not status_events:
       return ApplicationHistory(keys=[], points=[])
 
     counts_by_date: dict[date, dict[StatusEnum, int]] = defaultdict(lambda: defaultdict(int))
-    for _application_id, status, event_date in status_events:
-      counts_by_date[event_date][status] += 1
+    for _application_id, event in status_events:
+      counts_by_date[event.date][event.status] += 1
 
     active_keys = [
       status
