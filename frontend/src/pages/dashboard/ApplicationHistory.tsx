@@ -3,26 +3,13 @@ import { ResponsiveLine } from '@nivo/line';
 import { useMemo } from 'react';
 
 import { nivoChartColors, nivoTheme } from '@/components/theme/nivo.theme';
-import type { ApplicationHistory, ApplicationHistoryPoint } from '@/types/stats.types';
+import type { ApplicationHistory } from '@/types/stats.types';
 import { DateFormatPresets, ISODate as ISODateUtils } from '@/utils/date.utils';
 
 import { formatStatusLabel } from './status-label.utils';
 
 const X_AXIS_TICK_COUNT = 8;
 const MESH_POINT_LIMIT = 750;
-
-const HISTORY_VALUE_ACCESSORS = {
-  saved: (point: ApplicationHistoryPoint) => point.saved,
-  applied: (point: ApplicationHistoryPoint) => point.applied,
-  screening: (point: ApplicationHistoryPoint) => point.screening,
-  interview: (point: ApplicationHistoryPoint) => point.interview,
-  offer_received: (point: ApplicationHistoryPoint) => point.offerReceived,
-  accepted: (point: ApplicationHistoryPoint) => point.accepted,
-  rejected: (point: ApplicationHistoryPoint) => point.rejected,
-  ghosted: (point: ApplicationHistoryPoint) => point.ghosted,
-  withdrawn: (point: ApplicationHistoryPoint) => point.withdrawn,
-  rescinded: (point: ApplicationHistoryPoint) => point.rescinded,
-} as const;
 
 function formatHistoryTick(value: string | number | Date) {
   if (value instanceof Date) {
@@ -40,7 +27,7 @@ export function ApplicationHistoryChart({ history }: { history: ApplicationHisto
         id: formatStatusLabel(status),
         data: history.points.map((point) => ({
           x: point.date,
-          y: HISTORY_VALUE_ACCESSORS[status](point),
+          y: point.counts[status] ?? 0,
         })),
       })),
     [history.keys, history.points]

@@ -55,12 +55,17 @@ class StatsService:
   def get_history(self, start_date: date) -> ApplicationHistory:
     status_events = self.application_repository.list_status_events(start_date)
     if not status_events:
-      return ApplicationHistory(points=[])
+      return ApplicationHistory(keys=[], points=[])
 
     counts_by_date: dict[date, dict[StatusEnum, int]] = defaultdict(lambda: defaultdict(int))
     for _application_id, status, event_date in status_events:
       counts_by_date[event_date][status] += 1
 
+    active_keys = [
+      status
+      for status in StatusEnum
+      if any(day_counts.get(status, 0) > 0 for day_counts in counts_by_date.values())
+    ]
     history_start = max(start_date, min(counts_by_date.keys()))
     history_end = datetime.now(UTC).date()
 
@@ -71,18 +76,9 @@ class StatsService:
       points.append(
         ApplicationHistoryPoint(
           date=cursor,
-          saved=day_counts.get(StatusEnum.SAVED, 0),
-          applied=day_counts.get(StatusEnum.APPLIED, 0),
-          screening=day_counts.get(StatusEnum.SCREENING, 0),
-          interview=day_counts.get(StatusEnum.INTERVIEW, 0),
-          offer_received=day_counts.get(StatusEnum.OFFER_RECEIVED, 0),
-          accepted=day_counts.get(StatusEnum.ACCEPTED, 0),
-          rejected=day_counts.get(StatusEnum.REJECTED, 0),
-          ghosted=day_counts.get(StatusEnum.GHOSTED, 0),
-          withdrawn=day_counts.get(StatusEnum.WITHDRAWN, 0),
-          rescinded=day_counts.get(StatusEnum.RESCINDED, 0),
+          counts={status: count for status, count in day_counts.items() if count > 0},
         )
       )
       cursor += timedelta(days=1)
 
-    return ApplicationHistory(points=points)
+    return ApplicationHistory(keys=active_keys, points=points)

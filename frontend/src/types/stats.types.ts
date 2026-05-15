@@ -19,16 +19,7 @@ export type ApplicationFunnel = {
 
 export type ApplicationHistoryPoint = {
   date: ISODate;
-  saved: number;
-  applied: number;
-  screening: number;
-  interview: number;
-  offerReceived: number;
-  accepted: number;
-  rejected: number;
-  ghosted: number;
-  withdrawn: number;
-  rescinded: number;
+  counts: Partial<Record<StatusEnum, number>>;
 };
 
 export type ApplicationHistory = {

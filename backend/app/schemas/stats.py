@@ -22,20 +22,11 @@ class ApplicationFunnel(CamelModel):
 
 class ApplicationHistoryPoint(CamelModel):
   date: ISODate
-  saved: int = 0
-  applied: int = 0
-  screening: int = 0
-  interview: int = 0
-  offer_received: int = 0
-  accepted: int = 0
-  rejected: int = 0
-  ghosted: int = 0
-  withdrawn: int = 0
-  rescinded: int = 0
+  counts: dict[StatusEnum, int] = Field(default_factory=dict)
 
 
 class ApplicationHistory(CamelModel):
-  keys: list[StatusEnum] = Field(default_factory=lambda: [status for status in StatusEnum])
+  keys: list[StatusEnum] = Field(default_factory=list)
   points: list[ApplicationHistoryPoint] = Field(default_factory=list)
 
 
