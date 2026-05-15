@@ -275,6 +275,15 @@ class ExperimentalPrefs(BaseModel):
   )
 
 
+class PaperPrefs(BaseModel):
+  enabled: bool = ConfigField(
+    default=False,
+    title='Paper Mode',
+    description='Shows whether Atto is using the real workspace or the isolated paper workspace.',
+    disabled_message='Use the Paper Mode controls to switch workspaces.',
+  )
+
+
 class AppConfig(BaseModel):
   paths: PathsPrefs = Field(
     default_factory=PathsPrefs,
@@ -315,4 +324,9 @@ class AppConfig(BaseModel):
     default_factory=ExperimentalPrefs,
     title='Experimental Features',
     description='Settings for experimental features',
+  )
+  paper: PaperPrefs = Field(
+    default_factory=PaperPrefs,
+    title='Paper Mode',
+    description='Paper mode configuration',
   )

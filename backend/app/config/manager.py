@@ -13,6 +13,7 @@ from app.config.schemas import (
   IngestionPrefs,
   ListingsPrefs,
   ModelPrefs,
+  PaperPrefs,
   PathsPrefs,
   get_data_dir,
 )
@@ -69,6 +70,23 @@ class ConfigManager:
     return self.config.paths
 
   @property
+  def paper_paths(self) -> PathsPrefs:
+    paper_dir = get_data_dir() / 'paper'
+    return PathsPrefs(
+      db_path=str(paper_dir / 'db.sqlite3'),
+      vector_path=str(paper_dir / 'vectors'),
+      profile_path=str(paper_dir / 'profile.json'),
+      templates_dir=str(paper_dir / 'resume_templates'),
+    )
+
+  @property
+  def active_paths(self) -> PathsPrefs:
+    if self.paper.enabled:
+      return self.paper_paths
+
+    return self.paths
+
+  @property
   def model(self) -> ModelPrefs:
     return self.config.model
 
@@ -95,6 +113,10 @@ class ConfigManager:
   @property
   def experimental(self) -> ExperimentalPrefs:
     return self.config.experimental
+
+  @property
+  def paper(self) -> PaperPrefs:
+    return self.config.paper
 
   def save(self, updates: dict) -> None:
     yaml_updates: dict = {}

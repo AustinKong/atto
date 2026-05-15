@@ -53,7 +53,7 @@ class TemplateRepository(FileRepository):
       )
     )
 
-    templates_dir = self.list_directory(Path(settings.paths.templates_dir), ['.html'])
+    templates_dir = self.list_directory(Path(settings.active_paths.templates_dir), ['.html'])
 
     for filepath in templates_dir:
       try:
@@ -86,7 +86,7 @@ class TemplateRepository(FileRepository):
         source='local',
       )
 
-    templates_dir = self.list_directory(Path(settings.paths.templates_dir), ['.html'])
+    templates_dir = self.list_directory(Path(settings.active_paths.templates_dir), ['.html'])
 
     for filepath in templates_dir:
       try:
@@ -189,5 +189,5 @@ class TemplateRepository(FileRepository):
     template = await self.get_remote_template(id)
     content = template.content
 
-    filepath = Path(settings.paths.templates_dir) / f'{id}.html'
+    filepath = Path(settings.active_paths.templates_dir) / f'{id}.html'
     self.write_text(filepath, content, dedup=True)

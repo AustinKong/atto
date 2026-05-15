@@ -20,6 +20,7 @@ from app.routers import (
   developer_router,
   experience_router,
   listing_router,
+  paper_mode_router,
   profile_router,
   resume_router,
   template_router,
@@ -48,6 +49,7 @@ def create_app() -> FastAPI:
   app.include_router(developer_router, prefix='/api')
   app.include_router(experience_router, prefix='/api')
   app.include_router(listing_router, prefix='/api')
+  app.include_router(paper_mode_router, prefix='/api')
   app.include_router(profile_router, prefix='/api')
   app.include_router(resume_router, prefix='/api')
   app.include_router(template_router, prefix='/api')

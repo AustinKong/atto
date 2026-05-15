@@ -10,8 +10,8 @@ class ProfileRepository(JSONRepository):
     super().__init__()
 
   def get(self) -> Profile:
-    return self.read_json(Path(settings.paths.profile_path), Profile, create_if_missing=True)
+    return self.read_json(Path(settings.active_paths.profile_path), Profile, create_if_missing=True)
 
   def update(self, profile: Profile) -> Profile:
-    self.write_json(Path(settings.paths.profile_path), profile)
+    self.write_json(Path(settings.active_paths.profile_path), profile)
     return profile

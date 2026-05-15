@@ -47,7 +47,7 @@ AI_SUGGESTIONS_PROMPT = dedent(
 
   Rules:
   - Return one top-level `summary` for the whole resume.
-  - Return `suggestions` as an array of unit-level suggestions.
+  - Return at most 5 high-impact unit-level suggestions in `suggestions`.
   - Each suggestion MUST include a unique string `id` in kebab-case
     (example: `suggestion-1`, `impact-metrics-2`).
   - Each suggestion MUST reference exactly one `unit_id` from `units_json`.
@@ -58,6 +58,7 @@ AI_SUGGESTIONS_PROMPT = dedent(
   - `units_json` contains only filtered lower-quality units, so focus edits there.
   - Keep feedback holistic and non-contradictory across units.
   - Prioritize high-impact edits and avoid low-value nitpicks.
+  - Prefer a smaller set of strong, accept-ready suggestions over exhaustive feedback.
   - Use listing title, description, skills, keywords, and requirements as optimization targets.
   - Suggest stronger action verbs, clarity, and outcomes when relevant.
   - Avoid suggestions on skills-inventory lines unless role-critical skills are missing

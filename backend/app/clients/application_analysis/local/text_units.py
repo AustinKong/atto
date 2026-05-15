@@ -13,7 +13,7 @@ def extract_section_text_units(section: Section) -> list[TextUnitRef]:
     case DetailedSection():
       units: list[TextUnitRef] = []
       for item in section.content:
-        for unit in [item.title, item.subtitle, *item.bullets]:
+        for unit in item.bullets:
           text = unit.content.strip()
           if text:
             units.append((unit.id, text))

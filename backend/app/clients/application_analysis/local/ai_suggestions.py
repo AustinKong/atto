@@ -12,6 +12,8 @@ from .text_units import extract_section_text_units
 
 DEFAULT_EMPTY_SUGGESTIONS_SUMMARY = 'No actionable suggestions were found for this resume.'
 AI_SUGGESTIONS_SCORE_THRESHOLD = 0.6
+MAX_SUGGESTION_CANDIDATES = 8
+MAX_AI_SUGGESTIONS = 5
 
 
 def build_content_quality_lookups(
@@ -49,7 +51,10 @@ def build_suggestion_unit_rows(
         }
       )
 
-  return unit_rows
+  return sorted(
+    unit_rows,
+    key=lambda unit: float(unit['content_quality_score']),
+  )[:MAX_SUGGESTION_CANDIDATES]
 
 
 def map_suggestions_response(
@@ -58,7 +63,7 @@ def map_suggestions_response(
 ) -> AISuggestions:
   suggestions: list[AIUnitSuggestion] = []
 
-  for suggestion in suggestions_response.suggestions:
+  for suggestion in suggestions_response.suggestions[:MAX_AI_SUGGESTIONS]:
     unit_hash = unit_hash_by_unit_id.get(suggestion.unit_id)
     if unit_hash is None:
       continue

@@ -23,7 +23,7 @@ class VectorRepository:
   def chroma_client(self):
     if self._chroma_client is None:
       try:
-        self._chroma_client = chromadb.PersistentClient(path=settings.paths.vector_path)
+        self._chroma_client = chromadb.PersistentClient(path=settings.active_paths.vector_path)
       except Exception as e:
         raise ServiceError(f'Failed to initialize ChromaDB client: {str(e)}') from e
     return self._chroma_client

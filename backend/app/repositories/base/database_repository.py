@@ -34,7 +34,7 @@ class DatabaseRepository:
 
     # If no connection exists in this context, create one
     if conn is None:
-      conn = sqlite3.connect(settings.paths.db_path)
+      conn = sqlite3.connect(settings.active_paths.db_path)
       conn.row_factory = sqlite3.Row
       token = _db_ctx.set(conn)
 
@@ -59,7 +59,7 @@ class DatabaseRepository:
       return conn, False  # (connection, is_manual)
 
     # Fallback for one-off queries outside a transaction() block
-    one_off = sqlite3.connect(settings.paths.db_path)
+    one_off = sqlite3.connect(settings.active_paths.db_path)
     one_off.row_factory = sqlite3.Row
     return one_off, True
 

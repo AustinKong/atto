@@ -70,31 +70,6 @@ export function SettingsPage() {
     values: defaultValues,
   });
 
-  const seedMutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch('/api/dev/seed', {
-        method: 'POST',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to seed database');
-      }
-    },
-    onSuccess: () => {
-      toaster.create({
-        title: 'Database seeded successfully',
-        description: 'Demo data has been added to the database',
-        type: 'success',
-      });
-    },
-    onError: (error) => {
-      toaster.create({
-        title: 'Seed failed',
-        description: error instanceof Error ? error.message : 'Unknown error',
-        type: 'error',
-      });
-    },
-  });
-
   const nukeMutation = useMutation({
     mutationFn: async () => {
       const response = await fetch('/api/dev/nuke', {
@@ -173,13 +148,6 @@ export function SettingsPage() {
                   Dangerous operations that will permanently delete data. Use with extreme caution.
                 </Text>
                 <VStack align="stretch" gap="xs">
-                  <Button
-                    onClick={() => seedMutation.mutate()}
-                    loading={seedMutation.isPending}
-                    size="sm"
-                  >
-                    Seed Database with Demo Data
-                  </Button>
                   <Button
                     colorPalette="red"
                     onClick={() => nukeMutation.mutate()}

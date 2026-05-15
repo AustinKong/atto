@@ -3,8 +3,8 @@ from app.utils.deduplication import cosine_similarity, deduplicate_by
 from app.utils.math import clamp
 from app.utils.text import contains_phrase
 
-CONTENT_LEXICAL_WEIGHT = 0.4
-CONTENT_SEMANTIC_WEIGHT = 0.6
+CONTENT_LEXICAL_WEIGHT = 0.2
+CONTENT_SEMANTIC_WEIGHT = 0.8
 
 
 def build_requirement_texts(listing: Listing) -> list[str]:
@@ -39,7 +39,7 @@ def calculate_content_quality_score(
     semantic_score = max(semantic_score, similarity)
 
   return clamp(
-    (CONTENT_LEXICAL_WEIGHT * lexical_hit) + (CONTENT_SEMANTIC_WEIGHT * semantic_score),
+    (CONTENT_SEMANTIC_WEIGHT * semantic_score) + (CONTENT_LEXICAL_WEIGHT * lexical_hit),
     0.0,
     1.0,
   )

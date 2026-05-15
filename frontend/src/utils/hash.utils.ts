@@ -29,7 +29,7 @@ export async function sha256Hex(value: string): Promise<string> {
 }
 
 export async function hashResume(resume: Resume): Promise<string> {
-  return sha256Hex(JSON.stringify(normalizeJsonValue(resume)));
+  return sha256Hex(JSON.stringify(normalizeJsonValue(resume.sections)));
 }
 
 export async function hashUnitContent(content: string): Promise<string> {

@@ -69,4 +69,7 @@ class Resume(CamelModel):
   sections: list[Section]
 
   def create_hash(self) -> str:
-    return hash_json_value(self.model_dump(mode='json', by_alias=True))
+    section_payloads = [
+      section.model_dump(mode='json', by_alias=True) for section in self.sections
+    ]
+    return hash_json_value(section_payloads)
