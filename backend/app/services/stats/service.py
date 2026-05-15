@@ -26,19 +26,22 @@ class StatsService:
     status_events = self.application_repository.list_status_events_by_date(start_date)
     status_sequences_by_app: dict[str, list[StatusEnum]] = defaultdict(list)
     for application_id, event in status_events:
-      events = status_sequences_by_app[application_id]
-      if not events or events[-1] != event.status:
-        events.append(event.status)
+      status_sequences_by_app[application_id].append(event.status)
 
     transition_counts: dict[tuple[StatusEnum, StatusEnum], int] = defaultdict(int)
-    active_nodes: set[StatusEnum] = set()
 
     for statuses in status_sequences_by_app.values():
-      active_nodes.update(statuses)
       for source, target in zip(statuses, statuses[1:], strict=False):
+        # Nivo Sankey crashes if there are loops, need to filter
+        if target.priority <= source.priority:
+          continue
         transition_counts[(source, target)] += 1
 
-    ordered_nodes = [status for status in StatusEnum if status in active_nodes]
+    active_nodes = {status for transition in transition_counts for status in transition}
+    ordered_nodes = [
+      ApplicationFunnelNode(id=status)
+      for status in sorted(active_nodes, key=lambda status: status.priority)
+    ]
 
     ordered_links = [
       ApplicationFunnelLink(source=source, target=target, value=value)
@@ -48,7 +51,7 @@ class StatsService:
     ]
 
     return ApplicationFunnel(
-      nodes=[ApplicationFunnelNode(id=status) for status in ordered_nodes],
+      nodes=ordered_nodes,
       links=ordered_links,
     )
 
