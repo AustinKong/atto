@@ -23,7 +23,7 @@ export function Email() {
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { seconds: resendSeconds, start: startResendCountdown } = useCountdown();
-  const _isIdentifierFilled = identifier.trim().length > 0;
+  const isIdentifierFilled = identifier.trim().length > 0;
   const isCodeComplete =
     code.length === VERIFICATION_CODE_LENGTH && code.every((digit) => digit.trim() !== '');
 
@@ -91,8 +91,7 @@ export function Email() {
             autoComplete="email"
             placeholder="name@company.com"
             value={identifier}
-            // disabled={isCodeSent || isSubmitting}
-            disabled
+            disabled={isCodeSent || isSubmitting}
             onChange={(event) => setIdentifier(event.target.value)}
           />
         </Field.Root>
@@ -104,8 +103,7 @@ export function Email() {
               otp
               value={code}
               onValueChange={(event) => setCode(event.value)}
-              // disabled={!isCodeSent || isSubmitting}
-              disabled
+              disabled={!isCodeSent || isSubmitting}
             >
               <PinInput.HiddenInput />
               <PinInput.Control w="full" alignItems="center" gap="sm">
@@ -125,8 +123,7 @@ export function Email() {
               type="button"
               variant="subtle"
               onClick={handleRequestVerificationCode}
-              // disabled={!isCodeSent || isSubmitting || resendSeconds > 0}
-              disabled
+              disabled={!isCodeSent || isSubmitting || resendSeconds > 0}
             >
               {resendSeconds > 0 ? `Resend in ${resendSeconds}s` : 'Resend verification code'}
             </Button>
@@ -138,14 +135,10 @@ export function Email() {
           type="submit"
           loading={isSubmitting}
           variant="outline"
-          // disabled={isCodeSent ? !isCodeComplete : !isIdentifierFilled}
-          disabled
+          disabled={isCodeSent ? !isCodeComplete : !isIdentifierFilled}
         >
           {isCodeSent ? 'Verify' : 'Send verification code'}
         </Button>
-        <Text color="fg.muted" textStyle="xs">
-          Cloud sign-in is unavailable. Continue without signing in for local mode.
-        </Text>
       </form>
     </VStack>
   );

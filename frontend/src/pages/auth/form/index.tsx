@@ -1,42 +1,45 @@
-import { Button, Heading, HStack, Separator, Text, VStack } from '@chakra-ui/react';
+import { Button, Heading, Text, VStack } from '@chakra-ui/react';
 import { LuArrowRight } from 'react-icons/lu';
 import { useNavigate } from 'react-router';
 
 import { useAuth } from '@/hooks/use-auth.hooks';
-
-import { Email } from './Email';
-import { OAuth } from './OAuth';
+import { useEnterPaperMode } from '@/mutations/paper-mode.mutations';
 
 export function Form() {
   const navigate = useNavigate();
   const { enterGuestMode } = useAuth();
+  const enterPaperModeMutation = useEnterPaperMode(async () => {
+    await enterGuestMode();
+    navigate('/listings');
+  });
 
   async function handleContinueAsGuest() {
     await enterGuestMode();
     navigate('/listings');
   }
 
+  async function handleContinueWithPaperMode() {
+    enterPaperModeMutation.mutate();
+  }
+
   return (
     <VStack align="stretch" gap="lg" w="xl">
       <VStack align="start" gap="xs">
         <Heading size="2xl">Welcome to Atto</Heading>
-        <Text color="fg.muted">Sign in or create an account to get started.</Text>
+        <Text color="fg.muted">Continue locally or explore a workspace filled with demo data.</Text>
       </VStack>
-
-      <OAuth />
-
-      <HStack gap="sm">
-        <Separator flex="1" />
-        <Text color="fg.muted" textStyle="sm">
-          or
-        </Text>
-        <Separator flex="1" />
-      </HStack>
-
-      <Email />
 
       <Button type="button" variant="solid" onClick={handleContinueAsGuest}>
         Continue Without Signing In <LuArrowRight />
+      </Button>
+
+      <Button
+        type="button"
+        variant="outline"
+        loading={enterPaperModeMutation.isPending}
+        onClick={handleContinueWithPaperMode}
+      >
+        Continue with paper mode <LuArrowRight />
       </Button>
     </VStack>
   );
