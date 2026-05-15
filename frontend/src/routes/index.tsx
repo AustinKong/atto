@@ -1,9 +1,10 @@
 import { Box } from '@chakra-ui/react';
-import { createBrowserRouter, Navigate, Outlet } from 'react-router';
+import { createBrowserRouter, Outlet } from 'react-router';
 
 import { DashboardLayout } from '@/components/layouts/dashboard';
 import { Toaster } from '@/components/ui/Toaster';
 import { authRoute } from '@/pages/auth/route';
+import { dashboardRoute } from '@/pages/dashboard/route';
 import { listingsRoute } from '@/pages/listings/route';
 import { newListingsRoute } from '@/pages/new-listings/route';
 import { releaseNotesRoute } from '@/pages/release-notes/route';
@@ -32,10 +33,7 @@ export const router = createBrowserRouter([
       {
         element: <DashboardLayout />,
         children: [
-          {
-            index: true,
-            element: <Navigate to="listings" replace />,
-          },
+          dashboardRoute(queryClient),
           releaseNotesRoute(queryClient),
           listingsRoute(queryClient),
           applicationResumeRoute(queryClient),

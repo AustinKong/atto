@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from sqlite3 import Row
 from typing import Any
 from uuid import UUID
@@ -17,6 +18,19 @@ from app.schemas.task_status import TaskStatus, TaskStatusEntry
 from app.utils.errors import NotFoundError
 
 event_adapter = TypeAdapter(StatusEvent)
+
+STATUS_EVENTS_QUERY = """
+  SELECT
+    se.application_id,
+    se.id,
+    se.status,
+    se.date,
+    se.notes,
+    se.payload
+  FROM status_events se
+  WHERE se.date >= ?
+  ORDER BY se.application_id, se.date ASC, se.id ASC
+"""
 
 APPLICATION_WITH_EVENTS_QUERY = """
   SELECT
@@ -80,6 +94,14 @@ class ApplicationRepository(DatabaseRepository, InMemoryKVRepository):
     )
 
     return [self._parse_application_row(row) for row in rows]
+
+  def list_status_events_by_date(self, start_date: date) -> list[tuple[str, StatusEvent]]:
+    rows = self.fetch_all(
+      STATUS_EVENTS_QUERY,
+      (start_date.isoformat(),),
+    )
+
+    return [(row['application_id'], self._parse_status_event_row(row)) for row in rows]
 
   def create(self, application: Application) -> Application:
     with self.transaction():
@@ -216,19 +238,21 @@ class ApplicationRepository(DatabaseRepository, InMemoryKVRepository):
     status_events = []
     for event in json.loads(status_events_json):
       if event.get('id'):
-        base_data = {
-          'id': event['id'],
-          'date': event['date'],
-          'notes': event.get('notes'),
-          'status': event['status'],
-        }
-        payload = json.loads(event.get('payload', '{}')) if event.get('payload') else {}
-        status_event = event_adapter.validate_python({**base_data, **payload})
-        status_events.append(status_event)
+        status_events.append(self._parse_status_event_row(event))
 
     row_dict['id'] = row_dict.pop('application_id')
 
     return Application(**row_dict, status_events=status_events)
+
+  def _parse_status_event_row(self, row: Row | dict[str, Any]) -> StatusEvent:
+    base_data = {
+      'id': row['id'],
+      'date': row['date'],
+      'notes': row['notes'] if isinstance(row, Row) else row.get('notes'),
+      'status': row['status'],
+    }
+    payload = json.loads(row['payload']) if row['payload'] else {}
+    return event_adapter.validate_python({**base_data, **payload})
 
   def _sync_application_status(self, application_id: UUID) -> None:
     """Synchronize application's current_status and last_status_at with latest event."""
