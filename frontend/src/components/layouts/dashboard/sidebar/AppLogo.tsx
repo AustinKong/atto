@@ -7,7 +7,7 @@ import { getCurrentVersion } from '@/services/release-notes.service';
 import { SidebarItem, SidebarLabel } from './index';
 
 export function AppLogo({ isOpen }: { isOpen: boolean }) {
-  const imageSrc = useColorModeValue('/light-icon.png', '/dark-icon.png');
+  const imageSrc = useColorModeValue('/light-mode.svg', '/dark-mode.svg');
 
   return (
     <NavLink to="/">
