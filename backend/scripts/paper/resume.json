@@ -1,0 +1,246 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "templateId": "00000000-0000-0000-0000-000000000000",
+  "sections": [
+    {
+      "id": "10000000-0000-0000-0000-000000000001",
+      "title": {
+        "id": "10000000-0000-0000-0000-000000000002",
+        "content": "Summary"
+      },
+      "type": "paragraph",
+      "content": {
+        "id": "10000000-0000-0000-0000-000000000003",
+        "content": "Product-minded software engineer with 8 years of experience building reliable web applications, internal platforms, and data-intensive user workflows. Strong across React, TypeScript, Python, FastAPI, PostgreSQL, and cloud systems, with a track record of improving performance, mentoring engineers, and partnering closely with product and design."
+      }
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000004",
+      "title": {
+        "id": "10000000-0000-0000-0000-000000000005",
+        "content": "Skills"
+      },
+      "type": "simple",
+      "content": [
+        {
+          "id": "10000000-0000-0000-0000-000000000006",
+          "content": "Frontend: React, TypeScript, JavaScript, HTML, CSS, accessibility, design systems"
+        },
+        {
+          "id": "10000000-0000-0000-0000-000000000007",
+          "content": "Backend: Python, FastAPI, Node.js, REST APIs, GraphQL, PostgreSQL, Redis"
+        },
+        {
+          "id": "10000000-0000-0000-0000-000000000008",
+          "content": "Infrastructure: AWS, Docker, Kubernetes, Terraform, CI/CD, observability"
+        },
+        {
+          "id": "10000000-0000-0000-0000-000000000009",
+          "content": "Data and AI: SQL, analytics instrumentation, experimentation, model evaluation workflows"
+        },
+        {
+          "id": "10000000-0000-0000-0000-000000000010",
+          "content": "Leadership: technical planning, code review, mentoring, cross-functional product delivery"
+        }
+      ]
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000011",
+      "title": {
+        "id": "10000000-0000-0000-0000-000000000012",
+        "content": "Experience"
+      },
+      "type": "detailed",
+      "content": [
+        {
+          "id": "10000000-0000-0000-0000-000000000013",
+          "title": {
+            "id": "10000000-0000-0000-0000-000000000014",
+            "content": "Senior Software Engineer"
+          },
+          "subtitle": {
+            "id": "10000000-0000-0000-0000-000000000015",
+            "content": "Northstar Labs"
+          },
+          "dateRange": {
+            "id": "10000000-0000-0000-0000-000000000016",
+            "startDate": "2022-06",
+            "endDate": "present"
+          },
+          "bullets": [
+            {
+              "id": "10000000-0000-0000-0000-000000000017",
+              "content": "Led the redesign of a customer-facing React and TypeScript workflow backed by FastAPI services, reducing support escalations by 28% and improving task completion by 19%."
+            },
+            {
+              "id": "10000000-0000-0000-0000-000000000018",
+              "content": "Improved API latency by 35% through PostgreSQL query optimization, Redis caching, and clearer service ownership boundaries."
+            },
+            {
+              "id": "10000000-0000-0000-0000-000000000019",
+              "content": "Mentored 4 engineers through design reviews, pair programming, and incident follow-ups, raising delivery confidence across two product squads."
+            },
+            {
+              "id": "10000000-0000-0000-0000-000000000020",
+              "content": "Partnered with product, design, and data science to instrument onboarding experiments and turn funnel insights into shipped product changes."
+            }
+          ]
+        },
+        {
+          "id": "10000000-0000-0000-0000-000000000021",
+          "title": {
+            "id": "10000000-0000-0000-0000-000000000022",
+            "content": "Software Engineer"
+          },
+          "subtitle": {
+            "id": "10000000-0000-0000-0000-000000000023",
+            "content": "Brightline Commerce"
+          },
+          "dateRange": {
+            "id": "10000000-0000-0000-0000-000000000024",
+            "startDate": "2019-03",
+            "endDate": "2022-05"
+          },
+          "bullets": [
+            {
+              "id": "10000000-0000-0000-0000-000000000025",
+              "content": "Built full-stack merchant tools with React, Node.js, and PostgreSQL that processed over 2 million catalog updates per month."
+            },
+            {
+              "id": "10000000-0000-0000-0000-000000000026",
+              "content": "Migrated background jobs from a monolith to containerized services on AWS, cutting failed imports by 42% and improving deployment safety."
+            },
+            {
+              "id": "10000000-0000-0000-0000-000000000027",
+              "content": "Created reusable form, table, and validation patterns that shortened feature build time for partner integrations."
+            }
+          ]
+        },
+        {
+          "id": "10000000-0000-0000-0000-000000000028",
+          "title": {
+            "id": "10000000-0000-0000-0000-000000000029",
+            "content": "Junior Web Developer"
+          },
+          "subtitle": {
+            "id": "10000000-0000-0000-0000-000000000030",
+            "content": "Pixelcraft Studio"
+          },
+          "dateRange": {
+            "id": "10000000-0000-0000-0000-000000000031",
+            "startDate": "2016-05",
+            "endDate": "2019-02"
+          },
+          "bullets": [
+            {
+              "id": "10000000-0000-0000-0000-000000000032",
+              "content": "Implemented responsive web experiences for SaaS and e-commerce clients using JavaScript, HTML, CSS, and REST APIs."
+            },
+            {
+              "id": "10000000-0000-0000-0000-000000000033",
+              "content": "Collaborated with designers to translate prototypes into accessible components and documented UI behavior for handoff."
+            },
+            {
+              "id": "10000000-0000-0000-0000-000000000034",
+              "content": "Added automated smoke tests for critical checkout and account flows, catching regressions before client demos."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000035",
+      "title": {
+        "id": "10000000-0000-0000-0000-000000000036",
+        "content": "Projects"
+      },
+      "type": "detailed",
+      "content": [
+        {
+          "id": "10000000-0000-0000-0000-000000000037",
+          "title": {
+            "id": "10000000-0000-0000-0000-000000000038",
+            "content": "Application Intelligence Dashboard"
+          },
+          "subtitle": {
+            "id": "10000000-0000-0000-0000-000000000039",
+            "content": "Personal project"
+          },
+          "dateRange": {
+            "id": "10000000-0000-0000-0000-000000000040",
+            "startDate": "2024-01",
+            "endDate": "2024-06"
+          },
+          "bullets": [
+            {
+              "id": "10000000-0000-0000-0000-000000000041",
+              "content": "Built a local-first job tracking dashboard with status timelines, role research, resume analysis, and application funnel analytics."
+            },
+            {
+              "id": "10000000-0000-0000-0000-000000000042",
+              "content": "Designed SQLite-backed repositories and deterministic demo data flows to support realistic offline product walkthroughs."
+            }
+          ]
+        },
+        {
+          "id": "10000000-0000-0000-0000-000000000043",
+          "title": {
+            "id": "10000000-0000-0000-0000-000000000044",
+            "content": "Developer Experience Toolkit"
+          },
+          "subtitle": {
+            "id": "10000000-0000-0000-0000-000000000045",
+            "content": "Open source"
+          },
+          "dateRange": {
+            "id": "10000000-0000-0000-0000-000000000046",
+            "startDate": "2023-02",
+            "endDate": "2023-11"
+          },
+          "bullets": [
+            {
+              "id": "10000000-0000-0000-0000-000000000047",
+              "content": "Created CLI utilities for project scaffolding, lint automation, and release note generation across TypeScript and Python repositories."
+            },
+            {
+              "id": "10000000-0000-0000-0000-000000000048",
+              "content": "Documented usage patterns and contribution workflows, helping new contributors ship their first changes faster."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "10000000-0000-0000-0000-000000000049",
+      "title": {
+        "id": "10000000-0000-0000-0000-000000000050",
+        "content": "Education"
+      },
+      "type": "detailed",
+      "content": [
+        {
+          "id": "10000000-0000-0000-0000-000000000051",
+          "title": {
+            "id": "10000000-0000-0000-0000-000000000052",
+            "content": "B.S. in Computer Science"
+          },
+          "subtitle": {
+            "id": "10000000-0000-0000-0000-000000000053",
+            "content": "University of California, Berkeley"
+          },
+          "dateRange": {
+            "id": "10000000-0000-0000-0000-000000000054",
+            "startDate": "2012-08",
+            "endDate": "2016-05"
+          },
+          "bullets": [
+            {
+              "id": "10000000-0000-0000-0000-000000000055",
+              "content": "Coursework: Data Structures, Algorithms, Distributed Systems, Database Systems, Human-Computer Interaction"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,13 +1,14 @@
-import os
 import sqlite3
+from pathlib import Path
 
 from app.config import settings
 
 
-def create_tables():
-  os.makedirs(os.path.dirname(settings.paths.db_path), exist_ok=True)
+def create_tables(db_path: str | None = None) -> None:
+  resolved_db_path = Path(db_path or settings.active_paths.db_path)
+  resolved_db_path.parent.mkdir(parents=True, exist_ok=True)
 
-  with sqlite3.connect(settings.paths.db_path) as db:
+  with sqlite3.connect(resolved_db_path) as db:
     db.execute("""
       CREATE TABLE IF NOT EXISTS experiences (
         id TEXT PRIMARY KEY,
@@ -48,12 +49,6 @@ def create_tables():
       )
     """)
 
-    # Migration: add salary column if missing (for existing DBs)
-    try:
-      db.execute('ALTER TABLE listings ADD COLUMN salary JSON')
-    except Exception:
-      pass
-
     db.execute("""
       CREATE TABLE IF NOT EXISTS resumes (
         id TEXT PRIMARY KEY,
@@ -90,7 +85,7 @@ def create_tables():
 
     db.commit()
 
-  print(f'Database tables created successfully at {settings.paths.db_path}')
+  print(f'Database tables created successfully at {resolved_db_path}')
 
 
 if __name__ == '__main__':

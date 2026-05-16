@@ -122,6 +122,46 @@ class ApplicationRepository(DatabaseRepository, InMemoryKVRepository):
 
     return self.get(application.id)
 
+  def seed(self, application: Application) -> Application:
+    with self.transaction():
+      self.execute(
+        """
+        INSERT INTO applications (
+          id, listing_id, name, resume_id, analysis, current_status, last_status_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+          str(application.id),
+          str(application.listing_id),
+          application.name,
+          str(application.resume_id),
+          application.analysis.model_dump_json(by_alias=True)
+          if application.analysis
+          else None,
+          application.current_status.value,
+          application.last_status_at.isoformat(),
+        ),
+      )
+
+      for event in application.status_events:
+        self.execute(
+          """
+          INSERT INTO status_events (id, application_id, status, date, notes, payload)
+          VALUES (?, ?, ?, ?, ?, ?)
+          """,
+          (
+            str(event.id),
+            str(application.id),
+            event.status.value,
+            event.date.isoformat(),
+            event.notes,
+            json.dumps(self._extract_payload_from_event(event)),
+          ),
+        )
+
+    return application
+
   def update_analysis(self, application_id: UUID, analysis_json: str | None) -> Application:
     self.execute(
       """

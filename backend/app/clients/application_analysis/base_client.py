@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import UTC, datetime
 
 from app.schemas.application import Application
 from app.schemas.listing import Listing
@@ -6,6 +7,7 @@ from app.schemas.resume import Resume
 from app.utils.math import clamp
 from shared.schemas.application_analysis import (
   AISuggestions,
+  ApplicationAnalysis,
   ContentQualitySection,
   SkillComparisonRow,
 )
@@ -27,6 +29,42 @@ MATCH_SCORE_EMPTY_VALUE = 0.0
 
 
 class ApplicationAnalysisClient(ABC):
+  async def generate_analysis(
+    self,
+    listing: Listing,
+    application: Application,
+    resume: Resume,
+  ) -> ApplicationAnalysis:
+    skills_comparison = await self.get_skills_comparison(
+      listing=listing,
+      application=application,
+      resume=resume,
+    )
+    content_quality = await self.get_content_quality(
+      listing=listing,
+      application=application,
+      resume=resume,
+    )
+    ai_suggestions = await self.get_ai_suggestions(
+      listing=listing,
+      application=application,
+      resume=resume,
+    )
+    match_score = self.compute_match_score(
+      skills_comparison=skills_comparison,
+      content_quality=content_quality,
+      ai_suggestions=ai_suggestions,
+    )
+
+    return ApplicationAnalysis(
+      resume_hash=resume.create_hash(),
+      generated_at=datetime.now(UTC),
+      match_score=match_score,
+      skills_comparison=skills_comparison,
+      content_quality=content_quality,
+      ai_suggestions=ai_suggestions,
+    )
+
   @abstractmethod
   async def get_skills_comparison(
     self,

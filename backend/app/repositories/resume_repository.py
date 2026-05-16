@@ -36,6 +36,18 @@ class ResumeRepository(DatabaseRepository):
 
     return resume
 
+  def seed(self, resume: Resume) -> Resume:
+    self.execute(
+      'INSERT OR REPLACE INTO resumes (id, template_id, sections) VALUES (?, ?, ?)',
+      (
+        str(resume.id),
+        str(resume.template_id),
+        json.dumps([section.model_dump(mode='json') for section in resume.sections]),
+      ),
+    )
+
+    return resume
+
   def update(self, resume: Resume) -> Resume:
     row = self.fetch_one('SELECT * FROM resumes WHERE id = ?', (str(resume.id),))
     if not row:

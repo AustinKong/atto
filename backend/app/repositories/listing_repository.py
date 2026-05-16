@@ -171,6 +171,35 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
 
     return listing
 
+  def seed(self, listing: Listing) -> Listing:
+    self.execute(
+      """
+      INSERT INTO listings (
+        id, url, title, company, domain, location, description, notes, research, posted_date,
+        salary, skills, requirements, keywords
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      """,
+      (
+        str(listing.id),
+        str(listing.url),
+        listing.title,
+        listing.company,
+        listing.domain,
+        listing.location,
+        listing.description,
+        listing.notes,
+        listing.research.model_dump_json(by_alias=True) if listing.research else None,
+        listing.posted_date.isoformat() if listing.posted_date else None,
+        listing.salary.model_dump_json(by_alias=True) if listing.salary else None,
+        json.dumps(listing.skills),
+        json.dumps(listing.requirements),
+        json.dumps([keyword.model_dump(mode='json') for keyword in listing.keywords]),
+      ),
+    )
+
+    return listing
+
   # TODO: Why aren't we being consistent to have an update fn that takes Listing instead of
   # individual fields? So update_notes and update_research can be consolidated. Same for
   # application repository.

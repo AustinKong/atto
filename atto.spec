@@ -22,7 +22,7 @@ a = Analysis(
     ['backend/run.py'],
     pathex=[],
     binaries=[],
-    datas=[('frontend/dist', 'frontend/dist')],
+    datas=[('frontend/dist', 'frontend/dist'), ('backend/app/assets', 'app/assets')],
     hiddenimports=_mypyc_hiddenimports('chardet'),
     hookspath=[],
     hooksconfig={},
