@@ -67,7 +67,7 @@ export function TemplateBuilderPage() {
     if (!selectedTemplate) return;
     const interval = setInterval(() => {
       queryClient.invalidateQueries({
-        queryKey: ['templates', 'render'],
+        queryKey: ['template', 'render'],
       });
     }, 1000);
     return () => clearInterval(interval);
@@ -76,10 +76,10 @@ export function TemplateBuilderPage() {
   const handleRefreshTemplate = () => {
     if (selectedTemplate) {
       queryClient.invalidateQueries({
-        queryKey: ['templates', 'local', selectedTemplate],
+        queryKey: ['template', 'local', selectedTemplate],
       });
       queryClient.invalidateQueries({
-        queryKey: ['templates', 'render'],
+        queryKey: ['template', 'render'],
       });
     }
   };

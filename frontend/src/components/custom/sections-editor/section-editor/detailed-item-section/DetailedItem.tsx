@@ -42,7 +42,7 @@ export const DetailedItem = memo(function DetailedItem({
       borderWidth="1px"
       borderRadius="md"
       p="sm"
-      bg="bg.subtle"
+      bg="bg.panel"
       position="relative"
     >
       <DetailedItemContent

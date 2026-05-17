@@ -44,7 +44,7 @@ export const SectionEditor = memo(function SectionEditor({
       overflow="hidden"
     >
       <Collapsible.Root defaultOpen>
-        <Card.Header p="sm" bg="bg.subtle">
+        <Card.Header p="sm">
           <HStack justify="space-between" w="full">
             <HStack gap="xs" flex="1">
               <Box

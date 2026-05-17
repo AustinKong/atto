@@ -9,6 +9,7 @@ import { resumeQueries } from '@/queries/resume.queries';
 import { templateQueries } from '@/queries/template.queries';
 import { updateResume } from '@/services/resume.service';
 import { downloadRemoteTemplate } from '@/services/template.service';
+import type { Page } from '@/types/common.types';
 import type { Template, TemplateSummary } from '@/types/template.types';
 
 export const TemplateCard = memo(function TemplateCard({
@@ -27,11 +28,26 @@ export const TemplateCard = memo(function TemplateCard({
   const downloadMutation = useMutation({
     mutationFn: () => downloadRemoteTemplate(template.id),
     onSuccess: () => {
+      queryClient.setQueriesData<Page<TemplateSummary>>(
+        { queryKey: ['template', 'merged', 'list'] },
+        (data) => {
+          if (!data) {
+            return data;
+          }
+
+          return {
+            ...data,
+            items: data.items.map((item) =>
+              item.id === template.id ? { ...item, source: 'both' } : item
+            ),
+          };
+        }
+      );
       toaster.success({
         title: 'Template downloaded',
         description: `${template.title || template.id} has been downloaded successfully.`,
       });
-      queryClient.invalidateQueries({ queryKey: ['templates'] });
+      queryClient.invalidateQueries({ queryKey: ['template'] });
     },
     onError: (error: Error) => {
       toaster.error({
@@ -58,9 +74,14 @@ export const TemplateCard = memo(function TemplateCard({
   });
 
   const isRemoteOnly = template.source === 'remote';
-  const isActionable = isRemoteOnly || (!!resumeId && !isSelected);
+  const isMutating = downloadMutation.isPending || selectMutation.isPending;
+  const isActionable = !isMutating && (isRemoteOnly || (!!resumeId && !isSelected));
 
   function handleClick() {
+    if (!isActionable) {
+      return;
+    }
+
     if (isRemoteOnly) {
       downloadMutation.mutate();
     } else if (resumeId && !isSelected) {
