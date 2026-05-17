@@ -10,27 +10,6 @@ def create_tables(db_path: str | None = None) -> None:
 
   with sqlite3.connect(resolved_db_path) as db:
     db.execute("""
-      CREATE TABLE IF NOT EXISTS experiences (
-        id TEXT PRIMARY KEY,
-        title TEXT NOT NULL,
-        organization TEXT NOT NULL,
-        type TEXT NOT NULL,
-        location TEXT,
-        start_date TEXT NOT NULL,
-        end_date TEXT
-      )
-    """)
-
-    db.execute("""
-      CREATE TABLE IF NOT EXISTS experience_bullets (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        experience_id TEXT NOT NULL,
-        text TEXT NOT NULL,
-        FOREIGN KEY (experience_id) REFERENCES experiences (id) ON DELETE CASCADE
-      )
-    """)
-
-    db.execute("""
       CREATE TABLE IF NOT EXISTS listings (
         id TEXT PRIMARY KEY,
         url TEXT NOT NULL UNIQUE,

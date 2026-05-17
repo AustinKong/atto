@@ -246,31 +246,6 @@ class ListingsPrefs(BaseModel):
   )
 
 
-class ExperiencesPrefs(BaseModel):
-  top_k: int = ConfigField(
-    default=3,
-    title='Number of Experiences',
-    ge=1,
-    le=10,
-    description=(
-      'How many relevant work experiences to include in each resume. More experiences '
-      'provide better context but may make resumes too long. 3-5 is usually optimal.'
-    ),
-    exposure='normal',
-  )
-  max_bullets: int = ConfigField(
-    default=4,
-    title='Maximum Bullet Points',
-    ge=1,
-    le=10,
-    description=(
-      'Maximum number of bullet points to show for each experience section. '
-      'Limits verbosity while ensuring key achievements are highlighted.'
-    ),
-    exposure='normal',
-  )
-
-
 class IngestionPrefs(BaseModel):
   aggressive: bool = ConfigField(
     default=True,
@@ -372,11 +347,6 @@ class AppConfig(BaseModel):
     default_factory=ListingsPrefs,
     title='Job Listings',
     description='Job listings configuration',
-  )
-  experiences: ExperiencesPrefs = Field(
-    default_factory=ExperiencesPrefs,
-    title='Work Experience',
-    description='Work experience configuration',
   )
   ingestion: IngestionPrefs = Field(
     default_factory=IngestionPrefs,

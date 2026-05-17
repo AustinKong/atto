@@ -3,6 +3,7 @@ import type { Section } from '@/types/resume.types';
 import { ISOYearMonth } from '@/utils/date.utils';
 import { createDateRangeUnit, createTextUnit } from '@/utils/resume.utils';
 
+// TODO: Reuse paper mode fixture data instead
 // Default sample profile for template preview
 export const DEFAULT_TEMPLATE_PROFILE: Profile = {
   fullName: 'Alex Mercer',

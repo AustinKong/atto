@@ -8,7 +8,6 @@ from app.config.schemas import (
   AppConfig,
   AuthPrefs,
   CloudPrefs,
-  ExperiencesPrefs,
   ExperimentalPrefs,
   IngestionPrefs,
   LauncherPrefs,
@@ -103,10 +102,6 @@ class ConfigManager:
   @property
   def listings(self) -> ListingsPrefs:
     return self.config.listings
-
-  @property
-  def experiences(self) -> ExperiencesPrefs:
-    return self.config.experiences
 
   @property
   def ingestion(self) -> IngestionPrefs:
