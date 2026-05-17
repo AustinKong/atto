@@ -115,6 +115,12 @@ class PathsPrefs(BaseModel):
     ),
     exposure='advanced',
   )
+  playwright_browsers_path: str = ConfigField(
+    default_factory=lambda: str(get_data_dir() / 'playwright-browsers'),
+    title='Playwright Browsers Path',
+    description='Directory where Atto stores browser binaries used for PDF rendering.',
+    exposure='hidden',
+  )
 
 
 class ModelPrefs(BaseModel):

@@ -6,8 +6,8 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from playwright.sync_api import sync_playwright
 
+from app.config import settings
 from app.db_init import create_tables
 from app.main import create_app
 
@@ -41,17 +41,29 @@ if dist_path.exists():
     # Prevent UI from swallowing API 404s
     if full_path.startswith('api'):
       return JSONResponse(status_code=404, content={'detail': 'API Route Not Found'})
+
+    # Resolve static files (images etc.)
+    requested_path = (dist_path / full_path).resolve()
+    if requested_path.is_file() and requested_path.is_relative_to(dist_path.resolve()):
+      return FileResponse(str(requested_path))
+
     return FileResponse(str(dist_path / 'index.html'))
 
 
 def install_playwright_browsers():
+  browsers_path = Path(settings.active_paths.playwright_browsers_path)
+  browsers_path.mkdir(parents=True, exist_ok=True)
+  os.environ['PLAYWRIGHT_BROWSERS_PATH'] = str(browsers_path)
+
   try:
+    from playwright.sync_api import sync_playwright
+
     with sync_playwright() as p:
       browser = p.chromium.launch(headless=True)
       browser.close()
   except Exception:
     # Avoid using subprocess.run to install browsers as it breaks in frozen context.
-    print('Downloading Chromium... please wait.')
+    print(f'Downloading Chromium to {browsers_path}... please wait.')
     from playwright.__main__ import main as playwright_main
 
     original_argv = sys.argv

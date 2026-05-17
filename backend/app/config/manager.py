@@ -78,6 +78,7 @@ class ConfigManager:
       vector_path=str(paper_dir / 'vectors'),
       profile_path=str(paper_dir / 'profile.json'),
       templates_dir=str(paper_dir / 'resume_templates'),
+      playwright_browsers_path=str(paper_dir / 'playwright-browsers'),
     )
 
   @property
