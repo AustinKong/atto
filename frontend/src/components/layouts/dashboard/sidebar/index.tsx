@@ -4,6 +4,7 @@ import {
   LuClipboard,
   LuFileText,
   LuGithub,
+  LuLayoutDashboard,
   LuLayoutTemplate,
   LuPlus,
   LuSettings,
@@ -17,6 +18,12 @@ import { CollapseButton } from './CollapseButton';
 import { ExternalNavItem, InternalNavItem } from './NavItem';
 
 const INTERNAL_NAV_ITEMS = [
+  {
+    label: 'Dashboard',
+    path: '/',
+    icon: <LuLayoutDashboard />,
+    isActive: (path: string) => path === '/',
+  },
   {
     label: 'Listings',
     path: '/listings',
@@ -61,13 +68,7 @@ export function Sidebar() {
       borderRight="subtle"
       gap="0"
     >
-      <Box
-        h="12"
-        px="xs"
-        borderBottom="subtle"
-        display="flex"
-        alignItems="center"
-      >
+      <Box h="12" px="xs" borderBottom="subtle" display="flex" alignItems="center">
         <AppLogo isOpen={isOpen} />
       </Box>
 

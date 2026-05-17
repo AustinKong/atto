@@ -1,9 +1,10 @@
 import { Box, Heading, Text } from '@chakra-ui/react';
 import { ResponsiveSankey } from '@nivo/sankey';
 
-import { nivoChartColors, nivoTheme } from '@/components/theme/nivo.theme';
+import { nivoTheme } from '@/components/theme/nivo.theme';
 import type { ApplicationFunnel } from '@/types/stats.types';
 
+import { getApplicationStatusChartColor } from './status-colors.utils';
 import { formatStatusLabel } from './status-label.utils';
 
 export function ApplicationFunnelChart({ funnel }: { funnel: ApplicationFunnel }) {
@@ -15,9 +16,9 @@ export function ApplicationFunnelChart({ funnel }: { funnel: ApplicationFunnel }
       {funnel.links.length > 0 ? (
         <ResponsiveSankey
           data={funnel}
-          margin={{ top: 20, right: 120, bottom: 50, left: 70 }}
+          margin={{ top: 20, right: 10, bottom: 50, left: 10 }}
           align="justify"
-          colors={nivoChartColors}
+          colors={getApplicationStatusChartColor}
           nodeOpacity={1}
           nodeBorderWidth={0}
           label={(node) => formatStatusLabel(String(node.id))}

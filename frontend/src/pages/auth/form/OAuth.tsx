@@ -24,7 +24,7 @@ export function OAuth() {
       await signIn.authenticateWithRedirect({
         strategy,
         redirectUrl: '/auth',
-        redirectUrlComplete: '/listings',
+        redirectUrlComplete: '/',
       });
     } catch (error) {
       setErrorMessage(getErrorMessage(error));

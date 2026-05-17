@@ -1,12 +1,4 @@
-import {
-  createListCollection,
-  Grid,
-  Heading,
-  HStack,
-  Portal,
-  Select,
-  VStack,
-} from '@chakra-ui/react';
+import { createListCollection, Heading, HStack, Portal, Select, VStack } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 
 import { type ParamHandler, useUrlSyncedState } from '@/hooks/use-url-synced-state.hooks';
@@ -18,8 +10,8 @@ import {
   parseStatsDateRangeOrDefault,
 } from '@/utils/stats.utils';
 
-import { ApplicationFunnelChart } from './ApplicationFunnel';
-import { ApplicationHistoryChart } from './ApplicationHistory';
+import { ApplicationGraphs } from './graphs';
+import { StatRow } from './stat-row';
 
 const DATE_RANGE_OPTIONS = createListCollection({
   items: [
@@ -78,10 +70,8 @@ export function DashboardPage() {
           </Portal>
         </Select.Root>
       </HStack>
-      <Grid templateColumns={{ base: '1fr', xl: '2fr 3fr' }} gap="md">
-        <ApplicationFunnelChart funnel={stats.applicationFunnel} />
-        <ApplicationHistoryChart history={stats.applicationHistory} />
-      </Grid>
+      <StatRow stats={stats.summary} />
+      <ApplicationGraphs stats={stats} />
     </VStack>
   );
 }

@@ -15,7 +15,7 @@ export function AuthPage() {
   }
 
   if (accessMode !== 'signed_out') {
-    return <Navigate to="/listings" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return (

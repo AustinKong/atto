@@ -10,12 +10,12 @@ export function Form() {
   const { enterGuestMode } = useAuth();
   const enterPaperModeMutation = useEnterPaperMode(async () => {
     await enterGuestMode();
-    navigate('/listings');
+    navigate('/');
   });
 
   async function handleContinueAsGuest() {
     await enterGuestMode();
-    navigate('/listings');
+    navigate('/');
   }
 
   async function handleContinueWithPaperMode() {

@@ -1,11 +1,13 @@
 import { Box, Heading, Text } from '@chakra-ui/react';
 import { ResponsiveLine } from '@nivo/line';
+import { BasicTooltip } from '@nivo/tooltip';
 import { useMemo } from 'react';
 
-import { nivoChartColors, nivoTheme } from '@/components/theme/nivo.theme';
+import { nivoTheme } from '@/components/theme/nivo.theme';
 import type { ApplicationHistory } from '@/types/stats.types';
 import { DateFormatPresets, ISODate as ISODateUtils } from '@/utils/date.utils';
 
+import { getApplicationStatusChartColor } from './status-colors.utils';
 import { formatStatusLabel } from './status-label.utils';
 
 const X_AXIS_TICK_COUNT = 8;
@@ -20,11 +22,20 @@ function formatHistoryTick(value: string | number | Date) {
   return ISODateUtils.is(date) ? ISODateUtils.format(date, DateFormatPresets.monthDay) : date;
 }
 
+function formatHistoryTooltipDate(value: string | number | Date) {
+  if (value instanceof Date) {
+    return ISODateUtils.format(ISODateUtils.fromNativeDate(value), DateFormatPresets.monthDay);
+  }
+
+  const date = String(value);
+  return ISODateUtils.is(date) ? ISODateUtils.format(date, DateFormatPresets.monthDay) : date;
+}
+
 export function ApplicationHistoryChart({ history }: { history: ApplicationHistory }) {
   const historyData = useMemo(
     () =>
       history.keys.map((status) => ({
-        id: formatStatusLabel(status),
+        id: status,
         data: history.points.map((point) => ({
           x: point.date,
           y: point.counts[status] ?? 0,
@@ -43,7 +54,7 @@ export function ApplicationHistoryChart({ history }: { history: ApplicationHisto
       {hasHistoryData ? (
         <ResponsiveLine
           data={historyData}
-          margin={{ top: 20, right: 24, bottom: 98, left: 56 }}
+          margin={{ top: 20, right: 24, bottom: 72, left: 56 }}
           xScale={{ type: 'time', format: '%Y-%m-%d', precision: 'day', useUTC: true }}
           xFormat={formatHistoryTick}
           yScale={{ type: 'linear', min: 0, max: 'auto', stacked: true, reverse: false }}
@@ -58,7 +69,7 @@ export function ApplicationHistoryChart({ history }: { history: ApplicationHisto
             legendPosition: 'middle',
           }}
           axisLeft={{
-            legend: 'Events',
+            legend: 'Applications',
             legendOffset: -44,
             legendPosition: 'middle',
           }}
@@ -67,21 +78,18 @@ export function ApplicationHistoryChart({ history }: { history: ApplicationHisto
           useMesh={history.points.length <= MESH_POINT_LIMIT}
           enableArea
           areaOpacity={0.25}
-          colors={nivoChartColors}
+          colors={getApplicationStatusChartColor}
           theme={nivoTheme}
           animate={false}
-          legends={[
-            {
-              anchor: 'bottom',
-              direction: 'row',
-              justify: false,
-              translateY: 60,
-              itemWidth: 95,
-              itemHeight: 16,
-              symbolSize: 10,
-              symbolShape: 'circle',
-            },
-          ]}
+          tooltip={({ point }) => (
+            <BasicTooltip
+              id={`${formatHistoryTooltipDate(point.data.x)}, ${formatStatusLabel(
+                String(point.seriesId)
+              )}: ${point.data.y}`}
+              color={point.seriesColor}
+              enableChip
+            />
+          )}
         />
       ) : (
         <Text color="fg.muted">No history data in this date range.</Text>

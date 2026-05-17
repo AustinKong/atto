@@ -30,6 +30,20 @@ class ApplicationHistory(CamelModel):
   points: list[ApplicationHistoryPoint] = Field(default_factory=list)
 
 
+class StatValue(CamelModel):
+  value: int | float | None
+  trend: float | None = None
+
+
+class SummaryStats(CamelModel):
+  applications_saved: StatValue
+  applications_sent: StatValue
+  active_pipeline: StatValue
+  response_rate: StatValue
+  average_days_to_first_response: StatValue
+
+
 class StatsResponse(CamelModel):
+  summary: SummaryStats
   application_funnel: ApplicationFunnel
   application_history: ApplicationHistory

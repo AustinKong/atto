@@ -19,7 +19,7 @@ from app.utils.errors import NotFoundError
 
 event_adapter = TypeAdapter(StatusEvent)
 
-STATUS_EVENTS_QUERY = """
+STATUS_EVENTS_BETWEEN_QUERY = """
   SELECT
     se.application_id,
     se.id,
@@ -28,7 +28,7 @@ STATUS_EVENTS_QUERY = """
     se.notes,
     se.payload
   FROM status_events se
-  WHERE se.date >= ?
+  WHERE se.date BETWEEN ? AND ?
   ORDER BY se.application_id, se.date ASC, se.id ASC
 """
 
@@ -95,10 +95,14 @@ class ApplicationRepository(DatabaseRepository, InMemoryKVRepository):
 
     return [self._parse_application_row(row) for row in rows]
 
-  def list_status_events_by_date(self, start_date: date) -> list[tuple[str, StatusEvent]]:
+  def list_status_events_between(
+    self,
+    start_date: date,
+    end_date: date,
+  ) -> list[tuple[str, StatusEvent]]:
     rows = self.fetch_all(
-      STATUS_EVENTS_QUERY,
-      (start_date.isoformat(),),
+      STATUS_EVENTS_BETWEEN_QUERY,
+      (start_date.isoformat(), end_date.isoformat()),
     )
 
     return [(row['application_id'], self._parse_status_event_row(row)) for row in rows]

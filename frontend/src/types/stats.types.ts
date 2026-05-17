@@ -27,7 +27,21 @@ export type ApplicationHistory = {
   points: ApplicationHistoryPoint[];
 };
 
+export type StatValue = {
+  value: number | null;
+  trend: number | null;
+};
+
+export type SummaryStats = {
+  applicationsSaved: StatValue;
+  applicationsSent: StatValue;
+  activePipeline: StatValue;
+  responseRate: StatValue;
+  averageDaysToFirstResponse: StatValue;
+};
+
 export type StatsResponse = {
+  summary: SummaryStats;
   applicationFunnel: ApplicationFunnel;
   applicationHistory: ApplicationHistory;
 };
