@@ -1,8 +1,9 @@
 import { Box, Heading, Text } from '@chakra-ui/react';
-import { ResponsiveLine } from '@nivo/line';
+import { ResponsiveLine, svgDefaultProps as lineSvgDefaultProps } from '@nivo/line';
 import { BasicTooltip } from '@nivo/tooltip';
 import { useMemo } from 'react';
 
+import { NivoTooltipPortalLayer } from '@/components/custom/nivo-tooltip-portal';
 import { nivoTheme } from '@/components/theme/nivo.theme';
 import type { ApplicationHistory } from '@/types/stats.types';
 import { DateFormatPresets, ISODate as ISODateUtils } from '@/utils/date.utils';
@@ -13,7 +14,11 @@ import { formatStatusLabel } from './status-label.utils';
 const X_AXIS_TICK_COUNT = 8;
 const MESH_POINT_LIMIT = 750;
 
-function formatHistoryTick(value: string | number | Date) {
+function formatHistoryTick(value: string | number | Date | null) {
+  if (value === null) {
+    return '';
+  }
+
   if (value instanceof Date) {
     return ISODateUtils.format(ISODateUtils.fromNativeDate(value), DateFormatPresets.monthDay);
   }
@@ -22,7 +27,11 @@ function formatHistoryTick(value: string | number | Date) {
   return ISODateUtils.is(date) ? ISODateUtils.format(date, DateFormatPresets.monthDay) : date;
 }
 
-function formatHistoryTooltipDate(value: string | number | Date) {
+function formatHistoryTooltipDate(value: string | number | Date | null) {
+  if (value === null) {
+    return '';
+  }
+
   if (value instanceof Date) {
     return ISODateUtils.format(ISODateUtils.fromNativeDate(value), DateFormatPresets.monthDay);
   }
@@ -81,6 +90,7 @@ export function ApplicationHistoryChart({ history }: { history: ApplicationHisto
           colors={getApplicationStatusChartColor}
           theme={nivoTheme}
           animate={false}
+          layers={[...lineSvgDefaultProps.layers, NivoTooltipPortalLayer]}
           tooltip={({ point }) => (
             <BasicTooltip
               id={`${formatHistoryTooltipDate(point.data.x)}, ${formatStatusLabel(

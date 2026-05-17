@@ -75,6 +75,9 @@ const themeConfig: SystemConfig = {
       backgroundColor: 'bg.muted',
       borderRadius: '0px',
     },
+    '.atto-nivo-tooltip, .atto-nivo-tooltip *': {
+      fontWeight: 'normal !important',
+    },
   },
   strictTokens: false,
 };

@@ -32,6 +32,35 @@ const textOutline = {
   outlineOpacity: 1,
 };
 
+const tooltip = {
+  // Nivo renders its tooltip wrapper inside each chart, which can widen scroll containers
+  // while hovering. The visible copy is rendered through NivoTooltipPortalLayer instead.
+  display: 'none',
+  container: {
+    background: colorVar('bg.panel'),
+    color: colorVar('fg'),
+    fontSize: fontSizeVar('sm'),
+    fontWeight: 'normal',
+    borderRadius: 'var(--chakra-radii-md)',
+    border: `1px solid ${colorVar('border.muted')}`,
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+    padding: '8px 12px',
+  },
+  basic: {
+    fontWeight: 'normal',
+  },
+  chip: {},
+  table: {
+    fontWeight: 'normal',
+  },
+  tableCell: {
+    fontWeight: 'normal',
+  },
+  tableCellValue: {
+    fontWeight: 'normal',
+  },
+};
+
 export const nivoTheme: Theme = {
   background: 'transparent',
   text: {
@@ -128,22 +157,7 @@ export const nivoTheme: Theme = {
       ...textOutline,
     },
   },
-  tooltip: {
-    container: {
-      background: colorVar('bg.panel'),
-      color: colorVar('fg'),
-      fontSize: fontSizeVar('sm'),
-      borderRadius: 'var(--chakra-radii-md)',
-      border: `1px solid ${colorVar('border.muted')}`,
-      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-      padding: '8px 12px',
-    },
-    basic: {},
-    chip: {},
-    table: {},
-    tableCell: {},
-    tableCellValue: {},
-  },
+  tooltip,
   crosshair: {
     line: {
       stroke: colorVar('border'),

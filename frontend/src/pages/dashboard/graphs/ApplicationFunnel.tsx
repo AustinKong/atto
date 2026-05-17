@@ -1,6 +1,7 @@
 import { Box, Heading, Text } from '@chakra-ui/react';
-import { ResponsiveSankey } from '@nivo/sankey';
+import { ResponsiveSankey, svgDefaultProps as sankeySvgDefaultProps } from '@nivo/sankey';
 
+import { NivoTooltipPortalLayer } from '@/components/custom/nivo-tooltip-portal';
 import { nivoTheme } from '@/components/theme/nivo.theme';
 import type { ApplicationFunnel } from '@/types/stats.types';
 
@@ -24,6 +25,7 @@ export function ApplicationFunnelChart({ funnel }: { funnel: ApplicationFunnel }
           label={(node) => formatStatusLabel(String(node.id))}
           labelTextColor={{ theme: 'labels.text.fill' }}
           sort="descending"
+          layers={[...sankeySvgDefaultProps.layers, NivoTooltipPortalLayer]}
           linkOpacity={0.6}
           linkHoverOpacity={0.8}
           linkBlendMode="normal"

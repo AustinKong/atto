@@ -1,6 +1,7 @@
 import { Box, Heading, Text, VStack } from '@chakra-ui/react';
-import { ResponsiveRadar } from '@nivo/radar';
+import { ResponsiveRadar, svgDefaultProps as radarSvgDefaultProps } from '@nivo/radar';
 
+import { NivoTooltipPortalLayer } from '@/components/custom/nivo-tooltip-portal';
 import { nivoChartColors, nivoTheme } from '@/components/theme/nivo.theme';
 import type { SkillComparisonRow } from '@/types/application.types';
 // Ensures it looks visually balanced even for low scores
@@ -39,6 +40,7 @@ export function SkillsComparison({
             dotBorderColor={{ from: 'color' }}
             motionConfig="wobbly"
             animate={false}
+            layers={[...radarSvgDefaultProps.layers, NivoTooltipPortalLayer]}
             theme={nivoTheme}
             colors={nivoChartColors}
             legends={[

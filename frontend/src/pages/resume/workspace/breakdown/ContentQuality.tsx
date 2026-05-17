@@ -1,7 +1,9 @@
 import { Box, Heading, HStack, IconButton, Text, useDisclosure, VStack } from '@chakra-ui/react';
-import { ResponsiveBar } from '@nivo/bar';
+import { ResponsiveBar, svgDefaultProps as barSvgDefaultProps } from '@nivo/bar';
+import { BasicTooltip } from '@nivo/tooltip';
 import { LuEye, LuEyeOff } from 'react-icons/lu';
 
+import { NivoTooltipPortalLayer } from '@/components/custom/nivo-tooltip-portal';
 import type { ResumeHighlight } from '@/components/custom/resume-preview';
 import { nivoTheme } from '@/components/theme/nivo.theme';
 import { RESUME_HIGHLIGHT_LAYERS } from '@/pages/resume/highlight-layers.constants';
@@ -45,7 +47,10 @@ export function ContentQuality({
       clear(RESUME_HIGHLIGHT_LAYERS.contentQuality);
     } else {
       onOpen();
-      highlight(RESUME_HIGHLIGHT_LAYERS.contentQuality, getContentQualityHighlights(contentQuality));
+      highlight(
+        RESUME_HIGHLIGHT_LAYERS.contentQuality,
+        getContentQualityHighlights(contentQuality)
+      );
     }
   }
 
@@ -118,6 +123,7 @@ export function ContentQuality({
           labelTextColor="inherit:darker(1.2)"
           labelSkipWidth={40}
           labelSkipHeight={16}
+          layers={[...barSvgDefaultProps.layers, NivoTooltipPortalLayer]}
           axisTop={null}
           axisBottom={null}
           axisLeft={{
@@ -126,18 +132,9 @@ export function ContentQuality({
           }}
           axisRight={null}
           tooltip={({ id, value }) => (
-            <Box
-              bg="bg.panel"
-              color="fg"
-              px="xs"
-              py="2xs"
-              borderRadius="sm"
-              fontSize="xs"
-              fontWeight="bold"
-              border="muted"
-            >
-              {labelForContentQualityKey(String(id))}: {Math.abs(Math.round(value))}
-            </Box>
+            <BasicTooltip
+              id={`${labelForContentQualityKey(String(id))}: ${Math.abs(Math.round(value))}`}
+            />
           )}
           motionConfig="stiff"
           theme={nivoTheme}

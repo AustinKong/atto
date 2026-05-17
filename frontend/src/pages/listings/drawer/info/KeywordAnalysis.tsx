@@ -1,6 +1,7 @@
 import { Box, Text } from '@chakra-ui/react';
-import { ResponsiveTreeMap } from '@nivo/treemap';
+import { ResponsiveTreeMap, svgDefaultProps as treeMapSvgDefaultProps } from '@nivo/treemap';
 
+import { NivoTooltipPortalLayer } from '@/components/custom/nivo-tooltip-portal';
 import { nivoChartColors, nivoTheme } from '@/components/theme/nivo.theme';
 import type { Listing } from '@/types/listing.types';
 
@@ -23,6 +24,7 @@ export function KeywordAnalysis({ listing }: { listing: Listing }) {
             }}
             nodeOpacity={1}
             colorBy="id"
+            layers={[...treeMapSvgDefaultProps.layers, NivoTooltipPortalLayer]}
             theme={nivoTheme}
             colors={nivoChartColors}
             animate={false}
