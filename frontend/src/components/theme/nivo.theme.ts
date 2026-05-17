@@ -12,17 +12,18 @@ import type { Theme } from '@nivo/theming';
 const colorVar = (token: string) => `var(--chakra-colors-${token.replace(/\./g, '-')})`;
 const fontSizeVar = (size: 'xs' | 'sm' | 'md' | 'lg') => `var(--chakra-font-sizes-${size})`;
 
-// Color palette for Nivo charts using Chakra semantic tokens (.fg variant)
+// Color palette for Nivo chart marks. Use `.solid` rather than `.fg` because
+// `.fg` is tuned for readable text/icons and looks muddy as a filled chart color.
 export const nivoChartColors = [
-  colorVar('cyan.fg'),
-  colorVar('pink.fg'),
-  colorVar('red.fg'),
-  colorVar('orange.fg'),
-  colorVar('purple.fg'),
-  colorVar('blue.fg'),
-  colorVar('teal.fg'),
-  colorVar('green.fg'),
-  colorVar('yellow.fg'),
+  colorVar('cyan.solid'),
+  colorVar('pink.solid'),
+  colorVar('red.solid'),
+  colorVar('orange.solid'),
+  colorVar('purple.solid'),
+  colorVar('blue.solid'),
+  colorVar('teal.solid'),
+  colorVar('green.solid'),
+  colorVar('yellow.solid'),
 ];
 
 // Shared outline defaults required by Nivo's TextStyle type.

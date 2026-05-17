@@ -26,8 +26,8 @@ export function ApplicationFunnelChart({ funnel }: { funnel: ApplicationFunnel }
           labelTextColor={{ theme: 'labels.text.fill' }}
           sort="descending"
           layers={[...sankeySvgDefaultProps.layers, NivoTooltipPortalLayer]}
-          linkOpacity={0.6}
-          linkHoverOpacity={0.8}
+          linkOpacity={0.3}
+          linkHoverOpacity={0.5}
           linkBlendMode="normal"
           enableLinkGradient
           theme={nivoTheme}
