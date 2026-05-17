@@ -3,7 +3,32 @@ import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 import { getListing, getListingResearchStatus, getListings } from '@/services/listing.service';
 import type { StatusEnum } from '@/types/application.types';
 
+type ListingListParams = {
+  search?: string;
+  sortBy?: 'title' | 'company' | 'posted_at' | 'last_status_at';
+  sortOrder?: 'asc' | 'desc';
+  statuses?: StatusEnum[];
+  pageSize?: number;
+};
+
+const listingQueryKeys = {
+  root: () => ['listing'] as const,
+  listRoot: () => [...listingQueryKeys.root(), 'list'] as const,
+  list: (params: ListingListParams = {}) =>
+    [
+      ...listingQueryKeys.listRoot(),
+      params.search ?? '',
+      params.sortBy ?? '',
+      params.sortOrder ?? '',
+      params.statuses ?? [],
+      params.pageSize ?? 50,
+    ] as const,
+  item: (id: string) => [...listingQueryKeys.root(), 'item', id] as const,
+  researchStatus: (id: string) => [...listingQueryKeys.item(id), 'research-status'] as const,
+};
+
 export const listingsQueries = {
+  keys: listingQueryKeys,
   list: (
     params: {
       search?: string;
@@ -15,17 +40,9 @@ export const listingsQueries = {
   ) => {
     const { search, sortBy, sortOrder, statuses, pageSize = 50 } = params;
 
-    const queryKey = [
-      'listing',
-      search ?? '',
-      sortBy ?? '',
-      sortOrder ?? '',
-      statuses ?? [],
-    ] as const;
-
     return infiniteQueryOptions({
       initialPageParam: 1,
-      queryKey,
+      queryKey: listingQueryKeys.list(params),
       queryFn: async ({ pageParam }) => {
         return getListings(
           pageParam,
@@ -45,14 +62,14 @@ export const listingsQueries = {
 
   item: (id: string) =>
     queryOptions({
-      queryKey: ['listing', id] as const,
+      queryKey: listingQueryKeys.item(id),
       queryFn: () => getListing(id),
       staleTime: 5 * 60 * 1000, // 5 minutes
     }),
 
   researchStatus: (id: string) =>
     queryOptions({
-      queryKey: ['listing', id, 'research-status'] as const,
+      queryKey: listingQueryKeys.researchStatus(id),
       queryFn: () => getListingResearchStatus(id),
     }),
 };

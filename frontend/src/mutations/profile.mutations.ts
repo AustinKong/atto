@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 
 import { useDebouncedMutation } from '@/hooks/use-debounced-mutation.hooks';
+import { profileQueries } from '@/queries/profile.queries';
 import { updateProfile } from '@/services/profile.service';
 import type { Profile } from '@/types/profile.types';
 
@@ -11,7 +12,7 @@ export function useSaveProfile() {
     delay: 500,
     mutationFn: (profile) => updateProfile(profile),
     onSuccess: (data) => {
-      queryClient.setQueryData(['profile'], data);
+      queryClient.setQueryData(profileQueries.keys.list(), data);
     },
     onError: (error) => {
       console.error('Failed to save profile:', error);

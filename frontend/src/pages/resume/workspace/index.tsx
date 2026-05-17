@@ -37,7 +37,7 @@ export function Workspace({ applicationId }: { applicationId?: string }) {
     }
 
     sectionsEditorRef.current?.reset(updatedSections);
-    queryClient.setQueryData(resumeQueries.item(resume.id).queryKey, {
+    queryClient.setQueryData(resumeQueries.keys.item(resume.id), {
       ...resume,
       sections: updatedSections,
     });

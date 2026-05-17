@@ -29,7 +29,7 @@ export const TemplateCard = memo(function TemplateCard({
     mutationFn: () => downloadRemoteTemplate(template.id),
     onSuccess: () => {
       queryClient.setQueriesData<Page<TemplateSummary>>(
-        { queryKey: ['template', 'merged', 'list'] },
+        { queryKey: templateQueries.keys.mergedListRoot() },
         (data) => {
           if (!data) {
             return data;
@@ -47,7 +47,7 @@ export const TemplateCard = memo(function TemplateCard({
         title: 'Template downloaded',
         description: `${template.title || template.id} has been downloaded successfully.`,
       });
-      queryClient.invalidateQueries({ queryKey: ['template'] });
+      queryClient.invalidateQueries({ queryKey: templateQueries.keys.root() });
     },
     onError: (error: Error) => {
       toaster.error({
@@ -63,7 +63,7 @@ export const TemplateCard = memo(function TemplateCard({
       return updateResume({ ...resume, templateId: template.id });
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(resumeQueries.item(resumeId!).queryKey, data);
+      queryClient.setQueryData(resumeQueries.keys.item(resumeId!), data);
     },
     onError: (error: Error) => {
       toaster.error({

@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
+import { listingDraftQueries } from '@/queries/listing-draft.queries';
 import type { ListingDraft, ListingDraftPending, ListingExtraction } from '@/types/listing-draft.types';
 
 // Individual hooks for client-side listing draft mutations
@@ -11,7 +12,7 @@ export function useSetListingDraft() {
   return useCallback(
     (id: string, listing: ListingDraft) => {
       queryClient.setQueryData<ListingDraft[]>(
-        ['listing-drafts'],
+        listingDraftQueries.keys.list(),
         (old) => old?.map((l) => (l.id === id ? listing : l)) ?? []
       );
     },
@@ -25,7 +26,7 @@ export function useSetPendingListingDraft() {
   return useCallback(
     (id: string) => {
       queryClient.setQueryData<ListingDraft[]>(
-        ['listing-drafts'],
+        listingDraftQueries.keys.list(),
         (old) =>
           old?.map((l) =>
             l.id === id ? ({ id: l.id, url: l.url, status: 'pending' } as ListingDraftPending) : l
@@ -41,7 +42,7 @@ export function useAddPendingListingDraft() {
 
   return useCallback(
     (id: string, url: string) => {
-      queryClient.setQueryData<ListingDraft[]>(['listing-drafts'], (old) => [
+      queryClient.setQueryData<ListingDraft[]>(listingDraftQueries.keys.list(), (old) => [
         ...(old ?? []),
         { id, url, status: 'pending' } as ListingDraftPending,
       ]);
@@ -55,7 +56,7 @@ export function usePatchListingDraftContent() {
 
   return useCallback(
     (id: string, updates: Partial<ListingExtraction>) => {
-      queryClient.setQueryData<ListingDraft[]>(['listing-drafts'], (old) => {
+      queryClient.setQueryData<ListingDraft[]>(listingDraftQueries.keys.list(), (old) => {
         return (
           old?.map((l) => {
             if (l.id !== id) return l;
@@ -76,7 +77,7 @@ export function useDiscardListingDrafts() {
   return useCallback(
     (ids: string[]) => {
       queryClient.setQueryData<ListingDraft[]>(
-        ['listing-drafts'],
+        listingDraftQueries.keys.list(),
         (old) => old?.filter((l) => !ids.includes(l.id)) ?? []
       );
     },

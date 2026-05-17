@@ -13,6 +13,7 @@ import { createRoot } from 'react-dom/client';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { Provider as ChakraProvider } from '@/components/ui/Provider';
 import { toaster } from '@/components/ui/Toaster';
+import { listingDraftQueries } from '@/queries/listing-draft.queries';
 import { queryClient } from '@/utils/query-client.utils';
 
 import { App } from './App.tsx';
@@ -39,7 +40,7 @@ createRoot(document.getElementById('root')!).render(
           shouldDehydrateQuery: (query) => {
             // Only save listing-drafts in IndexedDB (client-side state)
             const isSuccess = query.state.status === 'success';
-            const shouldPersist = query.queryKey[0] === 'listing-drafts';
+            const shouldPersist = query.queryKey[0] === listingDraftQueries.keys.list()[0];
 
             return isSuccess && shouldPersist;
           },

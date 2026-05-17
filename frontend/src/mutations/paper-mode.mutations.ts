@@ -10,7 +10,7 @@ export function useEnterPaperMode(onSuccess?: () => Promise<void> | void) {
     mutationFn: enterPaperMode,
     onSuccess: async () => {
       queryClient.clear();
-      await queryClient.invalidateQueries({ queryKey: settingsQueries.list().queryKey });
+      await queryClient.invalidateQueries({ queryKey: settingsQueries.keys.list() });
       await onSuccess?.();
     },
   });
@@ -23,7 +23,7 @@ export function useExitPaperMode(onSuccess?: () => Promise<void> | void) {
     mutationFn: exitPaperMode,
     onSuccess: async () => {
       queryClient.clear();
-      await queryClient.invalidateQueries({ queryKey: settingsQueries.list().queryKey });
+      await queryClient.invalidateQueries({ queryKey: settingsQueries.keys.list() });
       await onSuccess?.();
     },
   });

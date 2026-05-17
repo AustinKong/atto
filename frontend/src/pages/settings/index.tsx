@@ -19,7 +19,7 @@ export function SettingsPage() {
   const updateSettingsMutation = useMutation({
     mutationFn: updateSettings,
     onSuccess: (updatedSettings) => {
-      queryClient.setQueryData(settingsQueries.list().queryKey, updatedSettings);
+      queryClient.setQueryData(settingsQueries.keys.list(), updatedSettings);
       toaster.create({ title: 'Settings updated successfully', type: 'success' });
     },
     onError: () => {

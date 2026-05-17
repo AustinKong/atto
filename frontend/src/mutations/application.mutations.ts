@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { applicationQueries } from '@/queries/application.queries';
+import { listingsQueries } from '@/queries/listing.queries';
 import {
   createApplication as createApplicationSvc,
   createStatusEvent as createStatusEventSvc,
@@ -32,8 +33,9 @@ export function useCreateApplication(onSuccess?: (application: Application) => v
       return await createApplicationSvc(listingId, resume.id, name);
     },
     onSuccess: (data, { listingId }) => {
-      queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
-      queryClient.setQueryData(['application', data.id], data);
+      queryClient.invalidateQueries({ queryKey: listingsQueries.keys.item(listingId) });
+      queryClient.invalidateQueries({ queryKey: listingsQueries.keys.listRoot() });
+      queryClient.setQueryData(applicationQueries.keys.item(data.id), data);
       onSuccess?.(data);
     },
   });
@@ -54,9 +56,9 @@ export function useCreateStatusEvent() {
       return await createStatusEventSvc(applicationId, statusEvent);
     },
     onSuccess: (_data, { applicationId, listingId }) => {
-      queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
-      queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      queryClient.invalidateQueries({ queryKey: applicationQueries.keys.item(applicationId) });
+      queryClient.invalidateQueries({ queryKey: listingsQueries.keys.item(listingId) });
+      queryClient.invalidateQueries({ queryKey: listingsQueries.keys.listRoot() });
     },
   });
 }
@@ -78,9 +80,9 @@ export function useUpdateStatusEvent() {
       return await updateStatusEventSvc(applicationId, eventId, statusEvent);
     },
     onSuccess: (_data, { applicationId, listingId }) => {
-      queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
-      queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      queryClient.invalidateQueries({ queryKey: applicationQueries.keys.item(applicationId) });
+      queryClient.invalidateQueries({ queryKey: listingsQueries.keys.item(listingId) });
+      queryClient.invalidateQueries({ queryKey: listingsQueries.keys.listRoot() });
     },
   });
 }
@@ -100,9 +102,9 @@ export function useDeleteStatusEvent() {
       return await deleteStatusEventSvc(applicationId, eventId);
     },
     onSuccess: (_data, { applicationId, listingId }) => {
-      queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
-      queryClient.invalidateQueries({ queryKey: ['listing', listingId] });
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      queryClient.invalidateQueries({ queryKey: applicationQueries.keys.item(applicationId) });
+      queryClient.invalidateQueries({ queryKey: listingsQueries.keys.item(listingId) });
+      queryClient.invalidateQueries({ queryKey: listingsQueries.keys.listRoot() });
     },
   });
 }
@@ -113,8 +115,8 @@ export function useGenerateApplicationAnalysis() {
   return useMutation({
     mutationFn: (applicationId: string) => generateApplicationAnalysisSvc(applicationId),
     onSuccess: (data, applicationId) => {
-      queryClient.setQueryData(applicationQueries.analysisStatus(applicationId).queryKey, data);
-      queryClient.invalidateQueries({ queryKey: ['application', applicationId] });
+      queryClient.setQueryData(applicationQueries.keys.analysisStatus(applicationId), data);
+      queryClient.invalidateQueries({ queryKey: applicationQueries.keys.item(applicationId) });
     },
   });
 }
@@ -131,7 +133,7 @@ export function useRemoveApplicationAnalysisSuggestion() {
       suggestionId: string;
     }) => removeApplicationAnalysisSuggestionSvc(applicationId, suggestionId),
     onSuccess: (data, { applicationId }) => {
-      queryClient.setQueryData(applicationQueries.item(applicationId).queryKey, data);
+      queryClient.setQueryData(applicationQueries.keys.item(applicationId), data);
     },
   });
 }

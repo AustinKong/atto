@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
+import { experienceQueries } from '@/queries/experience.queries';
 import { createExperience } from '@/services/experience.service';
 import type { Experience } from '@/types/experience.types';
 
@@ -9,7 +10,7 @@ export function useCreateExperience() {
   return useMutation({
     mutationFn: (experience: Omit<Experience, 'id'>) => createExperience(experience),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['experiences'] });
+      queryClient.invalidateQueries({ queryKey: experienceQueries.keys.list() });
     },
   });
 }
@@ -27,7 +28,7 @@ export function useUpdateExperience() {
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['experiences'] });
+      queryClient.invalidateQueries({ queryKey: experienceQueries.keys.list() });
     },
   });
 }
@@ -41,7 +42,7 @@ export function useDeleteExperience() {
         deleteExperience(experienceId)
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['experiences'] });
+      queryClient.invalidateQueries({ queryKey: experienceQueries.keys.list() });
     },
   });
 }
@@ -52,9 +53,9 @@ export function useUpdateExperiences() {
   return useMutation({
     mutationFn: async (experiences: Experience[]) => {
       // Get current experiences from cache to compare
-      const currentExperiences = queryClient.getQueryData(['experiences']) as
-        | Experience[]
-        | undefined;
+      const currentExperiences = queryClient.getQueryData(
+        experienceQueries.keys.list()
+      ) as Experience[] | undefined;
 
       const { createExperience, updateExperience, deleteExperience } = await import(
         '@/services/experience.service'
@@ -82,7 +83,7 @@ export function useUpdateExperiences() {
       await Promise.all([...createPromises, ...updatePromises, ...deletePromises]);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['experiences'] });
+      queryClient.invalidateQueries({ queryKey: experienceQueries.keys.list() });
     },
   });
 }

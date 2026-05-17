@@ -10,42 +10,61 @@ import {
 import type { Profile, Section } from '@/types/resume.types';
 import type { Template } from '@/types/template.types';
 
+const templateQueryKeys = {
+  root: () => ['template'] as const,
+
+  mergedListRoot: () => [...templateQueryKeys.root(), 'merged', 'list'] as const,
+  mergedList: (page: number = 1, size: number = 10) =>
+    [...templateQueryKeys.mergedListRoot(), page, size] as const,
+
+  localListRoot: () => [...templateQueryKeys.root(), 'list', 'local'] as const,
+  localList: (page: number = 1, size: number = 10) =>
+    [...templateQueryKeys.localListRoot(), page, size] as const,
+
+  item: (templateId: string) => [...templateQueryKeys.root(), 'item', templateId] as const,
+  localItem: (templateId: string) => [...templateQueryKeys.root(), 'local', templateId] as const,
+
+  renderRoot: () => [...templateQueryKeys.root(), 'render'] as const,
+  render: (template: Template, sections: Section[], profile: Profile, readonly: boolean = false) =>
+    [
+      ...templateQueryKeys.renderRoot(),
+      readonly ? 'readonly' : 'editable',
+      template.content,
+      JSON.stringify(sections),
+      JSON.stringify(profile),
+    ] as const,
+};
+
 export const templateQueries = {
+  keys: templateQueryKeys,
   list: (page: number = 1, size: number = 10) =>
     queryOptions({
-      queryKey: ['template', 'merged', 'list', page, size] as const,
+      queryKey: templateQueryKeys.mergedList(page, size),
       queryFn: () => getTemplates(page, size),
       staleTime: 1000 * 60 * 5,
     }),
   localList: (page: number = 1, size: number = 10) =>
     queryOptions({
-      queryKey: ['template', 'list', 'local', page, size] as const,
+      queryKey: templateQueryKeys.localList(page, size),
       queryFn: () => getLocalTemplates(page, size),
     }),
   item: (templateId: string) =>
     queryOptions({
-      queryKey: ['template', 'item', templateId] as const,
+      queryKey: templateQueryKeys.item(templateId),
       queryFn: () => getTemplate(templateId),
       enabled: !!templateId,
       staleTime: Infinity,
     }),
   localItem: (templateId: string) =>
     queryOptions({
-      queryKey: ['template', 'local', templateId] as const,
+      queryKey: templateQueryKeys.localItem(templateId),
       queryFn: () => getLocalTemplate(templateId),
       enabled: !!templateId,
       staleTime: Infinity,
     }),
   render: (template: Template, sections: Section[], profile: Profile, readonly: boolean = false) =>
     queryOptions({
-      queryKey: [
-        'template',
-        'render',
-        readonly ? 'readonly' : 'editable',
-        template.content,
-        JSON.stringify(sections),
-        JSON.stringify(profile),
-      ] as const,
+      queryKey: templateQueryKeys.render(template, sections, profile, readonly),
       queryFn: async () => {
         return renderTemplate(template, sections, profile);
       },

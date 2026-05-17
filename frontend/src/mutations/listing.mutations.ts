@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useDebouncedMutation } from '@/hooks/use-debounced-mutation.hooks';
 import { listingsQueries } from '@/queries/listing.queries';
+import { listingDraftQueries } from '@/queries/listing-draft.queries';
 import {
   generateListingResearch as generateListingResearchSvc,
   ingestListing as ingestListingSvc,
@@ -20,13 +21,13 @@ export function useIngestListing() {
       ingestListingSvc(url, content, id),
     onSuccess: (newDraft) => {
       queryClient.setQueryData<ListingDraft[]>(
-        ['listing-drafts'],
+        listingDraftQueries.keys.list(),
         (old) => old?.map((l) => (l.id === newDraft.id ? newDraft : l)) ?? []
       );
     },
     onError: (error, variables) => {
       queryClient.setQueryData<ListingDraft[]>(
-        ['listing-drafts'],
+        listingDraftQueries.keys.list(),
         (old) =>
           old?.map((l) =>
             l.id === variables.id
@@ -48,13 +49,13 @@ export function useIngestListing() {
     const isNew = !existingId;
 
     if (isNew) {
-      queryClient.setQueryData<ListingDraft[]>(['listing-drafts'], (old) => [
+      queryClient.setQueryData<ListingDraft[]>(listingDraftQueries.keys.list(), (old) => [
         ...(old ?? []),
         { id, url, status: 'pending' } as ListingDraftPending,
       ]);
     } else {
       queryClient.setQueryData<ListingDraft[]>(
-        ['listing-drafts'],
+        listingDraftQueries.keys.list(),
         (old) =>
           old?.map((l) =>
             l.id === id ? ({ id: l.id, url: l.url, status: 'pending' } as ListingDraftPending) : l
@@ -74,21 +75,26 @@ export function useSaveListings() {
   const { mutateAsync: saveListing } = useMutation({
     mutationFn: saveListingSvc,
     onMutate: (listing: ListingDraft) => {
-      const previousListings = queryClient.getQueryData<ListingDraft[]>(['listing-drafts']);
+      const previousListings = queryClient.getQueryData<ListingDraft[]>(
+        listingDraftQueries.keys.list()
+      );
 
-      queryClient.setQueryData(['listing-drafts'], (old: ListingDraft[] | undefined) => {
-        return old?.filter((l) => l.id !== listing.id) || [];
-      });
+      queryClient.setQueryData(
+        listingDraftQueries.keys.list(),
+        (old: ListingDraft[] | undefined) => {
+          return old?.filter((l) => l.id !== listing.id) || [];
+        }
+      );
 
       return { previousListings };
     },
     onSuccess: () => {
       // Invalidate the listings list so it refetches with the newly saved listing
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      queryClient.invalidateQueries({ queryKey: listingsQueries.keys.listRoot() });
     },
     onError: (_err, _listing, context) => {
       if (context?.previousListings) {
-        queryClient.setQueryData(['listing-drafts'], context.previousListings);
+        queryClient.setQueryData(listingDraftQueries.keys.list(), context.previousListings);
       }
     },
   });
@@ -105,7 +111,7 @@ export function useUpdateListingNotes() {
     mutationFn: ({ listingId, notes }: { listingId: string; notes: string | null }) =>
       updateListingNotesSvc(listingId, notes),
     onSuccess: (updatedListing) => {
-      queryClient.setQueryData(['listing', updatedListing.id], updatedListing);
+      queryClient.setQueryData(listingsQueries.keys.item(updatedListing.id), updatedListing);
     },
     delay: 500,
   });
@@ -119,7 +125,7 @@ export function useGenerateListingResearch() {
   return useMutation({
     mutationFn: (listingId: string) => generateListingResearchSvc(listingId),
     onSuccess: (data, listingId) => {
-      queryClient.setQueryData(listingsQueries.researchStatus(listingId).queryKey, data);
+      queryClient.setQueryData(listingsQueries.keys.researchStatus(listingId), data);
     },
   });
 }
