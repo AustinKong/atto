@@ -1,7 +1,6 @@
+import os
 import sys
-import webbrowser
 from pathlib import Path
-from threading import Timer
 
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +20,11 @@ app.add_middleware(
   allow_methods=['*'],
   allow_headers=['*'],
 )
+
+
+@app.get('/api/health')
+async def health() -> dict[str, str]:
+  return {'status': 'ok'}
 
 
 if getattr(sys, 'frozen', False):
@@ -57,23 +61,27 @@ def install_playwright_browsers():
         playwright_main()
       except SystemExit as exc:
         if exc.code not in (0, None):
-          raise
+          print(
+            'Failed to download Chromium. Browser-backed features may be unavailable '
+            'until Playwright browsers are installed.'
+          )
     finally:
       sys.argv = original_argv
 
 
 def main():
+  host = os.environ.get('ATTO_HOST', '127.0.0.1')
+  port = int(os.environ.get('ATTO_PORT', '8000'))
+
   install_playwright_browsers()
   create_tables()
 
   frozen = getattr(sys, 'frozen', False)
-  if frozen:
-    Timer(1.5, lambda: webbrowser.open_new('http://127.0.0.1:8000')).start()
 
   uvicorn_config = {
     'app': 'app.run:app',
-    'host': '127.0.0.1',
-    'port': 8000,
+    'host': host,
+    'port': port,
     'log_level': 'info',
     'reload': not frozen,
     'reload_dirs': [str(Path(__file__).parent)],

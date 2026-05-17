@@ -57,11 +57,12 @@ def get_settings():
         except Exception:
           pass
 
-    ui_structure[category_key] = {
-      'title': category_meta.get('title', category_key),
-      'description': category_meta.get('description', ''),
-      'fields': fields_config,
-    }
+    if fields_config:
+      ui_structure[category_key] = {
+        'title': category_meta.get('title', category_key),
+        'description': category_meta.get('description', ''),
+        'fields': fields_config,
+      }
 
   return ui_structure
 

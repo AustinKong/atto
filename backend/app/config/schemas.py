@@ -82,25 +82,37 @@ class PathsPrefs(BaseModel):
   db_path: str = ConfigField(
     default_factory=lambda: str(get_data_dir() / 'db.sqlite3'),
     title='Database Path',
-    description='Location where the application stores all job listings, experiences, and user data. Change this if you want to use a different database file.',
+    description=(
+      'Location where the application stores all job listings, experiences, and user data. '
+      'Change this if you want to use a different database file.'
+    ),
     exposure='advanced',
   )
   vector_path: str = ConfigField(
     default_factory=lambda: str(get_data_dir() / 'vectors'),
     title='Vector Database Path',
-    description='Directory where AI embeddings for semantic search are stored. Larger datasets require more disk space here.',
+    description=(
+      'Directory where AI embeddings for semantic search are stored. '
+      'Larger datasets require more disk space here.'
+    ),
     exposure='advanced',
   )
   profile_path: str = ConfigField(
     default_factory=lambda: str(get_data_dir() / 'profile.json'),
     title='Profile Data Path',
-    description='File containing your personal information used for resume generation. Edit this file directly to update your profile data.',
+    description=(
+      'File containing your personal information used for resume generation. '
+      'Edit this file directly to update your profile data.'
+    ),
     exposure='advanced',
   )
   templates_dir: str = ConfigField(
     default_factory=lambda: str(get_data_dir() / 'resume_templates'),
     title='Resume Templates Directory',
-    description='Folder containing HTML templates for resume generation. Add custom templates here to use them in resume creation.',
+    description=(
+      'Folder containing HTML templates for resume generation. '
+      'Add custom templates here to use them in resume creation.'
+    ),
     exposure='advanced',
   )
 
@@ -111,7 +123,8 @@ class ModelPrefs(BaseModel):
     title='Language Model',
     description=(
       'The AI model used for generating resume content, matching experiences to jobs, '
-      'and answering questions. OpenAI models (gpt-*, o1, o3) and Gemini models (gemini-*) are supported.'
+      'and answering questions. OpenAI models (gpt-*, o1, o3) and Gemini models '
+      '(gemini-*) are supported.'
     ),
     exposure='normal',
   )
@@ -123,7 +136,10 @@ class ModelPrefs(BaseModel):
   ] = ConfigField(
     default='text-embedding-3-small',
     title='Embedding Model',
-    description='Model used to convert text into vectors for semantic search. This affects how well the system finds relevant experiences for job applications.',
+    description=(
+      'Model used to convert text into vectors for semantic search. '
+      'This affects how well the system finds relevant experiences for job applications.'
+    ),
     exposure='normal',
   )
   temperature: float = ConfigField(
@@ -131,7 +147,11 @@ class ModelPrefs(BaseModel):
     title='Temperature',
     ge=0.0,
     le=2.0,
-    description='Controls randomness in AI responses. Lower values (0.1-0.3) give more focused, consistent results. Higher values (0.7-1.0) add more creativity but may be less reliable.',
+    description=(
+      'Controls randomness in AI responses. Lower values (0.1-0.3) give more focused, '
+      'consistent results. Higher values (0.7-1.0) add more creativity but may be less '
+      'reliable.'
+    ),
     exposure='advanced',
   )
   api_key: str = ConfigField(
@@ -177,7 +197,11 @@ class ListingsPrefs(BaseModel):
     title='Semantic Similarity Threshold',
     ge=0.0,
     le=1.0,
-    description='How similar job descriptions must be to be considered duplicates. Higher values (0.9-0.95) are stricter and may miss some duplicates. Lower values (0.7-0.8) catch more duplicates but might be too aggressive.',
+    description=(
+      'How similar job descriptions must be to be considered duplicates. Higher values '
+      '(0.9-0.95) are stricter and may miss some duplicates. Lower values (0.7-0.8) '
+      'catch more duplicates but might be too aggressive.'
+    ),
     exposure='advanced',
   )
   title_threshold: float = ConfigField(
@@ -185,7 +209,11 @@ class ListingsPrefs(BaseModel):
     title='Title Similarity Threshold',
     ge=0.0,
     le=1.0,
-    description='How similar job titles must be for basic duplicate detection. This is a faster check before doing full semantic analysis. Values around 0.8-0.9 work well for most cases.',
+    description=(
+      'How similar job titles must be for basic duplicate detection. This is a faster '
+      'check before doing full semantic analysis. Values around 0.8-0.9 work well for '
+      'most cases.'
+    ),
     exposure='advanced',
   )
   company_threshold: float = ConfigField(
@@ -193,7 +221,10 @@ class ListingsPrefs(BaseModel):
     title='Company Similarity Threshold',
     ge=0.0,
     le=1.0,
-    description='How similar company names must be to be considered the same. Helps prevent duplicate listings from the same company with slight name variations.',
+    description=(
+      'How similar company names must be to be considered the same. Helps prevent '
+      'duplicate listings from the same company with slight name variations.'
+    ),
     exposure='advanced',
   )
   search_k: int = ConfigField(
@@ -201,7 +232,10 @@ class ListingsPrefs(BaseModel):
     title='Semantic Search Results',
     ge=1,
     le=20,
-    description='Number of similar job listings to retrieve during semantic duplicate checks. More results increase accuracy but also processing time and cost.',
+    description=(
+      'Number of similar job listings to retrieve during semantic duplicate checks. '
+      'More results increase accuracy but also processing time and cost.'
+    ),
     exposure='advanced',
   )
 
@@ -212,7 +246,10 @@ class ExperiencesPrefs(BaseModel):
     title='Number of Experiences',
     ge=1,
     le=10,
-    description='How many relevant work experiences to include in each resume. More experiences provide better context but may make resumes too long. 3-5 is usually optimal.',
+    description=(
+      'How many relevant work experiences to include in each resume. More experiences '
+      'provide better context but may make resumes too long. 3-5 is usually optimal.'
+    ),
     exposure='normal',
   )
   max_bullets: int = ConfigField(
@@ -220,7 +257,10 @@ class ExperiencesPrefs(BaseModel):
     title='Maximum Bullet Points',
     ge=1,
     le=10,
-    description='Maximum number of bullet points to show for each experience section. Limits verbosity while ensuring key achievements are highlighted.',
+    description=(
+      'Maximum number of bullet points to show for each experience section. '
+      'Limits verbosity while ensuring key achievements are highlighted.'
+    ),
     exposure='normal',
   )
 
@@ -229,7 +269,10 @@ class IngestionPrefs(BaseModel):
   aggressive: bool = ConfigField(
     default=True,
     title='Aggressive Scraping',
-    description='When enabled, uses more aggressive techniques to extract content from websites. May work better on complex sites but could be blocked by anti-bot measures.',
+    description=(
+      'When enabled, uses more aggressive techniques to extract content from websites. '
+      'May work better on complex sites but could be blocked by anti-bot measures.'
+    ),
     exposure='advanced',
   )
   headless: bool = ConfigField(
@@ -270,7 +313,10 @@ class ExperimentalPrefs(BaseModel):
   debug_mode: bool = ConfigField(
     default=False,
     title='Debug Mode',
-    description='Enable additional logging and error messages for troubleshooting. Not recommended for regular use.',
+    description=(
+      'Enable additional logging and error messages for troubleshooting. '
+      'Not recommended for regular use.'
+    ),
     exposure='secret',
   )
 
@@ -281,6 +327,17 @@ class PaperPrefs(BaseModel):
     title='Paper Mode',
     description='Shows whether Atto is using the real workspace or the isolated paper workspace.',
     disabled_message='Use the Paper Mode controls to switch workspaces.',
+  )
+
+
+class LauncherPrefs(BaseModel):
+  port: int | None = ConfigField(
+    default=None,
+    title='Launcher Port',
+    description='Remembered local port used by the bundled Atto launcher.',
+    ge=1024,
+    le=65535,
+    exposure='hidden',
   )
 
 
@@ -329,4 +386,9 @@ class AppConfig(BaseModel):
     default_factory=PaperPrefs,
     title='Paper Mode',
     description='Paper mode configuration',
+  )
+  launcher: LauncherPrefs = Field(
+    default_factory=LauncherPrefs,
+    title='Launcher',
+    description='Bundled launcher configuration',
   )

@@ -2,6 +2,8 @@
 
 from importlib.metadata import distribution
 
+from PyInstaller.utils.hooks import collect_submodules
+
 
 def _mypyc_hiddenimports(dist_name):
     # Some wheels (e.g. chardet) expose mypyc extension modules with hashed names
@@ -20,10 +22,10 @@ def _mypyc_hiddenimports(dist_name):
 
 a = Analysis(
     ['backend/run.py'],
-    pathex=[],
+    pathex=['backend', '.'],
     binaries=[],
     datas=[('frontend/dist', 'frontend/dist'), ('backend/app/assets', 'app/assets')],
-    hiddenimports=_mypyc_hiddenimports('chardet'),
+    hiddenimports=collect_submodules('shared') + _mypyc_hiddenimports('chardet'),
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

@@ -11,6 +11,7 @@ from app.config.schemas import (
   ExperiencesPrefs,
   ExperimentalPrefs,
   IngestionPrefs,
+  LauncherPrefs,
   ListingsPrefs,
   ModelPrefs,
   PaperPrefs,
@@ -117,6 +118,10 @@ class ConfigManager:
   @property
   def paper(self) -> PaperPrefs:
     return self.config.paper
+
+  @property
+  def launcher(self) -> LauncherPrefs:
+    return self.config.launcher
 
   def save(self, updates: dict) -> None:
     yaml_updates: dict = {}
