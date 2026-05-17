@@ -137,7 +137,7 @@ For simple CRUD operations that require no business logic, a router may depend o
 
 ## Database
 
-- Schema is initialised at startup in `app/seed.py`. There is **no migration system** — schema changes require updating `seed.py` and recreating the database.
+- Schema is initialised at startup in `app/db_init.py`. There is **no migration system** — schema changes require updating `db_init.py` and recreating the database.
 - Always use parameterised queries (pass values as a `tuple` to `execute`/`fetch_*`) — never interpolate user input into SQL strings.
 - Use `sqlite3.Row` (set by `DatabaseRepository`) so rows are accessible by column name.
 

@@ -8,8 +8,8 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from playwright.sync_api import sync_playwright
 
+from app.db_init import create_tables
 from app.main import create_app
-from app.seed import create_tables
 
 app = create_app()
 

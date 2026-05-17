@@ -7,13 +7,13 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.config import settings
+from app.db_init import create_tables
 from app.repositories import (
   ApplicationRepository,
   ListingRepository,
   ProfileRepository,
   ResumeRepository,
 )
-from app.seed import create_tables
 
 from .schemas import PaperFixture
 from .transforms import (

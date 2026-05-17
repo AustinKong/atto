@@ -82,7 +82,7 @@ All JSON payloads use **camelCase** (automatic via `CamelModel` alias generator)
 ## Adding new features
 
 1. Define Pydantic schemas in `backend/app/schemas/` (or `shared/schemas/` if cloud also needs them).
-2. Add the database table/migration in `backend/app/seed.py`.
+2. Add the database table/schema initialization in `backend/app/db_init.py`.
 3. Implement the repository → service → router stack in the backend.
 4. Add TypeScript types in `frontend/src/types/`, service functions in `frontend/src/services/`, queries/mutations in `frontend/src/queries/` and `frontend/src/mutations/`.
 5. Build pages and components following the frontend component folder structure.
