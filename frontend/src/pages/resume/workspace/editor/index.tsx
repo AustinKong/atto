@@ -1,4 +1,4 @@
-import { Collapsible, Field, HStack, Input, Text, VStack } from '@chakra-ui/react';
+import { Collapsible, Field, Heading, HStack, Input, VStack } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { FormProvider, useForm } from 'react-hook-form';
 import { LuChevronLeft } from 'react-icons/lu';
@@ -37,11 +37,11 @@ export function Editor() {
           <HStack
             alignItems="center"
             justifyContent="space-between"
-            color="fg.muted"
             cursor="pointer"
           >
-            <Text>Basic Information</Text>
+            <Heading textStyle="title-sm">Basic Information</Heading>
             <Collapsible.Indicator
+              color="fg.muted"
               transition="transform 0.2s"
               _open={{ transform: 'rotate(-90deg)' }}
             >
@@ -54,7 +54,7 @@ export function Editor() {
             <VStack gap={4} align="stretch" mt="md">
               <HStack>
                 <Field.Root required>
-                  <Field.Label>
+                  <Field.Label textStyle="caption">
                     Full Name
                     <Field.RequiredIndicator />
                   </Field.Label>
@@ -63,11 +63,11 @@ export function Editor() {
                     placeholder="Your full name"
                     disabled={!isDefault}
                   />
-                  <Field.HelperText>Your full legal name.</Field.HelperText>
+                  <Field.HelperText textStyle="caption">Your full legal name.</Field.HelperText>
                 </Field.Root>
 
                 <Field.Root required>
-                  <Field.Label>
+                  <Field.Label textStyle="caption">
                     Email Address
                     <Field.RequiredIndicator />
                   </Field.Label>
@@ -77,35 +77,39 @@ export function Editor() {
                     placeholder="your.email@example.com"
                     disabled={!isDefault}
                   />
-                  <Field.HelperText>Your primary email address.</Field.HelperText>
+                  <Field.HelperText textStyle="caption">
+                    Your primary email address.
+                  </Field.HelperText>
                 </Field.Root>
               </HStack>
 
               <HStack>
                 <Field.Root>
-                  <Field.Label>Phone Number</Field.Label>
+                  <Field.Label textStyle="caption">Phone Number</Field.Label>
                   <Input
                     {...form.register('phone')}
                     type="tel"
                     placeholder="(123) 456-7890"
                     disabled={!isDefault}
                   />
-                  <Field.HelperText>Your primary phone number.</Field.HelperText>
+                  <Field.HelperText textStyle="caption">
+                    Your primary phone number.
+                  </Field.HelperText>
                 </Field.Root>
 
                 <Field.Root>
-                  <Field.Label>Location</Field.Label>
+                  <Field.Label textStyle="caption">Location</Field.Label>
                   <Input
                     {...form.register('location')}
                     placeholder="City, Country"
                     disabled={!isDefault}
                   />
-                  <Field.HelperText>Your location.</Field.HelperText>
+                  <Field.HelperText textStyle="caption">Your location.</Field.HelperText>
                 </Field.Root>
               </HStack>
 
               <Field.Root>
-                <Field.Label>Website</Field.Label>
+                <Field.Label textStyle="caption">Website</Field.Label>
                 <Input
                   {...form.register('website')}
                   type="url"
@@ -113,9 +117,11 @@ export function Editor() {
                   disabled={!isDefault}
                 />
                 {isDefault ? (
-                  <Field.HelperText>Your personal or professional website.</Field.HelperText>
+                  <Field.HelperText textStyle="caption">
+                    Your personal or professional website.
+                  </Field.HelperText>
                 ) : (
-                  <Field.HelperText color="fg.muted">
+                  <Field.HelperText textStyle="caption">
                     Profile can only be edited from the default resume.
                   </Field.HelperText>
                 )}

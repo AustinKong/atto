@@ -1,4 +1,4 @@
-import { Text, VStack } from '@chakra-ui/react';
+import { Heading, VStack } from '@chakra-ui/react';
 
 import { SegmentedGauge } from '@/components/custom/segmented-gauge';
 import type { ApplicationAnalysis } from '@/types/application.types';
@@ -10,9 +10,7 @@ export function MatchScore({ analysis }: { analysis: ApplicationAnalysis | null 
 
   return (
     <VStack align="stretch" gap="xs">
-      <Text textStyle="sm" color="fg.muted">
-        Match Score
-      </Text>
+      <Heading textStyle="title-sm">Match Score</Heading>
       <SegmentedGauge percent={score} showPercentage size="lg" />
     </VStack>
   );

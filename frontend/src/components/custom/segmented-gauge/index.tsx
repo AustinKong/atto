@@ -3,11 +3,11 @@ import { Box, HStack, Text } from '@chakra-ui/react';
 type GaugeSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 const SIZE_CONFIG: Record<GaugeSize, { barW: number; gapW: number; height: string }> = {
-  xs: { barW: 2,   gapW: 1.5, height: '2' },
-  sm: { barW: 2.5, gapW: 2,   height: '3' },
-  md: { barW: 3,   gapW: 2.5, height: '4' },
-  lg: { barW: 4,   gapW: 3,   height: '6' },
-  xl: { barW: 6,   gapW: 4,   height: '8' },
+  xs: { barW: 2, gapW: 1.5, height: '2' },
+  sm: { barW: 2.5, gapW: 2, height: '3' },
+  md: { barW: 3, gapW: 2.5, height: '4' },
+  lg: { barW: 4, gapW: 3, height: '6' },
+  xl: { barW: 6, gapW: 4, height: '8' },
 };
 
 const RED = 'var(--chakra-colors-fg-error)';
@@ -71,7 +71,7 @@ export function SegmentedGauge({
     return (
       <HStack w="full" gap="sm" align="flex-end">
         <Box flex="1">{gauge}</Box>
-        <Text fontFamily="monospace" fontSize="sm" minW="3ch">
+        <Text textStyle="caption" fontFamily="monospace" minW="3ch">
           {String(roundedPercent).padStart(2, '0')}%
         </Text>
       </HStack>

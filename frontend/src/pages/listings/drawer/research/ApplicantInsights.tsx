@@ -6,7 +6,9 @@ export function ApplicantInsights({ insights }: { insights: string[] }) {
   return (
     <Section title="Key Insights for Applicants">
       {insights.length === 0 ? (
-        <Text>No applicant insights yet. Generate research to populate this section.</Text>
+        <Text textStyle="caption">
+          No applicant insights yet. Generate research to populate this section.
+        </Text>
       ) : (
         <List.Root as="ol" gap="xs">
           {insights.map((insight) => (

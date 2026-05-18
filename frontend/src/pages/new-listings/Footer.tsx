@@ -17,28 +17,29 @@ export function Footer({
       py="xs"
       justify="space-between"
       align="center"
-      color="fg.muted"
-      fontSize="sm"
+      textStyle="caption"
       bgColor="bg.subtle"
     >
-      <Text>
+      <Text textStyle="caption">
         {selectedCount} of {totalCount} selected
       </Text>
 
-      <Text textAlign="center">AI can make mistakes, double-check everything</Text>
+      <Text textStyle="caption" textAlign="center">
+        AI can make mistakes, double-check everything
+      </Text>
 
       <HStack align="center">
         {pendingCount > 0 ? (
           <>
             <Spinner size="xs" mb="2xs" />
-            <Text>{pendingCount} listings pending</Text>
+            <Text textStyle="caption">{pendingCount} listings pending</Text>
           </>
         ) : (
           <>
             <Icon mb="2xs">
               <PiCheck />
             </Icon>
-            <Text>No actions pending</Text>
+            <Text textStyle="caption">No actions pending</Text>
           </>
         )}
       </HStack>

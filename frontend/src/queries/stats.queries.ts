@@ -5,8 +5,7 @@ import type { StatsDateRange } from '@/types/stats.types';
 import { DEFAULT_STATS_DATE_RANGE } from '@/utils/stats.utils';
 
 const statsQueryKeys = {
-  item: (dateRange: StatsDateRange = DEFAULT_STATS_DATE_RANGE) =>
-    ['stat', dateRange] as const,
+  item: (dateRange: StatsDateRange = DEFAULT_STATS_DATE_RANGE) => ['stat', dateRange] as const,
 };
 
 export const statsQueries = {

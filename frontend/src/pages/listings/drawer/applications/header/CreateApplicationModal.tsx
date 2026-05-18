@@ -3,6 +3,7 @@ import {
   CloseButton,
   Dialog,
   Field,
+  Heading,
   HStack,
   Icon,
   Input,
@@ -13,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
-import { LuCopy, LuFileText, LuSparkles, LuTriangleAlert } from 'react-icons/lu';
+import { LuCopy, LuFileText, LuSparkles } from 'react-icons/lu';
 import { useParams } from 'react-router';
 import { z } from 'zod';
 
@@ -26,22 +27,18 @@ const RESUME_OPTIONS = [
     title: 'Copy Default Resume',
     description: 'Start with your default resume template',
     icon: <LuCopy />,
-    warning: null,
   },
   {
     value: 'blank' as const,
     title: 'Blank Resume',
     description: 'Create an empty resume from scratch',
     icon: <LuFileText />,
-    warning: null,
   },
   {
     value: 'optimized' as const,
-    title: 'Optimize for Job',
-    description:
-      'Automatically populate and optimize resume content for this listing, using your default resume as a base.',
+    title: 'Optimize for Listing',
+    description: 'Optimize resume contents for this listing, using your default resume as a base.',
     icon: <LuSparkles />,
-    warning: 'This is an experimental feature that may produce poor results. Use with caution.',
   },
 ];
 
@@ -117,7 +114,7 @@ export function CreateApplicationModal({
             <Dialog.Body>
               <VStack align="stretch" gap="lg">
                 <Field.Root required invalid={Boolean(errors.name)}>
-                  <Field.Label>Application Name</Field.Label>
+                  <Field.Label textStyle="caption">Application Name</Field.Label>
                   <Input
                     placeholder="e.g. Primary application"
                     disabled={createApplicationMutation.isPending}
@@ -127,18 +124,14 @@ export function CreateApplicationModal({
                 </Field.Root>
 
                 <VStack align="stretch" gap="sm">
-                  <Text fontWeight="medium" fontSize="sm">
-                    Resume Setup
-                  </Text>
+                  <Heading textStyle="title-sm">Resume Setup</Heading>
                   <Controller
                     control={control}
                     name="resumeMode"
                     render={({ field }) => (
                       <RadioCard.Root
                         value={field.value}
-                        onValueChange={(event) =>
-                          field.onChange(event.value as ResumeCreationMode)
-                        }
+                        onValueChange={(event) => field.onChange(event.value as ResumeCreationMode)}
                         orientation="horizontal"
                         gap="sm"
                         disabled={createApplicationMutation.isPending}
@@ -152,19 +145,11 @@ export function CreateApplicationModal({
                                   <Icon size="xl" color="fg.muted" mb="xs">
                                     {option.icon}
                                   </Icon>
-                                  <RadioCard.ItemText fontSize="sm" fontWeight="medium">
+                                  <RadioCard.ItemText textStyle="body">
                                     {option.title}
                                   </RadioCard.ItemText>
-                                  <RadioCard.ItemDescription fontSize="xs">
-                                    <Text>{option.description}</Text>
-                                    {option.warning && (
-                                      <Text color="fg.error" mt="xs">
-                                        {option.warning}
-                                        <Icon size="xs">
-                                          <LuTriangleAlert />
-                                        </Icon>
-                                      </Text>
-                                    )}
+                                  <RadioCard.ItemDescription textStyle="caption">
+                                    <Text textStyle="caption">{option.description}</Text>
                                   </RadioCard.ItemDescription>
                                 </RadioCard.ItemContent>
                               </RadioCard.ItemControl>

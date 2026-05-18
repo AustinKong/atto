@@ -20,7 +20,12 @@ export function Preview() {
   return (
     <VStack gap="0" h="full">
       <Toolbar resume={resume} template={template} profile={profile} />
-      <ResumePreview ref={registerPreview} template={template} sections={resume.sections} profile={profile} />
+      <ResumePreview
+        ref={registerPreview}
+        template={template}
+        sections={resume.sections}
+        profile={profile}
+      />
     </VStack>
   );
 }

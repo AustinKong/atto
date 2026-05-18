@@ -1,4 +1,4 @@
-import { Box, HStack, Link, Text } from '@chakra-ui/react';
+import { Box, Heading, HStack, Link } from '@chakra-ui/react';
 
 import { CompanyLogo } from '@/components/custom/CompanyLogo';
 import type { Listing } from '@/types/listing.types';
@@ -9,13 +9,13 @@ export function Header({ listing }: { listing: Listing }) {
     <HStack gap="xs">
       <CompanyLogo domain={listing.domain} companyName={listing.company} size="xl" />
       <Box flex="1" overflow="hidden">
-        <Text textStyle="xl" fontWeight="bold" lineHeight="shorter" truncate>
+        <Heading textStyle="title-lg" truncate>
           {formatListingBreadcrumb(listing)}
-        </Text>
+        </Heading>
         <Link
           href={listing.url}
           variant="underline"
-          textStyle="sm"
+          textStyle="caption"
           target="_blank"
           color="fg.info"
           display="block"

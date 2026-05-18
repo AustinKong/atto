@@ -99,7 +99,7 @@ const columns = [
       return typeof score === 'number' ? (
         <SegmentedGauge percent={score} size="md" />
       ) : (
-        <Text color="fg.muted">N/A</Text>
+        <Text textStyle="caption">N/A</Text>
       );
     },
     size: 15,

@@ -75,7 +75,7 @@ function TokenCounter() {
 
   return (
     <VStack px="sm" py="xs" align="stretch" gap="xs">
-      <Heading id="user-menu-heading" size="sm">
+      <Heading id="user-menu-heading" textStyle="title-sm">
         OpenAI Tokens
       </Heading>
       <DataList.Root size="md" orientation="horizontal" gap="2xs">

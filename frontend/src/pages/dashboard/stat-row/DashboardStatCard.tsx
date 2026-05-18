@@ -19,22 +19,19 @@ export function DashboardStatCard({
 }) {
   const StatIcon = icon;
   const hasTrend = trend !== null;
-  const isPositiveTrend =
-    hasTrend && (positiveTrend === 'increase' ? trend >= 0 : trend <= 0);
+  const isPositiveTrend = hasTrend && (positiveTrend === 'increase' ? trend >= 0 : trend <= 0);
   const trendColor = isPositiveTrend ? 'fg.success' : 'fg.error';
 
   return (
     <Stat.Root bg="bg.panel" border="subtle" borderRadius="md" minH="5rem" minW="0" p="xs">
       <HStack justifyContent="space-between" alignItems="flex-start" gap="xs">
-        <Stat.Label color="fg.muted" lineHeight="short" textStyle="xs">
-          {label}
-        </Stat.Label>
+        <Stat.Label textStyle="caption">{label}</Stat.Label>
         <Icon color="fg.muted" boxSize="4">
           <StatIcon />
         </Icon>
       </HStack>
       <HStack alignItems="baseline" gap="xs" mt="2xs" wrap="wrap">
-        <Stat.ValueText alignItems="baseline" letterSpacing="0" textStyle="2xl">
+        <Stat.ValueText alignItems="baseline" textStyle="title-lg">
           {value}
         </Stat.ValueText>
         {hasTrend && (
@@ -42,7 +39,7 @@ export function DashboardStatCard({
             colorPalette={isPositiveTrend ? 'green' : 'red'}
             gap="0"
             px="1"
-            textStyle="2xs"
+            textStyle="caption"
             variant="subtle"
           >
             {trend >= 0 ? (

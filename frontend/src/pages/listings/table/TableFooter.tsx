@@ -27,11 +27,7 @@ export function TableFooter({
         <Center ref={ref} h="10">
           {isLoading && <Spinner size="sm" />}
 
-          {!hasNextPage && !isLoading && (
-            <Text fontSize="xs" color="fg.subtle">
-              No more Listings
-            </Text>
-          )}
+          {!hasNextPage && !isLoading && <Text textStyle="caption">No more Listings</Text>}
         </Center>
       </ChakraTable.Cell>
     </ChakraTable.Row>

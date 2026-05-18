@@ -32,7 +32,9 @@ export type ContentQualityDatum = {
   highNoise: number;
 };
 
-export function countContentQualityCategories(section: ContentQualitySection): ContentQualityCounts {
+export function countContentQualityCategories(
+  section: ContentQualitySection
+): ContentQualityCounts {
   const counts: ContentQualityCounts = {
     highSignal: 0,
     lowSignal: 0,

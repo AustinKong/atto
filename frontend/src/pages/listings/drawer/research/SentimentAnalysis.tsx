@@ -16,7 +16,7 @@ export function SentimentAnalysis({
   return (
     <Section title="Sentiment Analysis">
       <SegmentedGauge percent={sentiment?.value ?? 0} showPercentage size="lg" />
-      <HStack gap="xs" color="fg.muted">
+      <HStack gap="xs" textStyle="caption">
         <Text>
           {sources.length > 0
             ? `Sentiment collected from ${sources.length} sources`

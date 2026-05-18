@@ -22,9 +22,7 @@ export function ApplicationStatusLegend({ statuses }: { statuses: StatusEnum[] }
             h="2.5"
             w="2.5"
           />
-          <Text color="fg.muted" fontSize="sm">
-            {formatStatusLabel(status)}
-          </Text>
+          <Text textStyle="caption">{formatStatusLabel(status)}</Text>
         </HStack>
       ))}
     </Wrap>

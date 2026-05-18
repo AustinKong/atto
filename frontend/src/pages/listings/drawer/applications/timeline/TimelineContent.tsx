@@ -89,16 +89,18 @@ function TimelineItem({ event, application }: { event: StatusEvent; application:
       </ChakraTimeline.Connector>
       <ChakraTimeline.Content>
         <HStack w="full" justify="space-between">
-          <ChakraTimeline.Title mt="0" textStyle="md">
+          <ChakraTimeline.Title mt="0" textStyle="title-sm">
             {formatStatus(event)}
           </ChakraTimeline.Title>
-          <DisplayDate date={event.date} textStyle="sm" color="fg.muted" />
+          <DisplayDate date={event.date} textStyle="caption" />
         </HStack>
 
         <Collapsible.Root>
-          <Collapsible.Content as={VStack} alignItems="stretch" gap="0">
+          <Collapsible.Content as={VStack} alignItems="stretch" gap="2xs">
             {event.notes && (
-              <ChakraTimeline.Description textStyle="sm">{event.notes}</ChakraTimeline.Description>
+              <ChakraTimeline.Description color="fg" textStyle="body">
+                {event.notes}
+              </ChakraTimeline.Description>
             )}
 
             {peopleDetails && (
@@ -106,12 +108,18 @@ function TimelineItem({ event, application }: { event: StatusEvent; application:
                 <Icon>
                   <PiPerson />
                 </Icon>
-                <Text color="fg.muted" textStyle="sm">
+                <Text textStyle="caption">
                   {peopleDetails.label} by{' '}
                   {peopleDetails.people.map((person, idx) => (
                     <span key={person.name}>
                       <Tooltip content={person.contact || person.name}>
-                        <Text color="fg" textDecoration="underline" as="span" cursor="pointer">
+                        <Text
+                          textStyle="body"
+                          color="fg"
+                          textDecoration="underline"
+                          as="span"
+                          cursor="pointer"
+                        >
                           {person.name}
                         </Text>
                       </Tooltip>
@@ -123,15 +131,14 @@ function TimelineItem({ event, application }: { event: StatusEvent; application:
             )}
 
             {hasInterviewMetadata && (
-              <VStack align="stretch" gap="2xs">
+              <>
                 {interviewDetails?.scheduledAt && (
                   <HStack gap="xs">
                     <Icon>
                       <LuClock />
                     </Icon>
                     <DisplayDate
-                      textStyle="sm"
-                      color="fg.muted"
+                      textStyle="caption"
                       date={interviewDetails.scheduledAt}
                       options={DateFormatPresets.shortWithTime}
                     />
@@ -142,19 +149,22 @@ function TimelineItem({ event, application }: { event: StatusEvent; application:
                     <Icon>
                       <LuMapPin />
                     </Icon>
-                    <Text textStyle="sm" color="fg.muted">
-                      {interviewDetails.location}
-                    </Text>
+                    <Text textStyle="caption">{interviewDetails.location}</Text>
                   </HStack>
                 )}
-              </VStack>
+              </>
             )}
           </Collapsible.Content>
 
-          <HStack justify="space-between" w="full" mt="2xs" fontSize="sm" color="fg.muted">
+          <HStack justify="space-between" w="full" mt="2xs">
             {hasContent && (
               <Collapsible.Trigger asChild>
-                <Text as="button" _hover={{ textDecoration: 'underline' }} cursor="pointer">
+                <Text
+                  as="button"
+                  textStyle="caption"
+                  _hover={{ textDecoration: 'underline' }}
+                  cursor="pointer"
+                >
                   <Collapsible.Context>
                     {(api) => (api.open ? 'Hide' : 'Show full')}
                   </Collapsible.Context>
@@ -165,6 +175,7 @@ function TimelineItem({ event, application }: { event: StatusEvent; application:
             {isEditable && (
               <Text
                 as="button"
+                textStyle="caption"
                 _hover={{ textDecoration: 'underline' }}
                 onClick={() => open({ event, application })}
                 cursor="pointer"
@@ -212,7 +223,7 @@ export function TimelineContent({ applicationId }: { applicationId?: string }) {
           ))}
         </ChakraTimeline.Root>
       ) : (
-        <Text color="fg.muted">Select an application to view timeline events.</Text>
+        <Text textStyle="caption">Select an application to view timeline events.</Text>
       )}
     </Section>
   );

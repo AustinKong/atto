@@ -3,9 +3,7 @@ import { type ReactNode, useCallback, useMemo, useRef } from 'react';
 import type { ResumeHighlight } from '@/components/custom/resume-preview';
 import type { ResumePreviewHandle } from '@/components/custom/resume-preview';
 
-import {
-  ResumeHighlightContext,
-} from './highlightContext';
+import { ResumeHighlightContext } from './highlightContext';
 
 export function ResumeHighlightProvider({ children }: { children: ReactNode }) {
   const previewRef = useRef<ResumePreviewHandle | null>(null);
@@ -31,5 +29,7 @@ export function ResumeHighlightProvider({ children }: { children: ReactNode }) {
     [highlight, clear, registerPreview]
   );
 
-  return <ResumeHighlightContext.Provider value={value}>{children}</ResumeHighlightContext.Provider>;
+  return (
+    <ResumeHighlightContext.Provider value={value}>{children}</ResumeHighlightContext.Provider>
+  );
 }

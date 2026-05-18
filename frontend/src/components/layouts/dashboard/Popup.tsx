@@ -42,14 +42,14 @@ export function Popup() {
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content overflow="hidden" borderRadius="2xl">
+          <Dialog.Content overflow="hidden">
             <Dialog.Header>
-              <Dialog.Title textStyle="2xl">
+              <Dialog.Title textStyle="title-lg">
                 {hasUpdates ? `Update available: ${latestVersion}` : `You're up to date`}
               </Dialog.Title>
             </Dialog.Header>
             <Dialog.Body>
-              <Text>
+              <Text textStyle="body">
                 {hasUpdates
                   ? "A new release is available, view the release notes to learn what's new."
                   : `You're running the latest version (${currentVersion}), view the release notes to learn what's changed.`}

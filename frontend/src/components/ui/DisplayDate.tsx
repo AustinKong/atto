@@ -8,12 +8,13 @@ interface DisplayDateProps extends TextProps {
   fallback?: string;
 }
 
+// Intentionally inherit text styles from parent
 export function DisplayDate({ date, options, fallback = '-', ...props }: DisplayDateProps) {
   const { locale = 'en-US' } = useLocaleContext();
 
   if (!date) {
     return (
-      <Text as="span" color="fg.muted" {...props}>
+      <Text as="span" {...props}>
         {fallback}
       </Text>
     );

@@ -11,14 +11,14 @@ export function Section({
   action?: ReactNode;
 }) {
   return (
-    <VStack align="stretch" gap="sm" textStyle="md">
+    <VStack align="stretch" gap="sm" textStyle="body">
       {action ? (
         <HStack justify="space-between" align="center">
-          <Heading textStyle="md">{title}</Heading>
+          <Heading textStyle="title-sm">{title}</Heading>
           {action}
         </HStack>
       ) : (
-        <Heading textStyle="md">{title}</Heading>
+        <Heading textStyle="title-sm">{title}</Heading>
       )}
       {children}
     </VStack>

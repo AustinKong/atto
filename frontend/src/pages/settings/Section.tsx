@@ -29,12 +29,10 @@ export function Section({
   return (
     <VStack align="stretch" gap="md">
       <Box mb="md">
-        <Heading size="xl" textTransform="capitalize">
+        <Heading textStyle="title-lg" textTransform="capitalize">
           {title}
         </Heading>
-        <Text textStyle="sm" color="fg.muted">
-          {description}
-        </Text>
+        <Text textStyle="caption">{description}</Text>
       </Box>
       {fields.map(([fieldName, field]) => (
         <Field.Root
@@ -45,14 +43,10 @@ export function Section({
           invalid={!!errors[`${name}.${fieldName}`]}
         >
           <VStack align="start">
-            <Field.Label textStyle="md">{field.title}</Field.Label>
-            <Field.HelperText color="fg.muted" textStyle="sm">
-              {field.description}
-            </Field.HelperText>
+            <Field.Label textStyle="body">{field.title}</Field.Label>
+            <Field.HelperText textStyle="caption">{field.description}</Field.HelperText>
             {field.disabledMessage ? (
-              <Field.HelperText color="fg.warning" textStyle="xs">
-                {field.disabledMessage}
-              </Field.HelperText>
+              <Field.HelperText color="fg.error">{field.disabledMessage}</Field.HelperText>
             ) : null}
           </VStack>
           <VStack align={{ base: 'start', md: 'end' }} w="full">

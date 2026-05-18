@@ -25,8 +25,10 @@ export function Form() {
   return (
     <VStack align="stretch" gap="lg" w="xl">
       <VStack align="start" gap="xs">
-        <Heading size="2xl">Welcome to Atto</Heading>
-        <Text color="fg.muted">Continue locally or explore a workspace filled with demo data.</Text>
+        <Heading textStyle="title-lg">Welcome to Atto</Heading>
+        <Text textStyle="caption">
+          Continue locally or explore a workspace filled with demo data.
+        </Text>
       </VStack>
 
       <Button type="button" variant="solid" onClick={handleContinueAsGuest}>

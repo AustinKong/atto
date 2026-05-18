@@ -54,7 +54,7 @@ const floatingStyles = defineStyle({
   px: '0.5',
   top: '2.5',
   insetStart: '3',
-  fontWeight: 'normal',
+  textStyle: 'caption',
   pointerEvents: 'none',
   transition: 'position',
   color: 'fg.muted',

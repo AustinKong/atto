@@ -57,10 +57,8 @@ export function ContentQuality({
   if (!hasData) {
     return (
       <VStack align="stretch" gap="2xs" flexGrow={3} flexShrink={1} flexBasis="72" minW="60">
-        <Heading size="sm">Content Quality</Heading>
-        <Text textStyle="sm" color="fg.muted">
-          Generate analysis to see content quality.
-        </Text>
+        <Heading textStyle="title-sm">Content Quality</Heading>
+        <Text textStyle="caption">Generate analysis to see content quality.</Text>
       </VStack>
     );
   }
@@ -90,7 +88,7 @@ export function ContentQuality({
   return (
     <VStack align="stretch" gap="2xs" flexGrow={3} flexShrink={1} flexBasis="72" minW="60">
       <HStack justify="space-between" align="center">
-        <Heading size="sm">Content Quality</Heading>
+        <Heading textStyle="title-sm">Content Quality</Heading>
         <IconButton
           size="xs"
           aria-label={showHighlights ? 'Hide highlights' : 'Show highlights'}

@@ -61,7 +61,6 @@ export const SectionEditor = memo(function SectionEditor({
                 {...register(`sections.${index}.title.content`)}
                 placeholder="Section Title"
                 variant="flushed"
-                fontWeight="medium"
                 flex="1"
               />
             </HStack>
@@ -116,7 +115,7 @@ const SectionContent = memo(function SectionContent({
 }) {
   const section = useWatch({ name: `sections.${sectionIndex}`, control }) as Section | undefined;
   if (!section) {
-    return <Text color="fg.muted">Unknown section type</Text>;
+    return <Text textStyle="caption">Unknown section type</Text>;
   }
 
   switch (section.type) {

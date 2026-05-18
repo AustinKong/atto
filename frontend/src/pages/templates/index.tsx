@@ -37,8 +37,8 @@ export function TemplatesPage() {
   return (
     <VStack h="full" alignItems="stretch" gap="0" p="0">
       {isPickerMode && (
-        <Box borderBottom="subtle" px="lg" py="sm">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+        <Box p="2xs">
+          <Button variant="subtle" size="xs" onClick={() => navigate(-1)}>
             ← Back to Resume
           </Button>
         </Box>
@@ -46,7 +46,7 @@ export function TemplatesPage() {
       <Box flex="1" overflowY="auto" p="lg">
         {templates.length === 0 ? (
           <Center h="200px">
-            <Text color="fg.muted">No templates found</Text>
+            <Text textStyle="caption">No templates found</Text>
           </Center>
         ) : (
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap="lg" w="full">
@@ -72,7 +72,7 @@ export function TemplatesPage() {
           >
             Previous
           </Button>
-          <Text alignSelf="center" fontSize="sm">
+          <Text alignSelf="center" textStyle="caption">
             Page {page} of {totalPages}
           </Text>
           <Button

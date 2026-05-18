@@ -43,7 +43,7 @@ export function AnalysisFooter({
   }, [isAnalyzing, refetchApplication]);
 
   return (
-    <HStack w="full" justify="space-between" color="fg.muted">
+    <HStack w="full" justify="space-between" textStyle="caption">
       <Text>
         {isAnalyzing
           ? 'Generating...'
@@ -61,6 +61,7 @@ export function AnalysisFooter({
         size="xs"
         onClick={() => generateAnalysis(applicationId)}
         loading={isAnalyzing}
+        color="inherit"
       >
         <LuRefreshCw />
       </IconButton>

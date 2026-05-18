@@ -95,9 +95,7 @@ export async function deleteStatusEvent(
   return json as Application;
 }
 
-export async function generateApplicationAnalysis(
-  applicationId: string
-): Promise<TaskStatusEntry> {
+export async function generateApplicationAnalysis(applicationId: string): Promise<TaskStatusEntry> {
   const response = await fetch(`/api/applications/${applicationId}/analysis`, {
     method: 'POST',
   });
@@ -126,9 +124,12 @@ export async function removeApplicationAnalysisSuggestion(
   applicationId: string,
   suggestionId: string
 ): Promise<Application> {
-  const response = await fetch(`/api/applications/${applicationId}/analysis/suggestions/${suggestionId}`, {
-    method: 'DELETE',
-  });
+  const response = await fetch(
+    `/api/applications/${applicationId}/analysis/suggestions/${suggestionId}`,
+    {
+      method: 'DELETE',
+    }
+  );
 
   if (!response.ok) {
     throw response;

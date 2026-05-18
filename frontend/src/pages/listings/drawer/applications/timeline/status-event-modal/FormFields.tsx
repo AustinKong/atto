@@ -42,7 +42,7 @@ export function FormFields({
     <VStack gap="md" align="stretch">
       <HStack gap="md" align="flex-end">
         <Field.Root flex="2">
-          <Field.Label>Status</Field.Label>
+          <Field.Label textStyle="caption">Status</Field.Label>
           <Controller
             control={control}
             name="status"
@@ -80,7 +80,7 @@ export function FormFields({
 
         {selectedStatus === 'interview' && (
           <Field.Root flex="1" invalid={!!errors.stage}>
-            <Field.Label>Stage</Field.Label>
+            <Field.Label textStyle="caption">Stage</Field.Label>
             <Input
               type="number"
               size="sm"
@@ -94,21 +94,21 @@ export function FormFields({
         )}
 
         <Field.Root flex="1" invalid={!!errors.date}>
-          <Field.Label>Date</Field.Label>
+          <Field.Label textStyle="caption">Date</Field.Label>
           <Input type="date" size="sm" {...register('date')} />
           {errors.date && <Field.ErrorText>{errors.date.message}</Field.ErrorText>}
         </Field.Root>
       </HStack>
 
       <Field.Root>
-        <Field.Label>Notes</Field.Label>
+        <Field.Label textStyle="caption">Notes</Field.Label>
         <Textarea placeholder="Add notes..." size="sm" autoresize {...register('notes')} />
       </Field.Root>
 
       {selectedStatus === 'interview' && (
         <HStack gap="md" align="flex-end">
           <Field.Root flex="1">
-            <Field.Label>Scheduled Time</Field.Label>
+            <Field.Label textStyle="caption">Scheduled Time</Field.Label>
             <Input
               type="datetime-local"
               size="sm"
@@ -118,7 +118,7 @@ export function FormFields({
           </Field.Root>
 
           <Field.Root flex="1">
-            <Field.Label>Location</Field.Label>
+            <Field.Label textStyle="caption">Location</Field.Label>
             <Input
               type="text"
               size="sm"

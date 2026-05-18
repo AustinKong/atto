@@ -90,10 +90,10 @@ export function TemplateBuilderPage() {
 
   return (
     <VStack h="full" gap="0" alignItems="stretch">
-      <HStack p="md" borderBottom="subtle" gap="md" wrap="wrap">
+      <HStack p="2xs" borderBottom="subtle" gap="xs" wrap="wrap">
         <Box w="250px">
           <Select.Root
-            size="sm"
+            size="xs"
             collection={templateCollection}
             value={selectedTemplate ? [selectedTemplate] : []}
             onValueChange={({ value }) => setSelectedTemplate(value[0] || '')}
@@ -120,6 +120,7 @@ export function TemplateBuilderPage() {
         </Box>
 
         <IconButton
+          size="xs"
           aria-label="Refresh template names"
           onClick={handleRefreshNames}
           disabled={namesLoading}
@@ -127,14 +128,14 @@ export function TemplateBuilderPage() {
         >
           <PiMagnifyingGlass />
         </IconButton>
-        <Button onClick={handleRefreshTemplate} disabled={!selectedTemplate}>
+        <Button size="xs" onClick={handleRefreshTemplate} disabled={!selectedTemplate}>
           <PiArrowClockwise />
           Rerender template (HMR)
         </Button>
 
         <Box w="250px">
           <Select.Root
-            size="sm"
+            size="xs"
             collection={presetCollection}
             value={[selectedPreset]}
             onValueChange={({ value }) => setSelectedPreset(value[0])}

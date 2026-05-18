@@ -39,8 +39,8 @@ export function AuthPage() {
         p="2xl"
         color="white"
       >
-        <Heading textStyle="4xl">Everything you need in one workflow</Heading>
-        <Text>
+        <Heading textStyle="title-lg">Everything you need in one workflow</Heading>
+        <Text textStyle="body">
           We automate the boring parts of job hunting, so you can focus on winning the interview.
         </Text>
       </VStack>

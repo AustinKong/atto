@@ -66,7 +66,7 @@ export function IngestionModal() {
             <Dialog.Body>
               <VStack>
                 <Field.Root required readOnly={!!context?.id}>
-                  <Field.Label>
+                  <Field.Label textStyle="caption">
                     URL <Field.RequiredIndicator />
                   </Field.Label>
                   <Input
@@ -77,14 +77,14 @@ export function IngestionModal() {
                   {errors.url && <Field.ErrorText>{errors.url.message}</Field.ErrorText>}
                 </Field.Root>
                 <Field.Root disabled={!isUrlValid}>
-                  <Field.Label>Content</Field.Label>
+                  <Field.Label textStyle="caption">Content</Field.Label>
                   <Textarea
                     {...register('content')}
                     placeholder="Paste the job listing content here"
                     rows={10}
                   />
                 </Field.Root>
-                <Text textStyle="xs" w="full" color="fg.subtle">
+                <Text textStyle="caption" w="full">
                   If no OpenAI API key is set, this will create an empty listing for you to fill
                   manually. URL is still required.
                 </Text>

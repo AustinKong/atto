@@ -13,7 +13,7 @@ export function Source({ source }: { source: Source }) {
       <HStack gap="xs" align="center" asChild cursor="pointer">
         <Link to={source.url} target="_blank" rel="noopener noreferrer">
           <CompanyLogo domain={domain} companyName={source.title} size="2xs" flexShrink={0} />
-          <Text fontWeight="medium" fontSize="sm" truncate flex="1">
+          <Text textStyle="body" truncate flex="1">
             {source.title}
           </Text>
           <Icon color="fg.muted" size="md">
@@ -21,9 +21,7 @@ export function Source({ source }: { source: Source }) {
           </Icon>
         </Link>
       </HStack>
-      <Text fontSize="sm" color="fg.muted" lineHeight="tight">
-        {source.content}
-      </Text>
+      <Text textStyle="caption">{source.content}</Text>
     </VStack>
   );
 }

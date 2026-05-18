@@ -12,8 +12,9 @@ export function Toolbar({
   isLoading: boolean;
 }) {
   return (
-    <HStack p="1.5">
+    <HStack p="2xs">
       <SegmentGroup.Root
+        size="sm"
         value={showAdvanced ? 'Advanced' : 'Basic'}
         onValueChange={(e) => onShowAdvancedChange(e.value === 'Advanced')}
       >
@@ -21,7 +22,7 @@ export function Toolbar({
         <SegmentGroup.Items items={['Basic', 'Advanced']} cursor="pointer" />
       </SegmentGroup.Root>
       <Spacer />
-      <Button type="submit" disabled={!isDirty || isLoading} loading={isLoading}>
+      <Button size="xs" type="submit" disabled={!isDirty || isLoading} loading={isLoading}>
         Save Changes
       </Button>
     </HStack>

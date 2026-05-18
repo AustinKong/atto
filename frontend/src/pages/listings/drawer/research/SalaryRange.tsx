@@ -33,7 +33,7 @@ export function SalaryRange({
   if (!salaryRange) {
     return (
       <Section title="Salary Range">
-        <Text color="fg.muted">No salary data available for this listing.</Text>
+        <Text textStyle="caption">No salary data available for this listing.</Text>
       </Section>
     );
   }
@@ -103,7 +103,7 @@ export function SalaryRange({
           ]}
         />
       </VStack>
-      <Text color="fg.muted">
+      <Text textStyle="caption">
         {listingSalary && `Listed salary: ${formatSalary(listingSalary, 'short')}. `}
         {`Industry range: ${formatSalary({ value: salaryRange.industryMin, currency: salaryRange.currency }, 'short')}-${formatSalary({ value: salaryRange.industryMax, currency: salaryRange.currency }, 'short')} (median ${formatSalary(
           { value: salaryRange.industryMedian, currency: salaryRange.currency },

@@ -10,7 +10,7 @@ export function Source({ listing }: { listing: ListingDraft }) {
     return (
       <Box w="full" h="full" display="flex" alignItems="center" justifyContent="center">
         <VStack>
-          <Text>No screenshot available</Text>
+          <Text textStyle="caption">No screenshot available</Text>
         </VStack>
       </Box>
     );

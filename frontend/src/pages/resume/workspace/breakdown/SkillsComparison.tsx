@@ -23,7 +23,9 @@ export function SkillsComparison({
 
   return (
     <VStack align="stretch" gap="2xs" flexGrow={2} flexShrink={1} flexBasis="60" minW="60">
-      <Heading size="sm">{isOutdated ? 'Skills Comparison (Outdated)' : 'Skills Comparison'}</Heading>
+      <Heading textStyle="title-sm">
+        {isOutdated ? 'Skills Comparison (Outdated)' : 'Skills Comparison'}
+      </Heading>
       {hasData ? (
         <Box h="2xs">
           <ResponsiveRadar
@@ -70,9 +72,7 @@ export function SkillsComparison({
           />
         </Box>
       ) : (
-        <Text textStyle="sm" color="fg.muted">
-          Generate analysis to see skills comparison.
-        </Text>
+        <Text textStyle="caption">Generate analysis to see skills comparison.</Text>
       )}
     </VStack>
   );

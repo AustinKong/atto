@@ -4,7 +4,10 @@ import { memo } from 'react';
 
 import { ReadonlyResumePreview } from '@/components/custom/resume-preview';
 import { toaster } from '@/components/ui/Toaster';
-import { DEFAULT_TEMPLATE_PROFILE, DEFAULT_TEMPLATE_SECTIONS } from '@/constants/template.constants';
+import {
+  DEFAULT_TEMPLATE_PROFILE,
+  DEFAULT_TEMPLATE_SECTIONS,
+} from '@/constants/template.constants';
 import { resumeQueries } from '@/queries/resume.queries';
 import { templateQueries } from '@/queries/template.queries';
 import { updateResume } from '@/services/resume.service';
@@ -110,7 +113,7 @@ export const TemplateCard = memo(function TemplateCard({
         />
       ) : (
         <Center h="sm" w="full">
-          <Text color="fg.muted">Template not found</Text>
+          <Text textStyle="caption">Template not found</Text>
         </Center>
       )}
       <Card.Body gap="xs">

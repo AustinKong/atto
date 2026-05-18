@@ -9,6 +9,10 @@ export const tabsRecipe = defineSlotRecipe({
       flexDirection: 'column',
       height: 'full',
     },
+    list: {
+      h: '10',
+      alignItems: 'end',
+    },
     content: {
       flex: '1',
       overflowY: 'auto',

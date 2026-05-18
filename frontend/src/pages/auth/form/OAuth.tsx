@@ -63,7 +63,7 @@ export function OAuth() {
       </Button>
 
       {errorMessage ? (
-        <Text color="fg.error" textStyle="sm">
+        <Text color="fg.error" textStyle="caption">
           {errorMessage}
         </Text>
       ) : null}

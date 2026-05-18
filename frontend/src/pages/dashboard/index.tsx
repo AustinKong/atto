@@ -38,8 +38,9 @@ export function DashboardPage() {
   return (
     <VStack h="full" overflowY="auto" align="stretch" p="md" gap="md">
       <HStack justifyContent="space-between" alignItems="center">
-        <Heading size="lg">Dashboard</Heading>
+        <Heading textStyle="title-lg">Dashboard</Heading>
         <Select.Root
+          size="xs"
           width="12rem"
           collection={DATE_RANGE_OPTIONS}
           value={[dateRange]}

@@ -1,3 +1,4 @@
+// Unused as of now, Chakra colors have better contrast
 export const colorTokens = {
   red: {
     '50': { value: '#FEF0F0' },

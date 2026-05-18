@@ -6,8 +6,12 @@ import {
 } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
 
-interface UseDebouncedMutationOptions<TData, TError, TVariables, TContext>
-  extends UseMutationOptions<TData, TError, TVariables, TContext> {
+interface UseDebouncedMutationOptions<
+  TData,
+  TError,
+  TVariables,
+  TContext,
+> extends UseMutationOptions<TData, TError, TVariables, TContext> {
   delay?: number;
 }
 

@@ -11,7 +11,7 @@ import { formatStatusLabel } from './status-label.utils';
 export function ApplicationFunnelChart({ funnel }: { funnel: ApplicationFunnel }) {
   return (
     <Box border="subtle" borderRadius="md" p="sm" h="md">
-      <Heading size="sm" mb="sm">
+      <Heading textStyle="title-sm" mb="sm">
         Application Funnel
       </Heading>
       {funnel.links.length > 0 ? (
@@ -34,7 +34,7 @@ export function ApplicationFunnelChart({ funnel }: { funnel: ApplicationFunnel }
           animate={false}
         />
       ) : (
-        <Text color="fg.muted">No funnel data in this date range.</Text>
+        <Text textStyle="caption">No funnel data in this date range.</Text>
       )}
     </Box>
   );

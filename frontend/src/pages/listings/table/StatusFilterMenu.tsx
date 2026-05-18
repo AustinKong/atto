@@ -49,7 +49,7 @@ export function StatusFilterMenu({
                   onCheckedChange={(checked) => handleStatusChange(option.value, checked)}
                 >
                   <option.icon />
-                  <Text>{option.label}</Text>
+                  <Text textStyle="body">{option.label}</Text>
                   <Menu.ItemIndicator />
                 </Menu.CheckboxItem>
               ))}

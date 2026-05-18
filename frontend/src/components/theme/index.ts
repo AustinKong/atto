@@ -21,13 +21,12 @@ import { tagsInputRecipe } from './slot-recipes/tags-input.recipe';
 import { tooltipRecipe } from './slot-recipes/tooltip.recipe';
 import { textStyles } from './text-styles';
 import { borderTokens } from './tokens/borders';
-import { colorTokens } from './tokens/colors';
 import { fontTokens } from './tokens/fonts';
 
 const themeConfig: SystemConfig = {
   theme: {
     tokens: {
-      colors: colorTokens,
+      // colors: colorTokens,
       fonts: fontTokens,
       borders: borderTokens,
     },

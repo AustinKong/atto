@@ -5,11 +5,12 @@ import type { SortableListInputContextValue, SortableListInputItemContextValue }
 import { useSortableListInput, useSortableListInputItem } from './contexts';
 
 interface ItemFunctionContext<T extends FieldValues>
-  extends SortableListInputContextValue<T>,
-    SortableListInputItemContextValue {}
+  extends SortableListInputContextValue<T>, SortableListInputItemContextValue {}
 
-interface ItemProps<T extends FieldValues>
-  extends Omit<StackProps, 'onMouseEnter' | 'onMouseLeave' | 'children'> {
+interface ItemProps<T extends FieldValues> extends Omit<
+  StackProps,
+  'onMouseEnter' | 'onMouseLeave' | 'children'
+> {
   children: React.ReactNode | ((context: ItemFunctionContext<T>) => React.ReactNode);
   onMouseEnter?: (item: FieldArray<T, ArrayPath<T>>) => void;
   onMouseLeave?: (item: FieldArray<T, ArrayPath<T>>) => void;

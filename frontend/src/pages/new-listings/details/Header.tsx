@@ -1,8 +1,12 @@
-import { HStack, IconButton, Link as ChakraLink, Text, VStack } from '@chakra-ui/react';
+import { Heading, HStack, IconButton, Link as ChakraLink, VStack } from '@chakra-ui/react';
 import { PiBookmarkSimple, PiCheck } from 'react-icons/pi';
 
 import { CompanyLogo } from '@/components/custom/CompanyLogo';
-import type { ListingDraft, ListingDraftError, ListingDraftPending } from '@/types/listing-draft.types';
+import type {
+  ListingDraft,
+  ListingDraftError,
+  ListingDraftPending,
+} from '@/types/listing-draft.types';
 
 export function Header({
   listingDraft,
@@ -19,13 +23,11 @@ export function Header({
     <HStack gap="sm" align="start">
       <CompanyLogo domain={domain} companyName={company || '?'} size="xl" />
       <VStack alignItems="start" gap="0" flex="1" minW="0">
-        <Text fontSize="xl" fontWeight="bold" lineHeight="shorter">
-          {company}
-        </Text>
+        <Heading textStyle="title-lg">{company}</Heading>
         <ChakraLink
           href={url}
           variant="underline"
-          fontSize="sm"
+          textStyle="caption"
           target="_blank"
           color="fg.info"
           truncate

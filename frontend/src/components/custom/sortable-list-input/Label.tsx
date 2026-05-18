@@ -5,5 +5,5 @@ import { useSortableListInput } from './contexts';
 export function Label(props: TextProps) {
   const { disabled } = useSortableListInput();
 
-  return <Text fontSize="sm" color={disabled ? 'fg.subtle' : undefined} {...props} />;
+  return <Text textStyle="caption" color={disabled ? 'fg.subtle' : undefined} {...props} />;
 }

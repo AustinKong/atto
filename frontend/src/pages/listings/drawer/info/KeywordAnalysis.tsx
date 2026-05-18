@@ -31,7 +31,7 @@ export function KeywordAnalysis({ listing }: { listing: Listing }) {
           />
         </Box>
       ) : (
-        <Text color="fg.muted">No keyword analysis available for this listing.</Text>
+        <Text textStyle="caption">No keyword analysis available for this listing.</Text>
       )}
     </Section>
   );

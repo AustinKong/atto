@@ -85,7 +85,7 @@ export function Email() {
     <VStack gap="sm" align="stretch" asChild>
       <form onSubmit={handleSubmit}>
         <Field.Root required>
-          <Field.Label>Email address</Field.Label>
+          <Field.Label textStyle="caption">Email address</Field.Label>
           <Input
             type="email"
             autoComplete="email"
@@ -97,7 +97,7 @@ export function Email() {
         </Field.Root>
 
         <Field.Root required invalid={Boolean(errorMessage)}>
-          <Field.Label>Verification code</Field.Label>
+          <Field.Label textStyle="caption">Verification code</Field.Label>
           <HStack w="full">
             <PinInput.Root
               otp
@@ -110,7 +110,7 @@ export function Email() {
                 <PinInput.Input index={0} />
                 <PinInput.Input index={1} />
                 <PinInput.Input index={2} />
-                <Text color="border " textStyle="xl">
+                <Text color="border" textStyle="body">
                   -
                 </Text>
                 <PinInput.Input index={3} />

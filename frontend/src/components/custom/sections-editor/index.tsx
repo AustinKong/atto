@@ -1,4 +1,4 @@
-import { Text, VStack } from '@chakra-ui/react';
+import { Heading, VStack } from '@chakra-ui/react';
 import {
   closestCorners,
   DndContext,
@@ -91,7 +91,7 @@ export const SectionsEditor = forwardRef<
 
   return (
     <FormProvider {...methods}>
-      <Text color="fg.muted">Content</Text>
+      <Heading textStyle="title-sm">Content</Heading>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}

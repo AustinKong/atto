@@ -12,5 +12,9 @@ export function formatSalary(
     const symbol = salary.currency === 'USD' ? '$' : salary.currency + ' ';
     return `${symbol}${Math.round(salary.value / 1000)}k`;
   }
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: salary.currency, maximumFractionDigits: 0 }).format(salary.value);
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: salary.currency,
+    maximumFractionDigits: 0,
+  }).format(salary.value);
 }

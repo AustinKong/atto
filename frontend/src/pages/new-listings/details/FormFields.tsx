@@ -19,22 +19,22 @@ export function FormFields({
   return (
     <>
       <Field.Root readOnly={isReadOnly}>
-        <Field.Label>Company</Field.Label>
+        <Field.Label textStyle="caption">Company</Field.Label>
         <Input {...register('company')} />
       </Field.Root>
 
       <Field.Root readOnly={isReadOnly}>
-        <Field.Label>Role</Field.Label>
+        <Field.Label textStyle="caption">Role</Field.Label>
         <Input {...register('title')} />
       </Field.Root>
 
       <Field.Root readOnly={isReadOnly}>
-        <Field.Label>Location</Field.Label>
+        <Field.Label textStyle="caption">Location</Field.Label>
         <Input {...register('location')} />
       </Field.Root>
 
       <Field.Root readOnly={isReadOnly}>
-        <Field.Label>Posted Date</Field.Label>
+        <Field.Label textStyle="caption">Posted Date</Field.Label>
         <Input type="date" {...register('postedDate')} />
       </Field.Root>
 
@@ -74,7 +74,7 @@ export function FormFields({
       />
 
       <Field.Root readOnly={isReadOnly}>
-        <Field.Label>Description</Field.Label>
+        <Field.Label textStyle="caption">Description</Field.Label>
         <Textarea {...register('description')} autoresize resize="none" />
       </Field.Root>
 

@@ -16,7 +16,7 @@ export function List({ children, ...props }: StackProps) {
     >
       <VStack align="stretch" gap="0" {...props}>
         {fields.length === 0 ? (
-          <Text fontSize="sm" color="fg.subtle" textAlign="center">
+          <Text textStyle="caption" textAlign="center">
             No items yet.{' '}
             <Text
               as="span"

@@ -46,7 +46,7 @@ export function Workspace({ applicationId }: { applicationId?: string }) {
 
   return (
     <Tabs.Root defaultValue="editor">
-      <Tabs.List h="10" alignItems="end">
+      <Tabs.List>
         <Tabs.Trigger value="editor">Editor</Tabs.Trigger>
         <Tabs.Trigger value="breakdown" disabled={!applicationId}>
           Breakdown

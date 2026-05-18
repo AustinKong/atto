@@ -61,7 +61,7 @@ export function DateRangeSelector({
             </Icon>
 
             {isPresent ? (
-              <Text as="span" color="fg.muted" minW="16">
+              <Text as="span" minW="16">
                 Present
               </Text>
             ) : (
@@ -83,7 +83,7 @@ export function DateRangeSelector({
             <Popover.Body>
               <HStack gap="md">
                 <VStack align="stretch" gap="2xs" flex="1">
-                  <Text fontSize="sm">Start Date</Text>
+                  <Text textStyle="caption">Start Date</Text>
                   <Box>
                     <ISOYearMonthInput
                       size="sm"
@@ -95,7 +95,7 @@ export function DateRangeSelector({
 
                 <VStack align="stretch" gap="2xs" flex="1">
                   <HStack justify="space-between">
-                    <Text fontSize="sm">End Date</Text>
+                    <Text textStyle="caption">End Date</Text>
                     <HStack>
                       <Checkbox.Root
                         size="xs"

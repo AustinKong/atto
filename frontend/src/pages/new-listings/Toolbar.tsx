@@ -30,17 +30,15 @@ export function Toolbar({
   };
 
   return (
-    <HStack
-      w="full"
-      justifyContent="space-between"
-      p="1.5"
-      borderBottom="subtle"
-    >
-      <Button onClick={() => open()}>Add Listings</Button>
+    <HStack w="full" justifyContent="space-between" p="1.5" borderBottom="subtle">
+      <Button size="xs" onClick={() => open()}>
+        Add Listings
+      </Button>
 
       <Spacer />
 
       <Button
+        size="xs"
         onClick={handleDiscardListingDrafts}
         variant="outline"
         colorPalette="red"
@@ -48,7 +46,7 @@ export function Toolbar({
       >
         Discard {selectedCount} listings
       </Button>
-      <Button onClick={handleSaveListings} disabled={selectedCount === 0}>
+      <Button size="xs" onClick={handleSaveListings} disabled={selectedCount === 0}>
         Save {selectedCount} Listings
       </Button>
     </HStack>

@@ -21,7 +21,7 @@ export function Info() {
       <About listing={listing} />
 
       <Section title="Description">
-        <Text>{listing.description}</Text>
+        <Text textStyle="body">{listing.description}</Text>
       </Section>
 
       <Section title="Requirements">
@@ -31,7 +31,7 @@ export function Info() {
               <List.Indicator asChild color="green.fg">
                 <PiCheck />
               </List.Indicator>
-              <Text>{req}</Text>
+              <Text textStyle="body">{req}</Text>
             </List.Item>
           ))}
         </List.Root>

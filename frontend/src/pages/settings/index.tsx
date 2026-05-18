@@ -1,4 +1,4 @@
-import { Box, Button, Separator, Text, VStack } from '@chakra-ui/react';
+import { Box, Button, Heading, Separator, Text, VStack } from '@chakra-ui/react';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useState } from 'react';
@@ -141,10 +141,10 @@ export function SettingsPage() {
             <>
               <Separator w="full" />
               <VStack align="stretch" gap="md">
-                <Text textStyle="lg" color="fg.error">
+                <Heading textStyle="title-sm" color="fg.error">
                   ⚠️ Developer Tools
-                </Text>
-                <Text color="fg.error">
+                </Heading>
+                <Text textStyle="body" color="fg.error">
                   Dangerous operations that will permanently delete data. Use with extreme caution.
                 </Text>
                 <VStack align="stretch" gap="xs">

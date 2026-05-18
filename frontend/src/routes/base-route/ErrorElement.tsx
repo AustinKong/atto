@@ -57,8 +57,8 @@ export function ErrorElement() {
     <Center h="full">
       <VStack textAlign="center" gap="0">
         <Heading textStyle="6xl">{status}</Heading>
-        <Heading>{title}</Heading>
-        <Text color="fg.muted">{subtitle}</Text>
+        <Heading textStyle="title-lg">{title}</Heading>
+        <Text textStyle="caption">{subtitle}</Text>
 
         {body && <HStack mt="md">{body}</HStack>}
       </VStack>

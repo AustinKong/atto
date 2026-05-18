@@ -16,12 +16,10 @@ export function AppLogo({ isOpen }: { isOpen: boolean }) {
           <Image w="5" h="5" objectFit="contain" src={imageSrc} />
         </Center>
         <SidebarLabel opacity={isOpen ? 1 : 0} as={HStack}>
-          <Heading as="h1" size="xl">
+          <Heading as="h1" textStyle="title-lg" color="fg">
             Atto
           </Heading>
-          <Text textStyle="xs" color="fg.muted">
-            {getCurrentVersion()}
-          </Text>
+          <Text textStyle="xs">{getCurrentVersion()}</Text>
         </SidebarLabel>
       </SidebarItem>
     </NavLink>

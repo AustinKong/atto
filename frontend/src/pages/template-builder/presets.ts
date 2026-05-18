@@ -40,7 +40,6 @@ const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
       phone: '',
       location: '',
       website: '',
-      
     },
     sections: [
       {
@@ -74,7 +73,6 @@ const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
       phone: '+1 (555) 555-5555',
       location: 'City, State, Country, Planet Earth',
       website: 'https://extremely-long-website-url-that-should-probably-wrap.com/subpath/testing',
-      
     },
     sections: [
       {
@@ -110,7 +108,6 @@ const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
       phone: '',
       location: '',
       website: '',
-      
     },
     sections: [
       {
@@ -159,7 +156,6 @@ const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
       phone: '+1 (415) 555-0132',
       location: 'San Francisco, CA, USA',
       website: 'https://alexmercer.dev',
-      
     },
     sections: [
       {
@@ -256,7 +252,6 @@ const EDGE_CASE_PRESETS: Record<string, EdgeCasePreset> = {
       phone: '+1 (555) 987-6543',
       location: 'Phoenix, AZ, USA',
       website: 'https://eleanor.dev',
-      
     },
     sections: [
       {

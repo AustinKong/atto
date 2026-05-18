@@ -18,7 +18,7 @@ export function MatchScore({ applicationId }: { applicationId?: string }) {
     <Section title="Match Score">
       <SegmentedGauge percent={score ?? 0} showPercentage size="lg" />
       {!hasScore && (
-        <Text color="fg.muted" textStyle="sm">
+        <Text textStyle="caption">
           {applicationId
             ? 'Analysis not generated yet.'
             : 'Select an application to view the match score.'}

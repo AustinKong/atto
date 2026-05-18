@@ -116,7 +116,9 @@ export function replaceTextUnitContentById(
   return { sections: nextSections, updated };
 }
 
-function extractSectionTextUnitsForSection(section: Section): Array<{ id: string; content: string }> {
+function extractSectionTextUnitsForSection(
+  section: Section
+): Array<{ id: string; content: string }> {
   return matchSection(section, {
     simple: (simpleSection) =>
       simpleSection.content
@@ -153,6 +155,8 @@ function extractSectionTextUnitsForSection(section: Section): Array<{ id: string
   });
 }
 
-export function extractSectionTextUnits(sections: Section[]): Array<{ id: string; content: string }> {
+export function extractSectionTextUnits(
+  sections: Section[]
+): Array<{ id: string; content: string }> {
   return sections.flatMap((section) => extractSectionTextUnitsForSection(section));
 }

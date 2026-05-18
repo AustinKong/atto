@@ -1,4 +1,13 @@
-import { Blockquote, Button, Card, Collapsible, HStack, Text, VStack } from '@chakra-ui/react';
+import {
+  Blockquote,
+  Button,
+  Card,
+  Collapsible,
+  Heading,
+  HStack,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { useState } from 'react';
 import { LuCheck, LuChevronLeft, LuX } from 'react-icons/lu';
 
@@ -48,19 +57,13 @@ export function Suggestions({
 
   return (
     <>
-      <Text textStyle="md" color="fg.muted">
-        AI Suggestions
-      </Text>
+      <Heading textStyle="title-sm">AI Suggestions</Heading>
 
       {!hasData ? (
-        <Text textStyle="sm" color="fg.muted">
-          Generate analysis to see AI suggestions.
-        </Text>
+        <Text textStyle="caption">Generate analysis to see AI suggestions.</Text>
       ) : (
         <VStack align="stretch" gap="sm">
-          <Text textStyle="sm" color="fg">
-            {aiSuggestions?.summary}
-          </Text>
+          <Text textStyle="body">{aiSuggestions?.summary}</Text>
           {suggestions.map((suggestion, index) => {
             const suggestionId = suggestion.id;
             const isOutdated = isUnitOutdated(
@@ -93,10 +96,10 @@ export function Suggestions({
                     <Card.Header p="sm">
                       <Collapsible.Trigger asChild>
                         <HStack justifyContent="space-between" cursor="pointer">
-                          <Text>
+                          <Heading textStyle="title-sm">
                             Suggestion {index + 1}
                             {isOutdated ? ' (Outdated)' : ''}
-                          </Text>
+                          </Heading>
                           <Collapsible.Indicator
                             transition="transform 0.2s"
                             _open={{ transform: 'rotate(-90deg)' }}
@@ -110,12 +113,10 @@ export function Suggestions({
                     <Collapsible.Content>
                       <Card.Body pt="sm" pb="lg">
                         <VStack align="stretch" gap="md">
-                          <Text color="fg">{suggestion.suggestion}</Text>
+                          <Text textStyle="body">{suggestion.suggestion}</Text>
                           {suggestion.replacementText && (
                             <VStack align="stretch" gap="xs">
-                              <Text color="fg.muted" textStyle="xs">
-                                Change to
-                              </Text>
+                              <Text textStyle="caption">Change to</Text>
                               <Blockquote.Root variant="subtle">
                                 <Blockquote.Content>
                                   {suggestion.replacementText}

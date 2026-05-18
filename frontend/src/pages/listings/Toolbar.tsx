@@ -13,13 +13,14 @@ export function Toolbar({
     <HStack p="2xs" borderBottom="subtle">
       <InputGroup startElement={<PiMagnifyingGlass />} w="md">
         <Input
+          size="xs"
           placeholder="Search listings"
           value={searchInput}
           onChange={(e) => onSearchChange(e.target.value)}
         />
       </InputGroup>
       <Spacer />
-      <Button asChild>
+      <Button asChild size="xs">
         <Link to="/listings/new">
           <PiPlus />
           New

@@ -5,7 +5,13 @@ import { useUpdateListingNotes } from '@/mutations/listing.mutations';
 
 import { Section } from '../Section';
 
-export function Notes({ listingId, initialNotes }: { listingId: string; initialNotes: string | null }) {
+export function Notes({
+  listingId,
+  initialNotes,
+}: {
+  listingId: string;
+  initialNotes: string | null;
+}) {
   const [notes, setNotes] = useState(initialNotes ?? '');
   const updateNotes = useUpdateListingNotes();
 

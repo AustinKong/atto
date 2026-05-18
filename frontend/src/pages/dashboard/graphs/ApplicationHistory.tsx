@@ -57,7 +57,7 @@ export function ApplicationHistoryChart({ history }: { history: ApplicationHisto
 
   return (
     <Box border="subtle" borderRadius="md" p="sm" h="md">
-      <Heading size="sm" mb="sm">
+      <Heading textStyle="title-sm" mb="sm">
         Application History
       </Heading>
       {hasHistoryData ? (
@@ -102,7 +102,7 @@ export function ApplicationHistoryChart({ history }: { history: ApplicationHisto
           )}
         />
       ) : (
-        <Text color="fg.muted">No history data in this date range.</Text>
+        <Text textStyle="caption">No history data in this date range.</Text>
       )}
     </Box>
   );

@@ -56,21 +56,27 @@ export function ResearchFooter({
   }, [isResearching, refetchListing]);
 
   return (
-    <HStack w="full" justify="space-between" color="fg.muted">
+    <HStack w="full" justify="space-between" textStyle="caption">
       <Text>
         {isResearching
           ? 'Generating...'
           : statusData?.status === 'failed'
             ? 'Research generation failed'
-          : research
-            ? `Generated at ${new Date(research.generatedAt).toLocaleString()}`
-            : 'Research not generated yet'}
+            : research
+              ? `Generated at ${new Date(research.generatedAt).toLocaleString()}`
+              : 'Research not generated yet'}
       </Text>
       <Spacer />
       <FeatureTooltip hasCloud={false} hasApiKey={true} size="sm" />
       <Clipboard.Root value={buildClipboardText(research)}>
         <Clipboard.Trigger asChild>
-          <IconButton aria-label="Copy" variant="ghost" size="xs" disabled={!research}>
+          <IconButton
+            aria-label="Copy"
+            variant="ghost"
+            size="xs"
+            disabled={!research}
+            color="inherit"
+          >
             <LuCopy />
           </IconButton>
         </Clipboard.Trigger>
@@ -81,6 +87,7 @@ export function ResearchFooter({
         size="xs"
         onClick={() => generateResearch(listingId)}
         loading={isResearching}
+        color="inherit"
       >
         <LuRefreshCw />
       </IconButton>
