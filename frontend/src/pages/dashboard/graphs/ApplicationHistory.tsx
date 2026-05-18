@@ -56,7 +56,7 @@ export function ApplicationHistoryChart({ history }: { history: ApplicationHisto
   const hasHistoryData = historyData.some((series) => series.data.some((point) => point.y > 0));
 
   return (
-    <Box border="subtle" borderRadius="md" p="sm" h="md">
+    <Box bg="bg.panel" border="subtle" borderRadius="md" p="sm" h="md">
       <Heading textStyle="title-sm" mb="sm">
         Application History
       </Heading>

@@ -10,7 +10,7 @@ import { formatStatusLabel } from './status-label.utils';
 
 export function ApplicationFunnelChart({ funnel }: { funnel: ApplicationFunnel }) {
   return (
-    <Box border="subtle" borderRadius="md" p="sm" h="md">
+    <Box bg="bg.panel" border="subtle" borderRadius="md" p="sm" h="md">
       <Heading textStyle="title-sm" mb="sm">
         Application Funnel
       </Heading>
