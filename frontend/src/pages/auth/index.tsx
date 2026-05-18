@@ -39,9 +39,9 @@ export function AuthPage() {
         p="2xl"
         color="white"
       >
-        <Heading textStyle="title-lg">Everything you need in one workflow</Heading>
+        <Heading textStyle="title-lg">Organize your job search without spreadsheet chaos.</Heading>
         <Text textStyle="body">
-          We automate the boring parts of job hunting, so you can focus on winning the interview.
+          Track applications, tailor resumes, and keep your job search data on your device.
         </Text>
       </VStack>
     </HStack>

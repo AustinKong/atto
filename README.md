@@ -11,40 +11,47 @@
   <img src="https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite">
 </div>
 
-
 # Description
-Atto — _**A**nother **T**ool for **T**racking & **O**ptimizing (Applications)_ — is an open-source, AI-powered command center built for job seekers who are tired of managing their careers in messy spreadsheets. It automates the "boring" parts of job hunting — parsing descriptions, tracking application progress, and customizing your resume — so you can focus on winning the interview.
+Atto is a local-first, open-source AI tool that helps job seekers organize their search, track applications, and tailor resumes from one place. Instead of managing applications in messy spreadsheets and scattered tabs, Atto helps you save job listings, parse role details, track progress, and customize resumes for each opportunity — while keeping your job search data on your device.
 
 # Features
-- **Local-First & Private**: Your job search is your business. Atto runs locally, keeping your data on your machine. We do not collect or save any data.
-- **Smart Scraper**: Paste a job URL, and Atto automatically extracts job titles, companies, and requirements into a clean, structured format for you to review before saving.
-- **Centralized Job List**: View all your saved listings in one place, organized for easy management.
-- **Progress Tracking**: Simple status updates to keep track of where each application stands in your pipeline.
-- **Resume Builder**: Choose from our list of templates, add or remove sections to build your resume that's just right for the job.
+
+- **Local-first by design**: Your job search data stays on your device. Atto runs locally and does not collect or store your applications, resumes, or job search notes.
+- **Smart job parser**: Paste a job URL and Atto extracts key details like the role title, company, and requirements into a clean format you can review before saving.
+- **Centralized job list**: Keep all your saved roles in one place instead of scattered across spreadsheets, tabs, and notes.
+- **Application tracking**: Track where each opportunity stands, from saved to applied, interviewing, rejected, or archived.
+- **Resume builder**: Choose from templates, customize sections, and build resumes that fit each opportunity.
+- **AI match scoring**: Analyze how well a role fits your profile so you can prioritize where to spend your time.
 
 # Roadmap
-Atto is in early development. Here is what we're working on next:
 
-- **AI Match Scoring**: Automatically analyze how well a role fits your specific profile to help you prioritize your time.
-- **ATS Compatibility Reviewer**: Simulate how Applicant Tracking Systems parse your resume and receive an actionable score to improve your formatting and keyword matching before applying.
-- **Discovery Agent**: Give Atto a keyword, and it will autonomously find new listings across Greenhouse, Lever, and LinkedIn.
-- **Automated Follow-ups**: AI-generated email drafts for following up on applications where you haven't heard back.
-- **Enhanced Status Management**: A revamped system for more detailed tracking and automated funnel movements.
-- **Visual Analytics**: Charts and heatmaps to track your application volume and success rates.
-- **Multi-Provider AI Support**: Add support for different AI models including Google Gemini and local-first providers like Ollama for 100% offline privacy and no API costs.
+Atto is in early development. Here is what we are working on next:
+
+- **ATS compatibility reviewer**: Simulate how applicant tracking systems parse your resume and get actionable suggestions to improve formatting and keyword alignment before applying.
+- **Discovery agent**: Give Atto a keyword and let it find new listings across sources like Greenhouse, Lever, and LinkedIn.
+- **Automated follow-ups**: Generate email drafts for following up on applications where you have not heard back.
+- **Multi-provider AI support**: Add support for different AI providers, including Google Gemini and local-first options like Ollama for offline AI workflows and no API costs.
 
 # Installation
+
 See the [setup and installation guide](setup.md).
 
-# Supporting the Project
-Atto is an early-stage demo, and I’m building it in the open to help fellow job seekers. If you find it helpful, there are a few ways you can support the development:
+# FAQ
 
-1. **Star the Repo**: It helps others find the project and keeps me motivated to keep building.
-2. **Share Your Feedback**: Found a bug or have a feature idea? Open an issue or reach out via [Google Forms](https://forms.gle/b5DMrQZ6XMZTBXjYA).
-3. **Spread the Word**: Share Atto with your network. The more people use it, the better it gets for everyone.
+What does “Atto” mean?
+
+> Atto originally stood for **A**nother **T**ool for **T**racking & **O**ptimizing Applications — but the product has grown beyond just tracking. Today, Atto is a local-first AI tool for organizing your job search, tracking applications, and tailoring resumes.
+
+Why is the logo a cat?
+
+> The cat is **Gatto**, Atto’s mascot, “Gatto” means “cat” in Italian. 
+
+# Supporting the Project
+
+Atto is an early-stage project, and I am building it in the open to help fellow job seekers. If you find it helpful, there are a few ways you can support development:
+
+1. **Star the repo**: It helps others find the project and keeps me motivated to keep building.
+2. **Share feedback**: Found a bug or have a feature idea? Open an issue or reach out via [Google Forms](https://forms.gle/b5DMrQZ6XMZTBXjYA).
+3. **Spread the word**: Share Atto with students, fresh graduates, internship seekers, job hoppers, or anyone managing an active job search.
 
 Built with ❤️ by Austin. Cheers!
-
-# Community & Alternatives
-
-If you are looking for a more mature, production-ready platform to optimize your resume right now, I highly recommend checking out [Resume Matcher](https://github.com/srbhr/Resume-Matcher). It’s a fantastic open-source project that focuses heavily on ATS compatibility and resume optimization.

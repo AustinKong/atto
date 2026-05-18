@@ -1,4 +1,4 @@
-import { Avatar, DataList, Heading, Menu, Portal, VStack } from '@chakra-ui/react';
+import { Avatar, Heading, Menu, Portal, Text, VStack } from '@chakra-ui/react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 
@@ -34,7 +34,11 @@ export function Profile() {
         aria-label="Open user menu"
         aria-controls="user-menu"
       >
-        <Avatar.Root size="sm">
+        <Avatar.Root
+          size="sm"
+          outline={isPaperMode ? '2px solid' : undefined}
+          outlineColor={isPaperMode ? 'brand.solid' : undefined}
+        >
           <Avatar.Fallback name={avatarName} />
           {/* TODO: Check if this is correct pattern in charkaui */}
           {avatarSrc ? <Avatar.Image alt={avatarName} src={avatarSrc} /> : null}
@@ -42,8 +46,8 @@ export function Profile() {
       </Menu.Trigger>
       <Portal>
         <Menu.Positioner>
-          <Menu.Content id="user-menu" minW="70" aria-labelledby="user-menu-heading">
-            <TokenCounter />
+          <Menu.Content id="user-menu" minW="44" maxW="64" aria-label="User menu">
+            {isPaperMode && <PaperModeNotice />}
             {accessMode === 'signed_in' ? (
               <Menu.Item value="logout" onClick={() => signOut()}>
                 Logout
@@ -68,26 +72,13 @@ export function Profile() {
   );
 }
 
-function TokenCounter() {
-  // Dummy values
-  const totalTokens = 1000;
-  const remainingTokens = 150;
-
+function PaperModeNotice() {
   return (
     <VStack px="sm" py="xs" align="stretch" gap="xs">
-      <Heading id="user-menu-heading" textStyle="title-sm">
-        OpenAI Tokens
-      </Heading>
-      <DataList.Root size="md" orientation="horizontal" gap="2xs">
-        <DataList.Item>
-          <DataList.ItemLabel>Total</DataList.ItemLabel>
-          <DataList.ItemValue>{totalTokens.toLocaleString()}</DataList.ItemValue>
-        </DataList.Item>
-        <DataList.Item>
-          <DataList.ItemLabel>Remaining</DataList.ItemLabel>
-          <DataList.ItemValue>{remainingTokens.toLocaleString()}</DataList.ItemValue>
-        </DataList.Item>
-      </DataList.Root>
+      <Heading textStyle="title-sm">Paper Mode</Heading>
+      <Text color="fg.muted" textStyle="caption">
+        You are in paper mode. Any changes made will be wiped when you exit.
+      </Text>
     </VStack>
   );
 }
