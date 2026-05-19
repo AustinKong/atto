@@ -2,7 +2,7 @@
   <picture>
     <img alt="Atto Banner" src=".github/assets/atto-banner.webp" width="500">
   </picture>
-  <p align="center">Open-source AI-powered command center for job seekers.</p>
+  <p align="center">A local-first, open-source AI tool that helps job seekers track applications and tailor resumes.</p>
 
   <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" alt="Python">
   <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
