@@ -1,0 +1,81 @@
+---
+interface Company {
+  name: string;
+  logo: string;
+}
+
+interface Props {
+  companies: Company[];
+}
+
+const { companies } = Astro.props;
+const marqueeCompanies = [...companies, ...companies];
+---
+
+<section class="section social-proof" aria-label="Social proof">
+  <p class="eyebrow">Social proof</p>
+  <h2>Atto users are applying to companies like</h2>
+  <div class="marquee" role="region" aria-label="Company logos">
+    <div class="marquee-track">
+      {marqueeCompanies.map((company, index) => (
+        <div class="logo-item" aria-label={company.name} key={`${company.name}-${index}`}>
+          <img src={company.logo} alt={company.name} loading="lazy" />
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .social-proof h2 {
+    margin: 0.25rem 0 1rem;
+  }
+
+  .marquee {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 999px;
+    padding: 0.75rem 0;
+  }
+
+  .marquee-track {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: max-content;
+    animation: scroll 28s linear infinite;
+  }
+
+  .logo-item {
+    width: 140px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: #fafaf9;
+    opacity: 0.65;
+    transition: opacity 0.2s ease;
+    border: 1px solid var(--border);
+    margin-left: 0.75rem;
+  }
+
+  .logo-item:hover {
+    opacity: 1;
+  }
+
+  .logo-item img {
+    max-width: 100px;
+    max-height: 24px;
+  }
+
+  @keyframes scroll {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-50%);
+    }
+  }
+</style>

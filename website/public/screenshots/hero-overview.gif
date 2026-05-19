@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" fill="none">
+  <rect width="1280" height="720" fill="#FFF7ED"/>
+  <rect x="40" y="48" width="1200" height="624" rx="20" fill="#FFFFFF" stroke="#E7E5E4" stroke-width="2"/>
+  <rect x="72" y="88" width="360" height="544" rx="14" fill="#FFEDD5"/>
+  <rect x="460" y="88" width="748" height="170" rx="14" fill="#FEF3C7"/>
+  <rect x="460" y="282" width="748" height="350" rx="14" fill="#F5F5F4"/>
+  <text x="96" y="128" font-family="Inter, Arial" font-size="30" fill="#9A3412">Saved Jobs</text>
+  <text x="488" y="128" font-family="Inter, Arial" font-size="30" fill="#9A3412">Application Statuses</text>
+  <text x="488" y="322" font-family="Inter, Arial" font-size="30" fill="#9A3412">Resume Tailoring</text>
+</svg>

@@ -4,7 +4,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description = 'Atto helps you organize and customize your job applications.' } =
+const { title, description = 'Atto helps job seekers track applications and tailor resumes.' } =
   Astro.props;
 ---
 
@@ -19,29 +19,54 @@ const { title, description = 'Atto helps you organize and customize your job app
     <style>
       :root {
         color-scheme: light;
-        font-family: Inter, system-ui, -apple-system, sans-serif;
+        font-family: Inter, 'Segoe UI', system-ui, -apple-system, sans-serif;
+        --primary: #c2410c;
+        --primary-dark: #9a3412;
+        --background: #fffbf7;
+        --surface: #ffffff;
+        --text: #1c1917;
+        --muted-text: #78716c;
+        --border: #e7e5e4;
+      }
+
+      * {
+        box-sizing: border-box;
       }
 
       body {
         margin: 0;
-        background: #f8fafc;
-        color: #0f172a;
+        background: var(--background);
+        color: var(--text);
       }
 
       .container {
-        max-width: 860px;
+        max-width: 1024px;
         margin: 0 auto;
-        padding: 2.5rem 1.25rem;
+        padding: 1.2rem 1.1rem 2rem;
       }
 
-      nav {
-        margin-bottom: 2rem;
+      .top-nav {
         display: flex;
-        gap: 1rem;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .brand {
+        font-weight: 700;
+        color: var(--text);
+        text-decoration: none;
+      }
+
+      .top-nav-links {
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
       }
 
       a {
-        color: #1d4ed8;
+        color: var(--primary);
         text-decoration: none;
       }
 
@@ -49,20 +74,80 @@ const { title, description = 'Atto helps you organize and customize your job app
         text-decoration: underline;
       }
 
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.7rem;
+        padding: 0.68rem 1rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+        text-decoration: none;
+        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      }
+
+      .btn:hover {
+        text-decoration: none;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+      }
+
+      .btn-secondary {
+        background: var(--surface);
+        color: var(--text);
+        border-color: var(--border);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--primary);
+      }
+
+      .section {
+        margin-bottom: 2.25rem;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        margin: 0;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        background: #ffedd5;
+        color: var(--primary-dark);
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      h2,
+      h3 {
+        margin: 0;
+      }
+
       .card {
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 1.25rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        padding: 1rem;
       }
     </style>
   </head>
   <body>
     <main class="container">
-      <nav>
-        <a href="/">Home</a>
-        <a href="/blog">Blog</a>
-      </nav>
+      <header class="top-nav">
+        <a class="brand" href="/">Atto</a>
+        <nav class="top-nav-links" aria-label="Global navigation">
+          <a href="/blog">Blog</a>
+          <a class="btn btn-secondary" href="https://github.com/AustinKong/atto" target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+        </nav>
+      </header>
       <slot />
     </main>
   </body>

@@ -1,19 +1,41 @@
 ---
+import FeatureSection from '../components/FeatureSection.astro';
+import FinalCTA from '../components/FinalCTA.astro';
+import Footer from '../components/Footer.astro';
+import HeroSection from '../components/HeroSection.astro';
+import LocalFirstNote from '../components/LocalFirstNote.astro';
+import SocialProofMarquee from '../components/SocialProofMarquee.astro';
+import { features, offerCompanies } from '../data/marketing';
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="Atto — Job application tracker" description="Track jobs, tailor resumes, and stay organized with Atto.">
-  <section class="card">
-    <h1>Organize every job application with Atto</h1>
-    <p>
-      Atto is a local-first tool that helps you track roles, tailor application materials, and keep your
-      job search moving.
+<BaseLayout
+  title="Atto — Organize your job search"
+  description="A local-first, open-source AI tool that helps job seekers track applications and tailor resumes."
+>
+  <HeroSection />
+  <SocialProofMarquee companies={offerCompanies} />
+
+  <section class="section">
+    <p class="eyebrow">Features</p>
+    <h2>Everything you need to manage your search.</h2>
+    <p class="section-subheadline">
+      Save jobs, track progress, and tailor resumes without jumping between spreadsheets, tabs, and
+      documents.
     </p>
-    <ul>
-      <li>Track applications by stage</li>
-      <li>Customize resumes and cover letters quickly</li>
-      <li>Keep all your job search context in one place</li>
-    </ul>
-    <p><a href="/blog">Read the blog →</a></p>
   </section>
+
+  {features.map((feature, index) => <FeatureSection feature={feature} reverse={index % 2 === 1} />)}
+
+  <LocalFirstNote />
+  <FinalCTA />
+  <Footer />
 </BaseLayout>
+
+<style>
+  .section-subheadline {
+    margin: 0.6rem 0 0;
+    color: var(--muted-text);
+    max-width: 68ch;
+  }
+</style>

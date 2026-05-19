@@ -1,0 +1,53 @@
+<section class="section">
+  <div class="note card" role="note" aria-label="Local-first data note">
+    <div class="icon" aria-hidden="true">💾</div>
+    <div>
+      <h2>Your job search data stays on your device.</h2>
+      <p>
+        Atto is local-first. Your saved jobs, resumes, application notes, and progress are stored on your
+        machine — not on Atto's servers.
+      </p>
+      <p class="small">AI features may use the model provider you connect.</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .note {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .note h2 {
+    margin: 0;
+    font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  }
+
+  .note p {
+    color: var(--muted-text);
+    margin: 0.4rem 0 0;
+  }
+
+  .note .small {
+    font-size: 0.9rem;
+  }
+
+  .icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: #ffedd5;
+    border: 1px solid #fed7aa;
+    font-size: 1.3rem;
+  }
+
+  @media (max-width: 700px) {
+    .note {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
