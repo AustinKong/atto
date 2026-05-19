@@ -1,0 +1,34 @@
+---
+interface Feature {
+  title: string;
+  description: string;
+  image: string;
+  imageAlt: string;
+  label?: string;
+}
+
+interface Props {
+  feature: Feature;
+}
+
+const { feature } = Astro.props;
+---
+
+<section class="section feature">
+  <div class="section-copy">
+    {feature.label && <p class="eyebrow">{feature.label}</p>}
+    <h2>{feature.title}</h2>
+    <p>{feature.description}</p>
+  </div>
+
+  <div class="screenshot-frame">
+    <img src={feature.image} alt={feature.imageAlt} loading="lazy" />
+  </div>
+</section>
+
+<style>
+  .feature {
+    display: grid;
+    gap: clamp(1.6rem, 4vw, 3rem);
+  }
+</style>

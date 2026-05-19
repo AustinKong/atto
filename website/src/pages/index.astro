@@ -1,10 +1,10 @@
 ---
-import FeatureSection from '../components/FeatureSection.astro';
-import FinalCTA from '../components/FinalCTA.astro';
-import Footer from '../components/Footer.astro';
-import HeroSection from '../components/HeroSection.astro';
-import LocalFirstNote from '../components/LocalFirstNote.astro';
-import SocialProofMarquee from '../components/SocialProofMarquee.astro';
+import Footer from '../components/layout/Footer.astro';
+import FeatureSection from '../components/marketing/FeatureSection.astro';
+import HeroSection from '../components/marketing/HeroSection.astro';
+import LocalFirstNote from '../components/marketing/LocalFirstNote.astro';
+import PricingSection from '../components/marketing/PricingSection.astro';
+import SocialProofMarquee from '../components/marketing/SocialProofMarquee.astro';
 import { features, offerCompanies } from '../constants/marketing-data';
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
@@ -16,26 +16,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <HeroSection />
   <SocialProofMarquee companies={offerCompanies} />
 
-  <section class="section">
+  <section class="section section-copy">
     <p class="eyebrow">Features</p>
     <h2>Everything you need to manage your search.</h2>
-    <p class="section-subheadline">
+    <p>
       Save jobs, track progress, and tailor resumes without jumping between spreadsheets, tabs, and
       documents.
     </p>
   </section>
 
-  {features.map((feature, index) => <FeatureSection feature={feature} reverse={index % 2 === 1} />)}
+  {features.map((feature) => <FeatureSection feature={feature} />)}
 
   <LocalFirstNote />
-  <FinalCTA />
+  <PricingSection />
   <Footer />
 </BaseLayout>
-
-<style>
-  .section-subheadline {
-    margin: 0.6rem 0 0;
-    color: var(--muted-text);
-    max-width: 68ch;
-  }
-</style>

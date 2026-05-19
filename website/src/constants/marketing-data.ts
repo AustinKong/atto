@@ -14,8 +14,7 @@ export const features = [
     title: 'Save jobs in seconds.',
     description:
       'Paste a job URL and Atto pulls the key details into a clean listing you can review and save.',
-    bullets: ['Extract role details', 'Save company and requirements', 'Keep listings organized'],
-    image: '/screenshots/save-jobs.gif',
+    image: '/screenshots/dummy-screenshot.png',
     imageAlt: 'Save jobs flow',
     label: 'Feature 1'
   },
@@ -23,8 +22,7 @@ export const features = [
     title: 'Track every application.',
     description:
       'See what you saved, applied to, interviewed for, or need to follow up on.',
-    bullets: ['View all roles in one place', 'Update application status', 'Know what needs action next'],
-    image: '/screenshots/track-applications.gif',
+    image: '/screenshots/dummy-screenshot.png',
     imageAlt: 'Track applications table',
     label: 'Feature 2'
   },
@@ -32,8 +30,7 @@ export const features = [
     title: 'Tailor resumes for each role.',
     description:
       'Use role details to customize your resume without starting from scratch every time.',
-    bullets: ['Build from templates', 'Customize sections', 'Adapt resumes to each opportunity'],
-    image: '/screenshots/tailor-resumes.gif',
+    image: '/screenshots/dummy-screenshot.png',
     imageAlt: 'Tailor resumes editor',
     label: 'Feature 3'
   }

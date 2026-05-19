@@ -1,0 +1,40 @@
+.app-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.gradient-layer,
+.shape-grid-layer,
+.background-vignette {
+  position: absolute;
+  inset: 0;
+}
+
+.gradient-layer {
+  background: var(--background, #fffbf7);
+}
+
+.shape-grid-layer {
+  opacity: 0.68;
+}
+
+.background-vignette {
+  --content-gutter: max(
+    var(--page-padding, 1.25rem),
+    calc((100vw - var(--page-max-width, 1360px)) / 2)
+  );
+  --fade-width: clamp(4rem, 10vw, 12rem);
+
+  background: linear-gradient(
+    90deg,
+    rgba(255, 251, 247, 0) 0,
+    rgba(255, 251, 247, 0.36) max(0px, calc(var(--content-gutter) - var(--fade-width))),
+    rgba(255, 251, 247, 0.94) var(--content-gutter),
+    rgba(255, 251, 247, 0.94) calc(100vw - var(--content-gutter)),
+    rgba(255, 251, 247, 0.36) min(100vw, calc(100vw - var(--content-gutter) + var(--fade-width))),
+    rgba(255, 251, 247, 0) 100%
+  );
+  pointer-events: none;
+}

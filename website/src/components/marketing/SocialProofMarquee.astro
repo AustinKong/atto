@@ -13,8 +13,7 @@ const marqueeCompanies = [...companies, ...companies];
 ---
 
 <section class="section social-proof" aria-label="Social proof">
-  <p class="eyebrow">Social proof</p>
-  <h2>Atto users are applying to companies like</h2>
+  <p class="caption-label">Atto users have landed offers at</p>
   <div class="marquee" role="region" aria-label="Company logos">
     <div class="marquee-track">
       {marqueeCompanies.map((company, index) => (
@@ -27,16 +26,16 @@ const marqueeCompanies = [...companies, ...companies];
 </section>
 
 <style>
-  .social-proof h2 {
-    margin: 0.25rem 0 1rem;
+  .social-proof {
+    display: grid;
+    gap: 1.3rem;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
   }
 
   .marquee {
     overflow: hidden;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    border-radius: 999px;
-    padding: 0.75rem 0;
+    padding: 0.45rem 0;
+    width: 100%;
   }
 
   .marquee-track {
@@ -48,16 +47,13 @@ const marqueeCompanies = [...companies, ...companies];
   }
 
   .logo-item {
-    width: 140px;
+    width: clamp(150px, 13vw, 210px);
     height: 48px;
     display: grid;
     place-items: center;
-    border-radius: 999px;
-    background: #fafaf9;
-    opacity: 0.65;
+    opacity: 0.48;
     transition: opacity 0.2s ease;
-    border: 1px solid var(--border);
-    margin-left: 0.75rem;
+    filter: grayscale(1);
   }
 
   .logo-item:hover {
@@ -65,7 +61,7 @@ const marqueeCompanies = [...companies, ...companies];
   }
 
   .logo-item img {
-    max-width: 100px;
+    max-width: 118px;
     max-height: 24px;
   }
 
