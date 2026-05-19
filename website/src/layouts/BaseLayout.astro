@@ -1,4 +1,6 @@
 ---
+import AppBackground from '../components/AppBackground';
+
 interface Props {
   title: string;
   description?: string;
@@ -37,12 +39,33 @@ const { title, description = 'Atto helps job seekers track applications and tail
         margin: 0;
         background: var(--background);
         color: var(--text);
+        min-height: 100vh;
+      }
+
+      .app-background {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .grainient-layer,
+      .shape-grid-layer {
+        position: absolute;
+        inset: 0;
+      }
+
+      .shape-grid-layer {
+        mix-blend-mode: multiply;
       }
 
       .container {
         max-width: 1024px;
         margin: 0 auto;
         padding: 1.2rem 1.1rem 2rem;
+        position: relative;
+        z-index: 1;
       }
 
       .top-nav {
@@ -138,6 +161,7 @@ const { title, description = 'Atto helps job seekers track applications and tail
     </style>
   </head>
   <body>
+    <AppBackground client:load />
     <main class="container">
       <header class="top-nav">
         <a class="brand" href="/">Atto</a>
