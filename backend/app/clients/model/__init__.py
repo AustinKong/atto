@@ -18,8 +18,7 @@ def get_model_client(
   if is_authorized():
     return CloudModelClient(cloud_api_client)
 
-  # TODO: Do proper switch-case
-  if settings.model.llm.startswith('gemini'):
+  if settings.model.provider == 'gemini':
     return GeminiModelClient()
   return OpenAIModelClient()
 

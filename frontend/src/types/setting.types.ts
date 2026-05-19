@@ -9,6 +9,7 @@ export type BaseSettingsField<T> = {
 export type SettingsFieldString = BaseSettingsField<string> & {
   type: 'string';
   enum?: string[];
+  enumByProvider?: Record<string, string[]>;
 };
 
 export type SettingsFieldNumber = BaseSettingsField<number> & {

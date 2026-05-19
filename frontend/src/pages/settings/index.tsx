@@ -1,25 +1,22 @@
 import { Box, Button, Heading, Separator, Text, VStack } from '@chakra-ui/react';
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { toaster } from '@/components/ui/Toaster';
+import { useUpdateSettings } from '@/mutations/setting.mutations';
 import { settingsQueries } from '@/queries/setting.queries';
-import { updateSettings } from '@/services/setting.service';
 
 import { Section } from './Section';
 import { Toolbar } from './Toolbar';
 
 export function SettingsPage() {
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const queryClient = useQueryClient();
   const { data: settings } = useSuspenseQuery(settingsQueries.list());
 
-  const updateSettingsMutation = useMutation({
-    mutationFn: updateSettings,
-    onSuccess: (updatedSettings) => {
-      queryClient.setQueryData(settingsQueries.keys.list(), updatedSettings);
+  const updateSettingsMutation = useUpdateSettings({
+    onSuccess: () => {
       toaster.create({ title: 'Settings updated successfully', type: 'success' });
     },
     onError: () => {

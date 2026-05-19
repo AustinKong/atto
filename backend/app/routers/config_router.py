@@ -1,9 +1,16 @@
-from typing import Any
+from typing import Annotated, Any
 
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi.responses import PlainTextResponse
 
 from app.config import settings
-from app.config.schemas import AppConfig
+from app.config.schemas import (
+  EMBEDDING_OPTIONS_BY_PROVIDER,
+  MODEL_OPTIONS_BY_PROVIDER,
+  AppConfig,
+  ModelProvider,
+)
+from app.services.model_setup_service import ModelSetupService
 
 router = APIRouter(prefix='/config', tags=['Config'])
 
@@ -42,11 +49,11 @@ def get_settings():
         'value': category_values.get(field_key),
         'title': field_meta.get('title', field_key),
         'description': field_meta.get('description', ''),
-        'type': field_meta.get('type'),
+        'type': get_field_type(field_meta),
         'exposure': exposure,
         'minimum': field_meta.get('minimum'),
         'maximum': field_meta.get('maximum'),
-        'enum': field_meta.get('enum'),
+        'enum': get_enum_values(field_meta),
         'disabledMessage': field_meta.get('disabledMessage'),
       }
 
@@ -56,6 +63,11 @@ def get_settings():
           fields_config[field_key]['enum'] = dynamic_enum
         except Exception:
           pass
+
+      if category_key == 'model' and field_key == 'llm':
+        fields_config[field_key]['enumByProvider'] = MODEL_OPTIONS_BY_PROVIDER
+      elif category_key == 'model' and field_key == 'embedding':
+        fields_config[field_key]['enumByProvider'] = EMBEDDING_OPTIONS_BY_PROVIDER
 
     if fields_config:
       ui_structure[category_key] = {
@@ -67,7 +79,48 @@ def get_settings():
   return ui_structure
 
 
+def get_enum_values(field_meta: dict[str, Any]) -> list[str] | None:
+  if enum_values := field_meta.get('enum'):
+    return enum_values
+
+  values = []
+  for option in field_meta.get('anyOf', []):
+    values.extend(option.get('enum', []))
+    if const_value := option.get('const'):
+      values.append(const_value)
+
+  return values or None
+
+
+def get_field_type(field_meta: dict[str, Any]) -> str | None:
+  if field_type := field_meta.get('type'):
+    return field_type
+
+  option_types = {
+    option.get('type') for option in field_meta.get('anyOf', []) if option.get('type') is not None
+  }
+  if len(option_types) == 1:
+    return option_types.pop()
+
+  return None
+
+
 @router.patch('')
 def update_settings(updates: dict[str, Any] = Body(...)):  # noqa: B008
   settings.save(updates)
   return get_settings()
+
+
+@router.post('/model/test')
+async def test_model_provider(
+  provider: Annotated[ModelProvider, Body()],
+  api_key: Annotated[str, Body(alias='apiKey', min_length=1)],
+  model: Annotated[str, Body(min_length=1)],
+  model_setup_service: Annotated[ModelSetupService, Depends()],
+) -> PlainTextResponse:
+  try:
+    message = await model_setup_service.test_provider(provider, api_key, model)
+  except HTTPException as exc:
+    return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
+
+  return PlainTextResponse(message)

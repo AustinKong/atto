@@ -7,6 +7,7 @@ import { authRoute } from '@/pages/auth/route';
 import { dashboardRoute } from '@/pages/dashboard/route';
 import { listingsRoute } from '@/pages/listings/route';
 import { newListingsRoute } from '@/pages/new-listings/route';
+import { onboardingRoute } from '@/pages/onboarding/route';
 import { releaseNotesRoute } from '@/pages/release-notes/route';
 import { applicationResumeRoute, resumeRoute } from '@/pages/resume/route';
 import { settingsRoute } from '@/pages/settings/route';
@@ -30,6 +31,7 @@ export const router = createBrowserRouter([
     ),
     children: [
       authRoute(),
+      onboardingRoute(),
       {
         element: <DashboardLayout />,
         children: [

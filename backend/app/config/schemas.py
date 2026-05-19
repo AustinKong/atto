@@ -1,11 +1,13 @@
 import os
 import sys
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, get_args
 
 from pydantic import BaseModel, Field
 
-OpenAIModel = Literal[
+ModelProvider = Literal['openai', 'gemini']
+
+OpenAILLMModel = Literal[
   'gpt-4o',
   'gpt-4o-mini',
   'gpt-4-turbo',
@@ -15,7 +17,7 @@ OpenAIModel = Literal[
   'o3-mini',
 ]
 
-GeminiModel = Literal[
+GeminiLLMModel = Literal[
   'gemini-2.0-flash',
   'gemini-2.0-flash-lite',
   'gemini-2.0-pro-exp',
@@ -24,21 +26,26 @@ GeminiModel = Literal[
   'gemini-1.5-flash-8b',
 ]
 
-AvailableModel = Literal[
-  'gpt-4o',
-  'gpt-4o-mini',
-  'gpt-4-turbo',
-  'o1',
-  'o1-mini',
-  'o3',
-  'o3-mini',
-  'gemini-2.0-flash',
-  'gemini-2.0-flash-lite',
-  'gemini-2.0-pro-exp',
-  'gemini-1.5-pro',
-  'gemini-1.5-flash',
-  'gemini-1.5-flash-8b',
+OpenAIEmbeddingModel = Literal[
+  'text-embedding-3-small',
+  'text-embedding-3-large',
+  'text-embedding-ada-002',
 ]
+
+GeminiEmbeddingModel = Literal['text-embedding-004']
+
+AvailableLLMModel = OpenAILLMModel | GeminiLLMModel
+AvailableEmbeddingModel = OpenAIEmbeddingModel | GeminiEmbeddingModel
+
+MODEL_OPTIONS_BY_PROVIDER = {
+  'openai': list(get_args(OpenAILLMModel)),
+  'gemini': list(get_args(GeminiLLMModel)),
+}
+
+EMBEDDING_OPTIONS_BY_PROVIDER = {
+  'openai': list(get_args(OpenAIEmbeddingModel)),
+  'gemini': list(get_args(GeminiEmbeddingModel)),
+}
 
 
 def get_data_dir() -> Path:
@@ -124,7 +131,13 @@ class PathsPrefs(BaseModel):
 
 
 class ModelPrefs(BaseModel):
-  llm: AvailableModel = ConfigField(
+  provider: ModelProvider = ConfigField(
+    default='openai',
+    title='Provider',
+    description='The AI provider Atto uses for local model requests.',
+    exposure='normal',
+  )
+  llm: AvailableLLMModel = ConfigField(
     default='gpt-4o-mini',
     title='Language Model',
     description=(
@@ -134,12 +147,7 @@ class ModelPrefs(BaseModel):
     ),
     exposure='normal',
   )
-  embedding: Literal[
-    'text-embedding-3-small',
-    'text-embedding-3-large',
-    'text-embedding-ada-002',
-    'text-embedding-004',
-  ] = ConfigField(
+  embedding: AvailableEmbeddingModel = ConfigField(
     default='text-embedding-3-small',
     title='Embedding Model',
     description=(

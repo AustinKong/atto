@@ -7,7 +7,13 @@ import {
   Slider,
   Switch,
 } from '@chakra-ui/react';
-import { type Control, Controller, type FieldErrors, type UseFormRegister } from 'react-hook-form';
+import {
+  type Control,
+  Controller,
+  type FieldErrors,
+  type UseFormRegister,
+  useWatch,
+} from 'react-hook-form';
 
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import type {
@@ -78,10 +84,12 @@ function StringInput({
   control: Control<Record<string, unknown>>;
   disabled?: boolean;
 }) {
-  // Check if this field has an enum (should be rendered as a select)
-  if (field.enum && field.enum.length > 0) {
+  const selectedProvider = useWatch({ control, name: 'model.provider' });
+  const enumValues = getEnumValues(field, selectedProvider);
+
+  if (enumValues.length > 0) {
     const options = createListCollection({
-      items: field.enum.map((value) => ({
+      items: enumValues.map((value) => ({
         label: value,
         value: value,
       })),
@@ -91,37 +99,44 @@ function StringInput({
       <Controller
         name={fullName}
         control={control}
-        render={({ field: rhfField }) => (
-          <Select.Root
-            collection={options}
-            value={[rhfField.value as string]}
-            disabled={disabled}
-            onValueChange={({ value }) => rhfField.onChange(value[0])}
-            onInteractOutside={() => rhfField.onBlur()}
-          >
-            <Select.HiddenSelect />
-            <Select.Control w="full">
-              <Select.Trigger>
-                <Select.ValueText placeholder={`Select ${field.title.toLowerCase()}`} />
-              </Select.Trigger>
-              <Select.IndicatorGroup>
-                <Select.Indicator />
-              </Select.IndicatorGroup>
-            </Select.Control>
-            <Portal>
-              <Select.Positioner>
-                <Select.Content>
-                  {options.items.map((option) => (
-                    <Select.Item item={option} key={option.value}>
-                      {option.label}
-                      <Select.ItemIndicator />
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select.Positioner>
-            </Portal>
-          </Select.Root>
-        )}
+        render={({ field: rhfField }) => {
+          const value =
+            typeof rhfField.value === 'string' && enumValues.includes(rhfField.value)
+              ? [rhfField.value]
+              : [];
+
+          return (
+            <Select.Root
+              collection={options}
+              value={value}
+              disabled={disabled}
+              onValueChange={({ value }) => rhfField.onChange(value[0])}
+              onInteractOutside={() => rhfField.onBlur()}
+            >
+              <Select.HiddenSelect />
+              <Select.Control w="full">
+                <Select.Trigger>
+                  <Select.ValueText placeholder={`Select ${field.title.toLowerCase()}`} />
+                </Select.Trigger>
+                <Select.IndicatorGroup>
+                  <Select.Indicator />
+                </Select.IndicatorGroup>
+              </Select.Control>
+              <Portal>
+                <Select.Positioner>
+                  <Select.Content>
+                    {options.items.map((option) => (
+                      <Select.Item item={option} key={option.value}>
+                        {option.label}
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Portal>
+            </Select.Root>
+          );
+        }}
       />
     );
   }
@@ -131,6 +146,14 @@ function StringInput({
   ) : (
     <Input w="full" disabled={disabled} {...register(fullName)} />
   );
+}
+
+function getEnumValues(field: SettingsFieldString, selectedProvider: unknown): string[] {
+  if (typeof selectedProvider === 'string') {
+    return field.enumByProvider?.[selectedProvider] ?? field.enum ?? [];
+  }
+
+  return field.enum ?? [];
 }
 
 function NumberInput({
