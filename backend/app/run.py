@@ -46,10 +46,10 @@ def _resolve_frontend_dist_path() -> Path | None:
 
 dist_path = _resolve_frontend_dist_path()
 
-if dist_path and (dist_path / 'assets').exists():
-  app.mount('/assets', StaticFiles(directory=str(dist_path / 'assets')), name='assets')
-
 if dist_path:
+  if (dist_path / 'assets').exists():
+    app.mount('/assets', StaticFiles(directory=str(dist_path / 'assets')), name='assets')
+
   @app.get('/{full_path:path}')
   async def serve_ui(full_path: str):
     # Prevent UI from swallowing API 404s
