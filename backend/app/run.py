@@ -27,15 +27,29 @@ async def health() -> dict[str, str]:
   return {'status': 'ok'}
 
 
-if getattr(sys, 'frozen', False):
-  base_path = Path(getattr(sys, '_MEIPASS'))  # noqa: B009
-  dist_path = base_path / 'frontend' / 'dist'
-else:
-  dist_path = Path(__file__).parent.parent / 'frontend' / 'dist'
+def _resolve_frontend_dist_path() -> Path | None:
+  if getattr(sys, 'frozen', False):
+    base_path = Path(getattr(sys, '_MEIPASS'))  # noqa: B009
+    frozen_dist_path = base_path / 'frontend' / 'dist'
+    return frozen_dist_path if frozen_dist_path.exists() else None
 
-if dist_path.exists():
+  source_dist_path = Path(__file__).parent.parent / 'frontend' / 'dist'
+  repo_dist_path = Path(__file__).parents[2] / 'frontend' / 'dist'
+  packaged_dist_path = Path(__file__).parent / 'frontend_dist'
+
+  for candidate in [source_dist_path, repo_dist_path, packaged_dist_path]:
+    if candidate.exists():
+      return candidate
+
+  return None
+
+
+dist_path = _resolve_frontend_dist_path()
+
+if dist_path and (dist_path / 'assets').exists():
   app.mount('/assets', StaticFiles(directory=str(dist_path / 'assets')), name='assets')
 
+if dist_path:
   @app.get('/{full_path:path}')
   async def serve_ui(full_path: str):
     # Prevent UI from swallowing API 404s

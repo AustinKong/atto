@@ -19,7 +19,6 @@ on:
 
 jobs:
   validate_and_build:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -35,6 +34,7 @@ jobs:
           node-version: '20'
 
       - name: Validate Version
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           INPUT_VERSION="${{ github.event.inputs.version }}"
@@ -42,6 +42,20 @@ jobs:
           if [ "$PACKAGE_VERSION" != "$INPUT_VERSION" ]; then
             echo "[ERROR] Version mismatch!"
             echo "The package.json says $PACKAGE_VERSION but you entered $INPUT_VERSION."
+            exit 1
+          fi
+        shell: bash
+
+      - name: Validate Release Tag Version
+        if: ${{ github.event_name == 'release' }}
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          RELEASE_TAG="${{ github.event.release.tag_name }}"
+          RELEASE_VERSION="${RELEASE_TAG#v}"
+
+          if [ "$PACKAGE_VERSION" != "$RELEASE_VERSION" ]; then
+            echo "[ERROR] Version mismatch!"
+            echo "The package.json says $PACKAGE_VERSION but release tag is $RELEASE_TAG."
             exit 1
           fi
         shell: bash
@@ -90,7 +104,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     needs: validate_and_build
-    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_release == 'false' }}
+    if: ${{ github.event_name == 'release' || github.event.inputs.skip_release == 'false' }}
     permissions:
       contents: write
 
@@ -117,6 +131,7 @@ jobs:
           path: artifacts/macos
 
       - name: Create Release
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         id: gh_release
         uses: softprops/action-gh-release@v2
         with:
@@ -127,15 +142,29 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Artifacts To Existing Release
+        if: ${{ github.event_name == 'release' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: artifacts/**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Post Release
         if: success()
         run: |
-          echo "Release v${{ github.event.inputs.version }} created successfully."
-          echo "View Release Page: https://github.com/AustinKong/atto/releases/tag/v${{ github.event.inputs.version }}"
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            TAG="v${{ github.event.inputs.version }}"
+          fi
+          echo "Release ${TAG} processed successfully."
+          echo "View Release Page: https://github.com/AustinKong/atto/releases/tag/${TAG}"
 
   publish_pypi:
-    name: Publish shared package to PyPI
+    name: Publish desktop package to PyPI
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'release' && !github.event.release.prerelease }}
     permissions:
@@ -146,32 +175,85 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Validate release tag matches shared package version
+      - name: Validate release tag matches Python package versions
         run: |
           RELEASE_TAG="${{ github.event.release.tag_name }}"
           RELEASE_VERSION="${RELEASE_TAG#v}"
-          PACKAGE_VERSION=$(python -c "import tomllib; print(tomllib.load(open('shared/pyproject.toml','rb'))['project']['version'])")
+          SHARED_VERSION=$(python -c "import tomllib; print(tomllib.load(open('shared/pyproject.toml','rb'))['project']['version'])")
+          BACKEND_VERSION=$(python -c "import tomllib; print(tomllib.load(open('backend/pyproject.toml','rb'))['project']['version'])")
 
-          if [ "$PACKAGE_VERSION" != "$RELEASE_VERSION" ]; then
+          if [ "$SHARED_VERSION" != "$RELEASE_VERSION" ]; then
             echo "[ERROR] shared package version mismatch!"
-            echo "shared/pyproject.toml version is $PACKAGE_VERSION but release tag is $RELEASE_TAG."
+            echo "shared/pyproject.toml version is $SHARED_VERSION but release tag is $RELEASE_TAG."
+            exit 1
+          fi
+
+          if [ "$BACKEND_VERSION" != "$RELEASE_VERSION" ]; then
+            echo "[ERROR] backend package version mismatch!"
+            echo "backend/pyproject.toml version is $BACKEND_VERSION but release tag is $RELEASE_TAG."
             exit 1
           fi
         shell: bash
 
-      - name: Build shared package
+      - name: Install dependencies
         run: |
+          npm ci
+          npm ci --prefix frontend
           python -m pip install --upgrade pip
           python -m pip install build
-          python -m build shared --outdir dist/shared
         shell: bash
 
-      - name: Publish shared package to PyPI
+      - name: Build frontend
+        run: npm run build:frontend
+        shell: bash
+
+      - name: Bundle frontend into backend package
+        run: |
+          rm -rf backend/app/frontend_dist
+          mkdir -p backend/app/frontend_dist
+          cp -R frontend/dist/. backend/app/frontend_dist/
+        shell: bash
+
+      - name: Prepare Python package metadata
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          release_version = os.environ['RELEASE_VERSION'].removeprefix('v')
+          backend_pyproject_path = Path('backend/pyproject.toml')
+          content = backend_pyproject_path.read_text()
+          updated = content.replace(
+            '  "shared @ file:../shared",',
+            f'  "shared=={release_version}",',
+          )
+
+          if updated == content:
+            raise RuntimeError('Could not update shared dependency in backend/pyproject.toml')
+
+          backend_pyproject_path.write_text(updated)
+          PY
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ github.event.release.tag_name }}
+
+      - name: Build Python packages
+        run: |
+          python -m build shared --outdir dist/pypi
+          python -m build backend --outdir dist/pypi
+        shell: bash
+
+      - name: Publish packages to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages-dir: dist/shared
+          packages-dir: dist/pypi
