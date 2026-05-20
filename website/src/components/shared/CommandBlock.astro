@@ -1,0 +1,67 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  command: string;
+}
+
+const { command } = Astro.props;
+---
+
+<div class="command-block">
+  <code>{command}</code>
+  <button
+    type="button"
+    class="copy-btn"
+    aria-label="Copy to clipboard"
+    title="Copy command"
+    onclick={`navigator.clipboard.writeText('${command}')`}
+  >
+    <Icon name="lucide:copy" />
+  </button>
+</div>
+
+<style>
+  .command-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface, #ffffff);
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: var(--radius-sm, 6px);
+    padding: 0.75rem 1rem;
+    max-width: max-content;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  code {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.95rem;
+    color: var(--text, #1f1f24);
+  }
+
+  .copy-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted-text, #6b7280);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    padding: 0.35rem;
+    border-radius: 4px;
+    transition:
+      color 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .copy-btn:hover {
+    background: rgba(31, 31, 36, 0.05);
+    color: var(--text, #1f1f24);
+  }
+
+  .copy-btn [data-icon] {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+</style>

@@ -1,4 +1,6 @@
 ---
+import SectionCopy from "../shared/SectionCopy.astro";
+
 interface Feature {
   title: string;
   description: string;
@@ -15,11 +17,11 @@ const { feature } = Astro.props;
 ---
 
 <section class="section feature">
-  <div class="section-copy">
+  <SectionCopy>
     {feature.label && <p class="eyebrow">{feature.label}</p>}
     <h2>{feature.title}</h2>
     <p>{feature.description}</p>
-  </div>
+  </SectionCopy>
 
   <div class="screenshot-frame">
     <img src={feature.image} alt={feature.imageAlt} loading="lazy" />

@@ -1,59 +1,64 @@
 ---
+import SectionCopy from "../shared/SectionCopy.astro";
+
 const plans = [
   {
-    name: 'Free',
-    price: '$0',
-    previousPrice: '',
-    description: 'Everything you need to organize your job search.',
-    featureIntro: 'Included',
+    name: "Free",
+    price: "$0",
+    previousPrice: "",
+    description: "Everything you need to organize your job search.",
+    featureIntro: "Included",
     features: [
-      'Save job listings',
-      'Track applications',
-      'Tailor resumes',
-      'Local-first data storage',
-      'Open-source'
-    ]
+      "Save job listings",
+      "Track applications",
+      "Tailor resumes",
+      "Local-first data storage",
+      "Open-source",
+    ],
   },
   {
-    name: 'Pro',
-    price: '$0',
-    previousPrice: '$12/month',
-    description: 'The same Atto, because core job-search features should not be gated.',
-    featureIntro: 'Still included',
+    name: "Pro",
+    price: "$0",
+    previousPrice: "$12/month",
+    description:
+      "The same Atto, because core job-search features should not be gated.",
+    featureIntro: "Still included",
     features: [
-      'AI job parsing',
-      'Resume builder',
-      'Application tracking',
-      'No account required for local use',
-      'Bring your own AI provider'
-    ]
+      "AI job parsing",
+      "Resume builder",
+      "Application tracking",
+      "No account required for local use",
+      "Bring your own AI provider",
+    ],
   },
   {
-    name: 'Enterprise',
-    price: 'Still $0',
-    previousPrice: 'Contact sales',
-    description: 'No sales calls. No procurement. Just an open-source tool you can use.',
-    featureIntro: 'Also included',
+    name: "Enterprise",
+    price: "Still $0",
+    previousPrice: "Contact sales",
+    description:
+      "No sales calls. No procurement. Just an open-source tool you can use.",
+    featureIntro: "Also included",
     features: [
-      'Open-source codebase',
-      'Built in public',
-      'Community feedback welcome',
-      'No surprise upgrade prompts',
-      'No locked features'
-    ]
-  }
+      "Open-source codebase",
+      "Built in public",
+      "Community feedback welcome",
+      "No surprise upgrade prompts",
+      "No locked features",
+    ],
+  },
 ] as const;
 ---
 
 <section class="section pricing-section" id="pricing">
-  <div class="section-copy">
+  <SectionCopy>
     <p class="eyebrow">Pricing</p>
     <h2>Free means free.</h2>
     <p>
-      Atto is free and open-source. No subscriptions, no locked features, no surprise upgrade
-      prompts.
+      Atto is free and open-source. No subscriptions, no locked features, no
+      surprise upgrade prompts. Users only pay for whatever AI provider/API they
+      choose to connect.
     </p>
-  </div>
+  </SectionCopy>
 
   <div class="pricing-grid">
     {
@@ -67,8 +72,15 @@ const plans = [
           </div>
 
           <div class="price-row">
-            <span class="previous-price" aria-hidden={!plan.previousPrice ? 'true' : undefined}>
-              {plan.previousPrice ? <s>{plan.previousPrice}</s> : <span>&nbsp;</span>}
+            <span
+              class="previous-price"
+              aria-hidden={!plan.previousPrice ? "true" : undefined}
+            >
+              {plan.previousPrice ? (
+                <s>{plan.previousPrice}</s>
+              ) : (
+                <span>&nbsp;</span>
+              )}
             </span>
             <strong>{plan.price}</strong>
           </div>

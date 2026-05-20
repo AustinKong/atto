@@ -1,24 +1,109 @@
 ---
-import { getCollection } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Footer from "../../components/layout/Footer.astro";
+import SectionCopy from "../../components/shared/SectionCopy.astro";
 
-const posts = (await getCollection('blog')).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+const posts = (await getCollection("blog")).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 ---
 
-<BaseLayout title="Atto Blog" description="Updates and ideas from the Atto project.">
-  <section class="card">
-    <h1>Blog</h1>
-    <ul>
-      {posts.map((post) => (
-        <li>
-          <a href={`/blog/${post.slug}/`}>{post.data.title}</a>
-          {' — '}
-          <small>{post.data.pubDate.toLocaleDateString('en-US')}</small>
-          <p>{post.data.description}</p>
-        </li>
-      ))}
-    </ul>
-  </section>
+<BaseLayout
+  title="Atto Blog"
+  description="Updates and ideas from the Atto project."
+>
+  <main class="page-container">
+    <section class="section section-copy blog-header">
+      <h1>Blog</h1>
+      <p class="subtitle">
+        A collection of design decisions, engineering tradeoffs, and other fun
+        stuff!
+      </p>
+    </section>
+
+    <div class="post-list" role="list">
+      {
+        posts.map((post) => (
+          <a href={`/blog/${post.slug}/`} class="post-card" role="listitem">
+            <SectionCopy>
+              <time
+                class="post-date"
+                datetime={post.data.pubDate.toISOString()}
+              >
+                {post.data.pubDate.toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </time>
+              <h2>{post.data.title}</h2>
+              <p>{post.data.description}</p>
+            </SectionCopy>
+          </a>
+        ))
+      }
+    </div>
+  </main>
+
+  <Footer />
 </BaseLayout>
+
+<style>
+  .page-container {
+    padding-top: clamp(4.5rem, 12vw, 10rem);
+    min-height: 80vh;
+  }
+
+  .blog-header h1 {
+    font-size: clamp(3.1rem, 6.2vw, 5.7rem);
+    letter-spacing: 0;
+    line-height: 0.96;
+    margin: 1rem 0;
+  }
+
+  .subtitle {
+    max-width: 66ch;
+    margin: 0;
+  }
+
+  .post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 4rem;
+  }
+
+  .post-card {
+    display: block;
+    padding: 1.5rem;
+    margin: 0 -1.5rem;
+    border-radius: var(--radius-sm, 6px);
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+
+  .post-card:hover {
+    background: rgba(31, 31, 36, 0.05); /* ghost button hover effect */
+    text-decoration: none;
+  }
+
+  .post-date {
+    display: block;
+    color: var(--muted-text);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  .post-card h2 {
+    color: var(--text);
+  }
+
+  .post-card:hover h2 {
+    text-decoration: none;
+  }
+</style>

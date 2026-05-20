@@ -1,28 +1,33 @@
 ---
-const primaryCtaHref = 'https://github.com/AustinKong/atto/releases';
-const secondaryCtaHref = 'https://github.com/AustinKong/atto';
+import { Icon } from "astro-icon/components";
+
+const primaryCtaHref = "/download";
+const secondaryCtaHref = "https://github.com/AustinKong/atto";
 ---
 
 <section class="hero section" id="top">
   <div class="hero-copy">
     <p class="eyebrow">
-      Local-first · Open-source · Built for job seekers applying to multiple roles
+      Local-first · Open-source · Built for job seekers applying to multiple
+      roles
     </p>
     <h1>Organize your job search without spreadsheet chaos.</h1>
     <p class="subtitle">
-      Track applications, tailor resumes, and keep your job search data on your device.
+      Track applications, tailor resumes, and keep your job search data on your
+      device.
     </p>
     <div class="cta-row">
-      <a class="atto-button atto-button-primary hero-primary-cta" href={primaryCtaHref}>
+      <a class="atto-button atto-button-primary hero-btn" href={primaryCtaHref}>
         Download Atto
       </a>
       <a
-        class="atto-link-action hero-secondary-link"
+        class="atto-button atto-button-ghost hero-btn hero-secondary-link"
         href={secondaryCtaHref}
         target="_blank"
         rel="noreferrer"
       >
-        View on GitHub <span aria-hidden="true">-&gt;</span>
+        View on GitHub
+        <Icon class="cta-icon" name="lucide:arrow-right" aria-hidden="true" />
       </a>
     </div>
   </div>
@@ -67,9 +72,17 @@ const secondaryCtaHref = 'https://github.com/AustinKong/atto';
     margin-top: 2rem;
   }
 
-  .hero-primary-cta {
+  .hero-btn {
     min-height: 2.75rem;
     padding: 0 1.2rem;
   }
 
+  .hero-secondary-link {
+    gap: 0.5rem;
+  }
+
+  .cta-icon {
+    height: 1.05rem;
+    width: 1.05rem;
+  }
 </style>

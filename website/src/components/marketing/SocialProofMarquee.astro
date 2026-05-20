@@ -1,7 +1,9 @@
 ---
+import { Icon } from "astro-icon/components";
+
 interface Company {
   name: string;
-  logo: string;
+  icon: string;
 }
 
 interface Props {
@@ -14,13 +16,20 @@ const marqueeCompanies = [...companies, ...companies];
 
 <section class="section social-proof" aria-label="Social proof">
   <p class="caption-label">Atto users have landed offers at</p>
-  <div class="marquee" role="region" aria-label="Company logos">
+  <div class="marquee" role="region" aria-label="Company icons">
     <div class="marquee-track">
-      {marqueeCompanies.map((company, index) => (
-        <div class="logo-item" aria-label={company.name} key={`${company.name}-${index}`}>
-          <img src={company.logo} alt={company.name} loading="lazy" />
-        </div>
-      ))}
+      {
+        marqueeCompanies.map((company, index) => (
+          <div
+            class="logo-item"
+            aria-label={company.name}
+            key={`${company.name}-${index}`}
+          >
+            <Icon class="logo-icon" name={company.icon} aria-hidden="true" />
+            <span class="logo-text">{company.name}</span>
+          </div>
+        ))
+      }
     </div>
   </div>
 </section>
@@ -42,36 +51,46 @@ const marqueeCompanies = [...companies, ...companies];
     display: flex;
     align-items: center;
     gap: 1rem;
+    padding-right: 1rem;
     width: max-content;
     animation: scroll 28s linear infinite;
+    will-change: transform;
   }
 
   .logo-item {
     width: clamp(150px, 13vw, 210px);
     height: 48px;
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.6rem;
     opacity: 0.48;
     transition: opacity 0.2s ease;
     filter: grayscale(1);
+    color: var(--text);
   }
 
   .logo-item:hover {
     opacity: 1;
   }
 
-  .logo-item img {
-    max-width: 118px;
-    max-height: 24px;
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .logo-text {
+    font-size: clamp(1rem, 1.1vw, 1.1rem);
+    line-height: 1.2;
   }
 
   @keyframes scroll {
     from {
-      transform: translateX(0);
+      transform: translate3d(0, 0, 0);
     }
 
     to {
-      transform: translateX(-50%);
+      transform: translate3d(-50%, 0, 0);
     }
   }
 </style>

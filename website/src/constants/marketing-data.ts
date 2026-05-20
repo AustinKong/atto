@@ -1,12 +1,12 @@
 export const offerCompanies = [
-  { name: 'COMPANY_1', logo: '/logos/company-1.svg' },
-  { name: 'COMPANY_2', logo: '/logos/company-2.svg' },
-  { name: 'COMPANY_3', logo: '/logos/company-3.svg' },
-  { name: 'COMPANY_4', logo: '/logos/company-4.svg' },
-  { name: 'COMPANY_5', logo: '/logos/company-5.svg' },
-  { name: 'COMPANY_6', logo: '/logos/company-6.svg' },
-  { name: 'COMPANY_7', logo: '/logos/company-7.svg' },
-  { name: 'COMPANY_8', logo: '/logos/company-8.svg' }
+  { name: 'TikTok', icon: 'simple-icons:tiktok' },
+  { name: 'Shopee', icon: 'simple-icons:shopee' },
+  { name: 'Smoke', icon: 'lucide:flame' },
+  { name: 'Spotify', icon: 'simple-icons:spotify' },
+  { name: 'Stripe', icon: 'simple-icons:stripe' },
+  { name: 'Figma', icon: 'simple-icons:figma' },
+  { name: 'Notion', icon: 'simple-icons:notion' },
+  { name: 'GitHub', icon: 'simple-icons:github' }
 ];
 
 export const features = [
