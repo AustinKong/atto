@@ -228,17 +228,20 @@ jobs:
         run: |
           python - <<'PY'
           import os
+          import re
           from pathlib import Path
 
           release_version = os.environ['RELEASE_VERSION'].removeprefix('v')
           backend_pyproject_path = Path('backend/pyproject.toml')
           content = backend_pyproject_path.read_text()
-          updated = content.replace(
-            '  "shared @ file:../shared",',
+          updated, replacement_count = re.subn(
+            r'^\s*"shared\s*@\s*file:\.\./shared",\s*$',
             f'  "shared=={release_version}",',
+            content,
+            flags=re.MULTILINE,
           )
 
-          if updated == content:
+          if replacement_count != 1:
             raise RuntimeError('Could not update shared dependency in backend/pyproject.toml')
 
           backend_pyproject_path.write_text(updated)

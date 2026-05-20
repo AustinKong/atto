@@ -33,11 +33,11 @@ def _resolve_frontend_dist_path() -> Path | None:
     frozen_dist_path = base_path / 'frontend' / 'dist'
     return frozen_dist_path if frozen_dist_path.exists() else None
 
-  source_dist_path = Path(__file__).parent.parent / 'frontend' / 'dist'
-  repo_dist_path = Path(__file__).parents[2] / 'frontend' / 'dist'
-  packaged_dist_path = Path(__file__).parent / 'frontend_dist'
+  backend_local_dist_path = Path(__file__).parent.parent / 'frontend' / 'dist'
+  repo_root_dist_path = Path(__file__).parents[2] / 'frontend' / 'dist'
+  installed_package_dist_path = Path(__file__).parent / 'frontend_dist'
 
-  for candidate in [source_dist_path, repo_dist_path, packaged_dist_path]:
+  for candidate in [backend_local_dist_path, repo_root_dist_path, installed_package_dist_path]:
     if candidate.exists():
       return candidate
 
