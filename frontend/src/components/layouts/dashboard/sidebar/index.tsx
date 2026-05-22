@@ -45,7 +45,7 @@ const INTERNAL_NAV_ITEMS = [
 const EXTERNAL_NAV_ITEMS = [
   {
     label: 'Feedback / Bug Report',
-    path: 'https://forms.gle/SMe8QTp6e8dpDeYUA',
+    path: 'https://github.com/AustinKong/atto/issues/new',
     icon: <LuClipboard />,
   },
   { label: 'GitHub', path: 'https://github.com/AustinKong/atto', icon: <LuGithub /> },

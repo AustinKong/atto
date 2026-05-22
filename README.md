@@ -51,7 +51,7 @@ Why is the logo a cat?
 Atto is an early-stage project, and I am building it in the open to help fellow job seekers. If you find it helpful, there are a few ways you can support development:
 
 1. **Star the repo**: It helps others find the project and keeps me motivated to keep building.
-2. **Share feedback**: Found a bug or have a feature idea? Open an issue or reach out via [Google Forms](https://forms.gle/b5DMrQZ6XMZTBXjYA).
+2. **Share feedback**: Found a bug or have a feature idea? Open an issue via [GitHub Issues](https://github.com/AustinKong/atto/issues/new).
 3. **Spread the word**: Share Atto with students, fresh graduates, internship seekers, job hoppers, or anyone managing an active job search.
 
 Built with ❤️ by Austin. Cheers!
