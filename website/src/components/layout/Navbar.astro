@@ -1,0 +1,49 @@
+---
+import Button from "../shared/Button.astro";
+import { Icon } from "astro-icon/components";
+---
+
+<header>
+  <div class="navbar-left">
+    <Button href="/" variant="ghost" aria-label="Atto home">
+      <Icon name="logo" />
+      Atto
+    </Button>
+    <Button href="/blog" variant="ghost">Blog</Button>
+  </div>
+
+  <nav class="navbar-right" aria-label="Primary navigation">
+    <Button
+      href="https://github.com/AustinKong/atto"
+      variant="ghost"
+      target="_blank"
+      rel="noreferrer"
+    >
+      GitHub
+    </Button>
+    <Button href="/download" variant="primary" target="_blank" rel="noreferrer">
+      Get Started
+    </Button>
+  </nav>
+</header>
+
+<style>
+  header {
+    position: sticky;
+    top: 0rem;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 0;
+    background: var(--background);
+  }
+
+  .navbar-left,
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+</style>

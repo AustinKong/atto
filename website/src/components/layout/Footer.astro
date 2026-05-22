@@ -1,68 +1,55 @@
-<footer class="section footer">
-  <div class="footer-main">
-    <nav aria-label="Footer links">
-      <a href="/download">Download</a>
-      <a
-        href="https://github.com/AustinKong/atto"
-        target="_blank"
-        rel="noreferrer">GitHub</a
-      >
-      <a
-        href="https://github.com/AustinKong/atto/blob/main/setup.md"
-        target="_blank"
-        rel="noreferrer"
-      >
-        Setup Guide
-      </a>
-      <a
-        href="https://github.com/AustinKong/atto/issues"
-        target="_blank"
-        rel="noreferrer">Feedback</a
-      >
-    </nav>
-    <p class="footer-copyright">Copyright © 2025-2026 Austin Kong.</p>
-  </div>
+<footer>
+  <nav aria-label="Footer links">
+    <a href="/download">Download</a>
+    <a
+      href="https://github.com/AustinKong/atto"
+      target="_blank"
+      rel="noreferrer">GitHub</a
+    >
+    <a
+      href="https://github.com/AustinKong/atto/blob/main/setup.md"
+      target="_blank"
+      rel="noreferrer"
+    >
+      Setup Guide
+    </a>
+    <a
+      href="https://github.com/AustinKong/atto/issues"
+      target="_blank"
+      rel="noreferrer">Feedback</a
+    >
+  </nav>
+  <p class="copyright">Copyright © 2025-2026 Austin Kong.</p>
 </footer>
 
 <style>
-  .footer {
-    padding-bottom: 1.5rem;
-    font-size: 0.95rem;
-  }
-
-  .footer-main {
+  footer {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    font-size: var(--small-font-size);
     align-items: center;
     display: flex;
-    flex-wrap: wrap;
-    gap: 1rem 1.25rem;
     justify-content: space-between;
-    padding-top: 1.2rem;
   }
 
-  .footer nav {
+  nav {
     display: flex;
-    flex-wrap: wrap;
     gap: 1rem;
   }
 
-  .footer a {
+  a {
     color: var(--primary);
-    font-size: inherit;
+    text-decoration: none;
   }
 
-  .footer-copyright {
+  .copyright {
     color: var(--muted-text);
     font-size: inherit;
-    line-height: 1.3;
-  }
-
-  .footer-copyright {
-    margin: 0;
   }
 
   @media (max-width: 720px) {
-    .footer-main {
-      justify-content: flex-start;
+    footer {
+      flex-direction: column;
     }
   }
 </style>

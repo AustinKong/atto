@@ -3,7 +3,29 @@ import react from '@astrojs/react';
 
 import icon from 'astro-icon';
 
+import expressiveCode from 'astro-expressive-code';
+
 export default defineConfig({
   site: 'https://atto.app',
-  integrations: [react(), icon()]
+  vite: {
+    server: {
+      watch: {
+        usePolling: true,
+        interval: 100
+      }
+    }
+  },
+  integrations: [
+    react(),
+    icon(),
+    expressiveCode({
+      styleOverrides: {
+        frames: {
+          shadowColor: 'transparent',
+          tooltipSuccessBackground: 'transparent',
+          tooltipSuccessForeground: 'transparent'
+        }
+      }
+    })
+  ]
 });

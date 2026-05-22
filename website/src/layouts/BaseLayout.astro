@@ -1,21 +1,24 @@
 ---
-import AppBackground from '../components/background/AppBackground.tsx';
-import Navbar from '../components/layout/Navbar';
-import '../styles/theme.css';
+import AppBackground from "../components/background/AppBackground.tsx";
+import Navbar from "../components/layout/Navbar.astro";
+import Footer from "../components/layout/Footer.astro";
+import "../styles/theme.css";
 
 interface Props {
   title: string;
   description?: string;
 }
 
-const { title, description = 'Atto helps job seekers track applications and tailor resumes.' } =
-  Astro.props;
+const {
+  title,
+  description = "Atto helps job seekers track applications and tailor resumes.",
+} = Astro.props;
 const fontHref =
-  'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;' +
-  '0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=' +
-  'IBM+Plex+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;' +
-  '1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@' +
-  '0,100..700;1,100..700&display=swap';
+  "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;" +
+  "0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=" +
+  "IBM+Plex+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;" +
+  "1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@" +
+  "0,100..700;1,100..700&display=swap";
 ---
 
 <!doctype html>
@@ -41,21 +44,30 @@ const fontHref =
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href={fontHref} rel="stylesheet" />
-    <style>
-      .container {
-        width: min(var(--page-max-width), calc(100% - var(--page-padding) * 2));
-        margin: 0 auto;
-        padding: 1.2rem 1.1rem 2rem;
-        position: relative;
-        z-index: 1;
-      }
-    </style>
   </head>
   <body>
     <AppBackground client:load />
-    <main class="container">
+    <div class="container">
       <Navbar />
-      <slot />
-    </main>
+      <main>
+        <slot />
+      </main>
+      <Footer />
+    </div>
   </body>
 </html>
+
+<style>
+  .container {
+    width: min(var(--page-max-width), calc(100% - var(--page-padding) * 2));
+    margin: 0 auto;
+    background: var(--background);
+    position: relative;
+    z-index: 1;
+  }
+
+  main {
+    padding: 0 1rem;
+    margin-top: 3rem;
+  }
+</style>
