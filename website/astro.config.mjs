@@ -5,8 +5,11 @@ import icon from 'astro-icon';
 
 import expressiveCode from 'astro-expressive-code';
 
+import cloudflare from '@astrojs/cloudflare';
+
 export default defineConfig({
   site: 'https://atto.app',
+
   vite: {
     server: {
       watch: {
@@ -15,6 +18,7 @@ export default defineConfig({
       }
     }
   },
+
   integrations: [
     react(),
     icon(),
@@ -27,5 +31,8 @@ export default defineConfig({
         }
       }
     })
-  ]
+  ],
+
+  output: 'static',
+  adapter: cloudflare()
 });
