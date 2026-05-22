@@ -8,15 +8,15 @@ import expressiveCode from 'astro-expressive-code';
 import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
-  site: 'https://atto.app',
+  site: "https://atto.app",
 
   vite: {
     server: {
       watch: {
         usePolling: true,
-        interval: 100
-      }
-    }
+        interval: 100,
+      },
+    },
   },
 
   integrations: [
@@ -25,14 +25,14 @@ export default defineConfig({
     expressiveCode({
       styleOverrides: {
         frames: {
-          shadowColor: 'transparent',
-          tooltipSuccessBackground: 'transparent',
-          tooltipSuccessForeground: 'transparent'
-        }
-      }
-    })
+          shadowColor: "transparent",
+          tooltipSuccessBackground: "transparent",
+          tooltipSuccessForeground: "transparent",
+        },
+      },
+    }),
   ],
 
-  output: 'static',
-  adapter: cloudflare()
+  output: "static",
+  adapter: cloudflare(),
 });
