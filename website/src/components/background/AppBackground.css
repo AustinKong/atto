@@ -5,8 +5,7 @@
   overflow: hidden;
 }
 
-.gradient-layer,
-.shape-grid-layer,
+.shape-grid-layer
 .background-vignette {
   position: absolute;
   inset: 0;
