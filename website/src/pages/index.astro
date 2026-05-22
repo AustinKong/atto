@@ -1,13 +1,37 @@
 ---
-import Footer from "../components/layout/Footer.astro";
 import FeatureSection from "../components/marketing/FeatureSection.astro";
 import HeroSection from "../components/marketing/HeroSection.astro";
 import JobDataSection from "../components/marketing/JobDataSection.astro";
 import PricingSection from "../components/marketing/PricingSection.astro";
-import SocialProofMarquee from "../components/marketing/SocialProofMarquee.astro";
-import SectionCopy from "../components/shared/SectionCopy.astro";
-import { features, offerCompanies } from "../constants/marketing-data";
+import SocialProofSection from "../components/marketing/SocialProofSection.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const features = [
+  {
+    title: "Save jobs in seconds.",
+    description:
+      "Paste a job URL and Atto pulls the key details into a clean listing you can review and save.",
+    image: "/screenshots/dummy-screenshot.png",
+    imageAlt: "Save jobs flow",
+    label: "Feature 1",
+  },
+  {
+    title: "Track every application.",
+    description:
+      "See what you saved, applied to, interviewed for, or need to follow up on.",
+    image: "/screenshots/dummy-screenshot.png",
+    imageAlt: "Track applications table",
+    label: "Feature 2",
+  },
+  {
+    title: "Tailor resumes for each role.",
+    description:
+      "Use role details to customize your resume without starting from scratch every time.",
+    image: "/screenshots/dummy-screenshot.png",
+    imageAlt: "Tailor resumes editor",
+    label: "Feature 3",
+  },
+] as const;
 ---
 
 <BaseLayout
@@ -15,20 +39,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   description="A local-first, open-source AI tool that helps job seekers track applications and tailor resumes."
 >
   <HeroSection />
-  <SocialProofMarquee companies={offerCompanies} />
-
-  <SectionCopy as="section" class="section">
-    <p class="eyebrow">Features</p>
-    <h2>Everything you need to manage your search.</h2>
-    <p>
-      Save jobs, track progress, and tailor resumes without jumping between
-      spreadsheets, tabs, and documents.
-    </p>
-  </SectionCopy>
+  <SocialProofSection />
 
   {features.map((feature) => <FeatureSection feature={feature} />)}
 
   <JobDataSection />
   <PricingSection />
-  <Footer />
 </BaseLayout>

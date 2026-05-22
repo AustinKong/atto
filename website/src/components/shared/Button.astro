@@ -1,19 +1,21 @@
 ---
-interface Props {
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"a"> {
   variant?: "primary" | "secondary" | "ghost";
   href?: string;
 }
 
-const { variant = "primary", href } = Astro.props;
+const { variant = "primary", href, ...rest } = Astro.props;
 ---
 
 {
   href ? (
-    <a class={variant} href={href}>
+    <a class={variant} href={href} {...rest}>
       <slot />
     </a>
   ) : (
-    <button class={variant}>
+    <button class={variant} type="button">
       <slot />
     </button>
   )
@@ -53,7 +55,7 @@ const { variant = "primary", href } = Astro.props;
   }
 
   .ghost {
-    background: transparent;
+    background: var(--background);
     color: var(--text);
   }
 </style>

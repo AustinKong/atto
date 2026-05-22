@@ -20,10 +20,15 @@
   --border-muted: #f3f3f4;
   --radius-xs: 0.125rem;
   --radius-sm: 0.25rem;
+
   --body-font-size: clamp(1.0875rem, 1.42vw, 1.3875rem);
+  --small-font-size: clamp(0.875rem, 1vw, 1rem);
+
+  --content-max-width: 920px;
   --page-max-width: 1360px;
   --page-padding: clamp(1.25rem, 4vw, 4rem);
 }
+
 
 * {
   box-sizing: border-box;
@@ -64,7 +69,7 @@ li + li {
 
 a {
   color: var(--primary);
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 a:hover {
@@ -86,138 +91,20 @@ h1 {
   font-size: clamp(2.8rem, 5.4vw, 4.8rem);
 }
 
-h2,
-h3 {
+h2 {
   font-size: clamp(2rem, 4vw, 3rem);
 }
 
-.section {
-  margin-bottom: 2.25rem;
+h3 {
+  font-size: clamp(1.25rem, 2.2vw, 1.5rem);
 }
 
-.section-copy {
-  max-width: min(100%, 920px);
+section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-.section-copy h2 {
-  margin-top: 0.25rem;
-}
-
-.section-copy p:not(.caption-label):not(.eyebrow) {
-  max-width: 68ch;
-}
-
-.caption-label,
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  margin: 0;
-  color: rgba(31, 31, 36, 0.52);
-  font-size: 0.875rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 1.25rem;
-  text-transform: uppercase;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 1rem;
-}
-
-.screenshot-frame {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.46)),
-    rgba(255, 255, 255, 0.48);
-  border: 1px solid rgba(31, 31, 36, 0.1);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  padding: clamp(1.2rem, 4vw, 4.2rem) clamp(1.2rem, 5vw, 4.8rem) 0;
-}
-
-.screenshot-frame img {
-  width: 100%;
-  display: block;
-  border: 1px solid rgba(31, 31, 36, 0.14);
-  border-bottom: 0;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  box-shadow: 0 1.5rem 4rem rgba(31, 31, 36, 0.14);
-}
-
-.btn,
-.atto-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.5rem;
-  border: 1px solid transparent;
-  border-radius: var(--radius-xs);
-  padding: 0 0.95rem;
-  font-size: var(--body-font-size);
-  font-weight: 600;
-  line-height: 1;
-  text-decoration: none;
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.btn:hover,
-.atto-button:hover {
-  text-decoration: none;
-}
-
-.btn-primary,
-.atto-button-primary {
-  background: var(--brand-solid);
-  color: var(--brand-contrast);
-}
-
-.btn-primary:hover,
-.atto-button-primary:hover {
-  background: #f26422; /* slightly lighter than --brand-solid */
-  color: var(--brand-contrast);
-}
-
-.btn-secondary,
-.atto-button-secondary {
-  background: var(--surface);
-  border-color: var(--border);
-  color: var(--text);
-}
-
-.btn-secondary:hover,
-.atto-button-secondary:hover {
-  border-color: var(--brand-solid);
-  color: var(--text);
-}
-
-.btn-ghost,
-.atto-button-ghost {
-  background: transparent;
-  color: var(--text);
-}
-
-.btn-ghost:hover,
-.atto-button-ghost:hover {
-  background: rgba(31, 31, 36, 0.05); /* very light gray hover */
-}
-
-.atto-link-action {
-  align-items: center;
-  color: var(--text);
-  display: inline-flex;
-  gap: 0.35rem;
-  font-size: var(--body-font-size);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.atto-link-action:hover {
-  color: var(--brand-fg);
-  text-decoration: none;
+section + section {
+  margin-top: 2.25rem;
 }

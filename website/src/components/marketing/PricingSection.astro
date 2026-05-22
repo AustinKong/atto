@@ -1,6 +1,5 @@
 ---
-import SectionCopy from "../shared/SectionCopy.astro";
-
+import { Icon } from "astro-icon/components";
 const plans = [
   {
     name: "Free",
@@ -27,7 +26,7 @@ const plans = [
       "AI job parsing",
       "Resume builder",
       "Application tracking",
-      "No account required for local use",
+      "No account required",
       "Bring your own AI provider",
     ],
   },
@@ -49,26 +48,24 @@ const plans = [
 ] as const;
 ---
 
-<section class="section pricing-section" id="pricing">
-  <SectionCopy>
-    <p class="eyebrow">Pricing</p>
+<section>
+  <div class="content-max-width">
+    <p class="caption">Pricing</p>
     <h2>Free means free.</h2>
     <p>
       Atto is free and open-source. No subscriptions, no locked features, no
       surprise upgrade prompts. Users only pay for whatever AI provider/API they
       choose to connect.
     </p>
-  </SectionCopy>
+  </div>
 
   <div class="pricing-grid">
     {
       plans.map((plan) => (
         <article class="pricing-card">
           <div class="pricing-card-header">
-            <div>
-              <h3>{plan.name}</h3>
-              <p>{plan.description}</p>
-            </div>
+            <h3>{plan.name}</h3>
+            <p>{plan.description}</p>
           </div>
 
           <div class="price-row">
@@ -85,17 +82,20 @@ const plans = [
             <strong>{plan.price}</strong>
           </div>
 
-          <div class="pricing-divider" />
+          <p class="caption">{plan.featureIntro}</p>
 
-          <p class="pricing-feature-intro">{plan.featureIntro}</p>
-          <div class="pricing-features" role="list">
+          <ul class="pricing-features">
             {plan.features.map((feature) => (
-              <div class="pricing-feature" role="listitem">
-                <span class="pricing-check" aria-hidden="true" />
+              <li class="pricing-feature">
+                <Icon
+                  class="pricing-check"
+                  name="lucide:check"
+                  aria-hidden="true"
+                />
                 <span>{feature}</span>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </article>
       ))
     }
@@ -103,44 +103,32 @@ const plans = [
 </section>
 
 <style>
-  .pricing-section {
-    display: grid;
-    gap: clamp(2rem, 4vw, 3.5rem);
-  }
-
   .pricing-grid {
     display: grid;
     gap: 1rem;
+    align-items: stretch;
+    grid-auto-rows: 1fr;
   }
 
   .pricing-card {
-    background: rgba(255, 255, 255, 0.56);
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
     padding: clamp(1.4rem, 3vw, 2.4rem);
-  }
-
-  .pricing-card-header {
-    display: block;
-  }
-
-  .pricing-card h3 {
-    font-family: var(--font-body);
-    font-size: clamp(1.35rem, 2.1vw, 1.75rem);
-    line-height: 1.1;
-  }
-
-  .pricing-card p {
-    font-size: clamp(1rem, 1.15vw, 1.125rem);
+    display: grid;
+    grid-template-rows:
+      minmax(8rem, auto)
+      auto
+      auto
+      auto
+      1fr;
+    height: 100%;
   }
 
   .price-row {
     display: grid;
     gap: 0.35rem;
-    margin-top: clamp(2rem, 4vw, 3rem);
+    margin: 1rem 0 1.5rem 0;
   }
 
   .previous-price {
@@ -152,7 +140,6 @@ const plans = [
   }
 
   .price-row strong {
-    color: var(--text);
     font-family: var(--font-heading);
     font-size: clamp(3rem, 6vw, 4.8rem);
     font-weight: 700;
@@ -160,44 +147,24 @@ const plans = [
     line-height: 0.95;
   }
 
-  .pricing-divider {
-    border-top: 1px solid var(--border);
-    margin: clamp(1.8rem, 3vw, 2.5rem) 0 1.4rem;
-  }
-
-  .pricing-feature-intro {
-    color: rgba(31, 31, 36, 0.52);
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    margin: 0;
-    text-transform: uppercase;
-  }
-
   .pricing-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
     display: grid;
-    gap: 0.85rem;
-    margin-top: 1.25rem;
+    margin-top: 0.75rem;
   }
 
   .pricing-feature {
-    align-items: center;
-    color: var(--text);
     display: grid;
-    font-size: clamp(1rem, 1.15vw, 1.125rem);
     gap: 0.75rem;
     grid-template-columns: auto 1fr;
-    line-height: 1.25;
   }
 
   .pricing-check {
-    border-bottom: 2px solid var(--brand-solid);
-    border-left: 2px solid var(--brand-solid);
-    display: block;
-    height: 0.34rem;
-    transform: rotate(-45deg) translateY(-1px);
-    width: 0.62rem;
+    color: var(--brand-solid);
+    margin-bottom: auto;
+    margin-top: 0.15em;
   }
 
   @media (min-width: 900px) {

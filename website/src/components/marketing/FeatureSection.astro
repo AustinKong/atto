@@ -1,12 +1,12 @@
 ---
-import SectionCopy from "../shared/SectionCopy.astro";
+import AppScreenshot from "../shared/AppScreenshot.astro";
 
 interface Feature {
+  label: string;
   title: string;
   description: string;
   image: string;
   imageAlt: string;
-  label?: string;
 }
 
 interface Props {
@@ -16,21 +16,12 @@ interface Props {
 const { feature } = Astro.props;
 ---
 
-<section class="section feature">
-  <SectionCopy>
-    {feature.label && <p class="eyebrow">{feature.label}</p>}
+<section>
+  <div class="content-max-width">
+    <p class="caption">{feature.label}</p>
     <h2>{feature.title}</h2>
     <p>{feature.description}</p>
-  </SectionCopy>
-
-  <div class="screenshot-frame">
-    <img src={feature.image} alt={feature.imageAlt} loading="lazy" />
   </div>
-</section>
 
-<style>
-  .feature {
-    display: grid;
-    gap: clamp(1.6rem, 4vw, 3rem);
-  }
-</style>
+  <AppScreenshot src={feature.image} alt={feature.imageAlt} loading="eager" />
+</section>

@@ -3,6 +3,7 @@ import AppBackground from "../components/background/AppBackground.tsx";
 import Navbar from "../components/layout/Navbar.astro";
 import Footer from "../components/layout/Footer.astro";
 import "../styles/theme.css";
+import "../styles/custom.css";
 
 interface Props {
   title: string;
@@ -64,10 +65,14 @@ const fontHref =
     background: var(--background);
     position: relative;
     z-index: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
   }
 
   main {
     padding: 0 1rem;
-    margin-top: 3rem;
+    margin: 3rem 0;
+    flex: 1;
   }
 </style>
