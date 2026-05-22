@@ -1,0 +1,73 @@
+---
+const dataPoints = [
+  {
+    stat: "On-device",
+    title: "Your data stays on your device",
+    description:
+      "We do not train on your data, we do not sell your data, and your data does not even leave your computer.",
+  },
+  {
+    stat: "0% markup",
+    title: "Bring your own API key",
+    description:
+      "Use the model provider you want. We add no markup, so you pay exactly for what you use.",
+  },
+  {
+    stat: "Open-source",
+    title: "No lock-in, no mystery",
+    description:
+      "Atto is open-source and built in public, so you can inspect, self-host, or fork at any time.",
+  },
+] as const;
+---
+
+<section>
+  <div class="content-max-width">
+    <p class="caption">Data</p>
+    <h2>Your job data stays yours.</h2>
+    <p>Trust is a feature. Atto keeps data ownership simple and transparent.</p>
+  </div>
+
+  <div class="data-grid" role="list">
+    {
+      dataPoints.map((point) => (
+        <article class="data-card" role="listitem">
+          <div class="data-stat">{point.stat}</div>
+          <h3>{point.title}</h3>
+          <p>{point.description}</p>
+        </article>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .data-grid {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .data-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .data-stat {
+    align-items: flex-end;
+    color: var(--brand-solid);
+    display: flex;
+    font-family: var(--font-heading);
+    font-size: clamp(2.8rem, 5.4vw, 4.8rem);
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1;
+    min-height: calc(2 * 1em);
+  }
+
+  @media (min-width: 900px) {
+    .data-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

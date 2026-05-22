@@ -1,0 +1,27 @@
+---
+import AppScreenshot from "../shared/AppScreenshot.astro";
+
+interface Feature {
+  label: string;
+  title: string;
+  description: string;
+  image: string;
+  imageAlt: string;
+}
+
+interface Props {
+  feature: Feature;
+}
+
+const { feature } = Astro.props;
+---
+
+<section>
+  <div class="content-max-width">
+    <p class="caption">{feature.label}</p>
+    <h2>{feature.title}</h2>
+    <p>{feature.description}</p>
+  </div>
+
+  <AppScreenshot src={feature.image} alt={feature.imageAlt} loading="eager" />
+</section>

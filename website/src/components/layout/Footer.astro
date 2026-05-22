@@ -1,0 +1,55 @@
+<footer>
+  <nav aria-label="Footer links">
+    <a href="/download">Download</a>
+    <a
+      href="https://github.com/AustinKong/atto"
+      target="_blank"
+      rel="noreferrer">GitHub</a
+    >
+    <a
+      href="https://github.com/AustinKong/atto/blob/main/setup.md"
+      target="_blank"
+      rel="noreferrer"
+    >
+      Setup Guide
+    </a>
+    <a
+      href="https://github.com/AustinKong/atto/issues/new"
+      target="_blank"
+      rel="noreferrer">Feedback</a
+    >
+  </nav>
+  <p class="copyright">Copyright © 2025-2026 Austin Kong.</p>
+</footer>
+
+<style>
+  footer {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    font-size: var(--small-font-size);
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  nav {
+    display: flex;
+    gap: 1rem;
+  }
+
+  a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .copyright {
+    color: var(--muted-text);
+    font-size: inherit;
+  }
+
+  @media (max-width: 720px) {
+    footer {
+      flex-direction: column;
+    }
+  }
+</style>

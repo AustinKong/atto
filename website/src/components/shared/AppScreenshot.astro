@@ -1,0 +1,38 @@
+---
+interface Props {
+  src: string;
+  alt?: string;
+  loading?: "lazy" | "eager";
+}
+
+const { src, alt = "", loading = "lazy" } = Astro.props;
+---
+
+<div class="screenshot-frame">
+  <img src={src} alt={alt} loading={loading} />
+</div>
+
+<style>
+  .screenshot-frame {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.82),
+        rgba(255, 255, 255, 0.46)
+      ),
+      rgba(255, 255, 255, 0.48);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    padding: clamp(1.2rem, 5vw, 4.2rem) clamp(1.2rem, 6vw, 4.8rem) 0;
+  }
+
+  .screenshot-frame img {
+    width: 100%;
+    display: block;
+    border: 1px solid var(--border);
+    border-bottom: 0;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    box-shadow: 0 1.5rem 4rem rgba(31, 31, 36, 0.14);
+  }
+</style>

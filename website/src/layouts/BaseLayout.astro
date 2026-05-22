@@ -1,0 +1,78 @@
+---
+import AppBackground from "../components/background/AppBackground.tsx";
+import Navbar from "../components/layout/Navbar.astro";
+import Footer from "../components/layout/Footer.astro";
+import "../styles/theme.css";
+import "../styles/custom.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = "Atto helps job seekers track applications and tailor resumes.",
+} = Astro.props;
+const fontHref =
+  "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;" +
+  "0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=" +
+  "IBM+Plex+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;" +
+  "1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@" +
+  "0,100..700;1,100..700&display=swap";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/light-mode.svg"
+      media="(prefers-color-scheme: light)"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/dark-mode.svg"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href={fontHref} rel="stylesheet" />
+  </head>
+  <body>
+    <AppBackground client:load />
+    <div class="container">
+      <Navbar />
+      <main>
+        <slot />
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>
+
+<style>
+  .container {
+    width: min(var(--page-max-width), calc(100% - var(--page-padding) * 2));
+    margin: 0 auto;
+    background: var(--background);
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  main {
+    padding: 0 1rem;
+    margin: 3rem 0;
+    flex: 1;
+  }
+</style>

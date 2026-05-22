@@ -1,0 +1,175 @@
+---
+import { Icon } from "astro-icon/components";
+const plans = [
+  {
+    name: "Free",
+    price: "$0",
+    previousPrice: "",
+    description: "Everything you need to organize your job search.",
+    featureIntro: "Included",
+    features: [
+      "Save job listings",
+      "Track applications",
+      "Tailor resumes",
+      "Local-first data storage",
+      "Open-source",
+    ],
+  },
+  {
+    name: "Pro",
+    price: "$0",
+    previousPrice: "$12/month",
+    description:
+      "The same Atto, because core job-search features should not be gated.",
+    featureIntro: "Still included",
+    features: [
+      "AI job parsing",
+      "Resume builder",
+      "Application tracking",
+      "No account required",
+      "Bring your own AI provider",
+    ],
+  },
+  {
+    name: "Enterprise",
+    price: "Still $0",
+    previousPrice: "Contact sales",
+    description:
+      "No sales calls. No procurement. Just an open-source tool you can use.",
+    featureIntro: "Also included",
+    features: [
+      "Open-source codebase",
+      "Built in public",
+      "Community feedback welcome",
+      "No surprise upgrade prompts",
+      "No locked features",
+    ],
+  },
+] as const;
+---
+
+<section>
+  <div class="content-max-width">
+    <p class="caption">Pricing</p>
+    <h2>Free means free.</h2>
+    <p>
+      Atto is free and open-source. No subscriptions, no locked features, no
+      surprise upgrade prompts. Users only pay for whatever AI provider/API they
+      choose to connect.
+    </p>
+  </div>
+
+  <div class="pricing-grid">
+    {
+      plans.map((plan) => (
+        <article class="pricing-card">
+          <div class="pricing-card-header">
+            <h3>{plan.name}</h3>
+            <p>{plan.description}</p>
+          </div>
+
+          <div class="price-row">
+            <span
+              class="previous-price"
+              aria-hidden={!plan.previousPrice ? "true" : undefined}
+            >
+              {plan.previousPrice ? (
+                <s>{plan.previousPrice}</s>
+              ) : (
+                <span>&nbsp;</span>
+              )}
+            </span>
+            <strong>{plan.price}</strong>
+          </div>
+
+          <p class="caption">{plan.featureIntro}</p>
+
+          <ul class="pricing-features">
+            {plan.features.map((feature) => (
+              <li class="pricing-feature">
+                <Icon
+                  class="pricing-check"
+                  name="lucide:check"
+                  aria-hidden="true"
+                />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+        </article>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .pricing-grid {
+    display: grid;
+    gap: 1rem;
+    align-items: stretch;
+    grid-auto-rows: 1fr;
+  }
+
+  .pricing-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: clamp(1.4rem, 3vw, 2.4rem);
+    display: grid;
+    grid-template-rows:
+      minmax(8rem, auto)
+      auto
+      auto
+      auto
+      1fr;
+    height: 100%;
+  }
+
+  .price-row {
+    display: grid;
+    gap: 0.35rem;
+    margin: 1rem 0 1.5rem 0;
+  }
+
+  .previous-price {
+    color: var(--muted-text);
+    display: block;
+    font-size: clamp(1rem, 1.2vw, 1.25rem);
+    height: 1.5em;
+    line-height: 1.5;
+  }
+
+  .price-row strong {
+    font-family: var(--font-heading);
+    font-size: clamp(3rem, 6vw, 4.8rem);
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 0.95;
+  }
+
+  .pricing-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    margin-top: 0.75rem;
+  }
+
+  .pricing-feature {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: auto 1fr;
+  }
+
+  .pricing-check {
+    color: var(--brand-solid);
+    margin-bottom: auto;
+    margin-top: 0.15em;
+  }
+
+  @media (min-width: 900px) {
+    .pricing-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

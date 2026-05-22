@@ -1,0 +1,49 @@
+---
+import { Icon } from "astro-icon/components";
+import Button from "../shared/Button.astro";
+import AppScreenshot from "../shared/AppScreenshot.astro";
+---
+
+<section>
+  <div class="content-max-width">
+    <p class="caption">
+      Local-first · Open-source · Built for job seekers applying to multiple
+      roles
+    </p>
+    <h1>Organize your job search without spreadsheet chaos.</h1>
+    <p>
+      Track applications, tailor resumes, and keep your job search data on your
+      device.
+    </p>
+  </div>
+
+  <div class="cta">
+    <Button href="/download" variant="primary" class="hero-btn">
+      Download Atto
+    </Button>
+    <Button
+      href="https://github.com/AustinKong/atto"
+      variant="ghost"
+      target="_blank"
+      rel="noreferrer"
+    >
+      View on GitHub
+      <Icon name="lucide:arrow-right" aria-hidden="true" />
+    </Button>
+  </div>
+
+  <AppScreenshot
+    src="/screenshots/dummy-screenshot.png"
+    alt="Atto dashboard showing saved jobs, application statuses, and resume tailoring"
+    loading="eager"
+  />
+</section>
+
+<style>
+  .cta {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+</style>

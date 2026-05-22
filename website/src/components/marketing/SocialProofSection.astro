@@ -1,0 +1,79 @@
+---
+import { Icon } from "astro-icon/components";
+
+const companies = [
+  { name: "TikTok", icon: "simple-icons:tiktok" },
+  { name: "Shopee", icon: "simple-icons:shopee" },
+  { name: "Smoke", icon: "lucide:flame" },
+  { name: "Spotify", icon: "simple-icons:spotify" },
+  { name: "Stripe", icon: "simple-icons:stripe" },
+  { name: "Figma", icon: "simple-icons:figma" },
+  { name: "Notion", icon: "simple-icons:notion" },
+  { name: "GitHub", icon: "simple-icons:github" },
+] as const;
+const marqueeCompanies = [...companies, ...companies];
+---
+
+<section aria-label="Social proof">
+  <div>
+    <p class="caption">Atto users have landed offers at</p>
+    <div class="marquee" role="region" aria-label="Company icons">
+      <div class="marquee-track">
+        {
+          marqueeCompanies.map((company) => (
+            <div class="logo-item" aria-label={company.name}>
+              <Icon class="logo-icon" name={company.icon} aria-hidden="true" />
+              <span class="logo-text">{company.name}</span>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .marquee {
+    overflow: hidden;
+    padding: 0.45rem 0;
+    width: 100%;
+  }
+
+  .marquee-track {
+    display: flex;
+    align-items: center;
+    width: max-content;
+    animation: scroll 28s linear infinite;
+    will-change: transform;
+  }
+
+  .logo-item {
+    width: clamp(140px, 10vw, 210px);
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.4rem;
+    opacity: 0.48;
+    transition: opacity 0.2s ease;
+  }
+
+  .logo-item:hover {
+    opacity: 1;
+  }
+
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  @keyframes scroll {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+</style>

@@ -1,0 +1,22 @@
+.content-max-width {
+  max-width: var(--content-max-width);
+  width: 100%;
+}
+
+.caption {
+  display: inline-flex;
+  margin: 0;
+  color: var(--muted-text);
+  font-size: var(--small-font-size);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.25rem;
+  text-transform: uppercase;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+}

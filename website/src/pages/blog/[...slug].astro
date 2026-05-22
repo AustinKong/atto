@@ -1,0 +1,57 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Button from "../../components/shared/Button.astro";
+import { Icon } from "astro-icon/components";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<BaseLayout
+  title={`${post.data.title} | Atto Blog`}
+  description={post.data.description}
+>
+  <article>
+    <div class="back-button">
+      <Button href="/blog" variant="ghost">
+        <Icon name="lucide:arrow-left" aria-hidden="true" />
+        Back to blog
+      </Button>
+    </div>
+
+    <h1>{post.data.title}</h1>
+    <time class="caption" datetime={post.data.pubDate.toISOString()}>
+      {
+        post.data.pubDate.toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        })
+      }
+    </time>
+
+    <div class="blog-content">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .back-button {
+    margin-left: -1rem;
+  }
+
+  .blog-content {
+    margin-top: 2rem;
+  }
+</style>
