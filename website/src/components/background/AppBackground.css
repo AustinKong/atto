@@ -5,14 +5,10 @@
   overflow: hidden;
 }
 
-.shape-grid-layer
+.shape-grid-layer,
 .background-vignette {
   position: absolute;
   inset: 0;
-}
-
-.gradient-layer {
-  background: var(--background, #fffbf7);
 }
 
 .shape-grid-layer {

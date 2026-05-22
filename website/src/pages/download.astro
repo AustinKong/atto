@@ -31,10 +31,9 @@ import Button from "../components/shared/Button.astro";
         <Button
           href="https://github.com/AustinKong/atto/releases"
           variant="secondary"
-          data-os="Windows"
+          data-os="windows"
         >
           <Icon
-            class="os-icon"
             name="simple-icons:windows"
             aria-hidden="true"
           />
@@ -43,17 +42,17 @@ import Button from "../components/shared/Button.astro";
         <Button
           href="https://github.com/AustinKong/atto/releases"
           variant="secondary"
-          data-os="macOS"
+          data-os="mac"
         >
-          <Icon class="os-icon" name="simple-icons:apple" aria-hidden="true" />
+          <Icon name="simple-icons:apple" aria-hidden="true" />
           Download for macOS
         </Button>
         <Button
           href="https://github.com/AustinKong/atto/releases"
           variant="secondary"
-          data-os="Linux"
+          data-os="linux"
         >
-          <Icon class="os-icon" name="simple-icons:linux" aria-hidden="true" />
+          <Icon name="simple-icons:linux" aria-hidden="true" />
           Download for Linux
         </Button>
       </div>
@@ -71,25 +70,22 @@ import Button from "../components/shared/Button.astro";
 </BaseLayout>
 
 <script>
-  let platform = "";
+  const platform =
+  // @ts-ignore
+    navigator.userAgentData?.platform?.toLowerCase?.() ??
+    navigator.platform?.toLowerCase?.() ??
+    "";
 
-  // @ts-ignore - navigator.userAgentData is a relatively new API not in all TS targets yet
-  if (navigator.userAgentData && navigator.userAgentData.platform) {
-    // @ts-ignore
-    platform = navigator.userAgentData.platform;
-  } else {
-    const fallbackPlat = navigator.platform.toLowerCase();
-    if (fallbackPlat.includes("mac")) platform = "macOS";
-    else if (fallbackPlat.includes("win")) platform = "Windows";
-    else if (fallbackPlat.includes("linux")) platform = "Linux";
-  }
+  const buttons = document.querySelectorAll("[data-os]");
 
-  const btns = document.querySelectorAll(".os-btn");
-  btns.forEach((btn) => {
-    const os = btn.getAttribute("data-os");
-    if (platform && os && platform.toLowerCase().includes(os.toLowerCase())) {
-      btn.classList.remove("atto-button-secondary");
-      btn.classList.add("atto-button-primary");
+  buttons.forEach((button) => {
+    const os = button.getAttribute("data-os")?.toLowerCase();
+
+    if (!os) return;
+
+    if (platform.includes(os)) {
+      button.classList.remove("secondary");
+      button.classList.add("primary");
     }
   });
 </script>
@@ -126,5 +122,6 @@ import Button from "../components/shared/Button.astro";
     align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
+    margin-bottom: 1rem;
   }
 </style>

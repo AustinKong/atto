@@ -9,7 +9,6 @@ export default function AppBackground() {
         <ShapeGrid
           borderColor="rgba(28, 25, 23, 0.24)"
           direction="diagonal"
-          hoverFillColor="rgba(28, 25, 23, 0.08)"
           interactive={false}
           shape="square"
           speed={0.28}

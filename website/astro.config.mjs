@@ -34,5 +34,8 @@ export default defineConfig({
   ],
 
   output: "static",
-  adapter: cloudflare(),
+  adapter:
+    process.argv.includes('dev')
+      ? undefined
+      : cloudflare(),
 });
