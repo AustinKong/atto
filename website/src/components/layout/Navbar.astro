@@ -30,7 +30,7 @@ import { Icon } from "astro-icon/components";
 <style>
   header {
     position: sticky;
-    top: 0rem;
+    top: 0;
     z-index: 20;
     display: flex;
     align-items: center;
@@ -45,5 +45,23 @@ import { Icon } from "astro-icon/components";
     display: flex;
     align-items: center;
     gap: 0.25rem;
+  }
+
+  @media (max-width: 47.99rem) {
+    header {
+      flex-wrap: nowrap;
+    }
+
+    .navbar-left {
+      margin-left: -1rem;
+    }
+
+    .navbar-right {
+      margin-left: auto;
+    }
+
+    .navbar-right a[href*="github.com"] {
+      display: none;
+    }
   }
 </style>

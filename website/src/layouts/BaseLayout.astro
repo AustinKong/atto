@@ -60,7 +60,7 @@ const fontHref =
 
 <style>
   .container {
-    width: min(var(--page-max-width), calc(100% - var(--page-padding) * 2));
+    width: min(var(--page-max-width), calc(100% - (var(--page-padding) * 2)));
     margin: 0 auto;
     background: var(--background);
     position: relative;
@@ -71,8 +71,13 @@ const fontHref =
   }
 
   main {
-    padding: 0 1rem;
-    margin: 3rem 0;
+    margin: var(--main-spacing) 0;
     flex: 1;
+  }
+
+  @media (min-width: 48rem) {
+    main {
+      padding: 0 1rem;
+    }
   }
 </style>

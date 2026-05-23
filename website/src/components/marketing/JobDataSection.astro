@@ -58,14 +58,13 @@ const dataPoints = [
     color: var(--brand-solid);
     display: flex;
     font-family: var(--font-heading);
-    font-size: clamp(2.8rem, 5.4vw, 4.8rem);
+    font-size: var(--stat-font-size);
     font-weight: 700;
     letter-spacing: 0;
     line-height: 1;
-    min-height: calc(2 * 1em);
   }
 
-  @media (min-width: 900px) {
+  @media (min-width: 64rem) {
     .data-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }

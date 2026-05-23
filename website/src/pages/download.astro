@@ -18,7 +18,7 @@ const downloads = {
   title="Download Atto"
   description="Install Atto locally on your device to seamlessly organize your job search."
 >
-  <main class="download-page">
+  <div class="download-page">
     <div class="content-max-width">
       <p class="caption">Download</p>
       <h1>Install Atto</h1>
@@ -31,7 +31,7 @@ const downloads = {
       </div>
     </div>
 
-    <div class="or-divider">
+    <div class="or-divider content-max-width">
       <span class="caption">OR</span>
     </div>
 
@@ -75,7 +75,7 @@ const downloads = {
         >
       </p>
     </div>
-  </main>
+  </div>
 </BaseLayout>
 
 <script>
@@ -108,7 +108,6 @@ const downloads = {
     display: flex;
     align-items: center;
     margin: 2.5rem 0;
-    max-width: 480px;
   }
 
   .or-divider::before,
@@ -132,5 +131,12 @@ const downloads = {
     gap: 1rem;
     flex-wrap: wrap;
     margin-bottom: 1rem;
+  }
+
+  @media (max-width: 47.99rem) {
+    .download-button-group {
+      align-items: stretch;
+      flex-direction: column;
+    }
   }
 </style>

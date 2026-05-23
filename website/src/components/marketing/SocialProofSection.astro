@@ -48,8 +48,8 @@ const marqueeCompanies = [...companies, ...companies];
   }
 
   .logo-item {
-    width: clamp(140px, 10vw, 210px);
-    height: 48px;
+    width: 8.75rem;
+    height: 3rem;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -63,8 +63,20 @@ const marqueeCompanies = [...companies, ...companies];
   }
 
   .logo-icon {
-    width: 28px;
-    height: 28px;
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  @media (min-width: 48rem) {
+    .logo-item {
+      width: 11rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .logo-item {
+      width: 13rem;
+    }
   }
 
   @keyframes scroll {
