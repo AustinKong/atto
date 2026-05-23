@@ -1,8 +1,8 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
 import { Code } from "astro-expressive-code/components";
-import Button from "../components/shared/Button.astro";
+import Button from "../../components/shared/Button.astro";
 ---
 
 <BaseLayout
@@ -29,7 +29,7 @@ import Button from "../components/shared/Button.astro";
     <div class="content-max-width">
       <div class="download-button-group">
         <Button
-          href="https://github.com/AustinKong/atto/releases"
+          href="/download/windows"
           variant="secondary"
           data-os="windows"
         >
@@ -40,7 +40,7 @@ import Button from "../components/shared/Button.astro";
           Download for Windows
         </Button>
         <Button
-          href="https://github.com/AustinKong/atto/releases"
+          href="/download/macos"
           variant="secondary"
           data-os="mac"
         >
@@ -48,7 +48,7 @@ import Button from "../components/shared/Button.astro";
           Download for macOS
         </Button>
         <Button
-          href="https://github.com/AustinKong/atto/releases"
+          href="/download/linux"
           variant="secondary"
           data-os="linux"
         >

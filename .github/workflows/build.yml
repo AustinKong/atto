@@ -62,18 +62,29 @@ jobs:
 
       - name: Rename
         run: |
-          shopt -s nocaseglob
-          for f in dist/atto*; do
-            if [ -f "$f" ]; then
-              ext="${f##*.}"
-              filename="${f%.*}"
-              if [ "$ext" = "$filename" ] || [ "$f" = "$filename" ]; then
-                mv "$f" "${f}-${{ matrix.os }}"
-              else
-                mv "$f" "${filename}-${{ matrix.os }}.${ext}"
-              fi
-            fi
-          done
+          set -euo pipefail
+
+          case "${{ matrix.os }}" in
+            macos-latest)
+              for f in dist/*.{dmg,DMG}; do
+                [ -f "$f" ] && mv -f "$f" dist/atto-macos.dmg && break
+              done
+              ;;
+            ubuntu-latest)
+              for f in dist/*.AppImage; do
+                [ -f "$f" ] && mv -f "$f" dist/atto-linux.AppImage && break
+              done
+              ;;
+            windows-latest)
+              for f in dist/*.exe; do
+                [ -f "$f" ] && mv -f "$f" dist/atto-windows.exe && break
+              done
+              ;;
+            *)
+              echo "Unknown OS: ${{ matrix.os }}"
+              exit 1
+              ;;
+          esac
         shell: bash
 
       - name: Upload Artifacts
