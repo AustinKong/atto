@@ -1,8 +1,17 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
 import { Code } from "astro-expressive-code/components";
-import Button from "../../components/shared/Button.astro";
+import Button from "../components/shared/Button.astro";
+
+const downloads = {
+  windows:
+    "https://github.com/austinkong/atto/releases/latest/download/atto-windows.exe",
+  macos:
+    "https://github.com/austinkong/atto/releases/latest/download/atto-macos.dmg",
+  linux:
+    "https://github.com/austinkong/atto/releases/latest/download/atto-linux.AppImage",
+};
 ---
 
 <BaseLayout
@@ -29,28 +38,28 @@ import Button from "../../components/shared/Button.astro";
     <div class="content-max-width">
       <div class="download-button-group">
         <Button
-          href="/download/windows"
+          href={downloads.windows}
           variant="secondary"
           data-os="windows"
+          download
         >
-          <Icon
-            name="simple-icons:windows"
-            aria-hidden="true"
-          />
+          <Icon name="simple-icons:windows" aria-hidden="true" />
           Download for Windows
         </Button>
         <Button
-          href="/download/macos"
+          href={downloads.macos}
           variant="secondary"
           data-os="mac"
+          download
         >
           <Icon name="simple-icons:apple" aria-hidden="true" />
           Download for macOS
         </Button>
         <Button
-          href="/download/linux"
+          href={downloads.linux}
           variant="secondary"
           data-os="linux"
+          download
         >
           <Icon name="simple-icons:linux" aria-hidden="true" />
           Download for Linux
@@ -71,7 +80,7 @@ import Button from "../../components/shared/Button.astro";
 
 <script>
   const platform =
-  // @ts-ignore
+    // @ts-ignore
     navigator.userAgentData?.platform?.toLowerCase?.() ??
     navigator.platform?.toLowerCase?.() ??
     "";
