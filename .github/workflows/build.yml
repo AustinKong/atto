@@ -70,40 +70,82 @@ jobs:
             macos-latest)
               mkdir -p /tmp/atto-macos
               if [ -d dist/Atto.app ]; then
-                cp -R dist/Atto.app /tmp/atto-macos/
-                hdiutil create \
-                  -volname Atto \
-                  -srcfolder /tmp/atto-macos \
-                  -ov \
-                  -format UDZO \
-                  dist/atto-macos.dmg
+                cp -R dist/Atto.app/Contents/MacOS/Atto /tmp/atto-macos/Atto.bin
                 rm -rf dist/Atto.app
               elif [ -f dist/Atto ]; then
-                cp dist/Atto /tmp/atto-macos/Atto
-                hdiutil create \
-                  -volname Atto \
-                  -srcfolder /tmp/atto-macos \
-                  -ov \
-                  -format UDZO \
-                  dist/atto-macos.dmg
+                cp dist/Atto /tmp/atto-macos/Atto.bin
                 rm -f dist/Atto
               else
                 echo "Expected macOS artifact dist/Atto.app or dist/Atto was not found."
                 ls -la dist
                 exit 1
               fi
+
+              mkdir -p /tmp/atto-macos/Atto.app/Contents/MacOS
+              mkdir -p /tmp/atto-macos/Atto.app/Contents/Resources
+              mv /tmp/atto-macos/Atto.bin /tmp/atto-macos/Atto.app/Contents/Resources/Atto
+              chmod +x /tmp/atto-macos/Atto.app/Contents/Resources/Atto
+              printf '%s\n' \
+                '#!/usr/bin/env bash' \
+                'set -euo pipefail' \
+                'HERE="$(cd "$(dirname "$0")" && pwd)"' \
+                'open -a Terminal "$HERE/../Resources/Atto.command"' \
+                > /tmp/atto-macos/Atto.app/Contents/MacOS/Atto
+              chmod +x /tmp/atto-macos/Atto.app/Contents/MacOS/Atto
+              printf '%s\n' \
+                '#!/usr/bin/env bash' \
+                'set -euo pipefail' \
+                'HERE="$(cd "$(dirname "$0")" && pwd)"' \
+                'exec "$HERE/Atto" "$@"' \
+                > /tmp/atto-macos/Atto.app/Contents/Resources/Atto.command
+              chmod +x /tmp/atto-macos/Atto.app/Contents/Resources/Atto.command
+              printf '%s\n' \
+                '<?xml version="1.0" encoding="UTF-8"?>' \
+                '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"' \
+                '  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' \
+                '<plist version="1.0">' \
+                '<dict>' \
+                '  <key>CFBundleExecutable</key>' \
+                '  <string>Atto</string>' \
+                '  <key>CFBundleIdentifier</key>' \
+                '  <string>app.atto.launcher</string>' \
+                '  <key>CFBundleName</key>' \
+                '  <string>Atto</string>' \
+                '  <key>CFBundlePackageType</key>' \
+                '  <string>APPL</string>' \
+                '  <key>CFBundleShortVersionString</key>' \
+                '  <string>${{ github.event.inputs.version }}</string>' \
+                '  <key>CFBundleVersion</key>' \
+                '  <string>${{ github.event.inputs.version }}</string>' \
+                '</dict>' \
+                '</plist>' \
+                > /tmp/atto-macos/Atto.app/Contents/Info.plist
+              hdiutil create \
+                -volname Atto \
+                -srcfolder /tmp/atto-macos \
+                -ov \
+                -format UDZO \
+                dist/atto-macos.dmg
               ;;
             ubuntu-latest)
               if [ -f dist/Atto ]; then
-                mkdir -p /tmp/atto-appimage/Atto.AppDir/usr/bin
-                cp dist/Atto /tmp/atto-appimage/Atto.AppDir/usr/bin/Atto
-                chmod +x /tmp/atto-appimage/Atto.AppDir/usr/bin/Atto
+                mkdir -p /tmp/atto-linux
+                cp dist/Atto /tmp/atto-linux/Atto
+                chmod +x /tmp/atto-linux/Atto
+                cp website/src/icons/logo.svg /tmp/atto-linux/atto.svg
                 printf '%s\n' \
                   '#!/usr/bin/env bash' \
-                  'HERE="$(dirname "$(readlink -f "$0")")"' \
-                  'exec "$HERE/usr/bin/Atto" "$@"' \
-                  > /tmp/atto-appimage/Atto.AppDir/AppRun
-                chmod +x /tmp/atto-appimage/Atto.AppDir/AppRun
+                  'set -euo pipefail' \
+                  'APP_DIR="$(cd "$(dirname "$0")" && pwd)"' \
+                  'APP_FILE="$HOME/.local/share/applications/atto.desktop"' \
+                  'ICON_DIR="$HOME/.local/share/icons/hicolor/scalable/apps"' \
+                  'mkdir -p "$(dirname "$APP_FILE")" "$ICON_DIR"' \
+                  'cp "$APP_DIR/atto.svg" "$ICON_DIR/atto.svg"' \
+                  'sed "s|^Exec=.*|Exec=\"$APP_DIR/Atto\"|" "$APP_DIR/Atto.desktop" > "$APP_FILE"' \
+                  'chmod +x "$APP_FILE"' \
+                  'echo "Installed Atto launcher to $APP_FILE"' \
+                  > /tmp/atto-linux/install.sh
+                chmod +x /tmp/atto-linux/install.sh
                 printf '%s\n' \
                   '[Desktop Entry]' \
                   'Type=Application' \
@@ -112,19 +154,8 @@ jobs:
                   'Icon=atto' \
                   'Terminal=true' \
                   'Categories=Office;' \
-                  > /tmp/atto-appimage/Atto.AppDir/atto.desktop
-                mkdir -p /tmp/atto-appimage/Atto.AppDir/usr/share/icons/hicolor/scalable/apps
-                cp website/src/icons/logo.svg /tmp/atto-appimage/Atto.AppDir/atto.svg
-                cp website/src/icons/logo.svg \
-                  /tmp/atto-appimage/Atto.AppDir/usr/share/icons/hicolor/scalable/apps/atto.svg
-                cp /tmp/atto-appimage/Atto.AppDir/atto.svg /tmp/atto-appimage/Atto.AppDir/.DirIcon
-                curl --fail --location --show-error \
-                  -o /tmp/atto-appimage/appimagetool \
-                  https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-                chmod +x /tmp/atto-appimage/appimagetool
-                APPIMAGE_EXTRACT_AND_RUN=1 ARCH=x86_64 /tmp/atto-appimage/appimagetool \
-                  /tmp/atto-appimage/Atto.AppDir \
-                  dist/atto-linux.AppImage
+                  > /tmp/atto-linux/Atto.desktop
+                tar -czf dist/atto-linux.tar.gz -C /tmp atto-linux
                 rm -f dist/Atto
               else
                 echo "Expected Linux artifact dist/Atto was not found."
