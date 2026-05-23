@@ -8,7 +8,7 @@ import { validateParams } from '@/utils/params.utils';
 const ReleaseNotesParams = z.object({
   version: z
     .string()
-    .regex(/^(\d+\.)?(\d+\.)?(\*|\d+)$/, 'Invalid version: must be a valid semver string'),
+    .regex(/^v?(\d+\.)?(\d+\.)?(\*|\d+)$/i, 'Invalid version: must be a valid semver string'),
 });
 
 export function releaseNotesLoader(queryClient: QueryClient) {
