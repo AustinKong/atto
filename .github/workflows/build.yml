@@ -113,8 +113,11 @@ jobs:
                   'Terminal=true' \
                   'Categories=Office;' \
                   > /tmp/atto-appimage/Atto.AppDir/atto.desktop
-                cp .github/assets/gatto-original.png /tmp/atto-appimage/Atto.AppDir/atto.png
-                cp /tmp/atto-appimage/Atto.AppDir/atto.png /tmp/atto-appimage/Atto.AppDir/.DirIcon
+                mkdir -p /tmp/atto-appimage/Atto.AppDir/usr/share/icons/hicolor/scalable/apps
+                cp website/src/icons/logo.svg /tmp/atto-appimage/Atto.AppDir/atto.svg
+                cp website/src/icons/logo.svg \
+                  /tmp/atto-appimage/Atto.AppDir/usr/share/icons/hicolor/scalable/apps/atto.svg
+                cp /tmp/atto-appimage/Atto.AppDir/atto.svg /tmp/atto-appimage/Atto.AppDir/.DirIcon
                 curl --fail --location --show-error \
                   -o /tmp/atto-appimage/appimagetool \
                   https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage

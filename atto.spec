@@ -25,7 +25,9 @@ a = Analysis(
     pathex=['backend', '.'],
     binaries=[],
     datas=[('frontend/dist', 'frontend/dist'), ('backend/app/assets', 'app/assets')],
-    hiddenimports=collect_submodules('shared') + _mypyc_hiddenimports('chardet'),
+    hiddenimports=collect_submodules('shared')
+    + collect_submodules('pypdf')
+    + _mypyc_hiddenimports('chardet'),
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
