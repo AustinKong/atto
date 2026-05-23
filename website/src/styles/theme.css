@@ -21,7 +21,7 @@
   --radius-xs: 0.125rem;
   --radius-sm: 0.25rem;
 
-  --body-font-size: clamp(1.0875rem, 1.42vw, 1.3875rem);
+  /* TODO: Just use rems instead of this clamp busines everywhere */
   --small-font-size: clamp(0.875rem, 1vw, 1rem);
 
   --content-max-width: 920px;
@@ -44,7 +44,7 @@ body {
   background: var(--background);
   color: var(--text);
   font-family: var(--font-body);
-  font-size: var(--body-font-size);
+  font-size: 1.25rem;
   line-height: 1.34;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
@@ -52,7 +52,6 @@ body {
 
 p {
   color: var(--muted-text);
-  font-size: var(--body-font-size);
   line-height: 1.34;
   margin: 0.75rem 0 0;
 }
@@ -60,7 +59,6 @@ p {
 ul,
 ol {
   color: var(--muted-text);
-  font-size: var(--body-font-size);
   line-height: 1.34;
 }
 

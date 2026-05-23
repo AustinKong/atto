@@ -17,6 +17,12 @@ export default defineConfig({
         interval: 100,
       },
     },
+    // Temporary shim, see src/shims/debug.js
+    resolve: {
+      alias: {
+        debug: new URL("./src/shims/debug.js", import.meta.url).pathname,
+      },
+    },
   },
 
   integrations: [
@@ -29,13 +35,14 @@ export default defineConfig({
           tooltipSuccessBackground: "transparent",
           tooltipSuccessForeground: "transparent",
         },
+        codeFontSize: "1.25rem",
+      },
+      shiki: {
+        engine: "javascript",
       },
     }),
   ],
 
   output: "static",
-  adapter:
-    process.argv.includes('dev')
-      ? undefined
-      : cloudflare(),
+  adapter: process.argv.includes("dev") ? undefined : cloudflare(),
 });

@@ -1,8 +1,9 @@
 ---
-import { getCollection } from "astro:content";
+import { CollectionEntry, getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
-const posts = (await getCollection("blog")).sort(
+let posts: CollectionEntry<"blog">[] = await getCollection("blog");
+posts = posts.sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 ---
@@ -23,7 +24,7 @@ const posts = (await getCollection("blog")).sort(
   <div class="post-list" role="list">
     {
       posts.map((post) => (
-        <a href={`/blog/${post.slug}/`} class="post-card" role="listitem">
+        <a href={`/blog/${post.id}/`} class="post-card" role="listitem">
           <div class="content-max-width">
             <time class="caption" datetime={post.data.pubDate.toISOString()}>
               {post.data.pubDate.toLocaleDateString("en-US", {
