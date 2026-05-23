@@ -53,7 +53,9 @@ jobs:
           npm ci --prefix frontend
           python -m pip install --upgrade pip
           python -m pip install pyinstaller
-          python -m pip install ./backend
+          python -m pip install ./shared
+          cd backend
+          python -m pip install .
         shell: bash
 
       - name: Build
@@ -66,19 +68,75 @@ jobs:
 
           case "${{ matrix.os }}" in
             macos-latest)
-              for f in dist/*.{dmg,DMG}; do
-                [ -f "$f" ] && mv -f "$f" dist/atto-macos.dmg && break
-              done
+              mkdir -p /tmp/atto-macos
+              if [ -d dist/Atto.app ]; then
+                cp -R dist/Atto.app /tmp/atto-macos/
+                hdiutil create \
+                  -volname Atto \
+                  -srcfolder /tmp/atto-macos \
+                  -ov \
+                  -format UDZO \
+                  dist/atto-macos.dmg
+                rm -rf dist/Atto.app
+              elif [ -f dist/Atto ]; then
+                cp dist/Atto /tmp/atto-macos/Atto
+                hdiutil create \
+                  -volname Atto \
+                  -srcfolder /tmp/atto-macos \
+                  -ov \
+                  -format UDZO \
+                  dist/atto-macos.dmg
+                rm -f dist/Atto
+              else
+                echo "Expected macOS artifact dist/Atto.app or dist/Atto was not found."
+                ls -la dist
+                exit 1
+              fi
               ;;
             ubuntu-latest)
-              for f in dist/*.AppImage; do
-                [ -f "$f" ] && mv -f "$f" dist/atto-linux.AppImage && break
-              done
+              if [ -f dist/Atto ]; then
+                mkdir -p /tmp/atto-appimage/Atto.AppDir/usr/bin
+                cp dist/Atto /tmp/atto-appimage/Atto.AppDir/usr/bin/Atto
+                chmod +x /tmp/atto-appimage/Atto.AppDir/usr/bin/Atto
+                printf '%s\n' \
+                  '#!/usr/bin/env bash' \
+                  'HERE="$(dirname "$(readlink -f "$0")")"' \
+                  'exec "$HERE/usr/bin/Atto" "$@"' \
+                  > /tmp/atto-appimage/Atto.AppDir/AppRun
+                chmod +x /tmp/atto-appimage/Atto.AppDir/AppRun
+                printf '%s\n' \
+                  '[Desktop Entry]' \
+                  'Type=Application' \
+                  'Name=Atto' \
+                  'Exec=Atto' \
+                  'Icon=atto' \
+                  'Terminal=true' \
+                  'Categories=Office;' \
+                  > /tmp/atto-appimage/Atto.AppDir/atto.desktop
+                cp .github/assets/gatto-original.png /tmp/atto-appimage/Atto.AppDir/atto.png
+                cp /tmp/atto-appimage/Atto.AppDir/atto.png /tmp/atto-appimage/Atto.AppDir/.DirIcon
+                curl --fail --location --show-error \
+                  -o /tmp/atto-appimage/appimagetool \
+                  https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+                chmod +x /tmp/atto-appimage/appimagetool
+                APPIMAGE_EXTRACT_AND_RUN=1 ARCH=x86_64 /tmp/atto-appimage/appimagetool \
+                  /tmp/atto-appimage/Atto.AppDir \
+                  dist/atto-linux.AppImage
+                rm -f dist/Atto
+              else
+                echo "Expected Linux artifact dist/Atto was not found."
+                ls -la dist
+                exit 1
+              fi
               ;;
             windows-latest)
-              for f in dist/*.exe; do
-                [ -f "$f" ] && mv -f "$f" dist/atto-windows.exe && break
-              done
+              if [ -f dist/Atto.exe ]; then
+                mv -f dist/Atto.exe dist/atto-windows.exe
+              else
+                echo "Expected Windows artifact dist/Atto.exe was not found."
+                ls -la dist
+                exit 1
+              fi
               ;;
             *)
               echo "Unknown OS: ${{ matrix.os }}"
@@ -91,7 +149,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: atto-binaries-${{ matrix.os }}
-          path: dist/
+          path: dist/atto-*
           retention-days: 5
 
   release:
