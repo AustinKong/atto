@@ -1,6 +1,8 @@
 import { Splitter } from '@chakra-ui/react';
 import { useParams } from 'react-router';
 
+import { useLocalStorage } from '@/hooks/use-local-storage.hooks';
+
 import { ResumeHighlightProvider } from './HighlightProvider';
 import { Preview } from './preview';
 import { Workspace } from './workspace';
@@ -11,6 +13,10 @@ export function ResumePage() {
   }>();
   const urlParams = new URLSearchParams(window.location.search);
   const applicationId = applicationParam ?? urlParams.get('applicationId') ?? '';
+  const [splitterSizes, setSplitterSizes] = useLocalStorage<number[]>(
+    'resume-splitter-sizes',
+    [60, 40]
+  );
 
   return (
     <ResumeHighlightProvider>
@@ -19,7 +25,8 @@ export function ResumePage() {
           { id: 'workspace', minSize: 20 },
           { id: 'preview', minSize: 20 },
         ]}
-        defaultSize={[40, 60]}
+        size={splitterSizes}
+        onResize={(details) => setSplitterSizes(details.size)}
       >
         <Splitter.Panel id="workspace">
           <Workspace applicationId={applicationId} />

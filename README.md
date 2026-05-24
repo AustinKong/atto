@@ -4,6 +4,14 @@
   </picture>
   <p align="center">A local-first, open-source AI tool that helps job seekers track applications and tailor resumes.</p>
 
+  <p align="center">
+    <a href="https://atto.austinkong.me">Website</a>
+    ·
+    <a href="https://atto.austinkong.me/download">Download Atto</a>
+    ·
+    <a href="https://github.com/AustinKong/atto/issues/new">Report an issue</a>
+  </p>
+
   <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" alt="Python">
   <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
   <img src="https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="React">
@@ -34,7 +42,15 @@ Atto is in early development. Here is what we are working on next:
 
 # Installation
 
-See the [setup and installation guide](setup.md).
+The easiest way to get started is through the [Atto website](https://atto.austinkong.me), which has the latest release downloads, setup instructions, and a product overview for people who want to understand Atto before cloning the repo.
+
+If you want to work on the app locally, run the development stack from this repository:
+
+```bash
+npm run dev
+```
+
+This starts the React frontend on `:5173` and the local FastAPI backend on `:8000`.
 
 # FAQ
 
@@ -52,6 +68,6 @@ Atto is an early-stage project, and I am building it in the open to help fellow 
 
 1. **Star the repo**: It helps others find the project and keeps me motivated to keep building.
 2. **Share feedback**: Found a bug or have a feature idea? Open an issue via [GitHub Issues](https://github.com/AustinKong/atto/issues/new).
-3. **Spread the word**: Share Atto with students, fresh graduates, internship seekers, job hoppers, or anyone managing an active job search.
+3. **Share the website**: Send [atto.austinkong.me](https://atto.austinkong.me) to students, fresh graduates, internship seekers, job hoppers, or anyone managing an active job search.
 
 Built with ❤️ by Austin. Cheers!

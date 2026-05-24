@@ -12,7 +12,6 @@ import { createRoot } from 'react-dom/client';
 
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { Provider as ChakraProvider } from '@/components/ui/Provider';
-import { toaster } from '@/components/ui/Toaster';
 import { listingDraftQueries } from '@/queries/listing-draft.queries';
 import { queryClient } from '@/utils/query-client.utils';
 
@@ -46,7 +45,6 @@ createRoot(document.getElementById('root')!).render(
           },
         },
       }}
-      onSuccess={() => toaster.success({ title: 'DEBUG: Cache restored' })}
     >
       <AuthProvider>
         <ChakraProvider>
