@@ -1,5 +1,7 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
+import mdx from '@astrojs/mdx';
+import mermaid from 'astro-mermaid';
 
 import icon from 'astro-icon';
 
@@ -8,7 +10,7 @@ import expressiveCode from 'astro-expressive-code';
 import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
-  site: "https://atto.app",
+  site: 'https://atto.app',
 
   vite: {
     server: {
@@ -20,7 +22,7 @@ export default defineConfig({
     // Temporary shim, see src/shims/debug.js
     resolve: {
       alias: {
-        debug: new URL("./src/shims/debug.js", import.meta.url).pathname,
+        debug: new URL('./src/shims/debug.js', import.meta.url).pathname,
       },
     },
   },
@@ -28,21 +30,26 @@ export default defineConfig({
   integrations: [
     react(),
     icon(),
+    mermaid({
+      theme: 'forest',
+      autoTheme: true,
+    }),
     expressiveCode({
       styleOverrides: {
         frames: {
-          shadowColor: "transparent",
-          tooltipSuccessBackground: "transparent",
-          tooltipSuccessForeground: "transparent",
+          shadowColor: 'transparent',
+          tooltipSuccessBackground: 'transparent',
+          tooltipSuccessForeground: 'transparent',
         },
-        codeFontSize: "1.25rem",
+        codeFontSize: '1.25rem',
       },
       shiki: {
-        engine: "javascript",
+        engine: 'javascript',
       },
     }),
+    mdx(),
   ],
 
-  output: "static",
-  adapter: process.argv.includes("dev") ? undefined : cloudflare(),
+  output: 'static',
+  adapter: process.argv.includes('dev') ? undefined : cloudflare(),
 });
