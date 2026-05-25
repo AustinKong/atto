@@ -1,16 +1,21 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
-import { Icon } from "astro-icon/components";
-import { Code } from "astro-expressive-code/components";
-import Button from "../components/shared/Button.astro";
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { Icon } from 'astro-icon/components';
+import { Code } from 'astro-expressive-code/components';
+import Button from '../components/shared/Button.astro';
+import { getDownloadCount } from '../lib/github';
+
+export const prerender = false;
+
+const downloadCount = await getDownloadCount();
 
 const downloads = {
   windows:
-    "https://github.com/austinkong/atto/releases/latest/download/atto-windows.exe",
+    'https://github.com/austinkong/atto/releases/latest/download/atto-windows.exe',
   macos:
-    "https://github.com/austinkong/atto/releases/latest/download/atto-macos.dmg",
+    'https://github.com/austinkong/atto/releases/latest/download/atto-macos.dmg',
   linux:
-    "https://github.com/austinkong/atto/releases/latest/download/atto-linux.tar.gz",
+    'https://github.com/austinkong/atto/releases/latest/download/atto-linux.tar.gz',
 };
 ---
 
@@ -20,7 +25,7 @@ const downloads = {
 >
   <div class="download-page">
     <div class="content-max-width">
-      <p class="caption">Download</p>
+      <p class="caption">Join {downloadCount.toLocaleString()} other job seekers</p>
       <h1>Install Atto</h1>
       <p>
         Atto is distributed as a Python package. We recommend using pipx to
