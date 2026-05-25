@@ -3,6 +3,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
 import { Code } from "astro-expressive-code/components";
 import Button from "../components/shared/Button.astro";
+import { getDownloadCount } from "../lib/github";
+
+export const prerender = false;
+
+const downloadCount = await getDownloadCount();
 
 const downloads = {
   windows:
@@ -20,8 +25,8 @@ const downloads = {
 >
   <div class="download-page">
     <div class="content-max-width">
-      <p class="caption">Download</p>
-      <h1>Install Atto</h1>
+      <p class="caption">Join {downloadCount.toLocaleString()} other job seekers</p>
+      <h1>Download Atto</h1>
       <p>
         Atto is distributed as a Python package. We recommend using pipx to
         install it globally on your system in an isolated environment.
