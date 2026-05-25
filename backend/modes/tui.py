@@ -142,8 +142,12 @@ class ConsoleApp(App):
     env['ATTO_HOST'] = HOST
     env['ATTO_PORT'] = str(port)
 
+    command = [sys.executable]
+    if not getattr(sys, 'frozen', False):
+      command = [sys.executable, '-m', 'app.run']
+
     return ServerManager(
-      command=[sys.executable],
+      command=command,
       env=env,
       on_line=self.on_line,
     )
@@ -221,6 +225,5 @@ class ConsoleApp(App):
 
 
 def main():
-  # IMPORTANT: TUI is only for bundled executables (PyInstaller).
   app = ConsoleApp()
   app.run()

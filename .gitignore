@@ -32,6 +32,7 @@ data/
 .env
 backend/config/
 build/
+atto/frontend-dist/
 
 *.local.py
 

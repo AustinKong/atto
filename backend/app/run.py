@@ -1,5 +1,6 @@
 import os
 import sys
+from importlib.resources import files
 from pathlib import Path
 
 import uvicorn
@@ -27,11 +28,22 @@ async def health() -> dict[str, str]:
   return {'status': 'ok'}
 
 
-if getattr(sys, 'frozen', False):
-  base_path = Path(getattr(sys, '_MEIPASS'))  # noqa: B009
-  dist_path = base_path / 'frontend' / 'dist'
-else:
-  dist_path = Path(__file__).parent.parent / 'frontend' / 'dist'
+def get_frontend_dist_path() -> Path:
+  if getattr(sys, 'frozen', False):
+    base_path = Path(getattr(sys, '_MEIPASS'))  # noqa: B009
+    return base_path / 'frontend' / 'dist'
+
+  try:
+    packaged_dist_path = Path(str(files('atto').joinpath('frontend-dist')))
+    if packaged_dist_path.exists():
+      return packaged_dist_path
+  except ModuleNotFoundError:
+    pass
+
+  return Path(__file__).resolve().parents[2] / 'frontend' / 'dist'
+
+
+dist_path = get_frontend_dist_path()
 
 if dist_path.exists():
   app.mount('/assets', StaticFiles(directory=str(dist_path / 'assets')), name='assets')
@@ -88,15 +100,16 @@ def main():
   install_playwright_browsers()
   create_tables()
 
-  frozen = getattr(sys, 'frozen', False)
-
   uvicorn_config = {
     'app': 'app.run:app',
     'host': host,
     'port': port,
     'log_level': 'info',
-    'reload': not frozen,
-    'reload_dirs': [str(Path(__file__).parent)],
+    'reload': False,
   }
 
   uvicorn.run(**uvicorn_config)
+
+
+if __name__ == '__main__':
+  main()
