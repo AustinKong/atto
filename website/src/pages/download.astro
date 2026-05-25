@@ -3,11 +3,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { Icon } from "astro-icon/components";
 import { Code } from "astro-expressive-code/components";
 import Button from "../components/shared/Button.astro";
-import { getDownloadCount } from "../lib/downloads";
-
-export const prerender = false;
-
-const downloadCount = await getDownloadCount();
 
 const downloads = {
   windows:
@@ -17,6 +12,13 @@ const downloads = {
   linux:
     "https://github.com/austinkong/atto/releases/latest/download/atto-linux.tar.gz",
 };
+
+const installCommand = `
+# Install Atto
+pip install atto-app
+# Launch Atto
+atto
+`;
 ---
 
 <BaseLayout
@@ -25,14 +27,15 @@ const downloads = {
 >
   <div class="download-page">
     <div class="content-max-width">
-      <p class="caption">Join {downloadCount.toLocaleString()} other job seekers</p>
+      <p class="caption" id="download-count-caption">Join other job seekers</p>
       <h1>Download Atto</h1>
       <p>
-        Atto is distributed as a Python package. We recommend using pipx to
-        install it globally on your system in an isolated environment.
+        Atto is distributed as a Python package, we <strong>strongly</strong> recommend
+        installing this way if you already have Python on your system, it's just less
+        hassle. Install it with pip, then run the local app from your terminal.
       </p>
       <div class="install-command">
-        <Code code="pipx install atto" lang="bash" />
+        <Code code={installCommand} lang="bash" />
       </div>
     </div>
 
@@ -102,6 +105,23 @@ const downloads = {
       button.classList.add("primary");
     }
   });
+
+  const downloadCountCaption = document.querySelector(
+    "#download-count-caption",
+  );
+
+  fetch("/api/download-count")
+    .then((response) => (response.ok ? response.text() : "0"))
+    .then((text) => {
+      const downloads = Number(text);
+
+      if (downloadCountCaption && downloads > 0) {
+        downloadCountCaption.textContent = `Join ${downloads.toLocaleString()} other job seekers`;
+      }
+    })
+    .catch(() => {
+      // Keep the static fallback caption.
+    });
 </script>
 
 <style>

@@ -121,6 +121,10 @@ a:hover {
   text-decoration: underline;
 }
 
+strong {
+  color: var(--primary);
+}
+
 h1,
 h2,
 h3 {
