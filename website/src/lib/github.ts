@@ -1,10 +1,14 @@
 const CACHE_DURATION_MS = 10 * 60 * 1000;
 const RELEASES_PER_PAGE = 100;
+const GITHUB_OWNER = 'AustinKong';
+const GITHUB_REPO = 'atto';
 
 const downloadCountCache: { value: number | null; timestamp: number | null } = {
   value: null,
   timestamp: null,
 };
+
+let pendingDownloadCountRequest: Promise<number> | null = null;
 
 function getCachedValue(): number | null {
   if (downloadCountCache.value === null || downloadCountCache.timestamp === null) {
@@ -72,35 +76,47 @@ function sumReleaseDownloads(releases: unknown): number {
   }, 0);
 }
 
+async function fetchDownloadCount(): Promise<number> {
+  let totalDownloads = 0;
+  let nextPageUrl: string | null =
+    `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases?per_page=${RELEASES_PER_PAGE}`;
+
+  while (nextPageUrl) {
+    const response = await fetch(nextPageUrl, {
+      headers: {
+        Accept: 'application/vnd.github+json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`GitHub releases request failed with status ${response.status}`);
+    }
+
+    const releases = (await response.json()) as unknown;
+    totalDownloads += sumReleaseDownloads(releases);
+    nextPageUrl = getNextPageUrl(response);
+  }
+
+  return updateCache(totalDownloads);
+}
+
 export async function getDownloadCount(): Promise<number> {
   const cachedValue = getCachedValue();
   if (cachedValue !== null) {
     return cachedValue;
   }
 
-  let totalDownloads = 0;
-  let nextPageUrl: string | null =
-    `https://api.github.com/repos/AustinKong/atto/releases?per_page=${RELEASES_PER_PAGE}`;
+  if (!pendingDownloadCountRequest) {
+    pendingDownloadCountRequest = fetchDownloadCount().finally(() => {
+      pendingDownloadCountRequest = null;
+    });
+  }
 
   try {
-    while (nextPageUrl) {
-      const response = await fetch(nextPageUrl, {
-        headers: {
-          Accept: 'application/vnd.github+json',
-        },
-      });
+    return await pendingDownloadCountRequest;
+  } catch (error) {
+    console.error('Failed to fetch GitHub download count', error);
 
-      if (!response.ok) {
-        throw new Error(`GitHub releases request failed with status ${response.status}`);
-      }
-
-      const releases = (await response.json()) as unknown;
-      totalDownloads += sumReleaseDownloads(releases);
-      nextPageUrl = getNextPageUrl(response);
-    }
-
-    return updateCache(totalDownloads);
-  } catch {
     if (downloadCountCache.value !== null) {
       return downloadCountCache.value;
     }
