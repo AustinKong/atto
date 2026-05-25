@@ -95,12 +95,18 @@ class ConsoleApp(App):
     super().__init__(**kwargs)
     self.server: ServerManager | None = None
     self.server_url = f'http://{HOST}:{DEFAULT_DEV_PORT}'
+    self.startup_task: asyncio.Task[None] | None = None
 
   def on_line(self, line: str) -> None:
     self.log_widget.write(line)
 
   async def on_mount(self) -> None:
-    await self.start_server(open_browser=True)
+    self.log_widget.write('Starting Atto...')
+    self.set_timer(0.1, self.start_server_after_paint)
+
+  # Start TUI immediately, before lengthy browser downloads
+  def start_server_after_paint(self) -> None:
+    self.startup_task = asyncio.create_task(self.start_server(open_browser=True))
 
   def compose(self) -> ComposeResult:
     yield Static(LOGO, id='logo')
@@ -218,6 +224,9 @@ class ConsoleApp(App):
 
   @on(Button.Pressed, '#quit')
   async def action_quit(self) -> None:
+    if self.startup_task and not self.startup_task.done():
+      self.startup_task.cancel()
+
     if self.server and self.server.running:
       await self.server.stop()
 
