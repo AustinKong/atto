@@ -95,7 +95,7 @@ function TimelineItem({ event, application }: { event: StatusEvent; application:
           <DisplayDate date={event.date} textStyle="caption" />
         </HStack>
 
-        <Collapsible.Root>
+        <Collapsible.Root defaultOpen={hasContent}>
           <Collapsible.Content as={VStack} alignItems="stretch" gap="2xs">
             {event.notes && (
               <ChakraTimeline.Description color="fg" textStyle="body">

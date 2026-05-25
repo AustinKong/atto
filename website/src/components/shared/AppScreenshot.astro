@@ -11,7 +11,11 @@ const { src, alt = "", caption, loading = "lazy" } = Astro.props;
 
 <figure class="screenshot">
   <div class="screenshot-frame">
-    <img src={src} alt={alt} loading={loading} />
+    <div class="screenshot-window">
+      <!-- Prefer png so compression artifact makes it look seamless -->
+      <img src="/macos-titlebar.png" alt="" />
+      <img src={src} alt={alt} loading={loading} />
+    </div>
   </div>
   {caption && <figcaption>{caption}</figcaption>}
 </figure>
@@ -35,13 +39,22 @@ const { src, alt = "", caption, loading = "lazy" } = Astro.props;
     padding: var(--screenshot-padding-block) var(--screenshot-padding-inline) 0;
   }
 
-  .screenshot-frame img {
+  .screenshot-window {
     width: 100%;
-    display: block;
+    box-shadow: 0 1.5rem 4rem rgba(31, 31, 36, 0.14);
     border: 1px solid var(--border);
     border-bottom: 0;
     border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-    box-shadow: 0 1.5rem 4rem rgba(31, 31, 36, 0.14);
+    overflow: hidden;
+  }
+
+  .screenshot-window > img:first-child {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .screenshot-frame img {
+    width: 100%;
+    display: block;
   }
 
   .screenshot figcaption {

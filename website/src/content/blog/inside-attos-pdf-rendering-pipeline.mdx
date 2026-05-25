@@ -94,7 +94,7 @@ sequenceDiagram
 The editing experience is heavily inspired by dual-pane tools like Overleaf. The user edits content on one side while the rendered output updates on the other. The key difference is that the preview is not HTML — it is the actual rendered PDF.
 
 <AppScreenshot
-  src="/screenshots/blog/inside-attos-pdf-rendering-pipeline/screenshot-dual-pane.png"
+  src="/blog/inside-attos-pdf-rendering-pipeline/screenshot-dual-pane.png"
   alt="Atto's resume editor with form fields on the left and a rendered PDF preview on the right"
   caption="The editor and rendered PDF preview sit side by side so layout decisions happen against the final artifact."
 />
@@ -307,7 +307,7 @@ On the frontend, highlight rendering is intentionally simple.
 The preview already has the geometry map, so when the user hovers an AI suggestion, the frontend just looks up the corresponding unit ID and draws overlay rectangles on top of the rendered PDF.
 
 <AppScreenshot
-  src="/screenshots/blog/inside-attos-pdf-rendering-pipeline/screenshot-highlights.png"
+  src="/blog/inside-attos-pdf-rendering-pipeline/screenshot-highlights.png"
   alt="Atto showing AI suggestion highlights over the rendered resume PDF"
   caption="Highlights are drawn from normalized PDF geometry, so AI feedback can point at the exact rendered resume units."
 />
