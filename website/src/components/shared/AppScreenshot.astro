@@ -7,15 +7,22 @@ interface Props {
 }
 
 const { src, alt = "", caption, loading = "lazy" } = Astro.props;
+const isVideo = /\.(mp4|webm|mov)$/i.test(src);
 ---
 
 <figure class="screenshot">
-  <div class="screenshot-frame">
-    <div class="screenshot-window">
-      <!-- Prefer png so compression artifact makes it look seamless -->
-      <img src="/macos-titlebar.png" alt="" />
-      <img src={src} alt={alt} loading={loading} />
-    </div>
+  <div
+    class:list={["screenshot-frame", { "screenshot-frame--video": isVideo }]}
+  >
+    {
+      isVideo ? (
+        <video src={src} aria-label={alt} autoplay muted loop playsinline />
+      ) : (
+        <div class="screenshot-window">
+          <img src={src} alt={alt} loading={loading} />
+        </div>
+      )
+    }
   </div>
   {caption && <figcaption>{caption}</figcaption>}
 </figure>
@@ -23,38 +30,54 @@ const { src, alt = "", caption, loading = "lazy" } = Astro.props;
 <style>
   .screenshot {
     margin: 0;
+    min-width: 0;
+    width: 100%;
   }
 
   .screenshot-frame {
-    background:
-      linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.82),
-        rgba(255, 255, 255, 0.46)
-      ),
-      rgba(255, 255, 255, 0.48);
+    aspect-ratio: 97 / 54;
+    background: url("/macos-wallpaper.jpg") center / cover;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
+    display: grid;
+    place-items: center;
     overflow: hidden;
-    padding: var(--screenshot-padding-block) var(--screenshot-padding-inline) 0;
+    padding: 15% var(--screenshot-padding-inline);
+    width: 100%;
+  }
+
+  .screenshot-frame--video {
+    background: transparent;
+    display: block;
+    padding: 0;
+  }
+
+  .screenshot-frame--video video {
+    border-radius: inherit;
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
   }
 
   .screenshot-window {
-    width: 100%;
-    box-shadow: 0 1.5rem 4rem rgba(31, 31, 36, 0.14);
     border: 1px solid var(--border);
-    border-bottom: 0;
-    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    border-radius: 4px;
+    height: auto;
+    margin: 0 auto;
     overflow: hidden;
-  }
-
-  .screenshot-window > img:first-child {
-    border-bottom: 1px solid var(--border);
+    width: auto;
   }
 
   .screenshot-frame img {
-    width: 100%;
     display: block;
+    height: auto;
+    max-width: 100%;
+    width: auto;
+  }
+
+  .screenshot-frame video {
+    display: block;
+    width: 100%;
   }
 
   .screenshot figcaption {
