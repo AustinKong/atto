@@ -2,6 +2,7 @@ from typing import Annotated, Any, cast
 from uuid import uuid4
 
 import chromadb
+from chromadb.api.shared_system_client import SharedSystemClient
 from chromadb.api.types import Embedding, Metadata
 from fastapi import Depends
 
@@ -11,6 +12,18 @@ from app.utils.errors import ServiceError
 
 
 class VectorRepository:
+  @staticmethod
+  def reset_chroma_systems() -> None:
+
+    systems = list(SharedSystemClient._identifier_to_system.values())
+    for system in systems:
+      try:
+        system.stop()
+      except Exception:
+        pass
+
+    SharedSystemClient.clear_system_cache()
+
   def __init__(
     self,
     model_client: Annotated[ModelClient, Depends(get_model_client)],

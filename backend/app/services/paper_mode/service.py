@@ -14,6 +14,7 @@ from app.repositories import (
   ProfileRepository,
   ResumeRepository,
 )
+from app.repositories.base import VectorRepository
 
 from .schemas import PaperFixture
 from .transforms import (
@@ -41,6 +42,7 @@ class PaperModeService:
     return settings.paper.enabled
 
   def enter(self) -> bool:
+    VectorRepository.reset_chroma_systems()
     self._delete_paper_workspace()
     settings.save({'paper': {'enabled': True}})
 
@@ -76,12 +78,15 @@ class PaperModeService:
 
       self.profile_repository.update(paper_fixture.profile)
     except Exception:
+      VectorRepository.reset_chroma_systems()
       settings.save({'paper': {'enabled': False}})
       raise
 
     return self.is_enabled()
 
   def exit(self) -> bool:
+    VectorRepository.reset_chroma_systems()
+    self._delete_paper_workspace()
     settings.save({'paper': {'enabled': False}})
     return self.is_enabled()
 

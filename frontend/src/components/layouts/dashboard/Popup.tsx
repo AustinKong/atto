@@ -72,7 +72,7 @@ export function Popup() {
               </Button>
             </Dialog.Footer>
             <Dialog.CloseTrigger asChild>
-              <CloseButton size="sm" variant="plain" color="white" />
+              <CloseButton size="sm" variant="plain" />
             </Dialog.CloseTrigger>
           </Dialog.Content>
         </Dialog.Positioner>

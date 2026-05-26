@@ -43,9 +43,11 @@ export function SettingsPage() {
       .map(([sectionName, sectionData]) => {
         const fields = Object.entries(sectionData.fields).filter(
           ([, field]) =>
-            field.exposure === 'normal' ||
-            field.exposure === 'secret' ||
-            (field.exposure === 'advanced' && showAdvanced)
+            // Hiding disabled fields
+            !field.disabledMessage &&
+            (field.exposure === 'normal' ||
+              field.exposure === 'secret' ||
+              (field.exposure === 'advanced' && showAdvanced))
         );
 
         return {

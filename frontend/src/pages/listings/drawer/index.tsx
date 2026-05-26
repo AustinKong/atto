@@ -1,14 +1,20 @@
 import { Box, CloseButton, Tabs } from '@chakra-ui/react';
+import { useEffect, useRef } from 'react';
 import { Link, Outlet, useMatch, useNavigate, useParams } from 'react-router';
 
 export function ListingDrawer() {
   const navigate = useNavigate();
   const { listingId } = useParams<{ listingId: string }>();
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const isResearch = useMatch('/listings/:listingId/research');
   const isApplications = useMatch('/listings/:listingId/applications/*');
 
   const activeTab = isResearch ? 'research' : isApplications ? 'applications' : 'info';
+
+  useEffect(() => {
+    contentRef.current?.scrollTo({ top: 0 });
+  }, [activeTab]);
 
   return (
     <Tabs.Root h="full" display="flex" flexDirection="column" value={activeTab} navigate={() => {}}>
@@ -29,7 +35,7 @@ export function ListingDrawer() {
           variant="plain"
         />
       </Tabs.List>
-      <Box flex="1" overflowY="auto" py="sm">
+      <Box ref={contentRef} flex="1" overflowY="auto" py="sm" scrollBehavior="smooth">
         <Outlet />
       </Box>
     </Tabs.Root>
