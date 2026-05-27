@@ -18,7 +18,7 @@ jobs:
   validate_and_build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -67,80 +67,6 @@ jobs:
           set -euo pipefail
 
           case "${{ matrix.os }}" in
-            macos-latest)
-              mkdir -p /tmp/atto-macos
-              if [ -d dist/Atto.app ]; then
-                cp -R dist/Atto.app/Contents/MacOS/Atto /tmp/atto-macos/Atto.bin
-                rm -rf dist/Atto.app
-              elif [ -f dist/Atto ]; then
-                cp dist/Atto /tmp/atto-macos/Atto.bin
-                rm -f dist/Atto
-              else
-                echo "Expected macOS artifact dist/Atto.app or dist/Atto was not found."
-                ls -la dist
-                exit 1
-              fi
-
-              mkdir -p /tmp/atto-macos/Atto.app/Contents/MacOS
-              mkdir -p /tmp/atto-macos/Atto.app/Contents/Resources
-              mv /tmp/atto-macos/Atto.bin /tmp/atto-macos/Atto.app/Contents/MacOS/Atto.bin
-              chmod +x /tmp/atto-macos/Atto.app/Contents/MacOS/Atto.bin
-              clang scripts/macos_launcher.c -o /tmp/atto-macos/Atto.app/Contents/MacOS/Atto
-              chmod +x /tmp/atto-macos/Atto.app/Contents/MacOS/Atto
-              mkdir -p /tmp/atto.iconset
-              sips -s format png atto.ico --out /tmp/atto-icon.png
-              sips -z 16 16 /tmp/atto-icon.png --out /tmp/atto.iconset/icon_16x16.png
-              sips -z 32 32 /tmp/atto-icon.png --out /tmp/atto.iconset/icon_16x16@2x.png
-              sips -z 32 32 /tmp/atto-icon.png --out /tmp/atto.iconset/icon_32x32.png
-              sips -z 64 64 /tmp/atto-icon.png --out /tmp/atto.iconset/icon_32x32@2x.png
-              sips -z 128 128 /tmp/atto-icon.png --out /tmp/atto.iconset/icon_128x128.png
-              sips -z 256 256 /tmp/atto-icon.png --out /tmp/atto.iconset/icon_128x128@2x.png
-              sips -z 256 256 /tmp/atto-icon.png --out /tmp/atto.iconset/icon_256x256.png
-              sips -z 512 512 /tmp/atto-icon.png --out /tmp/atto.iconset/icon_256x256@2x.png
-              sips -z 512 512 /tmp/atto-icon.png --out /tmp/atto.iconset/icon_512x512.png
-              cp /tmp/atto-icon.png /tmp/atto.iconset/icon_512x512@2x.png
-              iconutil -c icns /tmp/atto.iconset \
-                -o /tmp/atto-macos/Atto.app/Contents/Resources/Atto.icns
-              printf '%s\n' \
-                '<?xml version="1.0" encoding="UTF-8"?>' \
-                '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"' \
-                '  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' \
-                '<plist version="1.0">' \
-                '<dict>' \
-                '  <key>CFBundleExecutable</key>' \
-                '  <string>Atto</string>' \
-                '  <key>CFBundleIdentifier</key>' \
-                '  <string>app.atto.launcher</string>' \
-                '  <key>CFBundleIconFile</key>' \
-                '  <string>Atto</string>' \
-                '  <key>CFBundleName</key>' \
-                '  <string>Atto</string>' \
-                '  <key>CFBundlePackageType</key>' \
-                '  <string>APPL</string>' \
-                '  <key>CFBundleSignature</key>' \
-                '  <string>????</string>' \
-                '  <key>CFBundleShortVersionString</key>' \
-                '  <string>${{ github.event.inputs.version }}</string>' \
-                '  <key>CFBundleVersion</key>' \
-                '  <string>${{ github.event.inputs.version }}</string>' \
-                '  <key>LSMinimumSystemVersion</key>' \
-                '  <string>12.0</string>' \
-                '  <key>NSHighResolutionCapable</key>' \
-                '  <true/>' \
-                '</dict>' \
-                '</plist>' \
-                > /tmp/atto-macos/Atto.app/Contents/Info.plist
-              printf 'APPL????' > /tmp/atto-macos/Atto.app/Contents/PkgInfo
-              codesign --force --deep --sign - /tmp/atto-macos/Atto.app
-              plutil -lint /tmp/atto-macos/Atto.app/Contents/Info.plist
-              codesign --verify --deep --strict /tmp/atto-macos/Atto.app
-              hdiutil create \
-                -volname Atto \
-                -srcfolder /tmp/atto-macos \
-                -ov \
-                -format UDZO \
-                dist/atto-macos.dmg
-              ;;
             ubuntu-latest)
               if [ -f dist/Atto ]; then
                 mkdir -p /tmp/atto-linux
@@ -220,12 +146,6 @@ jobs:
         with:
           name: atto-binaries-windows-latest
           path: artifacts/windows
-
-      - name: Download macOS artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: atto-binaries-macos-latest
-          path: artifacts/macos
 
       - name: Create Release
         id: gh_release

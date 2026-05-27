@@ -1,8 +1,15 @@
 # Installation
 
-We strongly recommend installing Atto with `pip` if you already have Python on your system. It is the simplest path, it is easier to update, and it avoids most of the operating system warnings that come with unsigned desktop builds.
+We strongly recommend installing Atto with `pip` if you already have Python on your
+system. It is the simplest path, it is easier to update, and it avoids most of the
+operating system warnings that come with unsigned desktop builds.
 
-The downloadable Windows, macOS, and Linux builds are provided for convenience, but Atto is not signed or notarized yet. Your operating system may warn you before opening it. Only continue if you downloaded Atto from the official website or the GitHub release page.
+The downloadable Windows and Linux builds are provided for convenience, but Atto is
+not signed yet. Your operating system may warn you before opening it. Only continue
+if you downloaded Atto from the official website or the GitHub release page.
+
+Atto does not currently provide a macOS executable. On macOS, install Atto with
+`pip`.
 
 # Recommended: pip
 
@@ -67,21 +74,20 @@ Because Atto is not code-signed yet, Windows may show a warning before launching
 
 # macOS
 
-Download `atto-macos.dmg` from the Atto download page.
+Atto only supports `pip` installation on macOS right now. There is no supported
+macOS executable or DMG.
 
-1. Open `atto-macos.dmg`.
-2. Open `Atto.app`.
-3. If macOS blocks the app, Control-click or right-click `Atto.app`, then choose
-   **Open**.
-4. If macOS still blocks it, open **System Settings** > **Privacy & Security**
-   and allow Atto from there.
-5. Keep the Terminal window open while using Atto.
+```bash
+pip install atto-app
+atto
+```
 
-The macOS build is not notarized yet, so Gatekeeper may warn you before opening it. The app opens through Terminal by design.
+If `pip` points to a different Python installation, use:
 
-<!-- Screenshot: macOS DMG window showing Atto.app. -->
-<!-- Screenshot: macOS Gatekeeper warning or Privacy & Security approval prompt. -->
-<!-- Screenshot: macOS Terminal window after Atto starts. -->
+```bash
+python -m pip install atto-app
+atto
+```
 
 # Linux
 

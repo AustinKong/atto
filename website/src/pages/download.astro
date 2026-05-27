@@ -7,8 +7,6 @@ import Button from "../components/shared/Button.astro";
 const downloads = {
   windows:
     "https://github.com/austinkong/atto/releases/latest/download/atto-windows.exe",
-  macos:
-    "https://github.com/austinkong/atto/releases/latest/download/atto-macos.dmg",
   linux:
     "https://github.com/austinkong/atto/releases/latest/download/atto-linux.tar.gz",
 };
@@ -59,13 +57,13 @@ atto
           Download for Windows
         </Button>
         <Button
-          href={downloads.macos}
           variant="secondary"
           data-os="mac"
-          download
+          disabled
+          title="macOS executable builds are not supported. Please install Atto with pip."
         >
           <Icon name="simple-icons:apple" aria-hidden="true" />
-          Download for macOS
+          macOS: use pip
         </Button>
         <Button
           href={downloads.linux}
@@ -78,9 +76,10 @@ atto
         </Button>
       </div>
       <p>
-        Atto is currently distributed as an independent build and may trigger
-        operating system security warnings until code signing and notarization
-        are available. <a
+        Atto executable builds are currently available for Windows and Linux.
+        macOS executable builds are not supported; please install Atto with pip
+        on macOS. Independent builds may trigger operating system security
+        warnings until code signing is available. <a
           href="https://github.com/AustinKong/atto/blob/main/docs/installation.md"
           target="_blank"
           rel="noreferrer">Check out the installation guide for more details.</a
@@ -102,7 +101,7 @@ atto
   buttons.forEach((button) => {
     const os = button.getAttribute("data-os")?.toLowerCase();
 
-    if (!os) return;
+    if (!os || button.hasAttribute("disabled")) return;
 
     if (platform.includes(os)) {
       button.classList.remove("secondary");
