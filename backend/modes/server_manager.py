@@ -61,7 +61,12 @@ class ServerManager:
       return False
 
     try:
-      self.proc.send_signal(signal.SIGINT)
+      if os.name == 'nt':
+        # Windows: SIGTERM is more reliable than SIGINT for subprocess
+        self.proc.send_signal(signal.SIGTERM)
+      else:
+        # Unix: SIGINT for graceful shutdown
+        self.proc.send_signal(signal.SIGINT)
       await asyncio.wait_for(self.proc.wait(), timeout=timeout)
     except TimeoutError:
       self.proc.kill()

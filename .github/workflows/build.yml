@@ -82,23 +82,20 @@ jobs:
               fi
 
               mkdir -p /tmp/atto-macos/Atto.app/Contents/MacOS
-              mkdir -p /tmp/atto-macos/Atto.app/Contents/Resources
-              mv /tmp/atto-macos/Atto.bin /tmp/atto-macos/Atto.app/Contents/Resources/Atto
-              chmod +x /tmp/atto-macos/Atto.app/Contents/Resources/Atto
+              mv /tmp/atto-macos/Atto.bin /tmp/atto-macos/Atto.app/Contents/MacOS/Atto.bin
+              chmod +x /tmp/atto-macos/Atto.app/Contents/MacOS/Atto.bin
               printf '%s\n' \
                 '#!/usr/bin/env bash' \
                 'set -euo pipefail' \
                 'HERE="$(cd "$(dirname "$0")" && pwd)"' \
-                'open -a Terminal "$HERE/../Resources/Atto.command"' \
+                'REAL_EXE="$HERE/Atto.bin"' \
+                'osascript \' \
+                '  -e '\''tell application "Terminal"'\'' \' \
+                '  -e '\''activate'\'' \' \
+                '  -e "do script quoted form of \"$REAL_EXE\"" \' \
+                '  -e '\''end tell'\''' \
                 > /tmp/atto-macos/Atto.app/Contents/MacOS/Atto
               chmod +x /tmp/atto-macos/Atto.app/Contents/MacOS/Atto
-              printf '%s\n' \
-                '#!/usr/bin/env bash' \
-                'set -euo pipefail' \
-                'HERE="$(cd "$(dirname "$0")" && pwd)"' \
-                'exec "$HERE/Atto" "$@"' \
-                > /tmp/atto-macos/Atto.app/Contents/Resources/Atto.command
-              chmod +x /tmp/atto-macos/Atto.app/Contents/Resources/Atto.command
               printf '%s\n' \
                 '<?xml version="1.0" encoding="UTF-8"?>' \
                 '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"' \
