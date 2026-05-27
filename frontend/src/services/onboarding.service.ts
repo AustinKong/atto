@@ -5,6 +5,9 @@ const SETUP_GUIDE_URLS: Record<ModelProvider, string> = {
   gemini: 'https://raw.githubusercontent.com/AustinKong/atto/main/docs/setup/gemini.md',
 };
 
+const GITHUB_ASSET_URL =
+  'https://raw.githubusercontent.com/AustinKong/atto/main/.github/assets/';
+
 export async function getSetupGuide(provider: ModelProvider): Promise<string> {
   const response = await fetch(SETUP_GUIDE_URLS[provider]);
 
@@ -12,7 +15,7 @@ export async function getSetupGuide(provider: ModelProvider): Promise<string> {
     throw response;
   }
 
-  return await response.text();
+  return rewriteSetupGuideAssetUrls(await response.text());
 }
 
 export async function testModelProvider(
@@ -37,4 +40,8 @@ export async function testModelProvider(
 
 async function getResponseMessage(response: Response): Promise<string> {
   return (await response.text()) || 'Atto could not run the provider test.';
+}
+
+function rewriteSetupGuideAssetUrls(markdown: string): string {
+  return markdown.replaceAll('../../.github/assets/', GITHUB_ASSET_URL);
 }
