@@ -10,6 +10,7 @@ import {
   parseStatsDateRangeOrDefault,
 } from '@/utils/stats.utils';
 
+import { DashboardAlert } from './dashboard-alert';
 import { ApplicationGraphs } from './graphs';
 import { StatRow } from './stat-row';
 
@@ -71,6 +72,7 @@ export function DashboardPage() {
           </Portal>
         </Select.Root>
       </HStack>
+      <DashboardAlert />
       <StatRow stats={stats.summary} />
       <ApplicationGraphs stats={stats} />
     </VStack>

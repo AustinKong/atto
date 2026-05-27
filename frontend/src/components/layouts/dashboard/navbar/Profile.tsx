@@ -34,11 +34,7 @@ export function Profile() {
         aria-label="Open user menu"
         aria-controls="user-menu"
       >
-        <Avatar.Root
-          size="sm"
-          outline={isPaperMode ? '2px solid' : undefined}
-          outlineColor={isPaperMode ? 'brand.solid' : undefined}
-        >
+        <Avatar.Root size="sm">
           <Avatar.Fallback name={avatarName} />
           {/* TODO: Check if this is correct pattern in charkaui */}
           {avatarSrc ? <Avatar.Image alt={avatarName} src={avatarSrc} /> : null}
