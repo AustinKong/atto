@@ -15,10 +15,6 @@ Atto does not currently provide a macOS executable. On macOS, install Atto with
 
 Atto requires Python 3.11, 3.12, or 3.13.
 
-On Windows, avoid Python 3.14 for now. Some of Atto's dependencies do not publish
-Python 3.14 wheels yet, which can make `pip` try to compile native packages such
-as `lxml` and ask for Microsoft C++ Build Tools.
-
 ```bash
 # Install Atto
 pip install atto-app
@@ -38,9 +34,6 @@ pip install --upgrade atto-app
 # Or
 python -m pip install --upgrade atto-app
 ```
-
-<!-- Screenshot: pip install atto-app running successfully in a terminal. -->
-<!-- Screenshot: Atto terminal launcher after startup, showing the app URL and "Do not close this window". -->
 
 # Windows
 
@@ -74,20 +67,7 @@ Because Atto is not code-signed yet, Windows may show a warning before launching
 
 # macOS
 
-Atto only supports `pip` installation on macOS right now. There is no supported
-macOS executable or DMG.
-
-```bash
-pip install atto-app
-atto
-```
-
-If `pip` points to a different Python installation, use:
-
-```bash
-python -m pip install atto-app
-atto
-```
+Atto only supports `pip` installation on macOS right now. Follow the [recommended pip instructions](#recommended-pip).
 
 # Linux
 
@@ -104,5 +84,11 @@ The `install.sh` script installs a desktop launcher at `~/.local/share/applicati
 
 Keep the terminal window open while using Atto.
 
-<!-- Screenshot: Extracted atto-linux folder showing Atto, install.sh, Atto.desktop, and atto.svg. -->
-<!-- Screenshot: Linux terminal after running ./install.sh successfully. -->
+<div align="center">
+  <img
+    src="../.github/assets/installation/linux-install.png"
+    alt="Linux terminal after running the Atto install script"
+    width="600"
+  >
+  <p>Run the <strong>install.sh script</strong></p>
+</div>

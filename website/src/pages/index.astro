@@ -3,7 +3,6 @@ import FeatureSection from "../components/marketing/FeatureSection.astro";
 import HeroSection from "../components/marketing/HeroSection.astro";
 import JobDataSection from "../components/marketing/JobDataSection.astro";
 import PricingSection from "../components/marketing/PricingSection.astro";
-import SocialProofSection from "../components/marketing/SocialProofSection.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 const features = [
@@ -42,7 +41,8 @@ const features = [
   description="A local-first, open-source AI tool that helps job seekers track applications and tailor resumes."
 >
   <HeroSection />
-  <SocialProofSection />
+  <!-- Disabled for legal reasons -->
+  <!-- <SocialProofSection /> -->
 
   {features.map((feature) => <FeatureSection feature={feature} />)}
 
