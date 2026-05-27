@@ -15,11 +15,8 @@ as `lxml` and ask for Microsoft C++ Build Tools.
 ```bash
 # Install Atto
 pip install atto-app
-# Or if that fails, try:
+# Or if that fails, try
 python -m pip install atto-app
-
-# On Windows with multiple Python versions installed:
-py -3.13 -m pip install atto-app
 
 # Launch Atto
 atto
@@ -31,10 +28,8 @@ To update Atto later:
 
 ```bash
 pip install --upgrade atto-app
-# Or:
+# Or
 python -m pip install --upgrade atto-app
-# On Windows with multiple Python versions installed:
-py -3.13 -m pip install --upgrade atto-app
 ```
 
 <!-- Screenshot: pip install atto-app running successfully in a terminal. -->
