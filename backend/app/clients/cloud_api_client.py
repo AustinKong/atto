@@ -39,7 +39,7 @@ class CloudApiClient:
     payload: RequestPayload | str | None = None,
   ) -> Any:
     if not self._base_url:
-      raise ServiceError('Cloud URL is not configured')
+      raise ServiceError('Atto cloud is unavailable right now. Please try again later.')
 
     headers = self._build_headers()
     json_payload: list[Any] | dict[str, Any] | None = None
@@ -63,12 +63,11 @@ class CloudApiClient:
         )
         response.raise_for_status()
     except httpx.HTTPStatusError as exc:
-      status_code = exc.response.status_code
-      detail = exc.response.text.strip()
-      message = detail[:200] if detail else 'No response body'
-      raise ServiceError(f'Cloud request failed [{status_code}]: {message}') from exc
+      raise ServiceError('Atto cloud is unavailable right now. Please try again later.') from exc
     except httpx.RequestError as exc:
-      raise ServiceError(f'Cloud request failed: {str(exc)}') from exc
+      raise ServiceError(
+        'Atto could not reach the cloud service. Check your connection and try again.'
+      ) from exc
 
     content_type = response.headers.get('content-type', '').lower()
     if 'application/json' in content_type:
@@ -79,7 +78,7 @@ class CloudApiClient:
   def _build_headers() -> dict[str, str]:
     session_token = get_session_token()
     if not session_token:
-      raise ServiceError('Missing Clerk session token for cloud request')
+      raise ServiceError('Sign in to Atto before using cloud features.')
     has_byok = bool(settings.model.api_key.strip())
     return {
       'Authorization': f'Bearer {session_token}',

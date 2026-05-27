@@ -23,12 +23,12 @@ class FileRepository:
       ServiceError: If reading the file fails.
     """
     if not filepath.exists():
-      raise NotFoundError(f'File {filepath} not found')
+      raise NotFoundError('That file could not be found.')
 
     try:
       return filepath.read_text(encoding='utf-8')
     except Exception as e:
-      raise ServiceError(f'Failed to read file {filepath}: {str(e)}') from e
+      raise ServiceError() from e
 
   def read_bytes(self, filepath: Path) -> bytes:
     """
@@ -45,12 +45,12 @@ class FileRepository:
       ServiceError: If reading the file fails.
     """
     if not filepath.exists():
-      raise NotFoundError(f'File {filepath} not found')
+      raise NotFoundError('That file could not be found.')
 
     try:
       return filepath.read_bytes()
     except Exception as e:
-      raise ServiceError(f'Failed to read file {filepath}: {str(e)}') from e
+      raise ServiceError() from e
 
   def write_text(self, filepath: Path, content: str, dedup: bool = False) -> Path:
     """
@@ -82,7 +82,7 @@ class FileRepository:
       target_path.write_text(content, encoding='utf-8')
       return target_path
     except Exception as e:
-      raise ServiceError(f'Failed to write file {filepath}: {str(e)}') from e
+      raise ServiceError() from e
 
   def delete(self, filepath: Path) -> None:
     """
@@ -98,7 +98,7 @@ class FileRepository:
       if filepath.exists():
         filepath.unlink()
     except Exception as e:
-      raise ServiceError(f'Failed to delete file {filepath}: {str(e)}') from e
+      raise ServiceError() from e
 
   def list_directory(self, dirpath: Path, file_extensions: list[str] | None = None) -> list[Path]:
     """
@@ -129,4 +129,4 @@ class FileRepository:
       files.sort()
       return files
     except Exception as e:
-      raise ServiceError(f'Failed to list directory {dirpath}: {str(e)}') from e
+      raise ServiceError() from e

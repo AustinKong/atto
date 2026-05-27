@@ -110,7 +110,7 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
 
     requirement_texts = build_requirement_texts(listing)
     if not requirement_texts:
-      raise ServiceError('Listing has no requirement text for content quality scoring')
+      raise ServiceError('Add requirements to the listing before running content analysis.')
 
     lexical_terms = build_lexical_terms(listing)
     requirement_embeddings = await self.llm_client.embed(requirement_texts)

@@ -8,12 +8,12 @@ from app.utils.errors import user_facing_error_message
 logger = logging.getLogger(__name__)
 
 
-async def service_error_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+async def validation_error_exception_handler(request: Request, exc: Exception) -> JSONResponse:
   if request.app.debug:
-    logger.error('ServiceError: %s', exc, exc_info=exc)
+    logger.error('ValidationError: %s', exc, exc_info=exc)
   else:
-    logger.error('ServiceError: %s', exc)
+    logger.error('ValidationError: %s', exc)
   return JSONResponse(
-    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    status_code=status.HTTP_400_BAD_REQUEST,
     content={'detail': user_facing_error_message(exc)},
   )

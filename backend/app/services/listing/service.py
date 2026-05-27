@@ -20,6 +20,7 @@ from app.schemas.listing_draft import (
 )
 from app.schemas.task_status import TaskStatus
 from app.utils.auth_context import use_session_token
+from app.utils.errors import ServiceError, user_facing_error_message
 from app.utils.url import normalize_url
 
 from .drafts import build_duplicate_candidate, build_listing_extraction
@@ -70,7 +71,7 @@ class ListingService:
         return ListingDraftError(
           id=id,
           url=url,
-          error=str(e),
+          error=user_facing_error_message(e),
         )
 
     try:
@@ -83,7 +84,9 @@ class ListingService:
       )
 
       if extraction.error:
-        raise ValueError(extraction.error)
+        raise ServiceError(
+          'Atto could not find a complete job listing there. Paste the job description manually.'
+        )
 
       listing = build_listing_extraction(extraction, content)
 
@@ -91,7 +94,7 @@ class ListingService:
       return ListingDraftError(
         id=id,
         url=url,
-        error=str(e),
+        error=user_facing_error_message(e),
         screenshot=screenshot,
       )
 
@@ -156,5 +159,9 @@ class ListingService:
         )
         self.listing_repository.set_research_status(listing_id, TaskStatus.SUCCEEDED)
       except Exception as e:
-        self.listing_repository.set_research_status(listing_id, TaskStatus.FAILED, str(e))
+        self.listing_repository.set_research_status(
+          listing_id,
+          TaskStatus.FAILED,
+          user_facing_error_message(e),
+        )
         logger.exception('Listing research generation failed for listing %s', listing_id)

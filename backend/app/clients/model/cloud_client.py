@@ -28,12 +28,12 @@ class CloudModelClient(ModelClient):
   async def call_unstructured(self, input: str) -> str:
     output = await self._api_client.post('/cloud/model/unstructured', payload=input)
     if not output:
-      raise ServiceError('Cloud model did not return any content')
+      raise ServiceError('The AI response was incomplete. Try again.')
 
     return output
 
   async def embed(self, texts: list[str]) -> list[list[float]]:
     data = await self._api_client.post('/cloud/model/embed', payload=texts)
     if not isinstance(data, list):
-      raise ServiceError('Cloud model did not return embeddings')
+      raise ServiceError('The AI response was incomplete. Try again.')
     return data

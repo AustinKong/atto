@@ -1,4 +1,4 @@
-"""Custom exception classes for the application."""
+"""Custom exception classes and user-facing error helpers for the application."""
 
 
 class ApplicationError(Exception):
@@ -35,3 +35,10 @@ class ConfigurationError(ApplicationError):
   """Raised when there's a configuration issue."""
 
   pass
+
+
+GENERIC_ERROR_MESSAGE = 'Something went wrong. Please try again.'
+
+
+def user_facing_error_message(exc: BaseException) -> str:
+  return str(exc) or GENERIC_ERROR_MESSAGE

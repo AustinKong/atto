@@ -33,7 +33,7 @@ def calculate_hybrid_skill_scores(
   expected_skills = {skill.lower().strip() for skill in skills}
   scored_skills = {row.skill.lower().strip() for row in llm_result.rows}
   if expected_skills != scored_skills:
-    raise ServiceError('Invalid skill scoring response')
+    raise ServiceError('The AI response was incomplete. Try running the analysis again.')
 
   llm_scores_by_skill = {
     row.skill.lower().strip(): int(clamp(row.score, 0.0, 100.0)) for row in llm_result.rows

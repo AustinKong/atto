@@ -93,14 +93,14 @@ async def remove_analysis_suggestion(
   analysis = application.analysis
   ai_suggestions = analysis.ai_suggestions if analysis else None
   if not analysis or not ai_suggestions:
-    raise NotFoundError(f'No AI suggestions found for application {id}')
+    raise NotFoundError('No AI suggestions were found for this application.')
 
   previous_count = len(ai_suggestions.suggestions)
   ai_suggestions.suggestions = [
     suggestion for suggestion in ai_suggestions.suggestions if suggestion.id != suggestion_id
   ]
   if len(ai_suggestions.suggestions) == previous_count:
-    raise NotFoundError(f'AI suggestion {suggestion_id} not found for application {id}')
+    raise NotFoundError('That AI suggestion was not found.')
 
   return application_repository.update_analysis(
     id,

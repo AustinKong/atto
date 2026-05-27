@@ -8,6 +8,7 @@ from app.repositories import ListingRepository, ResumeRepository, TemplateReposi
 from app.schemas.resume import Resume
 from app.schemas.template import DEFAULT_TEMPLATE_ID
 from app.services.resume import optimize_resume_sections
+from app.utils.errors import NotFoundError, ValidationError
 
 router = APIRouter(
   prefix='/resumes',
@@ -44,7 +45,7 @@ async def create_resume(
     )
   elif mode == 'optimized':
     if listing_id is None:
-      raise ValueError('listing_id is required when mode is "optimized"')
+      raise ValidationError('Choose a listing before creating an optimized resume.')
 
     listing = listing_repository.get(listing_id)
     optimized_sections = await optimize_resume_sections(
@@ -60,7 +61,7 @@ async def create_resume(
       )
     )
   else:
-    raise ValueError(f'Invalid mode: {mode}')
+    raise ValidationError('Choose a valid resume creation mode.')
 
 
 @router.get('/{resume_id}')
@@ -74,7 +75,7 @@ async def get_resume(
   # Self-healing
   try:
     template_repository.get_local_template(resume.template_id)
-  except FileNotFoundError:
+  except NotFoundError:
     resume.template_id = DEFAULT_TEMPLATE_ID
     resume = resume_repository.update(resume)
 

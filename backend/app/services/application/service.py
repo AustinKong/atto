@@ -11,7 +11,7 @@ from app.clients.application_analysis import (
 from app.repositories import ApplicationRepository, ListingRepository, ResumeRepository
 from app.schemas.task_status import TaskStatus
 from app.utils.auth_context import use_session_token
-from app.utils.errors import ServiceError
+from app.utils.errors import ServiceError, user_facing_error_message
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class ApplicationService:
         resume = self.resume_repository.get(application.resume_id)
 
         if not listing.skills:
-          raise ServiceError('Listing has no skills to score')
+          raise ServiceError('Add skills to the listing before running application analysis.')
 
         analysis = await self.application_analysis_client.generate_analysis(
           listing=listing,
@@ -59,7 +59,11 @@ class ApplicationService:
 
         self.application_repository.set_analysis_status(application_id, TaskStatus.SUCCEEDED)
       except Exception as e:
-        self.application_repository.set_analysis_status(application_id, TaskStatus.FAILED, str(e))
+        self.application_repository.set_analysis_status(
+          application_id,
+          TaskStatus.FAILED,
+          user_facing_error_message(e),
+        )
         logger.exception(
           'Application analysis generation failed for application %s',
           application_id,

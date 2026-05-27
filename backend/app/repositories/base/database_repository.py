@@ -81,7 +81,7 @@ class DatabaseRepository:
     try:
       return conn.execute(query, params).fetchone()
     except sqlite3.Error as e:
-      raise ServiceError(f'Database fetchone failed: {str(e)}') from e
+      raise ServiceError() from e
     finally:
       if is_one_off:
         conn.close()
@@ -105,7 +105,7 @@ class DatabaseRepository:
       cursor = conn.execute(query, params)
       return cursor.fetchall()
     except sqlite3.Error as e:
-      raise ServiceError(f'Database fetchall failed: {str(e)}') from e
+      raise ServiceError() from e
     finally:
       if is_one_off:
         conn.close()
@@ -133,7 +133,7 @@ class DatabaseRepository:
     except sqlite3.Error as e:
       if is_one_off:
         conn.rollback()
-      raise ServiceError(f'Database execute failed: {str(e)}') from e
+      raise ServiceError() from e
     finally:
       if is_one_off:
         conn.close()
@@ -157,7 +157,7 @@ class DatabaseRepository:
     except sqlite3.Error as e:
       if is_one_off:
         conn.rollback()
-      raise ServiceError(f'Database executemany failed: {str(e)}') from e
+      raise ServiceError() from e
     finally:
       if is_one_off:
         conn.close()

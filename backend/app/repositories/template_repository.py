@@ -7,7 +7,7 @@ import httpx
 from app.config import settings
 from app.repositories.base import FileRepository
 from app.schemas.template import DEFAULT_TEMPLATE_ID, Template, TemplateSummary
-from app.utils.errors import DuplicateError
+from app.utils.errors import DuplicateError, NotFoundError, ServiceError
 
 
 class TemplateRepository(FileRepository):
@@ -25,17 +25,17 @@ class TemplateRepository(FileRepository):
 
     id_match = re.search(r'<!--\s*template-id:\s*([a-f0-9\-]+)\s*-->', header, re.IGNORECASE)
     if not id_match:
-      raise ValueError('Malformed frontmatter: missing template-id')
+      raise ServiceError('That resume template is missing required metadata.')
     id = UUID(id_match.group(1))
 
     title_match = re.search(r'<!--\s*template-title:\s*(.+?)\s*-->', header, re.IGNORECASE)
     if not title_match:
-      raise ValueError('Malformed frontmatter: missing template-title')
+      raise ServiceError('That resume template is missing required metadata.')
     title = title_match.group(1)
 
     desc_match = re.search(r'<!--\s*template-description:\s*(.+?)\s*-->', header, re.IGNORECASE)
     if not desc_match:
-      raise ValueError('Malformed frontmatter: missing template-description')
+      raise ServiceError('That resume template is missing required metadata.')
     description = desc_match.group(1)
 
     return (id, title, description)
@@ -104,7 +104,7 @@ class TemplateRepository(FileRepository):
       except Exception:
         pass
 
-    raise FileNotFoundError(f'Template {id} not found')
+    raise NotFoundError('Template not found.')
 
   def _get_local_ids(self) -> set[UUID]:
     local_summaries = self.list_local_templates()
@@ -120,7 +120,7 @@ class TemplateRepository(FileRepository):
         response.raise_for_status()
         manifest = response.json()
     except Exception as e:
-      raise RuntimeError(f'Failed to fetch remote manifest: {str(e)}') from e
+      raise ServiceError('Atto could not load remote templates. Try again later.') from e
 
     local_ids = self._get_local_ids()
     summaries = []
@@ -153,7 +153,7 @@ class TemplateRepository(FileRepository):
         manifest_response.raise_for_status()
         manifest = manifest_response.json()
     except Exception as e:
-      raise RuntimeError(f'Failed to fetch remote manifest: {str(e)}') from e
+      raise ServiceError('Atto could not load remote templates. Try again later.') from e
 
     download_url = None
     for item in manifest:
@@ -162,7 +162,7 @@ class TemplateRepository(FileRepository):
         break
 
     if not download_url:
-      raise RuntimeError(f'Template {id} not found in remote manifest')
+      raise NotFoundError('Template not found.')
 
     try:
       async with httpx.AsyncClient() as client:
@@ -170,7 +170,7 @@ class TemplateRepository(FileRepository):
         response.raise_for_status()
         content = response.text
     except Exception as e:
-      raise RuntimeError(f'Failed to fetch remote template {id}: {str(e)}') from e
+      raise ServiceError('Atto could not download that template. Try again later.') from e
 
     _, title, description = self._extract_frontmatter(content)
     return Template(
@@ -184,7 +184,7 @@ class TemplateRepository(FileRepository):
   async def download_remote_template(self, id: UUID) -> None:
     local_ids = self._get_local_ids()
     if id in local_ids:
-      raise DuplicateError(f'Template with ID {id} already exists locally')
+      raise DuplicateError('That template is already installed.')
 
     template = await self.get_remote_template(id)
     content = template.content

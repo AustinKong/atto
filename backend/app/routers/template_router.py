@@ -13,6 +13,7 @@ from app.schemas.template import (
 )
 from app.schemas.types import Page
 from app.services import TemplateService
+from app.utils.errors import NotFoundError
 
 router = APIRouter(
   prefix='/templates',
@@ -76,7 +77,7 @@ async def get_template(
   """Returns the template, preferring the local copy if it exists."""
   try:
     return template_repository.get_local_template(id)
-  except FileNotFoundError:
+  except NotFoundError:
     return await template_repository.get_remote_template(id)
 
 

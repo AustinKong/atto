@@ -1,6 +1,6 @@
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends
 from fastapi.responses import PlainTextResponse
 
 from app.config import settings
@@ -11,6 +11,7 @@ from app.config.schemas import (
   ModelProvider,
 )
 from app.services.model_setup_service import ModelSetupService
+from app.utils.errors import ApplicationError, ValidationError, user_facing_error_message
 
 router = APIRouter(prefix='/config', tags=['Config'])
 
@@ -107,7 +108,12 @@ def get_field_type(field_meta: dict[str, Any]) -> str | None:
 
 @router.patch('')
 def update_settings(updates: dict[str, Any] = Body(...)):  # noqa: B008
-  settings.save(updates)
+  try:
+    settings.save(updates)
+  except Exception as exc:
+    raise ValidationError(
+      'Those settings could not be saved. Check the values and try again.'
+    ) from exc
   return get_settings()
 
 
@@ -120,7 +126,7 @@ async def test_model_provider(
 ) -> PlainTextResponse:
   try:
     message = await model_setup_service.test_provider(provider, api_key, model)
-  except HTTPException as exc:
-    return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
+  except ApplicationError as exc:
+    return PlainTextResponse(user_facing_error_message(exc), status_code=400)
 
   return PlainTextResponse(message)

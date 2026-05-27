@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.config.manager import settings
@@ -8,7 +9,9 @@ from app.exception_handlers import (
   application_error_exception_handler,
   duplicate_error_exception_handler,
   not_found_exception_handler,
+  request_validation_error_exception_handler,
   service_error_exception_handler,
+  validation_error_exception_handler,
 )
 from app.middleware.auth import auth_context_middleware
 from app.middleware.logging import exception_logging_middleware
@@ -28,6 +31,7 @@ from app.utils.errors import (
   DuplicateError,
   NotFoundError,
   ServiceError,
+  ValidationError,
 )
 
 
@@ -51,7 +55,9 @@ def create_app() -> FastAPI:
   app.include_router(template_router, prefix='/api')
 
   app.add_exception_handler(NotFoundError, not_found_exception_handler)
+  app.add_exception_handler(RequestValidationError, request_validation_error_exception_handler)
   app.add_exception_handler(DuplicateError, duplicate_error_exception_handler)
+  app.add_exception_handler(ValidationError, validation_error_exception_handler)
   app.add_exception_handler(ServiceError, service_error_exception_handler)
   app.add_exception_handler(ApplicationError, application_error_exception_handler)
 

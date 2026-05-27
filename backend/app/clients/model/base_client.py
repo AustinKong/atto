@@ -7,6 +7,20 @@ T = TypeVar('T', bound=BaseModel)
 
 
 class ModelClient(ABC):
+  def model_provider_error_message(self, provider: str, status_code: int | None = None) -> str:
+    if status_code == 401:
+      return f'{provider} rejected your API key. Check that it was copied correctly.'
+    if status_code == 403:
+      return f'{provider} accepted your key, but it cannot access the selected model.'
+    if status_code == 404:
+      return f'{provider} could not find the selected model. Try the default model in settings.'
+    if status_code == 429:
+      return f'{provider} reported a quota or rate limit issue. Check billing, usage, and limits.'
+    if status_code is not None and 400 <= status_code < 500:
+      return f'{provider} rejected the request. Try a different model or check your API settings.'
+
+    return f'Atto could not reach {provider}. Check your internet connection and try again.'
+
   @abstractmethod
   async def embed(self, texts: list[str]) -> list[list[float]]:
     """

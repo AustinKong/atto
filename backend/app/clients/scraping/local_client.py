@@ -112,13 +112,17 @@ class LocalScrapingClient(ScrapingClient):
       result = cast(Crawl4aiResult, result)
 
       if not result.success or not result.markdown:
-        raise ServiceError(f'Failed to fetch URL: {result.error_message or "Unknown error"}')
+        raise ServiceError(
+          'Atto could not read that page. Check the URL, or paste the job description manually.'
+        )
 
       return CrawlResult(
         url=url, content=result.markdown.fit_markdown, screenshot=result.screenshot
       )
     except Exception as e:
-      raise ServiceError(f'Failed to crawl {url}: {str(e)}') from e
+      raise ServiceError(
+        'Atto could not read that page. Check the URL, or paste the job description manually.'
+      ) from e
 
   async def deep_crawl(
     self,
@@ -168,7 +172,7 @@ class LocalScrapingClient(ScrapingClient):
     except ServiceError:
       raise
     except Exception as e:
-      raise ServiceError(f'Failed to deep crawl {url}: {str(e)}') from e
+      raise ServiceError('Atto could not finish researching this page. Try again later.') from e
 
   async def search(
     self,
@@ -197,7 +201,7 @@ class LocalScrapingClient(ScrapingClient):
     try:
       return await asyncio.to_thread(sync_search)
     except Exception as e:
-      raise ServiceError(f'Failed to search for "{query}": {str(e)}') from e
+      raise ServiceError('Atto could not search the web right now. Try again later.') from e
 
   async def search_news(
     self,
@@ -226,7 +230,7 @@ class LocalScrapingClient(ScrapingClient):
     try:
       return await asyncio.to_thread(sync_search_news)
     except Exception as e:
-      raise ServiceError(f'Failed to search news for "{query}": {str(e)}') from e
+      raise ServiceError('Atto could not search the web right now. Try again later.') from e
 
   async def search_and_crawl(
     self,

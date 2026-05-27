@@ -40,16 +40,16 @@ class JSONRepository(FileRepository):
         self.write_json(filepath, default_instance)
         return cast(T, default_instance)
       except Exception as e:
-        raise ServiceError(f'Failed to create default JSON file {filepath}: {str(e)}') from e
+        raise ServiceError() from e
 
     try:
       content = self.read_text(filepath)
       data = json.loads(content)
       return model(**data)
     except json.JSONDecodeError as e:
-      raise ServiceError(f'Failed to parse JSON file {filepath}: {str(e)}') from e
+      raise ServiceError('A local Atto data file is invalid. Please restore it or reset it.') from e
     except Exception as e:
-      raise ServiceError(f'Failed to read JSON file {filepath}: {str(e)}') from e
+      raise ServiceError() from e
 
   def write_json(self, filepath: Path, data: BaseModel) -> None:
     """
@@ -66,4 +66,4 @@ class JSONRepository(FileRepository):
       content = json.dumps(data.model_dump(), indent=2)
       self.write_text(filepath, content)
     except Exception as e:
-      raise ServiceError(f'Failed to write JSON file {filepath}: {str(e)}') from e
+      raise ServiceError() from e

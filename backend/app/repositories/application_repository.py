@@ -15,7 +15,7 @@ from app.schemas.application import (
   StatusEventSaved,
 )
 from app.schemas.task_status import TaskStatus, TaskStatusEntry
-from app.utils.errors import NotFoundError
+from app.utils.errors import NotFoundError, ValidationError
 
 event_adapter = TypeAdapter(StatusEvent)
 
@@ -72,7 +72,7 @@ class ApplicationRepository(DatabaseRepository, InMemoryKVRepository):
     )
 
     if not row:
-      raise NotFoundError(f'Application {application_id} not found')
+      raise NotFoundError('Application not found.')
 
     return self._parse_application_row(row)
 
@@ -83,7 +83,7 @@ class ApplicationRepository(DatabaseRepository, InMemoryKVRepository):
     )
 
     if not row:
-      raise NotFoundError(f'No application found for resume {resume_id}')
+      raise NotFoundError('No application was found for that resume.')
 
     return self._parse_application_row(row)
 
@@ -192,14 +192,14 @@ class ApplicationRepository(DatabaseRepository, InMemoryKVRepository):
     with self.transaction():
       # Prevent manually creating "saved" status events
       if status_event.status == StatusEnum.SAVED:
-        raise ValueError('Cannot manually create a "saved" status event')
+        raise ValidationError('The initial saved status cannot be added manually.')
 
       application = self.fetch_one(
         'SELECT id FROM applications WHERE id = ?',
         (str(application_id),),
       )
       if not application:
-        raise NotFoundError(f'Application {application_id} not found')
+        raise NotFoundError('Application not found.')
 
       self.execute(
         'INSERT INTO status_events (id, application_id, status, date, notes, payload) '
@@ -225,10 +225,10 @@ class ApplicationRepository(DatabaseRepository, InMemoryKVRepository):
         (str(status_event.id),),
       )
       if not existing:
-        raise NotFoundError(f'Status event {status_event.id} not found')
+        raise NotFoundError('Status event not found.')
 
       if existing['status'] == StatusEnum.SAVED.value:
-        raise ValueError('Cannot update the "saved" status event')
+        raise ValidationError('The initial saved status cannot be changed.')
 
       application_id = existing['application_id']
 
@@ -254,10 +254,10 @@ class ApplicationRepository(DatabaseRepository, InMemoryKVRepository):
         (str(status_event_id),),
       )
       if not existing:
-        raise NotFoundError(f'Status event {status_event_id} not found')
+        raise NotFoundError('Status event not found.')
 
       if existing['status'] == StatusEnum.SAVED.value:
-        raise ValueError('Cannot delete the "saved" status event')
+        raise ValidationError('The initial saved status cannot be deleted.')
 
       application_id = existing['application_id']
 

@@ -38,7 +38,7 @@ class VectorRepository:
       try:
         self._chroma_client = chromadb.PersistentClient(path=settings.active_paths.vector_path)
       except Exception as e:
-        raise ServiceError(f'Failed to initialize ChromaDB client: {str(e)}') from e
+        raise ServiceError() from e
     return self._chroma_client
 
   def _get_collection(self, collection_name: str) -> chromadb.Collection:
@@ -56,7 +56,7 @@ class VectorRepository:
           metadata={'hnsw:space': 'cosine'},
         )
       except Exception as e:
-        raise ServiceError(f'Failed to get or create collection {collection_name}: {str(e)}') from e
+        raise ServiceError() from e
     return self._collection_cache[collection_name]
 
   async def add_documents(
@@ -91,8 +91,7 @@ class VectorRepository:
     except ServiceError:
       raise
     except Exception as e:
-      msg = f'Failed to add documents to {collection_name}: {str(e)}'
-      raise ServiceError(msg) from e
+      raise ServiceError() from e
 
   async def get_documents(
     self, collection_name: str, where: dict[str, Any] | None = None
@@ -125,7 +124,7 @@ class VectorRepository:
     except ServiceError:
       raise
     except Exception as e:
-      raise ServiceError(f'Failed to get documents from {collection_name}: {str(e)}') from e
+      raise ServiceError() from e
 
   async def delete_documents(self, collection_name: str, where: dict[str, Any]) -> None:
     """
@@ -144,7 +143,7 @@ class VectorRepository:
     except ServiceError:
       raise
     except Exception as e:
-      raise ServiceError(f'Failed to delete documents from {collection_name}: {str(e)}') from e
+      raise ServiceError() from e
 
   async def search_documents(
     self, collection_name: str, query: str, k: int = 10
@@ -189,4 +188,4 @@ class VectorRepository:
     except ServiceError:
       raise
     except Exception as e:
-      raise ServiceError(f'Failed to search documents in {collection_name}: {str(e)}') from e
+      raise ServiceError() from e

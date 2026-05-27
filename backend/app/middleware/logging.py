@@ -3,6 +3,8 @@ import logging
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
+from app.utils.errors import GENERIC_ERROR_MESSAGE
+
 logger = logging.getLogger(__name__)
 
 
@@ -16,5 +18,5 @@ async def exception_logging_middleware(request: Request, call_next):
       logger.error('Unhandled exception for %s %s: %s', request.method, request.url.path, exc)
     return JSONResponse(
       status_code=500,
-      content={'detail': 'Internal Server Error'},
+      content={'detail': GENERIC_ERROR_MESSAGE},
     )

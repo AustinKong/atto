@@ -14,7 +14,7 @@ class ResumeRepository(DatabaseRepository):
   def get(self, resume_id: UUID) -> Resume:
     row = self.fetch_one('SELECT * FROM resumes WHERE id = ?', (str(resume_id),))
     if not row:
-      raise NotFoundError(f'Resume {resume_id} not found')
+      raise NotFoundError('Resume not found.')
 
     sections_data = json.loads(row['sections'])
 
@@ -51,7 +51,7 @@ class ResumeRepository(DatabaseRepository):
   def update(self, resume: Resume) -> Resume:
     row = self.fetch_one('SELECT * FROM resumes WHERE id = ?', (str(resume.id),))
     if not row:
-      raise NotFoundError(f'Resume {resume.id} not found')
+      raise NotFoundError('Resume not found.')
 
     self.execute(
       'UPDATE resumes SET template_id = ?, sections = ? WHERE id = ?',
@@ -67,7 +67,7 @@ class ResumeRepository(DatabaseRepository):
   def delete(self, resume_id: UUID) -> None:
     row = self.fetch_one('SELECT id FROM resumes WHERE id = ?', (str(resume_id),))
     if not row:
-      raise NotFoundError(f'Resume {resume_id} not found')
+      raise NotFoundError('Resume not found.')
 
     self.execute('DELETE FROM resumes WHERE id = ?', (str(resume_id),))
 

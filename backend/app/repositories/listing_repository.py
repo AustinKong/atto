@@ -39,7 +39,7 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
 
     row = self.fetch_one(query, (str(listing_id),))
     if not row:
-      raise NotFoundError(f'Listing {listing_id} not found')
+      raise NotFoundError('Listing not found.')
 
     return Listing(**dict(row), applications=[])
 
