@@ -43,6 +43,7 @@ export default function ShapeGrid({
   const hoveredSquare = useRef<GridCell | null>(null);
   const trailCells = useRef<GridCell[]>([]);
   const cellOpacities = useRef(new Map<string, number>());
+  const canvasSize = useRef({ width: 1, height: 1 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -57,13 +58,28 @@ export default function ShapeGrid({
     const hexHorizontal = squareSize * 1.5;
     const hexVertical = squareSize * Math.sqrt(3);
 
-    function resizeCanvas() {
+    function getCanvasDisplaySize() {
       const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      return {
+        width: Math.max(1, rect.width || window.innerWidth),
+        height: Math.max(1, rect.height || window.innerHeight)
+      };
+    }
+
+    function resizeCanvas() {
+      const { width, height } = getCanvasDisplaySize();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const nextWidth = Math.max(1, Math.floor(width * dpr));
+      const nextHeight = Math.max(1, Math.floor(height * dpr));
+
+      canvasSize.current = { width, height };
+      if (canvas.width !== nextWidth || canvas.height !== nextHeight) {
+        canvas.width = nextWidth;
+        canvas.height = nextHeight;
+      }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      drawGrid();
     }
 
     function drawHex(cx: number, cy: number, size: number) {
@@ -152,8 +168,7 @@ export default function ShapeGrid({
     }
 
     function drawGrid() {
-      const width = canvas.clientWidth;
-      const height = canvas.clientHeight;
+      const { width, height } = canvasSize.current;
 
       ctx.clearRect(0, 0, width, height);
       ctx.lineWidth = 1;
@@ -338,6 +353,8 @@ export default function ShapeGrid({
 
     resizeObserver.observe(canvas);
     resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    window.visualViewport?.addEventListener('resize', resizeCanvas);
     if (interactive) {
       canvas.addEventListener('pointermove', handlePointerMove);
       canvas.addEventListener('pointerleave', handlePointerLeave);
@@ -346,6 +363,8 @@ export default function ShapeGrid({
 
     return () => {
       resizeObserver.disconnect();
+      window.removeEventListener('resize', resizeCanvas);
+      window.visualViewport?.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(requestRef.current);
       if (interactive) {
         canvas.removeEventListener('pointermove', handlePointerMove);
