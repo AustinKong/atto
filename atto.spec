@@ -2,7 +2,7 @@
 
 from importlib.metadata import distribution
 
-from PyInstaller.utils.hooks import collect_submodules
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 
 def _mypyc_hiddenimports(dist_name):
@@ -24,7 +24,11 @@ a = Analysis(
     ['backend/run.py'],
     pathex=['backend', '.'],
     binaries=[],
-    datas=[('frontend/dist', 'frontend/dist'), ('backend/app/assets', 'app/assets')],
+    datas=[
+        ('frontend/dist', 'frontend/dist'),
+        ('backend/app/assets', 'app/assets'),
+        *collect_data_files('playwright'),
+    ],
     hiddenimports=collect_submodules('shared')
     + collect_submodules('pypdf')
     + _mypyc_hiddenimports('chardet'),

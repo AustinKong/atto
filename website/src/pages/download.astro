@@ -16,6 +16,11 @@ const downloads = {
 const installCommand = `
 # Install Atto
 pip install atto-app
+# Or if that fails, try:
+python -m pip install atto-app
+# On Windows with multiple Python versions installed:
+py -3.13 -m pip install atto-app
+
 # Launch Atto
 atto
 `;
@@ -31,8 +36,9 @@ atto
       <h1>Download Atto</h1>
       <p>
         Atto is distributed as a Python package, we <strong>strongly</strong> recommend
-        installing this way if you already have Python on your system, it's just less
-        hassle. Install it with pip, then run the local app from your terminal.
+        installing this way if you already have Python 3.11, 3.12, or 3.13 on your
+        system, it's just less hassle. Install it with pip, then run the local app
+        from your terminal.
       </p>
       <div class="install-command">
         <Code code={installCommand} lang="bash" />

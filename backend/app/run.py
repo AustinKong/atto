@@ -74,7 +74,7 @@ def install_playwright_browsers():
       browser = p.chromium.launch(headless=True)
       browser.close()
   except Exception:
-    # Avoid using subprocess.run to install browsers as it breaks in frozen context.
+    # Use Playwright's Python entrypoint so source and frozen builds share the same path.
     print(f'Downloading Chromium to {browsers_path}... please wait.')
     from playwright.__main__ import main as playwright_main
 
@@ -89,6 +89,11 @@ def install_playwright_browsers():
             'Failed to download Chromium. Browser-backed features may be unavailable '
             'until Playwright browsers are installed.'
           )
+      except Exception as exc:
+        print(
+          'Failed to download Chromium. Browser-backed features may be unavailable '
+          f'until Playwright browsers are installed. Details: {exc}'
+        )
     finally:
       sys.argv = original_argv
 

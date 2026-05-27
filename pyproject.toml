@@ -1,9 +1,9 @@
 [project]
 name = "atto-app"
-version = "0.2.2"
+version = "0.2.3"
 description = "A local-first job application tracker that runs as a local web app."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.14"
 license = "LicenseRef-Atto-Limited-Use"
 license-files = ["LICENSE.md"]
 dependencies = [

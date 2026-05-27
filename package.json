@@ -1,6 +1,6 @@
 {
   "name": "atto",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "description": "A local-first, open-source tool for applicants' to track and customize job applications.",
   "devDependencies": {

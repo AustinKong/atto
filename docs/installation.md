@@ -6,11 +6,21 @@ The downloadable Windows, macOS, and Linux builds are provided for convenience, 
 
 # Recommended: pip
 
-Atto requires Python 3.11 or newer.
+Atto requires Python 3.11, 3.12, or 3.13.
+
+On Windows, avoid Python 3.14 for now. Some of Atto's dependencies do not publish
+Python 3.14 wheels yet, which can make `pip` try to compile native packages such
+as `lxml` and ask for Microsoft C++ Build Tools.
 
 ```bash
 # Install Atto
 pip install atto-app
+# Or if that fails, try:
+python -m pip install atto-app
+
+# On Windows with multiple Python versions installed:
+py -3.13 -m pip install atto-app
+
 # Launch Atto
 atto
 ```
@@ -21,6 +31,10 @@ To update Atto later:
 
 ```bash
 pip install --upgrade atto-app
+# Or:
+python -m pip install --upgrade atto-app
+# On Windows with multiple Python versions installed:
+py -3.13 -m pip install --upgrade atto-app
 ```
 
 <!-- Screenshot: pip install atto-app running successfully in a terminal. -->
