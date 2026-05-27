@@ -1,5 +1,5 @@
-import { Box, Button, Heading, Separator, Text, VStack } from '@chakra-ui/react';
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
+import { Box, Separator, VStack } from '@chakra-ui/react';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -69,31 +69,6 @@ export function SettingsPage() {
     values: defaultValues,
   });
 
-  const nukeMutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch('/api/dev/nuke', {
-        method: 'POST',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to nuke database');
-      }
-    },
-    onSuccess: () => {
-      toaster.create({
-        title: 'Database cleared',
-        description: 'Shutting down application...',
-        type: 'success',
-      });
-    },
-    onError: (error) => {
-      toaster.create({
-        title: 'Nuke failed',
-        description: error instanceof Error ? error.message : 'Unknown error',
-        type: 'error',
-      });
-    },
-  });
-
   const onSubmit = handleSubmit(async (data) => {
     const dirtyData: Record<string, unknown> = {};
     Object.keys(dirtyFields).forEach((key) => {
@@ -135,30 +110,6 @@ export function SettingsPage() {
               {index < visibleSections.length - 1 && <Separator w="full" />}
             </React.Fragment>
           ))}
-
-          {showAdvanced && (
-            <>
-              <Separator w="full" />
-              <VStack align="stretch" gap="md">
-                <Heading textStyle="title-sm" color="fg.error">
-                  ⚠️ Developer Tools
-                </Heading>
-                <Text textStyle="body" color="fg.error">
-                  Dangerous operations that will permanently delete data. Use with extreme caution.
-                </Text>
-                <VStack align="stretch" gap="xs">
-                  <Button
-                    colorPalette="red"
-                    onClick={() => nukeMutation.mutate()}
-                    loading={nukeMutation.isPending}
-                    size="sm"
-                  >
-                    Nuke Database
-                  </Button>
-                </VStack>
-              </VStack>
-            </>
-          )}
         </VStack>
       </Box>
     </VStack>

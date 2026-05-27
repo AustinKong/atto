@@ -306,7 +306,7 @@ class ExperimentalPrefs(BaseModel):
       'Enable additional logging and error messages for troubleshooting. '
       'Not recommended for regular use.'
     ),
-    exposure='secret',
+    exposure='hidden',
   )
 
 
