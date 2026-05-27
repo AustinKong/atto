@@ -65,6 +65,8 @@ class LocalScrapingClient(ScrapingClient):
       'wait_for_images': False,
       'page_timeout': 30000,
       'verbose': settings.experimental.debug_mode,
+      'scan_full_page': True,
+      'scroll_delay': 0.4,
       # Content Cleaning
       'remove_forms': True,
       'excluded_tags': AGGRESSIVE_EXCLUDED_TAGS
