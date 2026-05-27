@@ -23,7 +23,9 @@ export function Header({
     <HStack gap="sm" align="start">
       <CompanyLogo domain={domain} companyName={company || '?'} size="xl" />
       <VStack alignItems="start" gap="0" flex="1" minW="0">
-        <Heading textStyle="title-lg">{company}</Heading>
+        <Heading textStyle="title-lg" truncate w="full">
+          {company}
+        </Heading>
         <ChakraLink
           href={url}
           variant="underline"

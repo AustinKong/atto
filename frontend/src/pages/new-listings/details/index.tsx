@@ -130,6 +130,7 @@ function DetailsForm({
       p="md"
       gap="md"
       h="full"
+      minW="0"
       overflowY="auto"
       overflowX="hidden"
     >

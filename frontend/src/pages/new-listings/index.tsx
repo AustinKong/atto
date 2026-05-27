@@ -44,7 +44,7 @@ export function NewListingsPage() {
 
   return (
     <IngestionProvider>
-      <VStack h="full" gap="0" alignItems="stretch">
+      <VStack h="full" minW="0" gap="0" alignItems="stretch" overflow="hidden">
         <Toolbar rowSelection={rowSelection} listingDrafts={listingDrafts} />
         <Splitter.Root
           panels={[
@@ -55,8 +55,11 @@ export function NewListingsPage() {
           size={splitterSizes}
           onResize={(details) => setSplitterSizes(details.size)}
           h="full"
+          w="full"
+          minW="0"
+          overflow="hidden"
         >
-          <Splitter.Panel id="table">
+          <Splitter.Panel id="table" minW="0" overflow="hidden">
             <Suspense
               fallback={
                 <Center h="full">
@@ -73,11 +76,11 @@ export function NewListingsPage() {
             </Suspense>
           </Splitter.Panel>
           <Splitter.ResizeTrigger id="table:details" />
-          <Splitter.Panel id="details">
+          <Splitter.Panel id="details" minW="0" overflow="hidden">
             <Details listingDraft={selectedListing} key={selectedListingId} />
           </Splitter.Panel>
           <Splitter.ResizeTrigger id="details:preview" />
-          <Splitter.Panel id="preview">
+          <Splitter.Panel id="preview" minW="0" overflow="hidden">
             <Reference listing={selectedListing} key={selectedListingId} />
           </Splitter.Panel>
         </Splitter.Root>

@@ -27,7 +27,13 @@ export function Reference({ listing }: { listing: ListingDraft | null }) {
   }, [listing, showSource, showInfo]);
 
   return (
-    <Tabs.Root value={activeTab} onValueChange={(details) => setActiveTab(details.value)}>
+    <Tabs.Root
+      value={activeTab}
+      onValueChange={(details) => setActiveTab(details.value)}
+      h="full"
+      minW="0"
+      overflow="hidden"
+    >
       <Tabs.List>
         <Tabs.Trigger value="info" disabled={!showInfo}>
           <PiInfo />
@@ -49,10 +55,10 @@ export function Reference({ listing }: { listing: ListingDraft | null }) {
 
       {listing && (
         <>
-          <Tabs.Content value="info">
+          <Tabs.Content value="info" h="full" overflow="hidden">
             <Info listing={listing} />
           </Tabs.Content>
-          <Tabs.Content value="source">
+          <Tabs.Content value="source" h="full" overflow="hidden">
             <Source listing={listing} />
           </Tabs.Content>
         </>

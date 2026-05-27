@@ -17,11 +17,12 @@ export function Source({ listing }: { listing: ListingDraft }) {
   }
 
   return (
-    <Box w="full" h="full" overflowY="auto" p={4}>
+    <Box w="full" minW="0" h="full" overflowY="auto" overflowX="hidden" p={4}>
       <Image
         src={`data:image/png;base64,${screenshot}`}
         alt="Listing page screenshot"
         w="full"
+        maxW="full"
         borderRadius="md"
         boxShadow="md"
       />
