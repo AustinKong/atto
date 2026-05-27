@@ -41,6 +41,15 @@ These are enforced by tools (Prettier for TS, Ruff for Python) and must never be
 
 Atto is a local-first job application tracker. The frontend (React/Vite) runs on `:5173` during development and proxies `/api` and `/static` to the FastAPI backend on `:8000`. In production the backend serves the built frontend as static files from a single PyInstaller executable.
 
+## Versioning
+
+For app releases, bump the patch/minor/major version in the root `package.json` and root
+`pyproject.toml` together. Keep `package-lock.json` in sync with the root `package.json` version.
+
+The GitHub release workflow validates the manual release input against root `package.json`, the frontend displays the current app version from root `package.json`, and the PyPI package uses root `pyproject.toml`.
+
+Do not routinely bump `frontend/package.json`, `website/package.json`, `backend/pyproject.toml`, `cloud/pyproject.toml`, or `shared/pyproject.toml` for ordinary app releases; those package versions are intentionally kept simple unless the package itself starts being released independently.
+
 ## Commands
 
 ```bash
