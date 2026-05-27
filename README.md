@@ -12,6 +12,11 @@
     <a href="https://github.com/AustinKong/atto/issues/new">Report an issue</a>
   </p>
 
+  <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/AustinKong/atto/total?style=for-the-badge&label=Github%20Downloads&cacheSeconds=3600">
+  <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/atto-app?style=for-the-badge&label=Pypi%20Downloads&cacheSeconds=3600">
+
+  <br />
+
   <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" alt="Python">
   <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
   <img src="https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="React">
