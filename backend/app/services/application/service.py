@@ -44,8 +44,10 @@ class ApplicationService:
         listing = self.listing_repository.get(application.listing_id)
         resume = self.resume_repository.get(application.resume_id)
 
-        if not listing.skills:
-          raise ServiceError('Add skills to the listing before running application analysis.')
+        if not listing.skills and not listing.keywords:
+          raise ServiceError(
+            'Add skills or keywords to the listing before running application analysis.'
+          )
 
         analysis = await self.application_analysis_client.generate_analysis(
           listing=listing,

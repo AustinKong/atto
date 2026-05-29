@@ -7,6 +7,7 @@ from app.clients.model import ModelClient, get_model_client
 from app.schemas.application import Application
 from app.schemas.listing import Listing
 from app.schemas.resume import Resume
+from app.utils.deduplication import deduplicate_by
 from app.utils.errors import ServiceError
 from app.utils.hash import hash_trimmed_text
 from app.utils.text import to_bullets, to_json_string
@@ -55,7 +56,7 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     application: Application,
     resume: Resume,
   ) -> list[SkillComparisonRow]:
-    skills = listing.skills
+    skills = build_analysis_skill_targets(listing)
     listing_text = build_listing_analysis_text(listing)
     resume_text = build_resume_analysis_text(resume)
 
@@ -183,3 +184,11 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     )
 
     return map_suggestions_response(suggestions_response, unit_hash_by_unit_id)
+
+
+def build_analysis_skill_targets(listing: Listing) -> list[str]:
+  terms = listing.skills + [keyword.word for keyword in listing.keywords]
+  return deduplicate_by(
+    [term.strip() for term in terms if term.strip()],
+    key_selector=lambda term: term.lower(),
+  )

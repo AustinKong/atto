@@ -7,7 +7,12 @@ from app.utils.text import to_bullets
 
 def build_listing_analysis_text(listing: Listing) -> str:
   text = f'{listing.description}\n'
+  if listing.skills:
+    text += f'Skills:\n{to_bullets(listing.skills)}\n'
+  if listing.keywords:
+    text += f'Keywords:\n{to_bullets([keyword.word for keyword in listing.keywords])}\n'
   if listing.requirements:
+    text += 'Requirements:\n'
     text += f'{to_bullets(listing.requirements)}\n'
   return text.strip()
 

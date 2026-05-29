@@ -28,8 +28,14 @@ LISTING_EXTRACTION_PROMPT = dedent(
      - Bad: "Job Listing for SDK Client Engineer Intern"
      - Good: "SDK Client Engineer Intern"
 
-  2. **skills**: Named tools, languages, frameworks, platforms, and certifications - nouns only.
+  2. **skills**: Named tools, languages, frameworks, platforms, protocols, methods,
+     libraries, databases, cloud services, domain-specific techniques, and certifications -
+     nouns only.
      - Good: ["Python", "React", "PostgreSQL", "Docker", "AWS", "Figma"]
+     - Extract every concrete, candidate-actionable skill explicitly present in the listing.
+     - Aim for 8-15 skills when the listing contains that many; do not stop after the first few.
+     - Include specific technical methods like "Machine Learning", "Distributed Systems",
+       "A/B Testing", "CI/CD", or "REST APIs" when they are role-relevant.
      - Bad: ["Computer Science", "Algorithms", "Communication", "Teamwork"]
        That is too generic to be actionable.
      - Bad: ["3 years of Python experience"] - that is a requirement sentence, not a skill

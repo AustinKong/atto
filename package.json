@@ -22,7 +22,11 @@
 
     "build:frontend": "cd frontend && npm run build",
     "build:website": "npm --prefix website run build",
+    "build:python": "python -m build",
+    "build:pypi": "npm run build:frontend && rm -rf atto/frontend-dist && mkdir -p atto/frontend-dist && cp -R frontend/dist/. atto/frontend-dist/ && npm run build:python",
     "build:exe": "pyinstaller atto.spec",
-    "dist": "npm run build:frontend && npm run build:exe"
+    "dist": "npm run build:frontend && npm run build:exe",
+
+    "test:pypi-build": "npm run build:pypi && python -m pip install --force-reinstall dist/atto_app-$npm_package_version-py3-none-any.whl && atto"
   }
 }
