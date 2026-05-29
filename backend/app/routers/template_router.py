@@ -12,7 +12,7 @@ from app.schemas.template import (
   TemplateSummary,
 )
 from app.schemas.types import Page
-from app.services import TemplateService
+from app.services.template import TemplateService
 from app.utils.errors import NotFoundError
 
 router = APIRouter(

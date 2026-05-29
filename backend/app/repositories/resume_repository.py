@@ -1,15 +1,20 @@
 import json
+from typing import Annotated
 from uuid import UUID
+
+from fastapi import Depends
 
 from app.repositories.base import DatabaseRepository
 from app.schemas.resume import DEFAULT_RESUME_ID, Resume
 from app.schemas.template import DEFAULT_TEMPLATE_ID
+from app.services.config import get_settings
+from app.services.config.schemas import AppConfig
 from app.utils.errors import NotFoundError
 
 
 class ResumeRepository(DatabaseRepository):
-  def __init__(self):
-    super().__init__()
+  def __init__(self, settings: Annotated[AppConfig, Depends(get_settings)]):
+    super().__init__(settings=settings)
 
   def get(self, resume_id: UUID) -> Resume:
     row = self.fetch_one('SELECT * FROM resumes WHERE id = ?', (str(resume_id),))

@@ -6,7 +6,6 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.config import settings
 from app.db_init import create_tables
 from app.repositories import (
   ApplicationRepository,
@@ -15,6 +14,7 @@ from app.repositories import (
   ResumeRepository,
 )
 from app.repositories.base import VectorRepository
+from app.services.config import ConfigService, get_settings
 
 from .schemas import PaperFixture
 from .transforms import (
@@ -28,23 +28,25 @@ PAPER_FIXTURE_FILENAME = 'paper_data.json'
 class PaperModeService:
   def __init__(
     self,
+    config_service: Annotated[ConfigService, Depends()],
     profile_repository: Annotated[ProfileRepository, Depends()],
     resume_repository: Annotated[ResumeRepository, Depends()],
     listing_repository: Annotated[ListingRepository, Depends()],
     application_repository: Annotated[ApplicationRepository, Depends()],
   ) -> None:
+    self.config_service = config_service
     self.profile_repository = profile_repository
     self.resume_repository = resume_repository
     self.listing_repository = listing_repository
     self.application_repository = application_repository
 
   def is_enabled(self) -> bool:
-    return settings.paper.enabled
+    return self.config_service.settings.paper.enabled
 
   def enter(self) -> bool:
     VectorRepository.reset_chroma_systems()
     self._delete_paper_workspace()
-    settings.save({'paper': {'enabled': True}})
+    self.config_service.save({'paper': {'enabled': True}})
 
     try:
       paper_fixture = PaperFixture.model_validate_json(
@@ -79,7 +81,7 @@ class PaperModeService:
       self.profile_repository.update(paper_fixture.profile)
     except Exception:
       VectorRepository.reset_chroma_systems()
-      settings.save({'paper': {'enabled': False}})
+      self.config_service.save({'paper': {'enabled': False}})
       raise
 
     return self.is_enabled()
@@ -87,7 +89,7 @@ class PaperModeService:
   def exit(self) -> bool:
     VectorRepository.reset_chroma_systems()
     self._delete_paper_workspace()
-    settings.save({'paper': {'enabled': False}})
+    self.config_service.save({'paper': {'enabled': False}})
     return self.is_enabled()
 
   def _get_default_fixture_path(self) -> Path:
@@ -97,6 +99,7 @@ class PaperModeService:
     return Path(__file__).parents[2] / 'assets' / PAPER_FIXTURE_FILENAME
 
   def _delete_paper_workspace(self) -> None:
-    paper_dir = Path(settings.paper_paths.db_path).parent
+    settings = get_settings(self.config_service)
+    paper_dir = Path(settings.paths.db_path).parent
     if paper_dir.exists():
       shutil.rmtree(paper_dir)

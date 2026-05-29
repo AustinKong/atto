@@ -1,9 +1,10 @@
 import json
 from datetime import date
 from sqlite3 import Row
-from typing import Any
+from typing import Annotated, Any
 from uuid import UUID
 
+from fastapi import Depends
 from pydantic import TypeAdapter
 
 from app.repositories.base import DatabaseRepository
@@ -15,6 +16,8 @@ from app.schemas.application import (
   StatusEventSaved,
 )
 from app.schemas.task_status import TaskStatus, TaskStatusEntry
+from app.services.config import get_settings
+from app.services.config.schemas import AppConfig
 from app.utils.errors import NotFoundError, ValidationError
 
 event_adapter = TypeAdapter(StatusEvent)
@@ -61,8 +64,8 @@ APPLICATION_WITH_EVENTS_QUERY = """
 class ApplicationRepository(DatabaseRepository, InMemoryKVRepository):
   ANALYSIS_TASK_NAMESPACE = 'application_analysis'
 
-  def __init__(self):
-    DatabaseRepository.__init__(self)
+  def __init__(self, settings: Annotated[AppConfig, Depends(get_settings)]):
+    DatabaseRepository.__init__(self, settings=settings)
     InMemoryKVRepository.__init__(self)
 
   def get(self, application_id: UUID) -> Application:
@@ -140,9 +143,7 @@ class ApplicationRepository(DatabaseRepository, InMemoryKVRepository):
           str(application.listing_id),
           application.name,
           str(application.resume_id),
-          application.analysis.model_dump_json(by_alias=True)
-          if application.analysis
-          else None,
+          application.analysis.model_dump_json(by_alias=True) if application.analysis else None,
           application.current_status.value,
           application.last_status_at.isoformat(),
         ),

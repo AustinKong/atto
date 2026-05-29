@@ -13,7 +13,7 @@ from openai import (
   NotFoundError as OpenAINotFoundError,
 )
 
-from app.config.schemas import ModelProvider
+from app.services.config.schemas import ModelProvider
 from app.utils.errors import ServiceError, ValidationError
 
 TEST_PROMPT = 'Reply with exactly: ok'
@@ -45,8 +45,7 @@ class ModelSetupService:
       return 'OpenAI responded successfully.'
     except AuthenticationError:
       raise ValidationError(
-        'OpenAI rejected that API key. Check that it was copied correctly and has not '
-        'been revoked.'
+        'OpenAI rejected that API key. Check that it was copied correctly and has not been revoked.'
       ) from None
     except PermissionDeniedError:
       raise ValidationError(

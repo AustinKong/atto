@@ -7,7 +7,8 @@ from chromadb.api.types import Embedding, Metadata
 from fastapi import Depends
 
 from app.clients.model import ModelClient, get_model_client
-from app.config import settings
+from app.services.config import get_settings
+from app.services.config.schemas import AppConfig
 from app.utils.errors import ServiceError
 
 
@@ -27,7 +28,9 @@ class VectorRepository:
   def __init__(
     self,
     model_client: Annotated[ModelClient, Depends(get_model_client)],
+    settings: Annotated[AppConfig, Depends(get_settings)],
   ):
+    self.settings = settings
     self.model_client = model_client
     self._chroma_client = None
     self._collection_cache: dict[str, chromadb.Collection] = {}
@@ -36,7 +39,7 @@ class VectorRepository:
   def chroma_client(self):
     if self._chroma_client is None:
       try:
-        self._chroma_client = chromadb.PersistentClient(path=settings.active_paths.vector_path)
+        self._chroma_client = chromadb.PersistentClient(path=self.settings.paths.vector_path)
       except Exception as e:
         raise ServiceError() from e
     return self._chroma_client

@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, cast
+from typing import Annotated, Any, cast
 
 from crawl4ai import AsyncWebCrawler, BrowserConfig, SEOFilter
 from crawl4ai import CrawlResult as Crawl4aiResult
@@ -10,9 +10,11 @@ from crawl4ai.deep_crawling.filters import ContentRelevanceFilter, FilterChain
 from crawl4ai.deep_crawling.scorers import KeywordRelevanceScorer
 from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
 from ddgs import DDGS
+from fastapi import Depends
 from pydantic import HttpUrl
 
-from app.config import settings
+from app.services.config import get_settings
+from app.services.config.schemas import AppConfig
 from app.utils.deduplication import deduplicate_by
 from app.utils.errors import ServiceError
 
@@ -56,6 +58,9 @@ AGGRESSIVE_EXCLUDED_TAGS = BASIC_EXCLUDED_TAGS + [
 
 
 class LocalScrapingClient(ScrapingClient):
+  def __init__(self, config: Annotated[AppConfig, Depends(get_settings)]):
+    self.config = config
+
   @property
   def base_crawl_config(self) -> dict[str, Any]:
     return {
@@ -64,17 +69,17 @@ class LocalScrapingClient(ScrapingClient):
       'process_iframes': True,
       'wait_for_images': False,
       'page_timeout': 30000,
-      'verbose': settings.experimental.debug_mode,
+      'verbose': self.config.experimental.debug_mode,
       'scan_full_page': True,
       'scroll_delay': 0.4,
       # Content Cleaning
       'remove_forms': True,
       'excluded_tags': AGGRESSIVE_EXCLUDED_TAGS
-      if settings.ingestion.aggressive
+      if self.config.ingestion.aggressive
       else BASIC_EXCLUDED_TAGS,
       'exclude_external_links': True,
       # Respect Policies
-      'check_robots_txt': settings.ingestion.web_respect_level == 'strict',
+      'check_robots_txt': self.config.ingestion.web_respect_level == 'strict',
       # Content Quality
       'markdown_generator': DefaultMarkdownGenerator(
         content_filter=PruningContentFilter(
@@ -94,8 +99,8 @@ class LocalScrapingClient(ScrapingClient):
     config: CrawlerRunConfig,
   ) -> Crawl4aiResult | list[Crawl4aiResult]:
     browser_config = BrowserConfig(
-      enable_stealth=settings.ingestion.web_respect_level == 'permissive',
-      verbose=settings.experimental.debug_mode,
+      enable_stealth=self.config.ingestion.web_respect_level == 'permissive',
+      verbose=self.config.experimental.debug_mode,
     )
 
     async with AsyncWebCrawler(config=browser_config) as crawler:

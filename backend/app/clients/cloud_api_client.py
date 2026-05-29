@@ -1,9 +1,11 @@
-from typing import Any
+from typing import Annotated, Any
 
 import httpx
+from fastapi import Depends
 from pydantic import BaseModel
 
-from app.config import settings
+from app.services.config import get_settings
+from app.services.config.schemas import AppConfig
 from app.utils.auth_context import get_session_token
 from app.utils.errors import ServiceError
 
@@ -13,11 +15,13 @@ RequestPayload = BaseModel | list[Any] | dict[str, Any]
 class CloudApiClient:
   def __init__(
     self,
-    base_url: str = settings.cloud.base_url,
-    timeout: float = settings.cloud.timeout,
+    config: Annotated[AppConfig, Depends(get_settings)],
+    base_url: str | None = None,
+    timeout: float | None = None,
   ) -> None:
-    self._base_url = base_url.rstrip('/')
-    self._timeout = timeout
+    self.config = config
+    self._base_url = (base_url or config.cloud.base_url).rstrip('/')
+    self._timeout = timeout or config.cloud.timeout
 
   async def get(self, path: str, params: dict[str, Any] | None = None) -> Any:
     return await self._request('GET', path, params=params)
@@ -74,12 +78,11 @@ class CloudApiClient:
       return response.json()
     return response.text
 
-  @staticmethod
-  def _build_headers() -> dict[str, str]:
+  def _build_headers(self) -> dict[str, str]:
     session_token = get_session_token()
     if not session_token:
       raise ServiceError('Sign in to Atto before using cloud features.')
-    has_byok = bool(settings.model.api_key.strip())
+    has_byok = bool(self.config.model.api_key.strip())
     return {
       'Authorization': f'Bearer {session_token}',
       'X-Atto-Byok': 'true' if has_byok else 'false',

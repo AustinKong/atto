@@ -3,8 +3,8 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Body, Depends
 from fastapi.responses import PlainTextResponse
 
-from app.config import settings
-from app.config.schemas import (
+from app.services.config import ConfigService, get_settings
+from app.services.config.schemas import (
   EMBEDDING_OPTIONS_BY_PROVIDER,
   MODEL_OPTIONS_BY_PROVIDER,
   AppConfig,
@@ -24,9 +24,9 @@ DYNAMIC_ENUM_PROVIDERS = {
 
 
 @router.get('')
-def get_settings():
+def get_settings_endpoint(config_service: Annotated[ConfigService, Depends()]):
   # No need to censor values because the app is fully local
-  values = settings.config.model_dump(mode='json')
+  values = get_settings(config_service).model_dump(mode='json')
   schema = AppConfig.model_json_schema()
   defs = schema.get('$defs', {})
 
@@ -107,14 +107,17 @@ def get_field_type(field_meta: dict[str, Any]) -> str | None:
 
 
 @router.patch('')
-def update_settings(updates: dict[str, Any] = Body(...)):  # noqa: B008
+def update_settings(
+  config_service: Annotated[ConfigService, Depends()],
+  updates: dict[str, Any] = Body(...),  # noqa: B008
+):
   try:
-    settings.save(updates)
+    config_service.save(updates)
   except Exception as exc:
     raise ValidationError(
       'Those settings could not be saved. Check the values and try again.'
     ) from exc
-  return get_settings()
+  return get_settings_endpoint(config_service)
 
 
 @router.post('/model/test')

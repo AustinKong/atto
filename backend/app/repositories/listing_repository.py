@@ -7,13 +7,14 @@ from fastapi import Depends
 from pydantic import HttpUrl
 
 from app.clients.model import ModelClient, get_model_client
-from app.config import settings
 from app.repositories.base import DatabaseRepository, VectorRepository
 from app.repositories.base.in_memory_kv_repository import InMemoryKVRepository
 from app.schemas.application import StatusEnum
 from app.schemas.listing import Listing, ListingSummary
 from app.schemas.task_status import TaskStatus, TaskStatusEntry
 from app.schemas.types import Page
+from app.services.config import get_settings
+from app.services.config.schemas import AppConfig
 from app.utils.deduplication import fuzzy_text_similarity
 from app.utils.errors import NotFoundError
 from app.utils.status_ordering import generate_latest_event_sql
@@ -22,9 +23,13 @@ from app.utils.status_ordering import generate_latest_event_sql
 class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVRepository):
   RESEARCH_TASK_NAMESPACE = 'listing_research'
 
-  def __init__(self, model_client: Annotated[ModelClient, Depends(get_model_client)]):
-    DatabaseRepository.__init__(self)
-    VectorRepository.__init__(self, model_client=model_client)
+  def __init__(
+    self,
+    model_client: Annotated[ModelClient, Depends(get_model_client)],
+    settings: Annotated[AppConfig, Depends(get_settings)],
+  ):
+    DatabaseRepository.__init__(self, settings=settings)
+    VectorRepository.__init__(self, model_client=model_client, settings=settings)
     InMemoryKVRepository.__init__(self)
 
   def get(self, listing_id) -> Listing:
@@ -270,13 +275,13 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
     search_results = await self.search_documents(
       collection_name='listings',
       query=query_text,
-      k=settings.listings.search_k,
+      k=self.settings.listings.search_k,
     )
 
     matching_ids = []
     similarity_scores = {}
     for _doc_text, metadata, similarity in search_results:
-      if similarity >= settings.listings.semantic_threshold:
+      if similarity >= self.settings.listings.semantic_threshold:
         listing_id = metadata.get('listing_id')
         if listing_id:
           matching_ids.append(listing_id)
@@ -328,8 +333,8 @@ class ListingRepository(DatabaseRepository, VectorRepository, InMemoryKVReposito
       company_sim = fuzzy_text_similarity(new_listing.company, existing_listing.company)
 
       if (
-        title_sim >= settings.listings.title_threshold
-        and company_sim >= settings.listings.company_threshold
+        title_sim >= self.settings.listings.title_threshold
+        and company_sim >= self.settings.listings.company_threshold
       ):
         combined_score = (title_sim + company_sim) / 2
         similar.append((self.get(existing_listing.id), combined_score))

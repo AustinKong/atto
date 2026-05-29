@@ -12,7 +12,7 @@ from textual.app import App, ComposeResult
 from textual.containers import Container, Horizontal
 from textual.widgets import Button, RichLog, Static
 
-from app.config import settings
+from app.services.config import ConfigService
 
 from .server_manager import ServerManager
 
@@ -128,7 +128,7 @@ class ConsoleApp(App):
     if not getattr(sys, 'frozen', False):
       return DEFAULT_DEV_PORT
 
-    remembered_port = settings.launcher.port
+    remembered_port = ConfigService().settings.launcher.port
     if is_port_valid_and_available(remembered_port):
       return remembered_port
 
@@ -137,7 +137,7 @@ class ConsoleApp(App):
       sock.bind((HOST, 0))
       port = sock.getsockname()[1]
 
-    settings.save({'launcher': {'port': port}})
+    ConfigService().save({'launcher': {'port': port}})
     return port
 
   def create_server(self, port: int) -> ServerManager:

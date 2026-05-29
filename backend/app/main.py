@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.config.manager import settings
 from app.exception_handlers import (
   application_error_exception_handler,
   duplicate_error_exception_handler,
@@ -26,6 +25,7 @@ from app.routers import (
   resume_router,
   template_router,
 )
+from app.services.config import ConfigService, get_settings
 from app.utils.errors import (
   ApplicationError,
   DuplicateError,
@@ -37,13 +37,14 @@ from app.utils.errors import (
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-  resume_repository = ResumeRepository()
+  settings = get_settings(ConfigService())
+  resume_repository = ResumeRepository(settings=settings)
   resume_repository.ensure_default_global_resume_exists()
   yield
 
 
 def create_app() -> FastAPI:
-  app = FastAPI(lifespan=lifespan, debug=settings.experimental.debug_mode)
+  app = FastAPI(lifespan=lifespan, debug=ConfigService().settings.experimental.debug_mode)
 
   app.include_router(application_router, prefix='/api')
   app.include_router(config_router, prefix='/api')

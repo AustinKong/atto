@@ -38,7 +38,7 @@ clients/        → external integrations (LLM, scraping, search, cloud API)
 schemas/        → Pydantic v2 request/response models
 exception_handlers/ → one handler function per exception type
 middleware/     → cross-cutting request/response concerns
-config/         → settings singleton
+services/config/ → configuration loading, persistence, and DI helpers
 utils/          → pure helper functions
 ```
 
@@ -89,6 +89,8 @@ For simple CRUD operations that require no business logic, a router may depend o
 - Store complex SQL strings as module-level constants in `SCREAMING_SNAKE_CASE`.
 - Return domain model instances (Pydantic objects), never raw `sqlite3.Row` objects.
 - `__init__` must call `super().__init__()`.
+- When a repository is instantiated outside FastAPI DI (for example in startup/lifespan code),
+  pass settings explicitly via `settings=get_settings(ConfigService())`.
 - Private helpers are prefixed with `_` (e.g. `_parse_application_row`).
 
 ## Schemas (Pydantic v2)
@@ -131,9 +133,9 @@ For simple CRUD operations that require no business logic, a router may depend o
 
 ## Configuration
 
-- Settings are accessed via the `settings` singleton from `app.config` (a `ConfigManager` instance backed by `~/.atto/config.user.yaml`).
-- Never read environment variables directly in business logic — go through `settings`.
-- New config options get a Pydantic schema in `app/config/schemas.py` and a lazy property on `ConfigManager`.
+- Settings are loaded through `ConfigService` and injected effective config via `get_settings` in `app/services/config`.
+- Never read environment variables directly in business logic — go through injected `AppConfig`/`ConfigService`.
+- New config options should be added to the Pydantic schema in `app/services/config/schemas.py`.
 
 ## Database
 
@@ -143,4 +145,53 @@ For simple CRUD operations that require no business logic, a router may depend o
 
 ## Testing
 
-> **Note:** There are no test cases at this stage of development. You do not need to write tests, and running the test runner will simply report zero tests collected. This section will be updated when testing infrastructure is introduced.
+Backend tests live under `backend/tests/` and are configured in `backend/pyproject.toml`.
+
+Run tests:
+```bash
+cd backend && ../backend/venv/bin/python -m pytest
+cd backend && ../backend/venv/bin/python -m pytest tests/application_analysis/unit/test_skill_scoring.py
+```
+
+Run test linting:
+```bash
+cd backend && ../backend/venv/bin/python -m ruff check tests pyproject.toml
+```
+
+Pytest markers:
+- `unit`: deterministic tests for pure scoring, mapping, validation, and boundary logic.
+- `integration`: app-flow tests using controlled test doubles.
+- `eval`: opt-in end-to-end model behavior evaluations over curated golden datasets. These may call
+  configured real LLM/embedding providers and should be manually gated in CI.
+
+### LLM testing philosophy
+
+Do not try to unit test LLM intelligence directly. Treat model calls as unreliable external
+dependencies: the provider can change behavior, exact outputs can drift, and tiny prompt changes can
+produce equally valid alternative responses.
+
+Use three layers:
+- Unit test deterministic code around the LLM boundary: scoring math, schema validation, response
+  mapping, filtering, caps, and error handling.
+- Integration test the full pipeline with fake/model-double responses to prove wiring, prompt inputs,
+  schema handling, caching, and persistence behavior.
+- Evaluate real model behavior with opt-in `eval` tests over curated golden cases. These tests should
+  use thresholds, tolerances, and generated reports rather than exact output matching.
+
+### Assertion style for scoring tests
+
+Prefer behavior assertions over exact numeric snapshots. The scoring weights are expected to change
+while tuning the product, so tests should avoid brittle equality checks such as `score == 0.73`
+unless the exact value is truly the public contract.
+
+Prefer:
+- relative comparisons: `strong_resume_score > weak_resume_score`
+- bounds: `score >= acceptance_threshold`, `score <= rejection_threshold`
+- stability deltas: `abs(original_score - reordered_score) <= allowed_delta`
+
+Exact equality is acceptable for non-tuning contracts, such as preserving IDs/hashes, filtering an
+unknown `unit_id`, capping a list length, or proving two already-capped scenarios produce the same
+score.
+
+Test names should document the behavior being protected. Add short docstrings when the product intent
+is not obvious from the setup, especially for scoring/fairness/LLM-boundary tests.

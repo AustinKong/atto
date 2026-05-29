@@ -1,11 +1,11 @@
 import sqlite3
 from pathlib import Path
 
-from app.config import settings
+from app.services.config import ConfigService, get_settings
 
 
 def create_tables(db_path: str | None = None) -> None:
-  resolved_db_path = Path(db_path or settings.active_paths.db_path)
+  resolved_db_path = Path(db_path or get_settings(ConfigService()).paths.db_path)
   resolved_db_path.parent.mkdir(parents=True, exist_ok=True)
 
   with sqlite3.connect(resolved_db_path) as db:

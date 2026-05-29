@@ -8,9 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.config import settings
 from app.db_init import create_tables
 from app.main import create_app
+from app.services.config import ConfigService, get_settings
 
 app = create_app()
 
@@ -63,7 +63,7 @@ if dist_path.exists():
 
 
 def install_playwright_browsers():
-  browsers_path = Path(settings.active_paths.playwright_browsers_path)
+  browsers_path = Path(get_settings(ConfigService()).paths.playwright_browsers_path)
   browsers_path.mkdir(parents=True, exist_ok=True)
   os.environ['PLAYWRIGHT_BROWSERS_PATH'] = str(browsers_path)
 

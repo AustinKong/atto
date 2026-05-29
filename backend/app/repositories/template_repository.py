@@ -1,17 +1,21 @@
 import re
 from pathlib import Path
+from typing import Annotated
 from uuid import UUID
 
 import httpx
+from fastapi import Depends
 
-from app.config import settings
 from app.repositories.base import FileRepository
 from app.schemas.template import DEFAULT_TEMPLATE_ID, Template, TemplateSummary
+from app.services.config import get_settings
+from app.services.config.schemas import AppConfig
 from app.utils.errors import DuplicateError, NotFoundError, ServiceError
 
 
 class TemplateRepository(FileRepository):
-  def __init__(self):
+  def __init__(self, settings: Annotated[AppConfig, Depends(get_settings)]):
+    self.settings = settings
     super().__init__()
 
   def _extract_frontmatter(self, content: str) -> tuple[UUID, str, str]:
@@ -53,7 +57,10 @@ class TemplateRepository(FileRepository):
       )
     )
 
-    templates_dir = self.list_directory(Path(settings.active_paths.templates_dir), ['.html'])
+    templates_dir = self.list_directory(
+      Path(self.settings.paths.templates_dir),
+      ['.html'],
+    )
 
     for filepath in templates_dir:
       try:
@@ -86,7 +93,10 @@ class TemplateRepository(FileRepository):
         source='local',
       )
 
-    templates_dir = self.list_directory(Path(settings.active_paths.templates_dir), ['.html'])
+    templates_dir = self.list_directory(
+      Path(self.settings.paths.templates_dir),
+      ['.html'],
+    )
 
     for filepath in templates_dir:
       try:
@@ -189,5 +199,5 @@ class TemplateRepository(FileRepository):
     template = await self.get_remote_template(id)
     content = template.content
 
-    filepath = Path(settings.active_paths.templates_dir) / f'{id}.html'
+    filepath = Path(self.settings.paths.templates_dir) / f'{id}.html'
     self.write_text(filepath, content, dedup=True)

@@ -10,7 +10,7 @@ from app.schemas.listing import Listing, ListingSummary
 from app.schemas.listing_draft import ListingDraft
 from app.schemas.task_status import TaskStatus, TaskStatusEntry
 from app.schemas.types import Page
-from app.services import ListingService
+from app.services.listing import ListingService
 
 router = APIRouter(
   prefix='/listings',

@@ -1,5 +1,6 @@
-from typing import TypeVar
+from typing import Annotated, TypeVar
 
+from fastapi import Depends
 from openai import (
   APIConnectionError,
   APIStatusError,
@@ -10,7 +11,8 @@ from openai import (
 )
 from pydantic import BaseModel
 
-from app.config import settings
+from app.services.config import get_settings
+from app.services.config.schemas import AppConfig
 from app.utils.errors import ServiceError
 
 from .base_client import ModelClient
@@ -19,22 +21,26 @@ T = TypeVar('T', bound=BaseModel)
 
 
 class OpenAIModelClient(ModelClient):
-  def __init__(self):
+  def __init__(
+    self,
+    config: Annotated[AppConfig, Depends(get_settings)],
+  ) -> None:
+    self.config = config
     self._client = None
 
   @property
   def client(self) -> AsyncOpenAI:
-    if not settings.model.api_key.strip():
+    if not self.config.model.api_key.strip():
       raise ServiceError('Add your OpenAI API key in Settings before using AI features.')
 
     if self._client is None:
-      self._client = AsyncOpenAI(api_key=settings.model.api_key)
+      self._client = AsyncOpenAI(api_key=self.config.model.api_key)
     return self._client
 
   async def embed(self, texts: list[str]) -> list[list[float]]:
     try:
       response = await self.client.embeddings.create(
-        model=settings.model.embedding,
+        model=self.config.model.embedding,
         input=texts,
       )
       return [item.embedding for item in response.data]
@@ -50,10 +56,10 @@ class OpenAIModelClient(ModelClient):
   ) -> T:
     try:
       response = await self.client.responses.parse(
-        model=settings.model.llm,
+        model=self.config.model.llm,
         input=input,
         text_format=response_model,
-        temperature=settings.model.temperature,
+        temperature=self.config.model.temperature,
       )
     except ServiceError:
       raise
@@ -61,9 +67,7 @@ class OpenAIModelClient(ModelClient):
       raise self._service_error(exc) from exc
 
     if not response.output_parsed:
-      raise ServiceError(
-        'The AI response was incomplete. Try again, or try a different model.'
-      )
+      raise ServiceError('The AI response was incomplete. Try again, or try a different model.')
 
     return response.output_parsed
 
@@ -73,9 +77,9 @@ class OpenAIModelClient(ModelClient):
   ) -> str:
     try:
       response = await self.client.responses.create(
-        model=settings.model.llm,
+        model=self.config.model.llm,
         input=input,
-        temperature=settings.model.temperature,
+        temperature=self.config.model.temperature,
       )
       return response.output_text
     except ServiceError:
