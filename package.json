@@ -27,6 +27,9 @@
     "build:exe": "pyinstaller atto.spec",
     "dist": "npm run build:frontend && npm run build:exe",
 
+    "test": "cd backend && ../backend/venv/bin/python -m pytest -m \"not eval\"",
+    "test:eval": "cd backend && ../backend/venv/bin/python -m pytest -m eval",
+
     "test:pypi-build": "npm run build:pypi && python -m pip install --force-reinstall dist/atto_app-$npm_package_version-py3-none-any.whl && atto"
   }
 }

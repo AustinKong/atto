@@ -47,22 +47,35 @@ AI_SUGGESTIONS_PROMPT = dedent(
 
   Rules:
   - Return one top-level `summary` for the whole resume.
-  - Return at most 5 high-impact unit-level suggestions in `suggestions`.
-  - Each suggestion MUST include a unique string `id` in kebab-case
-    (example: `suggestion-1`, `impact-metrics-2`).
-  - Each suggestion MUST reference exactly one `unit_id` from `units_json`.
-  - Each suggestion MUST place both recommendation and rationale directly inside `suggestion`.
-  - Each suggestion MUST include `replacement_text` as either a rewritten line or `null`.
-  - Keep `replacement_text` close in length to the original text unless the
-    recommendation is to shorten.
-  - `units_json` contains only filtered lower-quality units, so focus edits there.
-  - Keep feedback holistic and non-contradictory across units.
-  - Prioritize high-impact edits and avoid low-value nitpicks.
-  - Prefer a smaller set of strong, accept-ready suggestions over exhaustive feedback.
-  - Use listing title, description, skills, keywords, and requirements as optimization targets.
-  - Suggest stronger action verbs, clarity, and outcomes when relevant.
-  - Avoid suggestions on skills-inventory lines unless role-critical skills are missing
-    or incorrectly represented.
+  - Put resume-wide gaps, missing role evidence, and general strategy in `summary`, not in
+    unit-level suggestions.
+  - Return at most {max_suggestions} high-impact unit-level suggestions.
+  - Return an empty `suggestions` list when the resume is already accept-ready for the role.
+  - Prioritize material issues that could change a hiring reviewer's judgment.
+  - Avoid low-value polish, nice-to-have detail, style preferences, and duplicate advice.
+  - Do not suggest adding details that are already present elsewhere in the resume.
+
+  Grounding:
+  - Optimize for the listing, but keep every suggestion honest to the submitted resume.
+  - If a role-critical skill, responsibility, tool, domain, or outcome is missing, say it is
+    missing in `summary` and suggest adding real evidence only if the candidate has it.
+  - Do not recast unrelated work, coursework, volunteering, or soft skills as evidence for the
+    target role.
+  - For unrelated experience, improve its real clarity, ownership, grammar, or outcomes instead of
+    forcing role-specific language onto it.
+  - Suggest metrics or stronger action verbs only when the existing unit is materially vague.
+
+  Output:
+  - Each suggestion MUST include a unique kebab-case `id` and exactly one `unit_id` from
+    `units_json`.
+  - Only create a unit-level suggestion when the advice applies directly to that unit's existing
+    text.
+  - Put the recommendation and rationale directly inside `suggestion`.
+  - Include `replacement_text` only when rewriting the same facts from the original unit.
+  - Set `replacement_text` to `null` for missing evidence or advice that needs new facts.
+  - Do not use placeholders like `[tool]`, `[metric]`, or `[specific example]` in
+    `replacement_text`.
+  - Keep non-null `replacement_text` close in length to the original text unless shortening it.
 
   application_name: {application_name}
   listing_title: {listing_title}

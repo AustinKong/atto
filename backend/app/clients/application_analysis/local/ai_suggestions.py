@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from app.schemas.resume import Resume
+from app.utils.math import clamp
 from shared.schemas.application_analysis import (
   AISuggestions,
   AIUnitSuggestion,
@@ -13,7 +14,14 @@ from .text_units import extract_section_text_units
 DEFAULT_EMPTY_SUGGESTIONS_SUMMARY = 'No actionable suggestions were found for this resume.'
 AI_SUGGESTIONS_SCORE_THRESHOLD = 0.6
 MAX_SUGGESTION_CANDIDATES = 8
-MAX_AI_SUGGESTIONS = 5
+MAX_AI_SUGGESTIONS = 8
+MATCH_SCORE_MIN = 0.0
+MATCH_SCORE_MAX = 1.0
+
+
+def compute_suggestion_budget(match_score: float) -> int:
+  normalized_score = clamp(match_score, MATCH_SCORE_MIN, MATCH_SCORE_MAX)
+  return round((MATCH_SCORE_MAX - normalized_score) * MAX_AI_SUGGESTIONS)
 
 
 def build_content_quality_lookups(
@@ -60,10 +68,12 @@ def build_suggestion_unit_rows(
 def map_suggestions_response(
   suggestions_response: AISuggestionsResponse,
   unit_hash_by_unit_id: dict[UUID, str],
+  *,
+  max_suggestions: int = MAX_AI_SUGGESTIONS,
 ) -> AISuggestions:
   suggestions: list[AIUnitSuggestion] = []
 
-  for suggestion in suggestions_response.suggestions[:MAX_AI_SUGGESTIONS]:
+  for suggestion in suggestions_response.suggestions[:max_suggestions]:
     unit_hash = unit_hash_by_unit_id.get(suggestion.unit_id)
     if unit_hash is None:
       continue

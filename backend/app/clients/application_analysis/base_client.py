@@ -18,12 +18,10 @@ MATCH_SCORE_PERCENT_DIVISOR = 100.0
 
 SKILL_COVERAGE_WEIGHT = 0.75
 CONTENT_QUALITY_WEIGHT = 0.25
+CONTENT_QUALITY_TOP_EVIDENCE_COUNT = 5
 
 MINIMUM_SKILL_IMPORTANCE_WEIGHT = 0.1
 ZERO_REQUIRED_SKILL_COVERAGE = 1.0
-
-SUGGESTION_PENALTY_PER_ITEM = 0.02
-SUGGESTION_PENALTY_MAX = 0.15
 
 MATCH_SCORE_EMPTY_VALUE = 0.0
 
@@ -45,15 +43,15 @@ class ApplicationAnalysisClient(ABC):
       application=application,
       resume=resume,
     )
+    match_score = self.compute_match_score(
+      skills_comparison=skills_comparison,
+      content_quality=content_quality,
+    )
     ai_suggestions = await self.get_ai_suggestions(
       listing=listing,
       application=application,
       resume=resume,
-    )
-    match_score = self.compute_match_score(
-      skills_comparison=skills_comparison,
-      content_quality=content_quality,
-      ai_suggestions=ai_suggestions,
+      match_score=match_score,
     )
 
     return ApplicationAnalysis(
@@ -91,28 +89,21 @@ class ApplicationAnalysisClient(ABC):
     listing: Listing,
     application: Application,
     resume: Resume,
+    match_score: float,
   ) -> AISuggestions:
     """Generate holistic AI summary and unit-level suggestions for a listing+resume pair."""
     pass
 
-  # TODO: Actually review/test the algorithm
   def compute_match_score(
     self,
     skills_comparison: list[SkillComparisonRow],
     content_quality: list[ContentQualitySection],
-    ai_suggestions: AISuggestions | None,
   ) -> float:
     skill_match = self._compute_skill_match(skills_comparison)
     content_match = self._compute_content_quality_match(content_quality)
-    suggestion_count = len(ai_suggestions.suggestions) if ai_suggestions else 0
-    suggestion_penalty = self._compute_suggestion_penalty(suggestion_count)
 
     return clamp(
-      (
-        (SKILL_COVERAGE_WEIGHT * skill_match)
-        + (CONTENT_QUALITY_WEIGHT * content_match)
-        - suggestion_penalty
-      ),
+      (SKILL_COVERAGE_WEIGHT * skill_match) + (CONTENT_QUALITY_WEIGHT * content_match),
       MATCH_SCORE_MIN,
       MATCH_SCORE_MAX,
     )
@@ -143,22 +134,16 @@ class ApplicationAnalysisClient(ABC):
     return clamp(weighted_coverage_sum / total_importance_weight, MATCH_SCORE_MIN, MATCH_SCORE_MAX)
 
   def _compute_content_quality_match(self, content_quality: list[ContentQualitySection]) -> float:
-    total_score = 0.0
-    score_count = 0
+    scores = [row.score for section in content_quality for row in section.scores]
 
-    for section in content_quality:
-      for row in section.scores:
-        total_score += row.score
-        score_count += 1
-
-    if score_count <= 0:
+    if not scores:
       return MATCH_SCORE_EMPTY_VALUE
 
-    return clamp(total_score / score_count, MATCH_SCORE_MIN, MATCH_SCORE_MAX)
-
-  def _compute_suggestion_penalty(self, suggestion_count: int) -> float:
+    # Choose only the strongest content quality to take into account
+    # This stops necessary but low-quality content (education etc.) from dragging down the score
+    strongest_scores = sorted(scores, reverse=True)[:CONTENT_QUALITY_TOP_EVIDENCE_COUNT]
     return clamp(
-      suggestion_count * SUGGESTION_PENALTY_PER_ITEM,
+      sum(strongest_scores) / len(strongest_scores),
       MATCH_SCORE_MIN,
-      SUGGESTION_PENALTY_MAX,
+      MATCH_SCORE_MAX,
     )

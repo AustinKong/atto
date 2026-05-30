@@ -1,0 +1,42 @@
+name: Backend Tests
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ./shared
+          python -m pip install -e "backend[dev]"
+
+      - name: Run deterministic backend tests
+        run: |
+          cd backend
+          python -m pytest -m "not eval"
+
+      - name: Run application-analysis eval tests
+        env:
+          ATTO_EVAL_MODEL_PROVIDER: openai
+          ATTO_EVAL_MODEL_API_KEY: ${{ secrets.ATTO_EVAL_MODEL_API_KEY }}
+          ATTO_EVAL_LLM: gpt-4o-mini
+          ATTO_EVAL_EMBEDDING: text-embedding-3-small
+          ATTO_EVAL_TEMPERATURE: '0'
+        run: |
+          cd backend
+          python -m pytest -m eval

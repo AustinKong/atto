@@ -16,6 +16,8 @@ Enforced by Prettier and ESLint — do not bypass:
   ```ts
   import { createApplication as createApplicationSvc } from '@/services/application.service';
   ```
+- If Vite warns that `baseline-browser-mapping` data is stale, refresh it in `frontend/` with:
+  `npm i baseline-browser-mapping@latest -D`
 
 ## File & directory naming
 

@@ -51,3 +51,11 @@ known-first-party = ["app", "shared"]
 quote-style = "single"
 indent-style = "space"
 line-ending = "lf"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "unit: deterministic unit tests for pure scoring, mapping, and validation logic",
+  "integration: integration tests that run app flows with controlled test doubles",
+  "eval: opt-in end-to-end model behavior evaluations over curated golden datasets",
+]

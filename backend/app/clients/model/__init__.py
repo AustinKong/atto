@@ -13,6 +13,12 @@ from .gemini_client import GeminiModelClient
 from .openai_client import OpenAIModelClient
 
 
+def get_local_model_client(config: AppConfig) -> ModelClient:
+  if config.model.provider == 'gemini':
+    return GeminiModelClient(config)
+  return OpenAIModelClient(config)
+
+
 def get_model_client(
   cloud_api_client: Annotated[CloudApiClient, Depends()],
   config: Annotated[AppConfig, Depends(get_settings)],
@@ -20,9 +26,7 @@ def get_model_client(
   if is_authorized():
     return CloudModelClient(cloud_api_client)
 
-  if config.model.provider == 'gemini':
-    return GeminiModelClient(config)
-  return OpenAIModelClient(config)
+  return get_local_model_client(config)
 
 
-__all__ = ['CloudModelClient', 'ModelClient', 'get_model_client']
+__all__ = ['CloudModelClient', 'ModelClient', 'get_local_model_client', 'get_model_client']

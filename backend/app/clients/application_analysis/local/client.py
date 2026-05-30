@@ -23,6 +23,7 @@ from .ai_suggestions import (
   DEFAULT_EMPTY_SUGGESTIONS_SUMMARY,
   build_content_quality_lookups,
   build_suggestion_unit_rows,
+  compute_suggestion_budget,
   map_suggestions_response,
 )
 from .analysis_text import build_listing_analysis_text, build_resume_analysis_text
@@ -155,7 +156,14 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
     listing: Listing,
     application: Application,
     resume: Resume,
+    match_score: float,
   ) -> AISuggestions:
+    max_suggestions = compute_suggestion_budget(match_score)
+    if max_suggestions <= 0:
+      return AISuggestions(
+        summary=DEFAULT_EMPTY_SUGGESTIONS_SUMMARY,
+      )
+
     content_quality = await self.get_content_quality(
       listing=listing,
       application=application,
@@ -176,6 +184,7 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
       listing_skills=to_bullets(listing.skills),
       listing_keywords=to_bullets([keyword.word for keyword in listing.keywords]),
       listing_requirements=to_bullets(listing.requirements),
+      max_suggestions=max_suggestions,
       units_json=to_json_string(unit_rows),
     )
     suggestions_response = await self.llm_client.call_structured(
@@ -183,7 +192,11 @@ class LocalApplicationAnalysisClient(ApplicationAnalysisClient):
       response_model=AISuggestionsResponse,
     )
 
-    return map_suggestions_response(suggestions_response, unit_hash_by_unit_id)
+    return map_suggestions_response(
+      suggestions_response,
+      unit_hash_by_unit_id,
+      max_suggestions=max_suggestions,
+    )
 
 
 def build_analysis_skill_targets(listing: Listing) -> list[str]:
