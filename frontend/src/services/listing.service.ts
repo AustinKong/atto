@@ -46,8 +46,8 @@ export async function saveListing(listingDraft: ListingDraft) {
     url: listingDraft.url,
     notes: null,
     research: null,
-    skills: listingDraft.listing.skills.map((s) => s.value),
-    requirements: listingDraft.listing.requirements.map((r) => r.value),
+    skills: listingDraft.listing.skills,
+    requirements: listingDraft.listing.requirements,
     applications: [],
   };
 

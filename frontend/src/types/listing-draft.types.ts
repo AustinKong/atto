@@ -12,11 +12,6 @@ export const LISTING_DRAFT_STATUS_LIST = [
 
 export type ListingDraftStatus = (typeof LISTING_DRAFT_STATUS_LIST)[number];
 
-export type GroundedItem<T = string> = {
-  value: T;
-  quote: string | null;
-};
-
 export type ListingExtraction = {
   title: string;
   company: string;
@@ -25,8 +20,8 @@ export type ListingExtraction = {
   description: string;
   postedDate: ISODate | null;
   salary: Money | null;
-  skills: GroundedItem<string>[];
-  requirements: GroundedItem<string>[];
+  skills: string[];
+  requirements: string[];
   keywords: Keyword[];
 };
 

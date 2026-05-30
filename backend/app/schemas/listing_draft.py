@@ -1,13 +1,11 @@
 from enum import StrEnum
-from typing import Annotated, Generic, Literal, TypeVar
+from typing import Annotated, Literal
 from uuid import UUID, uuid4
 
 from pydantic import Field, HttpUrl
 
 from app.schemas.listing import Listing, ListingBase
 from shared.schemas.types import CamelModel
-
-T = TypeVar('T')
 
 
 class DraftStatusEnum(StrEnum):
@@ -17,17 +15,10 @@ class DraftStatusEnum(StrEnum):
   ERROR = 'error'
 
 
-class GroundedItem(CamelModel, Generic[T]):
-  value: T
-  quote: str | None = Field(
-    description='The single most relevant substring from the text that justifies this item.'
-  )
-
-
 class ListingExtraction(ListingBase):
   description: str
-  skills: list[GroundedItem[str]] = Field(default_factory=list)
-  requirements: list[GroundedItem[str]] = Field(default_factory=list)
+  skills: list[str] = Field(default_factory=list)
+  requirements: list[str] = Field(default_factory=list)
 
 
 class BaseListingDraft(CamelModel):

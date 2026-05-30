@@ -1,13 +1,12 @@
 import { EmptyState, VStack } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { PiBrowser } from 'react-icons/pi';
 import z from 'zod';
 
-import { usePatchListingDraftContent } from '@/mutations/listing-draft.mutations';
+import { useWatchForm } from '@/hooks/use-watch-form.hooks';
+import { useDebouncedPatchListingDraftContent } from '@/mutations/listing-draft.mutations';
 import type {
-  GroundedItem,
   ListingDraft,
   ListingDraftError,
   ListingDraftPending,
@@ -17,9 +16,8 @@ import type { ISODate } from '@/utils/date.utils';
 import { FormFields } from './FormFields';
 import { Header } from './Header';
 
-const groundedItemSchema = z.object({
+const requirementSchema = z.object({
   value: z.string(),
-  quote: z.string().nullable(),
 });
 
 const detailsSchema = z.object({
@@ -27,8 +25,8 @@ const detailsSchema = z.object({
   company: z.string().min(1, 'Company is required'),
   location: z.string(),
   description: z.string(),
-  requirements: z.array(groundedItemSchema),
-  skills: z.array(groundedItemSchema),
+  requirements: z.array(requirementSchema),
+  skills: z.array(z.string()),
   postedDate: z.custom<ISODate | null>((val) => val === null || typeof val === 'string'),
 });
 
@@ -78,7 +76,7 @@ export function Details({ listingDraft }: { listingDraft: ListingDraft | null })
     );
   }
 
-  return <DetailsForm listingDraft={listingDraft} />;
+  return <DetailsForm key={listingDraft.id} listingDraft={listingDraft} />;
 }
 
 function DetailsForm({
@@ -86,46 +84,32 @@ function DetailsForm({
 }: {
   listingDraft: Exclude<ListingDraft, ListingDraftPending | ListingDraftError>;
 }) {
-  const patchListingDraftContent = usePatchListingDraftContent();
+  const { mutate: patchListingDraftContent } = useDebouncedPatchListingDraftContent();
+  const isReadOnly = listingDraft.status === 'duplicate_url';
 
   const {
     register,
-    handleSubmit,
     control,
-    formState: { isDirty },
-    getValues,
-    reset,
+    watch,
   } = useForm<FormValues>({
     resolver: zodResolver(detailsSchema),
-    values: getFormValues(listingDraft),
+    defaultValues: getFormValues(listingDraft),
   });
 
-  const onSubmit = useCallback(
-    (data: FormValues) => {
-      const payload = {
-        ...data,
-        requirements: data.requirements.filter((r) => r.value.trim()),
-        skills: data.skills.filter((s) => s.value.trim()),
-      };
-      patchListingDraftContent(listingDraft.id, payload);
-      reset(data);
-    },
-    [listingDraft.id, patchListingDraftContent, reset]
-  );
+  useWatchForm<FormValues>((value) => {
+    if (isReadOnly) return;
 
-  // TODO: Ideally, prompt for save on navigation away if isDirty instead of assuming the changes should be saved
-  useEffect(() => {
-    return () => {
-      if (isDirty) onSubmit(getValues());
-    };
-  }, [isDirty, getValues, onSubmit]);
+    const result = detailsSchema.safeParse(value);
+    if (!result.success) return;
 
-  const isReadOnly = listingDraft.status === 'duplicate_url';
+    patchListingDraftContent({
+      id: listingDraft.id,
+      updates: toListingPatch(result.data),
+    });
+  }, watch);
 
   return (
     <VStack
-      as="form"
-      onSubmit={handleSubmit(onSubmit)}
       align="stretch"
       p="md"
       gap="md"
@@ -134,10 +118,18 @@ function DetailsForm({
       overflowY="auto"
       overflowX="hidden"
     >
-      <Header listingDraft={listingDraft} isReadOnly={isReadOnly} isDirty={isDirty} />
+      <Header listingDraft={listingDraft} />
       <FormFields register={register} control={control} isReadOnly={isReadOnly} />
     </VStack>
   );
+}
+
+function toListingPatch(data: FormValues) {
+  return {
+    ...data,
+    requirements: data.requirements.map((r) => r.value).filter((r) => r.trim()),
+    skills: data.skills.filter((s) => s.trim()),
+  };
 }
 
 function getFormValues(
@@ -145,17 +137,13 @@ function getFormValues(
 ): FormValues {
   const data = draft.status === 'duplicate_url' ? draft.duplicateOf : draft.listing;
 
-  // Because duplicate_of field doesn't have 'quote' in grounded items
-  const normalizeGroundedItems = (items: string[] | GroundedItem[]): GroundedItem[] =>
-    items.map((item) => (typeof item === 'string' ? { value: item, quote: null } : item));
-
   return {
     title: data.title,
     company: data.company,
     location: data.location ?? '',
     description: data.description,
-    requirements: normalizeGroundedItems(data.requirements),
-    skills: normalizeGroundedItems(data.skills),
+    requirements: data.requirements.map((requirement) => ({ value: requirement })),
+    skills: data.skills,
     postedDate: data.postedDate,
   };
 }

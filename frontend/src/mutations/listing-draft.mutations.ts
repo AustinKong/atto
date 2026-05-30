@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
+import { useDebouncedMutation } from '@/hooks/use-debounced-mutation.hooks';
 import { listingDraftQueries } from '@/queries/listing-draft.queries';
 import type {
   ListingDraft,
@@ -9,6 +10,11 @@ import type {
 } from '@/types/listing-draft.types';
 
 // Individual hooks for client-side listing draft mutations
+
+type PatchListingDraftContentVariables = {
+  id: string;
+  updates: Partial<ListingExtraction>;
+};
 
 export function useSetListingDraft() {
   const queryClient = useQueryClient();
@@ -55,23 +61,26 @@ export function useAddPendingListingDraft() {
   );
 }
 
-export function usePatchListingDraftContent() {
+export function useDebouncedPatchListingDraftContent() {
   const queryClient = useQueryClient();
 
-  return useCallback(
-    (id: string, updates: Partial<ListingExtraction>) => {
-      queryClient.setQueryData<ListingDraft[]>(listingDraftQueries.keys.list(), (old) => {
-        return (
-          old?.map((l) => {
-            if (l.id !== id) return l;
-            if (!('listing' in l)) return l;
+  return useDebouncedMutation<Partial<ListingExtraction>, Error, PatchListingDraftContentVariables>(
+    {
+      delay: 700,
+      mutationFn: async ({ id, updates }) => {
+        queryClient.setQueryData<ListingDraft[]>(listingDraftQueries.keys.list(), (old) => {
+          return (
+            old?.map((draft) => {
+              if (draft.id !== id) return draft;
+              if (!('listing' in draft)) return draft;
 
-            return { ...l, listing: { ...l.listing, ...updates } };
-          }) ?? []
-        );
-      });
-    },
-    [queryClient]
+              return { ...draft, listing: { ...draft.listing, ...updates } };
+            }) ?? []
+          );
+        });
+        return updates;
+      },
+    }
   );
 }
 

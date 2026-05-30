@@ -1,5 +1,4 @@
-import { Heading, HStack, IconButton, Link as ChakraLink, VStack } from '@chakra-ui/react';
-import { PiBookmarkSimple, PiCheck } from 'react-icons/pi';
+import { Heading, HStack, Link as ChakraLink, VStack } from '@chakra-ui/react';
 
 import { CompanyLogo } from '@/components/custom/CompanyLogo';
 import type {
@@ -10,12 +9,8 @@ import type {
 
 export function Header({
   listingDraft,
-  isReadOnly,
-  isDirty,
 }: {
   listingDraft: Exclude<ListingDraft, ListingDraftPending | ListingDraftError>;
-  isReadOnly: boolean;
-  isDirty: boolean;
 }) {
   const { domain, company, url } = getListingInfo(listingDraft);
 
@@ -39,9 +34,6 @@ export function Header({
           {url}
         </ChakraLink>
       </VStack>
-      <IconButton variant="ghost" type="submit" disabled={isReadOnly || !isDirty}>
-        {isDirty ? <PiBookmarkSimple /> : <PiCheck />}
-      </IconButton>
     </HStack>
   );
 }

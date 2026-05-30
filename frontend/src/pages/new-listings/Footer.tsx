@@ -1,14 +1,13 @@
-import { HStack, Icon, Spinner, Text } from '@chakra-ui/react';
-import { PiCheck } from 'react-icons/pi';
+import { HStack, Spacer, Text } from '@chakra-ui/react';
+
+import { FeatureTooltip } from '@/components/custom/feature-tooltip';
 
 export function Footer({
   selectedCount,
   totalCount,
-  pendingCount,
 }: {
   selectedCount: number;
   totalCount: number;
-  pendingCount: number;
 }) {
   return (
     <HStack
@@ -18,31 +17,13 @@ export function Footer({
       justify="space-between"
       align="center"
       textStyle="caption"
-      bgColor="bg.subtle"
     >
       <Text textStyle="caption">
         {selectedCount} of {totalCount} selected
       </Text>
+      <Spacer />
 
-      <Text textStyle="caption" textAlign="center">
-        AI can make mistakes, double-check everything
-      </Text>
-
-      <HStack align="center">
-        {pendingCount > 0 ? (
-          <>
-            <Spinner size="xs" mb="2xs" />
-            <Text textStyle="caption">{pendingCount} listings pending</Text>
-          </>
-        ) : (
-          <>
-            <Icon mb="2xs">
-              <PiCheck />
-            </Icon>
-            <Text textStyle="caption">No actions pending</Text>
-          </>
-        )}
-      </HStack>
+      <FeatureTooltip hasCloud={false} hasApiKey={true} size="2xs" />
     </HStack>
   );
 }

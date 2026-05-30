@@ -3,7 +3,6 @@ import { type Control, Controller, type UseFormRegister } from 'react-hook-form'
 import { PiCheck } from 'react-icons/pi';
 
 import { SortableListInput } from '@/components/custom/sortable-list-input';
-import type { GroundedItem } from '@/types/listing-draft.types';
 
 import type { FormValues } from '.';
 
@@ -43,25 +42,18 @@ export function FormFields({
         name="skills"
         render={({ field }) => (
           <TagsInput.Root
-            value={field.value.map((s: GroundedItem) => s.value)}
-            onValueChange={(details) => {
-              const newValues = details.value;
-              const newSkills = newValues.map((str) => {
-                const existing = field.value.find((s: GroundedItem) => s.value === str);
-                return existing || { value: str, quote: null };
-              });
-              field.onChange(newSkills);
-            }}
+            value={field.value}
+            onValueChange={(details) => field.onChange(details.value)}
             onBlur={field.onBlur}
             readOnly={isReadOnly}
             editable
           >
             <TagsInput.Label>Skills</TagsInput.Label>
             <TagsInput.Control>
-              {field.value.map((skill: GroundedItem, index: number) => (
-                <TagsInput.Item key={skill.value} index={index} value={skill.value}>
+              {field.value.map((skill: string, index: number) => (
+                <TagsInput.Item key={skill} index={index} value={skill}>
                   <TagsInput.ItemPreview>
-                    <TagsInput.ItemText>{skill.value}</TagsInput.ItemText>
+                    <TagsInput.ItemText>{skill}</TagsInput.ItemText>
                     <TagsInput.ItemDeleteTrigger />
                   </TagsInput.ItemPreview>
                   <TagsInput.ItemInput />
@@ -83,7 +75,7 @@ export function FormFields({
         register={register}
         name="requirements"
         readOnly={isReadOnly}
-        defaultItem={{ value: '', quote: null }}
+        defaultItem={{ value: '' }}
       >
         <HStack justify="space-between">
           <SortableListInput.Label>Requirements</SortableListInput.Label>

@@ -84,11 +84,7 @@ export function NewListingsPage() {
             <Reference listing={selectedListing} key={selectedListingId} />
           </Splitter.Panel>
         </Splitter.Root>
-        <Footer
-          selectedCount={selectedCount}
-          totalCount={listingDrafts.length}
-          pendingCount={listingDrafts.filter((l) => l.status === 'pending').length}
-        />
+        <Footer selectedCount={selectedCount} totalCount={listingDrafts.length} />
       </VStack>
       <IngestionModal />
     </IngestionProvider>
