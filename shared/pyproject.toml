@@ -12,7 +12,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 package-dir = {"shared" = "."}
-packages = ["shared"]
+packages = ["shared", "shared.schemas"]
 
 [tool.ruff]
 line-length = 100
