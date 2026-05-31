@@ -1,6 +1,6 @@
 [project]
 name = "atto-app"
-version = "1.1.0"
+version = "1.1.1"
 description = "A local-first job application tracker that runs as a local web app."
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
@@ -52,7 +52,6 @@ packages = [
   "app.clients.listing_research.local",
   "app.clients.model",
   "app.clients.scraping",
-  "app.config",
   "app.exception_handlers",
   "app.managers",
   "app.middleware",
@@ -62,6 +61,7 @@ packages = [
   "app.schemas",
   "app.services",
   "app.services.application",
+  "app.services.config",
   "app.services.listing",
   "app.services.paper_mode",
   "app.services.resume",
