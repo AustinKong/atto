@@ -30,7 +30,7 @@ jobs:
           cd backend
           python -m pytest -m "not eval"
 
-      - name: Run application-analysis eval tests
+      - name: Run backend eval tests
         env:
           ATTO_EVAL_MODEL_PROVIDER: openai
           ATTO_EVAL_MODEL_API_KEY: ${{ secrets.ATTO_EVAL_MODEL_API_KEY }}
