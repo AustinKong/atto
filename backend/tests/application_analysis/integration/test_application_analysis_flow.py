@@ -81,6 +81,7 @@ def configure_requirement_embeddings(
 @pytest.mark.anyio
 async def test_generate_analysis_scores_strong_relevant_resume_above_acceptance_threshold(
   fake_model_client: FakeModelClient,
+  application_analysis_client: LocalApplicationAnalysisClient,
 ):
   """Runs the real analysis flow with fake model outputs for a strong role-fit resume."""
   listing = make_listing()
@@ -94,7 +95,7 @@ async def test_generate_analysis_scores_strong_relevant_resume_above_acceptance_
     resume_score=HIGH_RESUME_SKILL_SCORE,
   )
 
-  analysis = await LocalApplicationAnalysisClient(fake_model_client).generate_analysis(
+  analysis = await application_analysis_client.generate_analysis(
     listing=listing,
     application=application,
     resume=resume,
@@ -110,6 +111,7 @@ async def test_generate_analysis_scores_strong_relevant_resume_above_acceptance_
 @pytest.mark.anyio
 async def test_generate_analysis_scores_weak_generic_resume_below_acceptance_threshold(
   fake_model_client: FakeModelClient,
+  application_analysis_client: LocalApplicationAnalysisClient,
 ):
   """A generic resume should stay low when skill evidence and content relevance are both weak."""
   resume = make_resume(
@@ -135,7 +137,7 @@ async def test_generate_analysis_scores_weak_generic_resume_below_acceptance_thr
   )
   fake_model_client.queue_structured(AISuggestionsResponse(summary='Improve role alignment'))
 
-  analysis = await LocalApplicationAnalysisClient(fake_model_client).generate_analysis(
+  analysis = await application_analysis_client.generate_analysis(
     listing=listing,
     application=application,
     resume=resume,
@@ -150,6 +152,7 @@ async def test_generate_analysis_scores_weak_generic_resume_below_acceptance_thr
 @pytest.mark.anyio
 async def test_generate_analysis_reuses_content_quality_scores_for_suggestions(
   fake_model_client: FakeModelClient,
+  application_analysis_client: LocalApplicationAnalysisClient,
 ):
   """Content quality embeddings should be cached and reused when suggestions run."""
   listing = make_listing()
@@ -163,7 +166,7 @@ async def test_generate_analysis_reuses_content_quality_scores_for_suggestions(
     resume_score=MODERATE_RESUME_SKILL_SCORE,
   )
 
-  analysis = await LocalApplicationAnalysisClient(fake_model_client).generate_analysis(
+  analysis = await application_analysis_client.generate_analysis(
     listing=listing,
     application=application,
     resume=resume,
@@ -178,6 +181,7 @@ async def test_generate_analysis_reuses_content_quality_scores_for_suggestions(
 @pytest.mark.anyio
 async def test_generate_analysis_rejects_incomplete_model_skill_scores(
   fake_model_client: FakeModelClient,
+  application_analysis_client: LocalApplicationAnalysisClient,
 ):
   """Rejects partial model skill scores before they can produce a misleading match score."""
   listing = make_listing()
@@ -188,7 +192,7 @@ async def test_generate_analysis_rejects_incomplete_model_skill_scores(
   )
 
   with pytest.raises(ServiceError, match='AI response was incomplete'):
-    await LocalApplicationAnalysisClient(fake_model_client).generate_analysis(
+    await application_analysis_client.generate_analysis(
       listing=listing,
       application=application,
       resume=resume,
@@ -198,6 +202,7 @@ async def test_generate_analysis_rejects_incomplete_model_skill_scores(
 @pytest.mark.anyio
 async def test_generate_analysis_preserves_resume_unit_ids_and_hashes_across_model_boundaries(
   fake_model_client: FakeModelClient,
+  application_analysis_client: LocalApplicationAnalysisClient,
 ):
   """Unit IDs and hashes should survive the model boundary and match source text."""
   bullet_1 = '   Worked on backend systems   '
@@ -233,7 +238,7 @@ async def test_generate_analysis_preserves_resume_unit_ids_and_hashes_across_mod
     AISuggestionsResponse(summary='Great job', suggestions=[]),
   )
 
-  analysis = await LocalApplicationAnalysisClient(fake_model_client).generate_analysis(
+  analysis = await application_analysis_client.generate_analysis(
     listing=listing,
     application=application,
     resume=resume,

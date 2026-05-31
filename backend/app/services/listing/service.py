@@ -30,6 +30,10 @@ from .schemas import ExtractionResponse
 
 logger = logging.getLogger(__name__)
 
+LISTING_EXTRACTION_ERROR_MESSAGE = (
+  'Atto could not find a complete job listing there. Paste the job description manually.'
+)
+
 
 class ListingService:
   def __init__(
@@ -84,17 +88,15 @@ class ListingService:
       )
 
       if extraction.error:
-        raise ServiceError(
-          'Atto could not find a complete job listing there. Paste the job description manually.'
-        )
+        raise ServiceError(LISTING_EXTRACTION_ERROR_MESSAGE)
 
       listing = build_listing_extraction(extraction, content)
 
-    except Exception as e:
+    except Exception:
       return ListingDraftError(
         id=id,
         url=url,
-        error=user_facing_error_message(e),
+        error=LISTING_EXTRACTION_ERROR_MESSAGE,
         screenshot=screenshot,
       )
 

@@ -10,6 +10,7 @@ from app.services.config.schemas import (
   AvailableLLMModel,
   ModelProvider,
 )
+from tests.fakes.model_client import FakeModelClient
 
 EVAL_MODEL_PROVIDER_ENV_VAR = 'ATTO_EVAL_MODEL_PROVIDER'
 EVAL_MODEL_API_KEY_ENV_VAR = 'ATTO_EVAL_MODEL_API_KEY'
@@ -17,6 +18,16 @@ EVAL_LLM_ENV_VAR = 'ATTO_EVAL_LLM'
 EVAL_EMBEDDING_ENV_VAR = 'ATTO_EVAL_EMBEDDING'
 EVAL_TEMPERATURE_ENV_VAR = 'ATTO_EVAL_TEMPERATURE'
 DEFAULT_EVAL_TEMPERATURE = 0.0
+
+
+@pytest.fixture
+def anyio_backend() -> str:
+  return 'asyncio'
+
+
+@pytest.fixture
+def fake_model_client() -> FakeModelClient:
+  return FakeModelClient()
 
 
 def build_eval_config() -> AppConfig:
