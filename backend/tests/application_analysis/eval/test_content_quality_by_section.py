@@ -30,6 +30,7 @@ def average_resume_content_quality(analysis: ApplicationAnalysis) -> float:
 def test_high_quality_relevant_content_quality_beats_low_quality_generic(
   application_analysis_eval_results: dict[GoldenCaseId, ApplicationAnalysis],
 ):
+  """A polished role-relevant resume should outscore weak generic content on content quality."""
   relevant_analysis = application_analysis_eval_results[GoldenCaseId.HIGH_QUALITY_RELEVANT]
   generic_analysis = application_analysis_eval_results[GoldenCaseId.LOW_QUALITY_GENERIC]
 
@@ -41,6 +42,7 @@ def test_high_quality_relevant_content_quality_beats_low_quality_generic(
 def test_low_quality_relevant_content_quality_lags_high_quality_relevant(
   application_analysis_eval_results: dict[GoldenCaseId, ApplicationAnalysis],
 ):
+  """Relevant but vague content should lag stronger relevant evidence on content quality."""
   high_quality_analysis = application_analysis_eval_results[GoldenCaseId.HIGH_QUALITY_RELEVANT]
   low_quality_analysis = application_analysis_eval_results[GoldenCaseId.LOW_QUALITY_RELEVANT]
 
@@ -52,6 +54,7 @@ def test_low_quality_relevant_content_quality_lags_high_quality_relevant(
 def test_low_quality_relevant_resume_has_weak_section_while_still_matching(
   application_analysis_eval_results: dict[GoldenCaseId, ApplicationAnalysis],
 ):
+  """A relevant resume can match the role while still exposing weaker resume sections."""
   analysis = application_analysis_eval_results[GoldenCaseId.LOW_QUALITY_RELEVANT]
   generic_analysis = application_analysis_eval_results[GoldenCaseId.LOW_QUALITY_GENERIC]
   section_scores = average_section_scores(analysis.content_quality)

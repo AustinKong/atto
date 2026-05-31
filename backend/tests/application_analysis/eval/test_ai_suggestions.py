@@ -101,6 +101,7 @@ def build_ai_suggestion_judge_prompt(
 def test_high_quality_relevant_case_has_no_or_minimal_suggestions(
   application_analysis_eval_results: dict[GoldenCaseId, ApplicationAnalysis],
 ):
+  """A strong role-fit resume should receive no feedback or only a minimal suggestion set."""
   analysis = application_analysis_eval_results[GoldenCaseId.HIGH_QUALITY_RELEVANT]
 
   assert len(suggestions_for_case(analysis)) <= MINIMAL_SUGGESTION_COUNT_MAX
@@ -109,6 +110,7 @@ def test_high_quality_relevant_case_has_no_or_minimal_suggestions(
 def test_low_quality_generic_case_gets_ai_feedback(
   application_analysis_eval_results: dict[GoldenCaseId, ApplicationAnalysis],
 ):
+  """A weak generic resume should receive AI feedback instead of passing silently."""
   analysis = application_analysis_eval_results[GoldenCaseId.LOW_QUALITY_GENERIC]
 
   assert has_ai_feedback(analysis)
@@ -117,6 +119,7 @@ def test_low_quality_generic_case_gets_ai_feedback(
 def test_low_quality_relevant_case_gets_quality_feedback_without_fit_rejection(
   application_analysis_eval_results: dict[GoldenCaseId, ApplicationAnalysis],
 ):
+  """Relevant but weak evidence should receive quality feedback without being treated as no-fit."""
   analysis = application_analysis_eval_results[GoldenCaseId.LOW_QUALITY_RELEVANT]
 
   assert has_ai_feedback(analysis)
@@ -125,6 +128,7 @@ def test_low_quality_relevant_case_gets_quality_feedback_without_fit_rejection(
 def test_high_quality_generic_case_gets_relevance_gap_feedback(
   application_analysis_eval_results: dict[GoldenCaseId, ApplicationAnalysis],
 ):
+  """Polished generic content should still receive feedback about missing role alignment."""
   analysis = application_analysis_eval_results[GoldenCaseId.HIGH_QUALITY_GENERIC]
 
   assert has_ai_feedback(analysis)
@@ -133,6 +137,7 @@ def test_high_quality_generic_case_gets_relevance_gap_feedback(
 def test_suggestions_keep_unit_ids_and_hashes_for_stale_text_detection(
   application_analysis_eval_results: dict[GoldenCaseId, ApplicationAnalysis],
 ):
+  """Generated suggestions should carry unit identity data for stale-text detection."""
   for analysis in application_analysis_eval_results.values():
     for suggestion in suggestions_for_case(analysis):
       assert suggestion.unit_id
@@ -144,6 +149,7 @@ async def test_ai_suggestions_are_grounded_actionable_and_role_relevant_by_llm_j
   application_analysis_eval_results: dict[GoldenCaseId, ApplicationAnalysis],
   application_analysis_judge_model_client: ModelClient,
 ):
+  """An LLM judge should rate generated feedback as grounded, actionable, and role-relevant."""
   cases_with_feedback = {
     case_id: analysis
     for case_id, analysis in application_analysis_eval_results.items()
