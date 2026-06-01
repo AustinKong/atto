@@ -14,7 +14,8 @@ from app.repositories import (
   ResumeRepository,
 )
 from app.repositories.base import VectorRepository
-from app.services.config import ConfigService, get_settings
+from app.services.config import PAPER_DIRNAME, ConfigService, get_settings
+from app.services.config.schemas import AppConfig
 
 from .schemas import PaperFixture
 from .transforms import (
@@ -47,6 +48,7 @@ class PaperModeService:
     VectorRepository.reset_chroma_systems()
     self._delete_paper_workspace()
     self.config_service.save({'paper': {'enabled': True}})
+    settings = self._refresh_repository_settings()
 
     try:
       paper_fixture = PaperFixture.model_validate_json(
@@ -54,7 +56,7 @@ class PaperModeService:
       )
       date_shift = date.today() - paper_fixture.anchor_date
 
-      create_tables()
+      create_tables(settings.paths.db_path)
       with self.application_repository.transaction():
         for resume in paper_fixture.resumes:
           self.resume_repository.seed(resume)
@@ -99,7 +101,14 @@ class PaperModeService:
     return Path(__file__).parents[2] / 'assets' / PAPER_FIXTURE_FILENAME
 
   def _delete_paper_workspace(self) -> None:
-    settings = get_settings(self.config_service)
-    paper_dir = Path(settings.paths.db_path).parent
+    paper_dir = self.config_service.data_dir / PAPER_DIRNAME
     if paper_dir.exists():
       shutil.rmtree(paper_dir)
+
+  def _refresh_repository_settings(self) -> AppConfig:
+    settings = get_settings(self.config_service)
+    self.profile_repository.settings = settings
+    self.resume_repository.settings = settings
+    self.listing_repository.settings = settings
+    self.application_repository.settings = settings
+    return settings
