@@ -31,8 +31,22 @@ export default defineConfig({
     react(),
     icon(),
     mermaid({
-      theme: 'forest',
-      autoTheme: true,
+      theme: 'base',
+      autoTheme: false,
+      mermaidConfig: {
+        themeVariables: {
+          primaryColor: '#fff4ed',
+          primaryTextColor: '#1f2933',
+          primaryBorderColor: '#f97316',
+          lineColor: '#ea580c',
+          secondaryColor: '#ffedd5',
+          tertiaryColor: '#ffffff',
+          edgeLabelBackground: '#fff7ed',
+          clusterBkg: '#fff7ed',
+          clusterBorder: '#fdba74',
+          sequenceNumberColor: '#ffffff',
+        },
+      },
     }),
     expressiveCode({
       styleOverrides: {
