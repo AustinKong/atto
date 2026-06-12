@@ -19,6 +19,7 @@ type ShapeGridProps = {
   shape?: GridShape;
   hoverTrailAmount?: number;
   interactive?: boolean;
+  fillViewport?: boolean;
   className?: string;
 };
 
@@ -35,6 +36,7 @@ export default function ShapeGrid({
   shape = 'square',
   hoverTrailAmount = 0,
   interactive = true,
+  fillViewport = false,
   className = ''
 }: ShapeGridProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -59,15 +61,29 @@ export default function ShapeGrid({
     const hexVertical = squareSize * Math.sqrt(3);
 
     function getCanvasDisplaySize() {
+      if (fillViewport) {
+        return {
+          width: Math.max(
+            1,
+            Math.ceil(Math.max(window.innerWidth, window.visualViewport?.width ?? 0))
+          ),
+          height: Math.max(
+            1,
+            Math.ceil(Math.max(window.innerHeight, window.visualViewport?.height ?? 0))
+          )
+        };
+      }
+
       const rect = canvas.getBoundingClientRect();
+      const parentRect = canvas.parentElement?.getBoundingClientRect();
 
       return {
-        width: Math.max(1, rect.width || window.innerWidth),
-        height: Math.max(1, rect.height || window.innerHeight)
+        width: Math.max(1, Math.ceil(Math.max(rect.width, parentRect?.width ?? 0))),
+        height: Math.max(1, Math.ceil(Math.max(rect.height, parentRect?.height ?? 0)))
       };
     }
 
-    function resizeCanvas() {
+    function syncCanvasSize() {
       const { width, height } = getCanvasDisplaySize();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const nextWidth = Math.max(1, Math.floor(width * dpr));
@@ -79,7 +95,20 @@ export default function ShapeGrid({
         canvas.height = nextHeight;
       }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function resizeCanvas() {
+      syncCanvasSize();
       drawGrid();
+    }
+
+    function clearCanvas() {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const { width } = canvasSize.current;
+      const dpr = canvas.width / width;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
     function drawHex(cx: number, cy: number, size: number) {
@@ -170,7 +199,7 @@ export default function ShapeGrid({
     function drawGrid() {
       const { width, height } = canvasSize.current;
 
-      ctx.clearRect(0, 0, width, height);
+      clearCanvas();
       ctx.lineWidth = 1;
       ctx.strokeStyle = borderColor;
 
@@ -258,6 +287,8 @@ export default function ShapeGrid({
     }
 
     function updateAnimation() {
+      syncCanvasSize();
+
       const effectiveSpeed = Math.max(speed, 0.1);
       const wrapX = isHex ? hexHorizontal * 2 : squareSize;
       const wrapY = isHex ? hexVertical : isTriangle ? squareSize * 2 : squareSize;
@@ -376,6 +407,7 @@ export default function ShapeGrid({
     direction,
     hoverFillColor,
     hoverTrailAmount,
+    fillViewport,
     interactive,
     shape,
     speed,

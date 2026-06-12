@@ -10,6 +10,7 @@ export default function AppBackground() {
           borderColor="rgba(28, 25, 23, 0.24)"
           direction="diagonal"
           interactive={false}
+          fillViewport
           shape="square"
           speed={0.28}
           squareSize={44}
